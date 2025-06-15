@@ -1,0 +1,702 @@
+{
+  "characters": {
+    "red": {
+      "name": "Red",
+      "maxHealth": 1200,
+      "health": 1200,
+      "attack": {
+        "name": "Mordida Canina",
+        "damage": { "min": 70, "max": 120 }
+      },
+      "defense": {
+        "name": "Reunión de Lobos",
+        "reduction": 20,
+        "message": "Red se reúne con sus lobos para protegerse."
+      },
+      "armor": 25, 
+      "elementalResistance": 20, 
+      "image": "images/red.jpg",
+      "specialAbility": {
+        "name": "Modo Suicidio",
+        "description": "Aumenta el daño mínimo en 50 y el daño máximo en 50.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 50 },
+          { "type": "increaseDamageMax", "value": 50 },
+          { "type": "changeImage", "value": "https://static.zerochan.net/Cardigan.%28Arknights%29.full.3682653.jpg" },
+          { "type": "showMessage", "value": "Red: - Este sentimiento me carcome... Acabaré con él." }
+        ]
+      }
+    },
+    "ryuu": {
+      "name": "Ryuu",
+      "maxHealth": 1200,
+      "health": 1200,
+      "attack": {
+        "name": "High Hopes",
+        "damage": { "min": 60, "max": 100 }
+      },
+      "defense": {
+        "name": "Astrea Record´s",
+        "reduction": 0,
+        "message": "."
+      },
+      "image": "images/ryuu.jpg",
+      "armor": 10,
+      "elementalResistance": 10,
+      "specialAbility": {
+        "name": "Invocacion: Arjuna Alter",
+        "description": "Aumenta la precisión y la probabilidad de golpear críticos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "summonCharacter", "value": "arjuna" }
+        ]
+      }
+    },
+    "marceline": {
+      "name": "Marceline",
+      "maxHealth": 1300,
+      "health": 1300,
+      "attack": {
+        "name": "Unlimited Blade Works",
+        "damage": { "min": 90, "max": 135 }
+      },
+      "defense": {
+        "name": "All Fiction",
+        "reduction": 0,
+        "message": "Marceline activa All Fiction y se protege."
+      },
+      "image": "images/marceline.jpg",
+      "armor": 30,
+      "elementalResistance": 15,
+      "specialAbility": {
+        "name": "All Fiction",
+        "description": "Reduce el daño recibido en un 70% y aumenta el daño máximo en 70.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMax", "value": 70 },
+          { "type": "changeImage", "value": "https://e0.pxfuel.com/wallpapers/262/604/desktop-wallpaper-eula-genshin-impact-1904%C3%973173-dist.jpg" },
+          { "type": "showMessage", "value": "Marceline: - Tus probabilidades de vivir son nulas ahora." }
+        ]
+      }
+    },
+    "arjuna": { 
+      "name": "Arjuna Alter",
+      "maxHealth": 900,
+      "health": 900,
+      "attack": {
+        "name": "Divine Spear",
+        "damage": { "min": 80, "max": 160 }
+      },
+      "defense": {
+        "name": "Celestial Shield",
+        "reduction": 25,
+        "message": "Arjuna Alter activa Celestial Shield para protegerse."
+      },
+      "armor": 35,
+      "elementalResistance": 50,
+      "image": "images/arjuna.png",
+      "specialAbility": {
+        "name": "Divine Judgment",
+        "description": "Inflige un daño masivo al jefe y restaura salud al jugador.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "dealDamageToBoss", "value": 300 },
+          { "type": "healPlayer", "value": 200 },
+          { "type": "showMessage", "value": "Arjuna Alter: - La justicia prevalecerá." }
+        ]
+      }
+    },
+    "garouth": {
+      "name": "Garouth",
+      "maxHealth": 1300,
+      "health": 1300,
+      "transformed": false,
+      "attack": {
+        "name": "Resplandor Rojo",
+        "damage": { "min": 80, "max": 140 }
+      },
+      "defense": {
+        "name": "Infinito",
+        "reduction": 10,
+        "message": "Garouth se protege con el infinito."
+      },
+      "image": "images/garouth.jpg",
+      "armor": 40,
+      "elementalResistance": 40,
+      "specialAbility": {
+        "name": "Extensión de Dominio: Vacío Infinito",
+        "description": "Aumenta enormemente el daño mínimo y máximo en 200.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 200 },
+          { "type": "increaseDamageMax", "value": 200 },
+          { "type": "changeImage", "value": "https://i.pinimg.com/736x/0c/5f/f5/0c5ff5a1376c2baf769400507a6e7819.jpg" },
+          { "type": "showMessage", "value": "Garouth: - Extensión de Dominio: Vacío Infinito..." }
+        ]
+      }
+    },
+    "onji": {
+      "name": "Onji",
+      "maxHealth": 1200,
+      "health": 1200,
+      "transformed": false,
+      "attack": {
+        "name": "Garra Afilada",
+        "damage": { "min": 75, "max": 110 }
+      },
+      "defense": {
+        "name": "Reflejos Felinos",
+        "reduction": 15,
+        "message": "Onji esquivó el ataque con sus rápidos reflejos felinos."
+      },
+      "image": "images/onji.jpg",
+      "armor": 30,
+      "elementalResistance": 40,
+      "specialAbility": {
+        "name": "Doctrina Primordial Zen",
+        "description": "Aumenta el daño y la defensa de Onji durante un turno.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 30 },
+          { "type": "increaseDamageMax", "value": 65 },
+          { "type": "increaseDefenseReduction", "value": 5 },
+          { "type": "changeImage", "value": "https://i.pinimg.com/1200x/2c/73/ba/2c73ba29869edb1f8c87af4eb6708c2b.jpg" },
+          { "type": "showMessage", "value": "Onji: Bajale a tus ánimos o te los bajaré yo mismo." }
+        ]
+      }
+    },
+    "medaka": {
+      "name": "Medaka",
+      "maxHealth": 1200,
+      "health": 1200,
+      "attack": {
+        "name": "Golpe Divino",
+        "damage": { "min": 70, "max": 140 }
+      },
+      "defense": {
+        "name": "Escudo Divino",
+        "reduction": 15,
+        "message": "Medaka invoca un escudo divino que reduce todo el daño recibido."
+      },
+      "armor": 20,
+      "elementalResistance": 20,
+      "image": "images/medaka.jpg",
+      "specialAbility": {
+        "name": "Modo End God",
+        "description": "Aumenta el poder de ataque y reduce la defensa de Medaka temporalmente.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "multiplyDamageMin", "value": 2 },
+          { "type": "multiplyDamageMax", "value": 2 },
+          { "type": "divideDefenseReduction", "value": 2 },
+          { "type": "changeImage", "value": "https://i.pinimg.com/564x/3b/f4/b3/3bf4b377332b65641aa709480f3895be.jpg" },
+          { "type": "showMessage", "value": "Medaka: - Se acabaron los juegos, me hiciste enojar." },
+          { "type": "increaseElementalResistance", "value": 100 } 
+        ]
+      }
+    },
+    "yato": {
+      "name": "Yato",
+      "maxHealth": 1200,
+      "health": 1200,
+      "attack": {
+        "name": "Palma de Rakhasa",
+        "damage": { "min": 75, "max": 90 }
+      },
+      "defense": {
+        "name": "Estilo Nyko: Indestructible",
+        "reduction": 15,
+        "message": "Yato se defende con Estilo Nyko: Indestructible."
+      },
+      "image": "images/yato.jpg",
+      "armor": 30,
+      "elementalResistance": 10,
+      "specialAbility": {
+        "name": "Modo Histeria: Nivel 4",
+        "description": "Yato usa a histeria para ser más fuerte.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 60 },
+          { "type": "increaseDamageMax", "value": 120 },
+          { "type": "divideDefenseReduction", "value": 2 },
+          { "type": "healPlayer", "value": 200 },
+          { "type": "changeImage", "value": "https://i.pinimg.com/originals/15/07/a9/1507a978900e9ce8404a0e8907b8cbc8.jpg" },
+          { "type": "showMessage", "value": "Yato: - Sufre hasta tu muerte, vamos, ¡Histeria!" }
+        ]
+      }
+    },
+    "tobirama": {
+      "name": "Tobirama",
+      "maxHealth": 1300,
+      "health": 1300,
+      "attack": {
+        "name": "Mordida del Dragon de Agua",
+        "damage": { "min": 90, "max": 130 }
+      },
+      "defense": {
+        "name": "Muro de Agua",
+        "reduction": 6,
+        "message": "Tobirama levanta un muro de agua para protegerse."
+      },
+      "image": "images/tobirama.jpg",
+      "armor": 30,
+      "elementalResistance": 30,
+      "specialAbility": {
+        "name": "Hirashin",
+        "description": "Aumenta la precisión y la probabilidad de golpear críticos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 30 },
+          { "type": "increaseDamageMax", "value": 30 },
+          { "type": "divideDefenseReduction", "value": 2 },
+          { "type": "showMessage", "value": "Tobirama:- Me cansé de jugar contigo, es hora de acabar con esto." }
+        ]
+      }
+    },
+    "tesla": {
+      "name": "Tesla",
+      "maxHealth": 1600,
+      "health": 1600,
+      "attack": {
+        "name": "Plasma Punch",
+        "damage": { "min": 90, "max": 160 }
+      },
+      "defense": {
+        "name": "Tesla Dance",
+        "reduction": 0,
+        "message": "Tesla esquiva todos los ataques con una extraña danza sobre la arena de combate."
+      },
+      "image": "images/tesla.jpg",
+      "armor": 20,
+      "elementalResistance": 30,
+      "specialAbility": {
+        "name": "Jaula de los Dioses",
+        "description": "Aumenta la precisión y la probabilidad de golpear críticos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 36 },
+          { "type": "increaseDamageMax", "value": 90 },
+          { "type": "changeImage", "value": "https://i.pinimg.com/736x/a6/d9/c0/a6d9c00d334a7a5e0124fb9744f1b784.jpg" },
+          { "type": "showMessage", "value": "Tesla:- En esta jaula de 3.69 metros, el único Dios soy yo." }
+        ]
+      }
+    },
+    "argos": {
+      "name": "Argos",
+      "maxHealth": 1150,
+      "health": 1150,
+      "attack": {
+        "name": "Elemento Devastación",
+        "damage": { "min": 75, "max": 130 }
+      },
+      "defense": {
+        "name": "Armadura de Rayo",
+        "reduction": 18,
+        "message": "Argos implementa un plan maestro para reducir el daño recibido."
+      },
+      "image": "images/argos.jpg",
+      "armor": 15,
+      "elementalResistance": 15,
+      "specialAbility": {
+        "name": "Estrategia Suprema",
+        "description": "Aumenta el daño y la defensa de Argos durante dos turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 40 },
+          { "type": "increaseDamageMax", "value": 60 },
+          { "type": "increaseDefenseReduction", "value": 10 },
+          { "type": "showMessage", "value": "Argos: - Observa la encarnación del poder." }
+        ]
+      }
+    },
+    "hector": {
+      "name": "Hector",
+      "maxHealth": 1500,
+      "health": 1500,
+      "attack": {
+        "name": "Pilar de Roca",
+        "damage": { "min": 100, "max": 150 }
+      },
+      "defense": {
+        "name": "Fortaleza Inquebrantable",
+        "reduction": 25,
+        "message": "Hector se protege con su fortaleza inquebrantable."
+      },
+      "image": "images/hector.jpg",
+      "armor": 20,
+      "elementalResistance": 25,
+      "specialAbility": {
+        "name": "Impenetrable",
+        "description": "Aumenta la defensa y reduce el daño recibido durante un turno.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 40,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDefenseReduction", "value": 15 },
+          { "type": "showMessage", "value": "Hector: - Primero te mato, luego voy por mi Esdeath." }
+        ]
+      }
+    },
+    "raiden": {
+      "name": "Raiden",
+      "maxHealth": 1200,
+      "health": 1200,
+      "attack": {
+        "name": "Resplandor Azul",
+        "damage": { "min": 75, "max": 110 }
+      },
+      "defense": {
+        "name": "Reflejos Rápidos",
+        "reduction": 12,
+        "message": "Raiden utiliza sus reflejos rápidos para reducir el daño recibido."
+      },
+      "image": "images/raiden.jpg",
+      "armor": 10,
+      "elementalResistance": 10,
+      "specialAbility": {
+        "name": "Tormenta Eléctrica",
+        "description": "Aumenta el daño y la velocidad de ataque de Raiden por dos turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 25 },
+          { "type": "increaseDamageMax", "value": 35 },
+          { "type": "showMessage", "value": "Raiden: - Hora de otro buff amigo..." }
+        ]
+      }
+    },
+    "histeria": {
+      "name": "Histeria",
+      "maxHealth": 1400,
+      "health": 1400,
+      "attack": {
+        "name": "Furia Demoníaca",
+        "damage": { "min": 95, "max": 150 }
+      },
+      "defense": {
+        "name": "Esfera de Realidad",
+        "reduction": 20,
+        "message": "Histeria se protege con una oscuridad impenetrable."
+      },
+      "image": "images/histeria.jpg",
+      "armor": 20,
+      "elementalResistance": 30,
+      "specialAbility": {
+        "name": "Invocación de Demonios",
+        "description": "Invoca demonios que aumentan el daño y protegen a Histeria durante un turno.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 50 },
+          { "type": "increaseDamageMax", "value": 50 },
+          { "type": "healPlayer", "value": 300 },
+          { "type": "showMessage", "value": "Histeria: - ¡Sufrirás hasta tu muerte!" }
+        ]
+      }
+    },
+    "hades": {
+      "name": "Hades",
+      "maxHealth": 1600,
+      "health": 1600,
+      "attack": {
+        "name": "Fuego Infernal",
+        "damage": { "min": 60, "max": 100 }
+      },
+      "defense": {
+        "name": "Protección del Inframundo",
+        "reduction": 20,
+        "message": "Hades invoca la protección del Inframundo, reduciendo el daño recibido."
+      },
+      "armor": 15,  
+      "elementalResistance": 25,  
+      "image": "images/hades.jpg",
+      "specialAbility": {
+        "name": "Rayo Infernal",
+        "description": "Lanza un rayo de fuego que inflige daño masivo al enemigo.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 40 },
+          { "type": "increaseDamageMax", "value": 60 },
+          { "type": "increaseDefenseReduction", "value": 10 },
+          { "type": "showMessage", "value": "Hades: - Bienvenido a mi reino." }
+        ]
+      }
+    },
+    "rosmontis": {
+      "name": "Rosmontis",
+      "maxHealth": 1050,
+      "health": 1050,
+      "attack": {
+        "name": "Electromagnetismo",
+        "damage": { "min": 50, "max": 90 }
+      },
+      "defense": {
+        "name": "Art: Defensa",
+        "reduction": 10,
+        "message": "Rosmontis crea un escudo de aire que reduce el daño recibido."
+      },
+      "armor": 10,  
+      "elementalResistance": 15,  
+      "image": "images/rosmontis.jpg",
+      "specialAbility": {
+        "name": "Velocidad Sobrehumana",
+        "description": "Aumenta la velocidad y la precisión durante tres turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "summonCharacter", "value": "mordred" }
+        ]
+      }
+    },
+    "xair": {
+      "name": "Xair",
+      "maxHealth": 1250,
+      "health": 1250,
+      "attack": {
+        "name": "Tormenta Gélida",
+        "damage": { "min": 80, "max": 130 }
+      },
+      "defense": {
+        "name": "Escudo de Hielo",
+        "reduction": 16,
+        "message": "Xair levanta un escudo de hielo para protegerse."
+      },
+      "image": "images/xair.jpg",
+      "armor": 5,
+      "elementalResistance": 50,
+      "specialAbility": {
+        "name": "Ráfaga de Hielo",
+        "description": "Aumenta el daño y la reducción de defensa de Xair durante un turno.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 35 },
+          { "type": "increaseDamageMax", "value": 55 },
+          { "type": "increaseDefenseReduction", "value": 10 },
+          { "type": "showMessage", "value": "Xair: - ¡La tormenta de hielo está aquí!" }
+        ]
+      }
+    },
+    "nathan": {
+      "name": "Nathan",
+      "maxHealth": 1150,
+      "health": 1150,
+      "attack": {
+        "name": "Rayo Veloz",
+        "damage": { "min": 85, "max": 125 }
+      },
+      "defense": {
+        "name": "Reflejos Relámpago",
+        "reduction": 20,
+        "message": "Nathan utiliza sus reflejos velozmente para reducir el daño recibido."
+      },
+      "image": "images/nathan.jpg",
+      "armor": 10,
+      "elementalResistance": 10,
+      "specialAbility": {
+        "name": "Velocidad Extrema",
+        "description": "Aumenta el daño y la velocidad de ataque de Nathan durante dos turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 150 },
+          { "type": "increaseDamageMax", "value": 160 },
+          { "type": "showMessage", "value": "Nathan: - ¡La velocidad es mi mayor arma!" }
+        ]
+      }
+    },
+    "kenjaku": {
+      "name": "Kenjaku (Geto)",
+      "maxHealth": 1000,
+      "health": 1000,
+      "attack": {
+        "name": "Uzumaki",
+        "damage": { "min": 140, "max": 180 }
+      },
+      "defense": {
+        "name": "Recubrimiento de Energia Maldita",
+        "reduction": 0,
+        "message": "."
+      },
+      "armor": 0,
+      "elementalResistance": 0,
+      "image": "images/kenjaku.jpg",
+      "specialAbility": {
+        "name": "Transformación Ilusoria",
+        "description": "Pasa de Falso Suguru Geto a Falso Gojo Satoru.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "healPlayer", "value": 200 },
+          { "type": "dealDamageToBoss", "value": 300},
+          { "type": "showMessage", "value": "Kenjaku: - Uzumaki: Mahito..." }
+        ]
+      }
+    },
+    "riyuri": {
+      "name": "Riyuri",
+      "maxHealth": 1150,
+      "health": 1150,
+      "attack": {
+        "name": "Espada de Reishi",
+        "damage": { "min": 75, "max": 130 }
+      },
+      "defense": {
+        "name": "Blut Vene",
+        "reduction": 18,
+        "message": "Riyuri utiliza su escudo divino para protegerse."
+      },
+      "image": "images/riyuri.jpg",
+      "armor": 10,
+      "elementalResistance": 10,
+      "specialAbility": {
+        "name": "Luz Celestial",
+        "description": "Riyuri invoca a un ser celestial que aumenta su ataque y defensa durante dos turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 40 },
+          { "type": "increaseDamageMax", "value": 60 },
+          { "type": "increaseDefenseReduction", "value": 10 },
+          { "type": "showMessage", "value": "Riyuri: - ¡Reclamo este poder, escuchaste bien padre!" }
+        ]
+      }
+    },
+    "mordred": {
+      "name": "Mordred",
+      "maxHealth": 1300,
+      "health": 1300,
+      "attack": {
+        "name": "Espada del Destino",
+        "damage": { "min": 90, "max": 150 }
+      },
+      "defense": {
+        "name": "Muralla de Hierro",
+        "reduction": 20,
+        "message": "Mordred se protege con su muralla de hierro."
+      },
+      "image": "images/mordred.jpg",
+      "armor": 30,
+      "elementalResistance": 15,
+      "specialAbility": {
+        "name": "Furia del Guerrero",
+        "description": "Aumenta significativamente el daño y la defensa de Mordred por dos turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 60 },
+          { "type": "increaseDamageMax", "value": 80 },
+          { "type": "increaseDefenseReduction", "value": 15 },
+          { "type": "showMessage", "value": "Mordred: - ¡Mi furia no tiene límites!" }
+        ]
+      }
+    },
+    "diluc": {
+      "name": "Diluc",
+      "maxHealth": 1200,
+      "health": 1200,
+      "attack": {
+        "name": "Filo Ardiente",
+        "damage": { "min": 70, "max": 140 }
+      },
+      "defense": {
+        "name": "Muro de Fuego Negro",
+        "reduction": 40,
+        "message": "."
+      },
+      "image": "images/diluc.jpg",
+      "armor": 30,
+      "elementalResistance": 15,
+      "specialAbility": {
+        "name": "Despertar: Fénix de Fuego",
+        "description": "Aumenta significativamente el daño y la defensa de Mordred por dos turnos.",
+        "used": false,
+        "conditions": {
+          "healthPercentage": 50,
+          "notUsed": true
+        },
+        "effects": [
+          { "type": "increaseDamageMin", "value": 60 },
+          { "type": "increaseDamageMax", "value": 80 },
+          { "type": "increaseElementalResistance", "value": 20 },
+          { "type": "showMessage", "value": "Diluc: - Ahora vamos enserio... " }
+        ]
+      }
+    }
+  }
+}
