@@ -1,0 +1,418 @@
+// Variables para Einherjer Blitz 3.0
+:root {
+  --primary-gold: #c9aa71;
+  --dark-gold: #9e8b54;
+  --bg-dark: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --border-gold: rgba(201, 170, 113, 0.3);
+  --glow-gold: rgba(201, 170, 113, 0.6);
+  --glass-bg: rgba(26, 26, 26, 0.8);
+  --glass-border: rgba(201, 170, 113, 0.2);
+}
+
+// Variables SCSS
+$primary-gold: #c9aa71;
+$dark-gold: #9e8b54;
+$bg-dark: #0a0a0a;
+$bg-secondary: #1a1a1a;
+$text-primary: rgba(255, 255, 255, 0.95);
+$text-secondary: rgba(255, 255, 255, 0.7);
+$border-gold: rgba(201, 170, 113, 0.3);
+$glow-gold: rgba(201, 170, 113, 0.6);
+
+// Fuentes
+$font-primary: 'Inter', sans-serif;
+$font-display: 'Cinzel', serif;
+
+// Animaciones
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% {
+    transform: translateY(-10vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+// Estilos globales
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  background: $bg-dark;
+  color: $text-primary;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+// Fondo animado
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  background: linear-gradient(
+    45deg,
+    $bg-dark 0%,
+    $bg-secondary 25%,
+    #0f0f0f 50%,
+    $bg-secondary 75%,
+    $bg-dark 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}
+
+// Partículas flotantes
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: $primary-gold;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: float 15s infinite linear;
+}
+
+// Navbar
+.glass-nav {
+  background: rgba($bg-dark, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid $border-gold;
+  
+  .navbar-brand {
+    color: $primary-gold !important;
+    font-family: $font-display;
+    font-weight: 700;
+    font-size: 1.5rem;
+      &:hover {
+      color: #d4b885 !important;
+    }
+  }
+}
+
+.version-badge {
+  background: rgba($primary-gold, 0.1);
+  color: $primary-gold;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  border: 1px solid $border-gold;
+}
+
+// Texto con gradiente
+.text-gradient {
+  background: linear-gradient(45deg, $primary-gold, #fff, $primary-gold);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pulse 3s ease-in-out infinite;
+  font-family: $font-display;
+}
+
+// Colores de texto
+.text-gold {
+  color: $primary-gold !important;
+}
+
+.text-light-secondary {
+  color: $text-secondary !important;
+}
+
+.border-gold {
+  border-color: $primary-gold !important;
+}
+
+.border-gold-opacity {
+  border-color: $border-gold !important;
+}
+
+// Features
+.feature-item {
+  color: $text-secondary;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: $text-primary;
+    transform: translateX(5px);
+  }
+}
+
+// Tarjetas con efecto vidrio
+.glass-card {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba($primary-gold, 0.1);
+  border-radius: 15px !important;
+  
+  &:hover {
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.4),
+      0 0 30px rgba($primary-gold, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+// Formularios
+.form-control-dark {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 2px solid rgba($primary-gold, 0.2) !important;
+  color: $text-primary !important;
+  border-radius: 10px !important;
+  
+  &:focus {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-color: $primary-gold !important;
+    box-shadow: 0 0 0 0.2rem rgba($primary-gold, 0.1) !important;
+    color: $text-primary !important;
+  }
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
+}
+
+// Navegación con pills
+.nav-pills {
+  .nav-link {
+    background: rgba(0, 0, 0, 0.3);
+    color: $text-secondary;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin: 0 2px;
+    
+    &:hover {
+      background: rgba($primary-gold, 0.1);
+      color: $text-primary;
+    }
+    
+    &.active {
+      background: linear-gradient(45deg, $primary-gold, $dark-gold) !important;
+      color: $bg-dark !important;
+      font-weight: 600;
+    }
+  }
+}
+
+// Botones
+.btn-primary {
+  background: linear-gradient(45deg, $primary-gold, $dark-gold) !important;
+  border: none !important;
+  color: $bg-dark !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border-radius: 10px !important;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba($primary-gold, 0.4);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-outline-secondary {
+  border-color: rgba($primary-gold, 0.3) !important;
+  color: $text-secondary !important;
+  
+  &:hover {
+    background: rgba($primary-gold, 0.1) !important;
+    border-color: $primary-gold !important;
+    color: $primary-gold !important;
+  }
+}
+
+// Checkboxes
+.form-check-input {
+  &:checked {
+    background-color: $primary-gold !important;
+    border-color: $primary-gold !important;
+  }
+  
+  &:focus {
+    border-color: $primary-gold !important;
+    box-shadow: 0 0 0 0.2rem rgba($primary-gold, 0.25) !important;
+  }
+}
+
+// Modal
+.modal-content.bg-dark {
+  background: rgba($bg-dark, 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
+// Alerts (se añadirán dinámicamente)
+.alert-success {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  color: #22c55e !important;
+}
+
+.alert-danger {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #ef4444 !important;
+}
+
+// Footer
+.footer {
+  border-color: $border-gold !important;
+  
+  .hover-gold {
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: $primary-gold !important;
+    }
+  }
+}
+
+// Responsive improvements
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 2rem 0;
+  }
+  
+  .display-1 {
+    font-size: 3rem !important;
+  }
+  
+  .glass-card {
+    border-radius: 20px !important;
+  }
+  
+  .modal-dialog {
+    margin: 0;
+  }
+  
+  .modal-content {
+    border-radius: 0;
+    min-height: 100vh;
+  }
+}
+
+@media (max-width: 576px) {
+  .display-1 {
+    font-size: 2.5rem !important;
+    line-height: 1.1;
+  }
+  
+  .lead {
+    font-size: 1.1rem !important;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .feature-item {
+    font-size: 0.8rem;
+  }
+}
+
+// Animaciones de entrada
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+// Mejoras de accesibilidad
+.btn:focus,
+.form-control:focus,
+.nav-link:focus {
+  outline: 2px solid $primary-gold;
+  outline-offset: 2px;
+}
+
+// Utilidades adicionales
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// Spinner personalizado
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}
