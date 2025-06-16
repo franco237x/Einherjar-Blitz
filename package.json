@@ -1,11 +1,14 @@
 {
   "name": "einherjer-blitz-3.0",
   "version": "3.0.0",
-  "description": "Portal del Guerrero - Sistema de autenticación moderno",
-  "scripts": {
+  "description": "Portal del Guerrero - Sistema de autenticación moderno",  "scripts": {
     "build-css": "sass assets/scss/style.scss assets/css/main.css",
+    "build-dashboard": "sass assets/scss/dashboard.scss assets/css/dashboard.css",
     "watch-css": "sass --watch assets/scss/style.scss:assets/css/main.css",
-    "build-css-compressed": "sass assets/scss/style.scss assets/css/main.css --style compressed"
+    "watch-dashboard": "sass --watch assets/scss/dashboard.scss:assets/css/dashboard.css",
+    "watch-all": "sass --watch assets/scss/:assets/css/",
+    "build-all": "sass assets/scss/style.scss assets/css/main.css && sass assets/scss/dashboard.scss assets/css/dashboard.css",
+    "build-compressed": "sass assets/scss/style.scss assets/css/main.css --style compressed && sass assets/scss/dashboard.scss assets/css/dashboard.css --style compressed"
   },
   "devDependencies": {
     "sass": "^1.69.5"
