@@ -21,11 +21,11 @@ $enemy = [
 <html lang="es">
 <head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Batalla Estelar - Einherjar Blitz</title>
+    <title>Batalla Estelar - Einherjar Blitz (Clásico)</title>
     <link rel="stylesheet" href="juego_clean.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
 </head>
-<body>    <div id="rotateMessage">
+<body><div id="rotateMessage">
         <div style="text-align: center;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">📱↻</div>
             <h2>Rotación Requerida</h2>
