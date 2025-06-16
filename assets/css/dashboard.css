@@ -404,3 +404,76 @@ body {
 .progress-fill.loading {
   animation: progressShine 1.5s ease-in-out infinite;
 }
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.custom-modal {
+  background: #151515;
+  border: 1px solid rgba(201, 170, 113, 0.3);
+  border-radius: 15px;
+  max-width: 400px;
+  width: 90%;
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease;
+}
+.custom-modal .modal-header {
+  background: linear-gradient(135deg, #1a1a1a, #252525);
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(201, 170, 113, 0.3);
+}
+.custom-modal .modal-header h3 {
+  margin: 0;
+  color: #c9aa71;
+  font-family: "Cinzel", serif;
+}
+.custom-modal .modal-header h3 i {
+  margin-right: 0.5rem;
+}
+.custom-modal .modal-body {
+  padding: 2rem 1.5rem;
+}
+.custom-modal .modal-body p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.custom-modal .modal-footer {
+  padding: 1rem 1.5rem;
+  background: rgba(26, 26, 26, 0.5);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+.custom-modal .modal-footer .btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(201, 170, 113, 0.3);
+  background: none;
+  color: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.custom-modal .modal-footer .btn.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.custom-modal .modal-footer .btn.btn-primary {
+  background: rgba(201, 170, 113, 0.2);
+  color: #c9aa71;
+}
+.custom-modal .modal-footer .btn.btn-primary:hover {
+  background: rgba(201, 170, 113, 0.3);
+  transform: translateY(-1px);
+}
