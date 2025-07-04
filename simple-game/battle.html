@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einherjar Blitz - Combate</title>
+    <link rel="stylesheet" href="css/battle.css">
+</head>
+<body>
+    <!-- Escenario de batalla -->
+    <div class="battlefield">
+        <!-- Jugador -->
+        <div class="sprite-container" id="playerContainer">
+            <img id="playerSprite" class="sprite" src="../images/shuna.jpg" alt="Jugador">
+            <div class="health-bar"><div class="fill" id="playerHealth"></div></div>
+        </div>
+        <!-- Enemigo -->
+        <div class="sprite-container" id="enemyContainer">
+            <img id="enemySprite" class="sprite flip" src="../images/ozen.jpg" alt="Enemigo">
+            <div class="health-bar"><div class="fill" id="enemyHealth"></div></div>
+        </div>
+    </div>
+
+    <!-- Panel de habilidades -->
+    <div id="uiPanel">
+        <button class="ability-btn" id="btnBasic">ATAQUE BÁSICO</button>
+        <button class="ability-btn" id="btnElemental">ATAQUE ELEMENTAL</button>
+        <button class="ability-btn" id="btnUltimate">HABILIDAD DEFINITIVA</button>
+    </div>
+
+    <!-- Log de combate -->
+    <ul id="battleLog"></ul>
+
+    <!-- Datos de prueba (se sustituirán por sessionStorage o API) -->
+    <script>
+        window.championData = {
+            name: "Shuna Shieda",
+            attack_min: 120,
+            attack_max: 180,
+            max_health: 950,
+            image: "shuna.jpg"
+        };
+        window.enemyData = {
+            name: "Ozen Kimura",
+            attack_min: 200,
+            attack_max: 280,
+            max_health: 1200,
+            image: "ozen.jpg"
+        };
+    </script>
+
+    <!-- Lógica del juego -->
+    <script type="module" src="js/core/Game.js"></script>
+</body>
+</html> 

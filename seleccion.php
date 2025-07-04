@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['champion_id'])) {
         $_SESSION['selected_champion_data'] = $selectedChampion;
         
         // Redirigir al juego con Phaser (motor gráfico avanzado)
-        header('Location: juego_phaser.php');
+        header('Location: simple-game/battle.html');
         exit();
     }}
 ?>
