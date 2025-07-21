@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Einherjar Blitz - Combate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/battle.css">
+</head>
+<body>
+    <!-- Pantalla de carga -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">⚔️</div>
+            <h2>Einherjar Blitz</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p>Preparando combate...</p>
+        </div>
+    </div>
+
+    <!-- Interfaz principal de combate -->
+    <div id="gameContainer" class="game-container hidden">
+        <!-- Header con información del combate -->
+        <header class="battle-header">
+            <div class="header-left">
+                <button class="btn-back" onclick="exitBattle()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+            <div class="header-center">
+                <div class="turn-indicator">
+                    <span class="turn-text">Turno</span>
+                    <span class="turn-number">1</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn-settings" onclick="toggleSettings()">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Arena de combate -->
+        <main class="battle-arena">
+            <!-- Área del oponente -->
+            <section class="fighter-area enemy-area">
+                <div class="fighter-info">
+                    <div class="fighter-name" id="enemyName">Jefe: Kars</div>
+                    <div class="health-bar-container">
+                        <div class="health-bar">
+                            <div class="health-fill enemy-health" id="enemyHealthBar"></div>
+                            <div class="health-text">
+                                <span id="enemyHealth">850</span>/<span id="enemyMaxHealth">850</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-effects" id="enemyStatusEffects"></div>
+                </div>
+                <div class="fighter-portrait">
+                    <img id="enemyAvatar" src="../images/default.jpg" alt="Enemigo">
+                    <div class="damage-indicator" id="enemyDamageIndicator"></div>
+                </div>
+                <div class="stats-mini">
+                    <div class="stat-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span id="enemyArmor">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-bolt"></i>
+                        <span id="enemyResistance">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Centro del combate - efectos visuales -->
+            <section class="battle-center">
+                <div class="battle-effects" id="battleEffects"></div>
+                <div class="combat-log" id="combatLog"></div>
+            </section>
+
+            <!-- Área del jugador -->
+            <section class="fighter-area player-area">
+                <div class="stats-mini">
+                    <div class="stat-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span id="playerArmor">5</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-bolt"></i>
+                        <span id="playerResistance">60</span>
+                    </div>
+                </div>
+                <div class="fighter-portrait">
+                    <img id="playerAvatar" src="../images/xair.png" alt="Jugador">
+                    <div class="damage-indicator" id="playerDamageIndicator"></div>
+                </div>
+                <div class="fighter-info">
+                    <div class="fighter-name" id="playerName">Xair</div>
+                    <div class="health-bar-container">
+                        <div class="health-bar">
+                            <div class="health-fill player-health" id="playerHealthBar"></div>
+                            <div class="health-text">
+                                <span id="playerHealth">800</span>/<span id="playerMaxHealth">800</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="energy-bar-container">
+                        <div class="energy-bar">
+                            <div class="energy-fill" id="playerEnergyBar"></div>
+                            <div class="energy-text">
+                                <span id="playerEnergy">100</span>/100
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-effects" id="playerStatusEffects"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Panel de acciones -->
+        <footer class="action-panel">
+            <div class="action-buttons">
+                <button class="action-btn basic-attack" id="basicAttackBtn" data-action="basic">
+                    <div class="btn-icon">⚔️</div>
+                    <div class="btn-text">
+                        <span>Ataque Básico</span>
+                        <small>Sin costo</small>
+                    </div>
+                    <div class="btn-cooldown" id="basicCooldown"></div>
+                </button>
+
+                <button class="action-btn elemental-attack" id="elementalAttackBtn" data-action="elemental" disabled>
+                    <div class="btn-icon">🌪️</div>
+                    <div class="btn-text">
+                        <span>Ataque Elemental</span>
+                        <small>30 energía</small>
+                    </div>
+                    <div class="btn-cooldown" id="elementalCooldown"></div>
+                </button>
+
+                <button class="action-btn ultimate-attack" id="ultimateAttackBtn" data-action="ultimate" disabled>
+                    <div class="btn-icon">💥</div>
+                    <div class="btn-text">
+                        <span>Ataque Definitivo</span>
+                        <small>70 energía</small>
+                    </div>
+                    <div class="btn-cooldown" id="ultimateCooldown"></div>
+                </button>
+
+                <button class="action-btn defend" id="defendBtn" data-action="defend">
+                    <div class="btn-icon">🛡️</div>
+                    <div class="btn-text">
+                        <span>Defender</span>
+                        <small>Reduce daño</small>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Información adicional del personaje -->
+            <div class="character-info">
+                <div class="special-gauge" id="specialGauge">
+                    <div class="gauge-label" id="specialGaugeLabel">Energía Especial</div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="bijonEnergyBar"></div>
+                        <div class="gauge-text">
+                            <span id="bijonEnergy">0</span>/<span id="bijonEnergyMax">100</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Atajos de teclado (visible solo en desktop) -->
+                <div class="keyboard-hints">
+                    <small>Atajos: 1-Básico | 2-Elemental | 3-Definitivo | 4-Defender</small>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal de resultado -->
+    <div id="resultModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="result-icon" id="resultIcon">🏆</div>
+            <h2 id="resultTitle">¡Victoria!</h2>
+            <p id="resultMessage">Has derrotado a Kars</p>
+            <div class="result-stats" id="resultStats"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="nextBattle()">Siguiente</button>
+                <button class="btn btn-secondary" onclick="exitBattle()">Salir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de configuración -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configuración</h3>
+                <button class="btn-close" onclick="toggleSettings()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label>Efectos de sonido</label>
+                    <input type="range" id="sfxVolume" min="0" max="100" value="70">
+                </div>
+                <div class="setting-item">
+                    <label>Velocidad de animaciones</label>
+                    <select id="animationSpeed">
+                        <option value="0.5">Rápida</option>
+                        <option value="1" selected>Normal</option>
+                        <option value="1.5">Lenta</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Vibración (móvil)</label>
+                    <input type="checkbox" id="vibrationEnabled" checked>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts del juego -->
+    <script src="js/GameEngine.js"></script>
+    <script src="js/BattleUI.js"></script>
+    <script src="js/CharacterSystem.js"></script>
+    <script src="js/EffectsManager.js"></script>
+    <script src="js/SoundManager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
