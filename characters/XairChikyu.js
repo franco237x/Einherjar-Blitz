@@ -3,10 +3,18 @@ import { Character } from './Character.js';
 export class XairChikyu extends Character {
     constructor(data) {
         super(data);
-        this.clan = "Chikyu";
+        // Mecánicas especiales de Xair
         this.bijonEnergy = 0;
         this.maxBijonEnergy = 100;
         this.bijonOvercharge = false;
+    }
+    
+    /**
+     * Inicialización de mecánicas especiales de Xair
+     */
+    initializeSpecialMechanics() {
+        super.initializeSpecialMechanics();
+        // Las mecánicas específicas ya se inicializan en el constructor
     }
     
     initializePassives() {
@@ -242,6 +250,21 @@ export class XairChikyu extends Character {
             maxBijonEnergy: this.maxBijonEnergy,
             bijonOvercharge: this.bijonOvercharge,
             clan: this.clan
+        };
+    }
+    
+    /**
+     * Información estática de la clase para el registro
+     */
+    static getCharacterInfo() {
+        return {
+            id: 'xair-chikyu',
+            name: 'Xair Chikyu',
+            type: 'wind-mage',
+            description: 'Maestro del viento del clan Chikyu especializado en energía Bijon',
+            specialMechanics: ['Bijon Energy', 'Wind Control', 'Overcharge Mode'],
+            clan: 'Chikyu',
+            element: 'Viento'
         };
     }
 }

@@ -3,10 +3,19 @@ import { Character } from './Character.js';
 export class OzenKimura extends Character {
     constructor(data) {
         super(data);
-        this.clan = "Kimura";
+        // Mecánicas especiales de Ozen ya definidas en el constructor base
+        // Sobrescribir o añadir mecánicas específicas
         this.shieldPoints = 0;
         this.maxShieldPoints = 300;
         this.isDefensiveStance = false;
+    }
+    
+    /**
+     * Inicialización de mecánicas especiales de Ozen
+     */
+    initializeSpecialMechanics() {
+        super.initializeSpecialMechanics();
+        // Las mecánicas específicas ya se inicializan en el constructor
     }
     
     initializePassives() {
@@ -228,6 +237,21 @@ export class OzenKimura extends Character {
             maxShieldPoints: this.maxShieldPoints,
             isDefensiveStance: this.isDefensiveStance,
             clan: this.clan
+        };
+    }
+    
+    /**
+     * Información estática de la clase para el registro
+     */
+    static getCharacterInfo() {
+        return {
+            id: 'ozen-kimura',
+            name: 'Ozen Kimura',
+            type: 'tank',
+            description: 'Guerrera defensiva del clan Kimura especializada en escudos y contraataques',
+            specialMechanics: ['Shield Generation', 'Defensive Stance', 'Counter Attack'],
+            clan: 'Kimura',
+            element: 'Hielo'
         };
     }
 }

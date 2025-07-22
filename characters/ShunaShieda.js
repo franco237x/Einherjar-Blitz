@@ -1,11 +1,19 @@
 import { Character } from './Character.js';
 
-export class ShunaShieda extends Character {    constructor(data) {
+export class ShunaShieda extends Character {
+    constructor(data) {
         super(data);
-        this.clan = "Shieda";
-        this.element = "Devastación";
+        // Mecánicas especiales de Shuna
         this.doctrineActive = false;
         this.originalImage = data.image;
+    }
+    
+    /**
+     * Inicialización de mecánicas especiales de Shuna
+     */
+    initializeSpecialMechanics() {
+        super.initializeSpecialMechanics();
+        // Las mecánicas específicas ya se inicializan en el constructor
     }
     
     initializePassives() {
@@ -221,6 +229,21 @@ export class ShunaShieda extends Character {    constructor(data) {
             element: this.element,
             clan: this.clan,
             transformation: this.doctrineActive ? "Doctrina Perfecta" : null
+        };
+    }
+    
+    /**
+     * Información estática de la clase para el registro
+     */
+    static getCharacterInfo() {
+        return {
+            id: 'shuna-shieda',
+            name: 'Shuna Shieda',
+            type: 'berserker',
+            description: 'Guerrera agresiva del clan Shieda especializada en quemaduras y transformaciones',
+            specialMechanics: ['Burn Effects', 'Doctrine Transformation', 'Devastation Element'],
+            clan: 'Shieda',
+            element: 'Devastación'
         };
     }
 }
