@@ -23,12 +23,12 @@ function getCharacterData()
             'description' => 'La cúspide de poder de los Shiedas, feroz y letal. Maestra del elemento Devastación.',
             'image' => 'shuna.jpg',
             'rarity' => 'legendary',
-            'attack_min' => 120,
-            'attack_max' => 180,
-            'max_health' => 950,
-            'armor' => 85,
-            'defense_reduction' => 75,
-            'elemental_resistance' => 180,
+            'attack_min' => 115,
+            'attack_max' => 140,
+            'max_health' => 1000,
+            'armor' => 15,
+            'defense_reduction' => 45,
+            'elemental_resistance' => 60,
             'clan' => 'Shieda',
             'element' => 'Devastación'
         ],
@@ -39,31 +39,47 @@ function getCharacterData()
             'description' => 'Con una actitud fría como el acero, Ozen es una guerrera formidable del clan Kimura.',
             'image' => 'ozen.jpg',
             'rarity' => 'epic',
-            'attack_min' => 200,
-            'attack_max' => 280,
+            'attack_min' => 100,
+            'attack_max' => 170,
             'max_health' => 1200,
-            'armor' => 150,
-            'defense_reduction' => 120,
-            'elemental_resistance' => 90,
+            'armor' => 30,
+            'defense_reduction' => 5,
+            'elemental_resistance' => 65,
             'clan' => 'Kimura',
-            'element' => 'Hielo'
+            'element' => 'Chakra'
         ],
-        [
+         [
             'id' => 3,
             'name' => 'Xair Chikyu',
             'title' => 'El viento gélido de los Chikyu',
             'description' => 'Inventor del Bijon, energía que le otorga un poder devastador. Maestro del clan Chikyu.',
             'image' => 'xair.png',
             'rarity' => 'rare',
-            'attack_min' => 160,
-            'attack_max' => 240,
-            'max_health' => 800,
-            'armor' => 60,
-            'defense_reduction' => 45,
-            'elemental_resistance' => 250,
+            'attack_min' => 90,
+            'attack_max' => 120,
+            'max_health' => 900,
+            'armor' => 15,
+            'defense_reduction' => 15,
+            'elemental_resistance' => 100,
             'clan' => 'Chikyu',
-            'element' => 'Viento'
-        ]
+            'element' => 'Hielo'
+         ],
+            [
+            'id' => 4,
+            'name' => 'Nathan Doffens',
+            'title' => 'El relámpago paradójico',
+            'description' => 'Un guerrero del clan Doffens, conocido por su velocidad y su habilidad para teletransportarse hacia la victoria.',
+            'image' => 'nathan.png',
+            'rarity' => 'epic',
+            'attack_min' => 70,
+            'attack_max' => 115,
+            'max_health' => 1000,
+            'armor' => 17,
+            'defense_reduction' => 30,
+            'elemental_resistance' => 50,
+            'clan' => 'Doffens',
+            'element' => 'Rayo'
+           ]
     ];
 }
 

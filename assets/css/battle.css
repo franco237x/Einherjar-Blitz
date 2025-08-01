@@ -1,13 +1,32 @@
+/* ===== VARIABLES Y CONFIGURACIÓN BASE ===== */
 :root {
-    /* Variables principales */
+    /* Colores principales */
     --bg-dark: #0a0a0a;
-    --bg-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    --bg-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a1a1a 100%);
     --gold: #c9aa71;
     --gold-hover: #d4b776;
     --gold-shadow: rgba(201, 170, 113, 0.3);
     --text-light: #ffffffd9;
     --text-muted: #aaaaaaaa;
-    --card-bg: #111;
+    
+    /* Colores de elementos */
+    --devastacion: #ff6b35;
+    --chakra: #9b59b6;
+    --hielo: #3498db;
+    --rayo: #f1c40f;
+    
+    /* Colores de rarezas */
+    --legendary: #ff6b35;
+    --epic: #9b59b6;
+    --rare: #3498db;
+    --common: #95a5a6;
+    
+    /* Colores de estado */
+    --health: #e74c3c;
+    --energy: #3498db;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
     --card-border: rgba(201,170,113,0.2);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
