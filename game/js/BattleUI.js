@@ -625,7 +625,7 @@ export class BattleUI {
     handleBattleEnd() {
         this.elements.battleEndModal?.classList.remove('active');
         // Redirigir de vuelta a selección
-        window.location.href = '../seleccion.php';
+        window.location.href = '../dashboard.php';
     }
     
     /**
@@ -643,14 +643,10 @@ export class BattleUI {
      */
     handleSurrender() {
         if (confirm('¿Estás seguro de que quieres rendirte?')) {
-            const surrenderResult = {
-                ended: true,
-                winner: 'enemy',
-                result: 'Te rendiste',
-                duration: Date.now() - this.battleSystem.battleStartTime,
-                stats: this.battleSystem.stats
-            };
-            this.showBattleEndModal(surrenderResult);
+            const surrenderResult = this.battleSystem.surrenderBattle();
+            if (surrenderResult) {
+                this.showBattleEndModal(surrenderResult);
+            }
         }
     }
     

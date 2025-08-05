@@ -24,26 +24,18 @@ export const CHARACTERS_BY_NAME = {
     'Nathan Doffens': NathanDoffens
 };
 
-// Información de elementos y sus relaciones
+// Información de elementos (solo colores)
 export const ELEMENT_SYSTEM = {
     'Devastación': {
-        weaknesses: ['Chakra'],
-        strengths: ['Hielo'],
         color: '#ff6b35'
     },
     'Chakra': {
-        weaknesses: ['Rayo'],
-        strengths: ['Devastación'],
         color: '#9b59b6'
     },
     'Hielo': {
-        weaknesses: ['Devastación'],
-        strengths: ['Rayo'],
         color: '#3498db'
     },
     'Rayo': {
-        weaknesses: ['Hielo'],
-        strengths: ['Chakra'],
         color: '#f1c40f'
     }
 };
@@ -95,35 +87,24 @@ export function createCharacterByName(name) {
 }
 
 /**
- * Obtiene información de efectividad elemental
+ * Obtiene información de efectividad elemental (simplificado - sin ventajas/desventajas)
  */
 export function getElementalEffectiveness(attackerElement, defenderElement) {
-    const attacker = ELEMENT_SYSTEM[attackerElement];
-    if (!attacker) return 1.0;
-    
-    if (attacker.strengths.includes(defenderElement)) {
-        return 1.5; // Super efectivo
-    }
-    if (attacker.weaknesses.includes(defenderElement)) {
-        return 0.7; // No muy efectivo
-    }
-    return 1.0; // Efectividad normal
+    return 1.0; // Todos los elementos son igualmente efectivos
 }
 
 /**
- * Calcula el daño final considerando elementos y resistencias
+ * Calcula el daño final considerando solo resistencias básicas
  */
 export function calculateElementalDamage(baseDamage, attackerElement, defender) {
-    const elementalMultiplier = getElementalEffectiveness(attackerElement, defender.stats.element);
-    const resistanceReduction = defender.stats.elementalResistance / 100;
+    // Solo aplicar resistencia elemental básica si existe
+    const resistanceReduction = defender.stats.elementalResistance ? defender.stats.elementalResistance / 100 : 0;
     
-    const finalDamage = Math.floor(
-        baseDamage * elementalMultiplier * (1 - resistanceReduction)
-    );
+    const finalDamage = Math.floor(baseDamage * (1 - resistanceReduction));
     
     return {
         damage: Math.max(1, finalDamage),
-        effectiveness: elementalMultiplier,
+        effectiveness: 1.0,
         resistanceReduction
     };
 }

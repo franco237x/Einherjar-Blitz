@@ -41,14 +41,6 @@ export class OzenKimura {
             energy: 100,
             maxEnergy: 100
         };
-        
-        // Multiplicadores por rareza (epic)
-        this.rarityMultipliers = {
-            attackMultiplier: 1.2,
-            healthMultiplier: 1.15,
-            armorMultiplier: 1.25,
-            experienceMultiplier: 1.3
-        };
     }
     
     /**
@@ -66,7 +58,7 @@ export class OzenKimura {
             Math.random() * (this.stats.attack.max - this.stats.attack.min + 1) + 
             this.stats.attack.min
         );
-        return Math.floor(baseAttack * this.rarityMultipliers.attackMultiplier);
+        return baseAttack;
     }
     
     /**
@@ -137,9 +129,7 @@ export class OzenKimura {
     getElementInfo() {
         return {
             element: this.stats.element,
-            resistance: this.stats.elementalResistance,
-            weaknesses: ["Rayo"], // Débil contra Rayo
-            strengths: ["Devastación"] // Fuerte contra Devastación
+            resistance: this.stats.elementalResistance
         };
     }
 }

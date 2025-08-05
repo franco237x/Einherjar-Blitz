@@ -1,10 +1,3 @@
-/**
- * Xair Chikyu - El viento gélido de los Chikyu
- * Elemento: Hielo
- * Rareza: Rare
- * Clan: Chikyu
- */
-
 export class XairChikyu {
     constructor() {
         this.stats = {
@@ -28,7 +21,7 @@ export class XairChikyu {
             },
             armor: 15,
             defenseReduction: 15,
-            elementalResistance: 100,
+            elementalResistance: 25,
             
             // Estadísticas calculadas
             level: 1,
@@ -66,7 +59,7 @@ export class XairChikyu {
             Math.random() * (this.stats.attack.max - this.stats.attack.min + 1) + 
             this.stats.attack.min
         );
-        return Math.floor(baseAttack * this.rarityMultipliers.attackMultiplier);
+        return baseAttack;
     }
     
     /**
@@ -138,9 +131,7 @@ export class XairChikyu {
     getElementInfo() {
         return {
             element: this.stats.element,
-            resistance: this.stats.elementalResistance,
-            weaknesses: ["Devastación"], // Débil contra Devastación
-            strengths: ["Rayo"] // Fuerte contra Rayo
+            resistance: this.stats.elementalResistance
         };
     }
 }

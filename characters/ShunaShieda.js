@@ -41,14 +41,6 @@ export class ShunaShieda {
             energy: 100,
             maxEnergy: 100
         };
-        
-        // Multiplicadores por rareza (legendary)
-        this.rarityMultipliers = {
-            attackMultiplier: 1.3,
-            healthMultiplier: 1.2,
-            armorMultiplier: 1.1,
-            experienceMultiplier: 1.5
-        };
     }
     
     /**
@@ -66,7 +58,7 @@ export class ShunaShieda {
             Math.random() * (this.stats.attack.max - this.stats.attack.min + 1) + 
             this.stats.attack.min
         );
-        return Math.floor(baseAttack * this.rarityMultipliers.attackMultiplier);
+        return baseAttack;
     }
     
     /**
@@ -119,9 +111,7 @@ export class ShunaShieda {
     getElementInfo() {
         return {
             element: this.stats.element,
-            resistance: this.stats.elementalResistance,
-            weaknesses: ["Chakra"], // Débil contra Chakra
-            strengths: ["Hielo"] // Fuerte contra Hielo
+            resistance: this.stats.elementalResistance
         };
     }
 }

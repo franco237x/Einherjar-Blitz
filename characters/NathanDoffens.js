@@ -45,15 +45,6 @@ export class NathanDoffens {
             speed: 95, // Alta velocidad para teletransporte
             criticalChance: 25 // Alta probabilidad de crítico
         };
-        
-        // Multiplicadores por rareza (epic)
-        this.rarityMultipliers = {
-            attackMultiplier: 1.2,
-            healthMultiplier: 1.15,
-            armorMultiplier: 1.1,
-            experienceMultiplier: 1.3,
-            speedMultiplier: 1.3 // Especial para Nathan
-        };
     }
     
     /**
@@ -72,15 +63,13 @@ export class NathanDoffens {
             this.stats.attack.min
         );
         
-        let finalAttack = Math.floor(baseAttack * this.rarityMultipliers.attackMultiplier);
-        
         // Verificar crítico
         if (Math.random() * 100 < this.stats.criticalChance) {
-            finalAttack = Math.floor(finalAttack * 1.8); // Daño crítico x1.8
-            return { damage: finalAttack, critical: true };
+            const criticalDamage = Math.floor(baseAttack * 1.8); // Daño crítico x1.8
+            return { damage: criticalDamage, critical: true };
         }
         
-        return { damage: finalAttack, critical: false };
+        return { damage: baseAttack, critical: false };
     }
     
     /**
@@ -90,7 +79,8 @@ export class NathanDoffens {
         // Nathan tiene chance de esquivar por su velocidad
         const dodgeChance = Math.min(30, this.stats.speed / 100 * 30);
         if (Math.random() * 100 < dodgeChance) {
-            return { damage: 0, dodged: true };
+            // Si esquiva, no recibe daño
+            return 0;
         }
         
         // Aplicar reducción de daño por armadura
@@ -103,7 +93,7 @@ export class NathanDoffens {
             this.stats.alive = false;
         }
         
-        return { damage: finalDamage, dodged: false };
+        return finalDamage;
     }
     
     /**
@@ -181,9 +171,7 @@ export class NathanDoffens {
     getElementInfo() {
         return {
             element: this.stats.element,
-            resistance: this.stats.elementalResistance,
-            weaknesses: ["Hielo"], // Débil contra Hielo
-            strengths: ["Chakra"] // Fuerte contra Chakra
+            resistance: this.stats.elementalResistance
         };
     }
 }
