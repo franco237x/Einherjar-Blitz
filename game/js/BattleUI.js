@@ -80,15 +80,29 @@ export class BattleUI {
         this.elements.specialName = document.getElementById('specialName');
         this.elements.specialCost = document.getElementById('specialCost');
         
-        // Modals
+        // Modal elements
         this.elements.battleEndModal = document.getElementById('battleEndModal');
         this.elements.settingsModal = document.getElementById('settingsModal');
         this.elements.battleResultTitle = document.getElementById('battleResultTitle');
         this.elements.resultIcon = document.getElementById('resultIcon');
         this.elements.battleDuration = document.getElementById('battleDuration');
         this.elements.totalRounds = document.getElementById('totalRounds');
-        this.elements.totalDamage = document.getElementById('totalDamage');
+        this.elements.totalDamageDealt = document.getElementById('totalDamageDealt');
+        this.elements.totalDamageReceived = document.getElementById('totalDamageReceived');
+        this.elements.criticalHits = document.getElementById('criticalHits');
+        this.elements.specialAbilitiesUsed = document.getElementById('specialAbilitiesUsed');
         this.elements.rewardsList = document.getElementById('rewardsList');
+        this.elements.resultDescription = document.getElementById('resultDescription');
+        
+        // Final character summary elements
+        this.elements.finalPlayerImage = document.getElementById('finalPlayerImage');
+        this.elements.finalPlayerName = document.getElementById('finalPlayerName');
+        this.elements.finalPlayerHealth = document.getElementById('finalPlayerHealth');
+        this.elements.finalPlayerMaxHealth = document.getElementById('finalPlayerMaxHealth');
+        this.elements.finalEnemyImage = document.getElementById('finalEnemyImage');
+        this.elements.finalEnemyName = document.getElementById('finalEnemyName');
+        this.elements.finalEnemyHealth = document.getElementById('finalEnemyHealth');
+        this.elements.finalEnemyMaxHealth = document.getElementById('finalEnemyMaxHealth');
         
         // Modal buttons
         this.elements.continueBtn = document.getElementById('continueBtn');
@@ -151,7 +165,9 @@ export class BattleUI {
                 
                 // Verificar fin de batalla
                 const battleEnd = this.battleSystem.checkBattleEnd();
+                console.log('Battle end check after player action:', battleEnd);
                 if (battleEnd && battleEnd.ended) {
+                    console.log('Showing battle end modal with result:', battleEnd);
                     this.showBattleEndModal(battleEnd);
                     return;
                 }
@@ -170,7 +186,9 @@ export class BattleUI {
                                 this.updateBattleState();
                                 
                                 const battleEnd = this.battleSystem.checkBattleEnd();
+                                console.log('Battle end check after enemy action:', battleEnd);
                                 if (battleEnd && battleEnd.ended) {
+                                    console.log('Showing battle end modal after enemy turn:', battleEnd);
                                     this.showBattleEndModal(battleEnd);
                                 } else {
                                     this.setActionButtonsEnabled(true);
@@ -584,39 +602,323 @@ export class BattleUI {
     }
     
     /**
-     * Muestra modal de fin de batalla
+     * Muestra modal de fin de batalla con estadísticas detalladas
      */
     showBattleEndModal(battleResult) {
-        if (!this.elements.battleEndModal) return;
+        console.log('showBattleEndModal called with:', battleResult);
         
-        // Configurar contenido del modal
+        if (!this.elements.battleEndModal) {
+            console.error('battleEndModal element not found!');
+            return;
+        }
+        
+        console.log('battleEndModal element found, proceeding with modal setup');
+        
+        // Obtener estadísticas detalladas de la batalla
+        const battleStats = this.battleSystem.getBattleResult();
+        const playerStats = this.battleSystem.player ? this.battleSystem.player.getStats() : null;
+        const enemyStats = this.battleSystem.enemy ? this.battleSystem.enemy.getStats() : null;
+        
+        console.log('Battle stats:', battleStats);
+        console.log('Player stats:', playerStats);
+        console.log('Enemy stats:', enemyStats);
+        
+        // Configurar título y tipo de resultado
+        this.configureBattleResultTitle(battleResult);
+        
+        // Configurar resumen final de personajes
+        this.configureFinalCharactersSummary(playerStats, enemyStats);
+        
+        // Configurar estadísticas detalladas
+        this.configureDetailedStats(battleResult);
+        
+        // Configurar mensaje de resultado específico
+        this.configureResultMessage(battleResult);
+        
+        // Configurar recompensas
+        this.configureRewards(battleResult);
+        
+        // Aplicar clase CSS según el resultado
+        this.applyResultStyling(battleResult);
+        
+        // Mostrar modal
+        console.log('Adding active class to modal');
+        this.elements.battleEndModal.classList.add('active');
+        
+        console.log('Modal should now be visible');
+        
+        // Añadir efectos sonoros según el resultado (si están disponibles)
+        this.playResultSound(battleResult);
+    }
+    
+    /**
+     * Configura el título y icono del resultado
+     */
+    configureBattleResultTitle(battleResult) {
+        let title, iconClass;
+        
+        switch (battleResult.winner) {
+            case 'player':
+                if (battleResult.battleType === 'enemy_defeated') {
+                    title = '¡VICTORIA ÉPICA!';
+                } else {
+                    title = '¡VICTORIA!';
+                }
+                iconClass = 'result-icon victory fas fa-trophy';
+                break;
+                
+            case 'enemy':
+                if (battleResult.surrendered) {
+                    title = 'BATALLA ABANDONADA';
+                    iconClass = 'result-icon surrender fas fa-flag';
+                } else {
+                    title = 'DERROTA';
+                    iconClass = 'result-icon defeat fas fa-skull';
+                }
+                break;
+                
+            case 'draw':
+                title = 'EMPATE';
+                iconClass = 'result-icon draw fas fa-handshake';
+                break;
+                
+            default:
+                title = 'BATALLA TERMINADA';
+                iconClass = 'result-icon fas fa-question';
+        }
+        
         if (this.elements.battleResultTitle) {
-            this.elements.battleResultTitle.textContent = battleResult.result;
+            this.elements.battleResultTitle.textContent = title;
         }
         
         if (this.elements.resultIcon) {
-            const iconClass = battleResult.winner === 'player' ? 'victory fas fa-trophy' : 'defeat fas fa-skull';
-            this.elements.resultIcon.className = `result-icon ${iconClass}`;
+            this.elements.resultIcon.className = iconClass;
+        }
+    }
+    
+    /**
+     * Configura el resumen final de los personajes
+     */
+    configureFinalCharactersSummary(playerStats, enemyStats) {
+        if (playerStats) {
+            if (this.elements.finalPlayerImage) {
+                this.elements.finalPlayerImage.src = this.elements.playerImage?.src || '';
+            }
+            if (this.elements.finalPlayerName) {
+                this.elements.finalPlayerName.textContent = playerStats.name;
+            }
+            if (this.elements.finalPlayerHealth) {
+                this.elements.finalPlayerHealth.textContent = playerStats.health.current;
+            }
+            if (this.elements.finalPlayerMaxHealth) {
+                this.elements.finalPlayerMaxHealth.textContent = playerStats.health.max;
+            }
         }
         
-        // Estadísticas de batalla
-        if (this.elements.battleDuration) {
+        if (enemyStats) {
+            if (this.elements.finalEnemyImage) {
+                this.elements.finalEnemyImage.src = this.elements.enemyImage?.src || '';
+            }
+            if (this.elements.finalEnemyName) {
+                this.elements.finalEnemyName.textContent = enemyStats.name;
+            }
+            if (this.elements.finalEnemyHealth) {
+                this.elements.finalEnemyHealth.textContent = enemyStats.health.current;
+            }
+            if (this.elements.finalEnemyMaxHealth) {
+                this.elements.finalEnemyMaxHealth.textContent = enemyStats.health.max;
+            }
+        }
+    }
+    
+    /**
+     * Configura las estadísticas detalladas de batalla
+     */
+    configureDetailedStats(battleResult) {
+        // Duración de la batalla
+        if (this.elements.battleDuration && battleResult.duration) {
             const duration = Math.floor(battleResult.duration / 1000);
             const minutes = Math.floor(duration / 60);
             const seconds = duration % 60;
             this.elements.battleDuration.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
         
+        // Número de rondas
         if (this.elements.totalRounds) {
-            this.elements.totalRounds.textContent = this.battleSystem.round;
+            this.elements.totalRounds.textContent = this.battleSystem.round || 1;
         }
         
-        if (this.elements.totalDamage) {
-            this.elements.totalDamage.textContent = battleResult.stats.totalDamageDealt;
+        // Estadísticas de daño y combate
+        const stats = battleResult.stats || this.battleSystem.stats;
+        if (stats) {
+            if (this.elements.totalDamageDealt) {
+                this.elements.totalDamageDealt.textContent = stats.totalDamageDealt || 0;
+            }
+            if (this.elements.totalDamageReceived) {
+                this.elements.totalDamageReceived.textContent = stats.totalDamageReceived || 0;
+            }
+            if (this.elements.criticalHits) {
+                this.elements.criticalHits.textContent = stats.criticalHits || 0;
+            }
+            if (this.elements.specialAbilitiesUsed) {
+                this.elements.specialAbilitiesUsed.textContent = stats.specialAbilitiesUsed || 0;
+            }
+        }
+    }
+    
+    /**
+     * Configura el mensaje específico del resultado
+     */
+    configureResultMessage(battleResult) {
+        if (!this.elements.resultDescription) return;
+        
+        let message = '';
+        
+        switch (battleResult.battleType) {
+            case 'enemy_defeated':
+                message = '¡Has derrotado completamente a tu oponente! Una victoria aplastante que demuestra tu superioridad en combate.';
+                break;
+            case 'player_defeated':
+                message = 'Tu oponente ha demostrado ser superior en esta batalla. Analiza tus estrategias y regresa más fuerte.';
+                break;
+            case 'time_victory':
+                message = 'Has logrado la victoria por supervivencia. Tu resistencia y estrategia han sido clave para superar a tu oponente.';
+                break;
+            case 'time_defeat':
+                message = 'Aunque luchaste valientemente, tu oponente ha demostrado mayor resistencia en esta extensa batalla.';
+                break;
+            case 'time_draw':
+                message = 'Una batalla igualada donde ambos combatientes han demostrado habilidades similares. ¡Un empate respetable!';
+                break;
+            case 'mutual_death':
+                message = 'Ambos combatientes han caído simultáneamente. Una batalla épica que será recordada por su intensidad.';
+                break;
+            default:
+                if (battleResult.surrendered) {
+                    message = 'Has decidido abandonar la batalla. A veces la retirada estratégica es la mejor opción.';
+                } else {
+                    message = 'La batalla ha llegado a su fin de manera inesperada.';
+                }
         }
         
-        // Mostrar modal
-        this.elements.battleEndModal.classList.add('active');
+        this.elements.resultDescription.textContent = message;
+    }
+    
+    /**
+     * Configura las recompensas obtenidas
+     */
+    configureRewards(battleResult) {
+        if (!this.elements.rewardsList) return;
+        
+        // Limpiar recompensas anteriores
+        this.elements.rewardsList.innerHTML = '';
+        
+        // Calcular experiencia y monedas
+        const experienceGained = this.battleSystem.calculateExperienceGained();
+        const coinsGained = this.battleSystem.calculateCoinsGained();
+        
+        // Añadir recompensa de experiencia
+        if (experienceGained > 0) {
+            const expReward = this.createRewardItem('fas fa-star', 'Experiencia', `+${experienceGained} XP`, '#3498db');
+            this.elements.rewardsList.appendChild(expReward);
+        }
+        
+        // Añadir recompensa de monedas
+        if (coinsGained > 0) {
+            const coinReward = this.createRewardItem('fas fa-coins', 'Monedas', `+${coinsGained}`, '#f1c40f');
+            this.elements.rewardsList.appendChild(coinReward);
+        }
+        
+        // Añadir bonificaciones especiales según el resultado
+        if (battleResult.winner === 'player') {
+            if (battleResult.battleType === 'enemy_defeated') {
+                const perfectVictory = this.createRewardItem('fas fa-crown', 'Victoria Perfecta', 'Bonus +50%', '#e74c3c');
+                this.elements.rewardsList.appendChild(perfectVictory);
+            }
+            
+            // Bonificación por golpes críticos
+            const criticalHits = this.battleSystem.stats.criticalHits || 0;
+            if (criticalHits >= 3) {
+                const criticalBonus = this.createRewardItem('fas fa-bolt', 'Maestro Crítico', `${criticalHits} críticos`, '#9b59b6');
+                this.elements.rewardsList.appendChild(criticalBonus);
+            }
+        }
+        
+        // Si no hay recompensas, mostrar mensaje
+        if (this.elements.rewardsList.children.length === 0) {
+            const noRewards = document.createElement('div');
+            noRewards.className = 'no-rewards';
+            noRewards.textContent = 'No se obtuvieron recompensas en esta batalla.';
+            noRewards.style.textAlign = 'center';
+            noRewards.style.color = 'var(--text-muted)';
+            noRewards.style.fontStyle = 'italic';
+            this.elements.rewardsList.appendChild(noRewards);
+        }
+    }
+    
+    /**
+     * Crea un elemento de recompensa
+     */
+    createRewardItem(iconClass, name, value, color) {
+        const rewardItem = document.createElement('div');
+        rewardItem.className = 'reward-item';
+        
+        rewardItem.innerHTML = `
+            <div class="reward-icon" style="background-color: ${color}20; color: ${color};">
+                <i class="${iconClass}"></i>
+            </div>
+            <div class="reward-details">
+                <div class="reward-name">${name}</div>
+                <div class="reward-value">${value}</div>
+            </div>
+        `;
+        
+        return rewardItem;
+    }
+    
+    /**
+     * Aplica estilos específicos según el resultado
+     */
+    applyResultStyling(battleResult) {
+        const modalContent = this.elements.battleEndModal?.querySelector('.modal-content');
+        if (!modalContent) return;
+        
+        // Remover clases anteriores
+        modalContent.classList.remove('victory', 'defeat', 'surrender', 'draw');
+        
+        // Añadir clase según el resultado
+        if (battleResult.winner === 'player') {
+            modalContent.classList.add('victory');
+        } else if (battleResult.winner === 'enemy') {
+            if (battleResult.surrendered) {
+                modalContent.classList.add('surrender');
+            } else {
+                modalContent.classList.add('defeat');
+            }
+        } else {
+            modalContent.classList.add('draw');
+        }
+    }
+    
+    /**
+     * Reproduce sonido según el resultado (placeholder para futura implementación)
+     */
+    playResultSound(battleResult) {
+        // Aquí se pueden añadir efectos de sonido en el futuro
+        try {
+            if (battleResult.winner === 'player') {
+                // Sonido de victoria
+                console.log('🎵 Reproduciendo sonido de victoria');
+            } else if (battleResult.winner === 'enemy') {
+                // Sonido de derrota
+                console.log('🎵 Reproduciendo sonido de derrota');
+            } else {
+                // Sonido de empate
+                console.log('🎵 Reproduciendo sonido de empate');
+            }
+        } catch (error) {
+            console.log('Audio no disponible:', error);
+        }
     }
     
     /**

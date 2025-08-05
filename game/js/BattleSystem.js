@@ -540,7 +540,9 @@ export class BattleSystem {
             type: 'shuna_ultimate',
             duration: 4,
             effect: 'stats_doubled',
-            statsMultiplier: 2
+            statsMultiplier: 2,
+            attackMultiplier: 2,
+            defenseMultiplier: 2
         });
         
         // Aplicar quemadura al enemigo
@@ -742,7 +744,7 @@ export class BattleSystem {
      * Verifica si la batalla ha terminado
      */
     checkBattleEnd() {
-        if (this.battleEnded) return true;
+        if (this.battleEnded) return this.battleResult;
         
         // Verificaciones de seguridad adicionales
         if (!this.player || !this.enemy) {
@@ -760,10 +762,11 @@ export class BattleSystem {
         const enemyDead = !this.enemy.isAlive();
         const maxRoundsReached = this.round >= this.config.maxRounds;
         
-        // Log de depuración
-        if (this.round % 10 === 0) { // Cada 10 rondas
-            console.log(`Ronda ${this.round}: Jugador HP: ${this.player.stats.health.current}/${this.player.stats.health.max}, Enemigo HP: ${this.enemy.stats.health.current}/${this.enemy.stats.health.max}`);
-        }
+        // Log de depuración detallado
+        console.log(`CheckBattleEnd - Ronda ${this.round}:`);
+        console.log(`- Jugador vivo: ${this.player.isAlive()}, HP: ${this.player.stats.health.current}/${this.player.stats.health.max}`);
+        console.log(`- Enemigo vivo: ${this.enemy.isAlive()}, HP: ${this.enemy.stats.health.current}/${this.enemy.stats.health.max}`);
+        console.log(`- Player dead: ${playerDead}, Enemy dead: ${enemyDead}`);
         
         // Verificación de seguridad: si la batalla ha durado más de 100 rondas, forzar fin
         if (this.round > 100) {
@@ -804,6 +807,7 @@ export class BattleSystem {
         }
         
         if (playerDead || enemyDead || maxRoundsReached) {
+            console.log('¡Batalla terminada detectada!');
             this.battleEnded = true;
             
             let winner, result, battleType;
@@ -851,6 +855,7 @@ export class BattleSystem {
                 stats: this.stats
             };
             
+            console.log('Battle result created:', this.battleResult);
             return this.battleResult;
         }
         

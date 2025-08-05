@@ -313,21 +313,75 @@
             </div>
             
             <div class="modal-body">
-                <div class="battle-summary">
-                    <div class="summary-item">
-                        <span class="label">Duración:</span>
-                        <span class="value" id="battleDuration">0:00</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Rondas:</span>
-                        <span class="value" id="totalRounds">1</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Daño total:</span>
-                        <span class="value" id="totalDamage">0</span>
+                <!-- Resumen de personajes final -->
+                <div class="final-characters-summary" id="finalCharactersSummary">
+                    <div class="character-final-status">
+                        <div class="character-info">
+                            <img id="finalPlayerImage" class="final-character-image" src="" alt="Jugador">
+                            <div class="character-details">
+                                <h4 id="finalPlayerName">Jugador</h4>
+                                <div class="final-health">
+                                    <span id="finalPlayerHealth">0</span> / <span id="finalPlayerMaxHealth">0</span> HP
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vs-indicator">VS</div>
+                        <div class="character-info">
+                            <img id="finalEnemyImage" class="final-character-image" src="" alt="Enemigo">
+                            <div class="character-details">
+                                <h4 id="finalEnemyName">Enemigo</h4>
+                                <div class="final-health">
+                                    <span id="finalEnemyHealth">0</span> / <span id="finalEnemyMaxHealth">0</span> HP
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Estadísticas detalladas de batalla -->
+                <div class="battle-summary">
+                    <h3 class="summary-title">Estadísticas de Batalla</h3>
+                    
+                    <div class="stats-grid">
+                        <div class="summary-item">
+                            <i class="fas fa-clock"></i>
+                            <span class="label">Duración:</span>
+                            <span class="value" id="battleDuration">0:00</span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-repeat"></i>
+                            <span class="label">Rondas:</span>
+                            <span class="value" id="totalRounds">1</span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-sword"></i>
+                            <span class="label">Daño infligido:</span>
+                            <span class="value" id="totalDamageDealt">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-shield"></i>
+                            <span class="label">Daño recibido:</span>
+                            <span class="value" id="totalDamageReceived">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-star"></i>
+                            <span class="label">Golpes críticos:</span>
+                            <span class="value" id="criticalHits">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-magic"></i>
+                            <span class="label">Habilidades usadas:</span>
+                            <span class="value" id="specialAbilitiesUsed">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de resultado específico -->
+                <div class="result-message" id="resultMessage">
+                    <p id="resultDescription"></p>
+                </div>
+
+                <!-- Recompensas -->
                 <div class="rewards-section" id="rewardsSection">
                     <h3>Recompensas</h3>
                     <div class="rewards-list" id="rewardsList">

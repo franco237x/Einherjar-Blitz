@@ -364,6 +364,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Exponer game globalmente para debugging
         window.battleGame = game;
         
+        // Función de testing para el modal
+        window.testBattleEndModal = () => {
+            const testResult = {
+                ended: true,
+                winner: 'player',
+                result: '¡Victoria de prueba!',
+                battleType: 'enemy_defeated',
+                surrendered: false,
+                duration: 120000,
+                stats: {
+                    totalDamageDealt: 500,
+                    totalDamageReceived: 200,
+                    criticalHits: 3,
+                    specialAbilitiesUsed: 2
+                }
+            };
+            
+            if (game.battleUI) {
+                console.log('Testing battle end modal...');
+                game.battleUI.showBattleEndModal(testResult);
+            } else {
+                console.log('BattleUI not available');
+            }
+        };
+        
     } catch (error) {
         console.error('Error fatal inicializando battle game:', error);
         document.body.innerHTML = `
