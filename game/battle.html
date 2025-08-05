@@ -2,13 +2,35 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Einherjar Blitz">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="msapplication-navbutton-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Einherjar Blitz - Juego de batallas épicas optimizado para móviles">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="../images/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../images/icon-180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="../images/icon-167.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../images/icon-16.png">
+    
     <title>Einherjar Blitz - Batalla</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/battle-new.css">
+    <link rel="stylesheet" href="../assets/css/battle-mobile.css">
 </head>
 <body>
     <!-- Background dinámico -->
@@ -45,69 +67,75 @@
             <!-- Personaje del jugador -->
             <section class="player-section" id="playerSection">
                 <div class="character-container player-character">
-                    <div class="character-image-wrapper">
-                        <img src="" alt="Personaje del jugador" id="playerImage" class="character-image">
-                        <div class="character-status" id="playerStatus"></div>
-                        <div class="damage-indicator" id="playerDamage"></div>
-                        <div class="element-glow" id="playerElementGlow"></div>
-                    </div>
-                    
                     <div class="character-info">
-                        <div class="character-header">
-                            <h2 class="character-name" id="playerName">Cargando...</h2>
-                            <div class="character-title" id="playerTitle"></div>
-                            <div class="rarity-badge" id="playerRarity"></div>
+                        <div class="character-image-wrapper">
+                            <img src="" alt="Personaje del jugador" id="playerImage" class="character-image">
+                            <div class="character-status" id="playerStatus"></div>
+                            <div class="damage-indicator" id="playerDamage"></div>
+                            <div class="element-glow" id="playerElementGlow"></div>
                         </div>
                         
-                        <div class="stats-panel">
-                            <!-- Barra de vida -->
-                            <div class="stat-bar health-bar">
-                                <div class="stat-label">
-                                    <i class="fas fa-heart"></i>
-                                    <span>Vida</span>
-                                    <span class="stat-values" id="playerHealthText">1000/1000</span>
-                                </div>
-                                <div class="bar-container">
-                                    <div class="bar-fill health-fill" id="playerHealthBar"></div>
-                                    <div class="bar-shine"></div>
-                                </div>
+                        <div class="character-details">
+                            <div class="character-header">
+                                <h2 class="character-name" id="playerName">Cargando...</h2>
+                                <div class="character-title" id="playerTitle"></div>
+                                <div class="rarity-badge" id="playerRarity"></div>
                             </div>
                             
-                            <!-- Barra de energía -->
-                            <div class="stat-bar energy-bar">
-                                <div class="stat-label">
-                                    <i class="fas fa-bolt"></i>
-                                    <span>Energía</span>
-                                    <span class="stat-values" id="playerEnergyText">100/100</span>
+                            <div class="stats-panel">
+                                <!-- Barra de vida -->
+                                <div class="stat-bar health-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-heart"></i>
+                                            <span>Vida</span>
+                                        </div>
+                                        <span class="stat-values" id="playerHealthText">1000/1000</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill health-fill" id="playerHealthBar"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
                                 </div>
-                                <div class="bar-container">
-                                    <div class="bar-fill energy-fill" id="playerEnergyBar"></div>
-                                    <div class="bar-shine"></div>
+                                
+                                <!-- Barra de energía -->
+                                <div class="stat-bar energy-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-bolt"></i>
+                                            <span>Energía</span>
+                                        </div>
+                                        <span class="stat-values" id="playerEnergyText">100/100</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill energy-fill" id="playerEnergyBar"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Estadísticas adicionales -->
+                                <div class="additional-stats">
+                                    <div class="stat-item">
+                                        <i class="fas fa-sword"></i>
+                                        <span class="stat-name">ATK</span>
+                                        <span class="stat-value" id="playerAttack">70-115</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fas fa-shield"></i>
+                                        <span class="stat-name">DEF</span>
+                                        <span class="stat-value" id="playerDefense">17</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fas fa-magic"></i>
+                                        <span class="stat-name">RES</span>
+                                        <span class="stat-value" id="playerResistance">50%</span>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Estadísticas adicionales -->
-                            <div class="additional-stats">
-                                <div class="stat-item">
-                                    <i class="fas fa-sword"></i>
-                                    <span class="stat-name">ATK</span>
-                                    <span class="stat-value" id="playerAttack">70-115</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-shield"></i>
-                                    <span class="stat-name">DEF</span>
-                                    <span class="stat-value" id="playerDefense">17</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-magic"></i>
-                                    <span class="stat-name">RES</span>
-                                    <span class="stat-value" id="playerResistance">50%</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Efectos de estado -->
-                        <div class="status-effects" id="playerStatusEffects"></div>
+                            <!-- Efectos de estado -->
+                            <div class="status-effects" id="playerStatusEffects"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -128,69 +156,75 @@
             <!-- Enemigo -->
             <section class="enemy-section" id="enemySection">
                 <div class="character-container enemy-character">
-                    <div class="character-image-wrapper">
-                        <img src="" alt="Enemigo" id="enemyImage" class="character-image">
-                        <div class="character-status" id="enemyStatus"></div>
-                        <div class="damage-indicator" id="enemyDamage"></div>
-                        <div class="element-glow" id="enemyElementGlow"></div>
-                    </div>
-                    
                     <div class="character-info">
-                        <div class="character-header">
-                            <h2 class="character-name" id="enemyName">Oponente</h2>
-                            <div class="character-title" id="enemyTitle"></div>
-                            <div class="rarity-badge" id="enemyRarity"></div>
+                        <div class="character-image-wrapper">
+                            <img src="" alt="Enemigo" id="enemyImage" class="character-image">
+                            <div class="character-status" id="enemyStatus"></div>
+                            <div class="damage-indicator" id="enemyDamage"></div>
+                            <div class="element-glow" id="enemyElementGlow"></div>
                         </div>
                         
-                        <div class="stats-panel">
-                            <!-- Barra de vida -->
-                            <div class="stat-bar health-bar">
-                                <div class="stat-label">
-                                    <i class="fas fa-heart"></i>
-                                    <span>Vida</span>
-                                    <span class="stat-values" id="enemyHealthText">1000/1000</span>
-                                </div>
-                                <div class="bar-container">
-                                    <div class="bar-fill health-fill" id="enemyHealthBar"></div>
-                                    <div class="bar-shine"></div>
-                                </div>
+                        <div class="character-details">
+                            <div class="character-header">
+                                <h2 class="character-name" id="enemyName">Oponente</h2>
+                                <div class="character-title" id="enemyTitle"></div>
+                                <div class="rarity-badge" id="enemyRarity"></div>
                             </div>
                             
-                            <!-- Barra de energía -->
-                            <div class="stat-bar energy-bar">
-                                <div class="stat-label">
-                                    <i class="fas fa-bolt"></i>
-                                    <span>Energía</span>
-                                    <span class="stat-values" id="enemyEnergyText">100/100</span>
+                            <div class="stats-panel">
+                                <!-- Barra de vida -->
+                                <div class="stat-bar health-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-heart"></i>
+                                            <span>Vida</span>
+                                        </div>
+                                        <span class="stat-values" id="enemyHealthText">1000/1000</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill health-fill" id="enemyHealthBar"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
                                 </div>
-                                <div class="bar-container">
-                                    <div class="bar-fill energy-fill" id="enemyEnergyBar"></div>
-                                    <div class="bar-shine"></div>
+                                
+                                <!-- Barra de energía -->
+                                <div class="stat-bar energy-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-bolt"></i>
+                                            <span>Energía</span>
+                                        </div>
+                                        <span class="stat-values" id="enemyEnergyText">100/100</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill energy-fill" id="enemyEnergyBar"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Estadísticas adicionales -->
+                                <div class="additional-stats">
+                                    <div class="stat-item">
+                                        <i class="fas fa-sword"></i>
+                                        <span class="stat-name">ATK</span>
+                                        <span class="stat-value" id="enemyAttack">70-115</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fas fa-shield"></i>
+                                        <span class="stat-name">DEF</span>
+                                        <span class="stat-value" id="enemyDefense">17</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fas fa-magic"></i>
+                                        <span class="stat-name">RES</span>
+                                        <span class="stat-value" id="enemyResistance">50%</span>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Estadísticas adicionales -->
-                            <div class="additional-stats">
-                                <div class="stat-item">
-                                    <i class="fas fa-sword"></i>
-                                    <span class="stat-name">ATK</span>
-                                    <span class="stat-value" id="enemyAttack">70-115</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-shield"></i>
-                                    <span class="stat-name">DEF</span>
-                                    <span class="stat-value" id="enemyDefense">17</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-magic"></i>
-                                    <span class="stat-name">RES</span>
-                                    <span class="stat-value" id="enemyResistance">50%</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Efectos de estado -->
-                        <div class="status-effects" id="enemyStatusEffects"></div>
+                            <!-- Efectos de estado -->
+                            <div class="status-effects" id="enemyStatusEffects"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -347,6 +381,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="js/mobile-utils.js"></script>
     <script type="module" src="../characters/index.js"></script>
     <script type="module" src="js/BattleSystem.js"></script>
     <script type="module" src="js/BattleUI.js"></script>
