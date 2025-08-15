@@ -85,7 +85,7 @@ function getCharacterData()
             'name' => 'Zack Hisoka',
             'title' => 'El más grande genio',
             'description' => 'El hombre con el intelecto más brillante del clan Hisoka.',
-            'image' => 'zack.png',
+            'image' => 'zack.jpg',
             'rarity' => 'legendary',
             'attack_min' => 30,
             'attack_max' => 250,

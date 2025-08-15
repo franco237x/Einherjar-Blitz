@@ -12,7 +12,7 @@ export class ZackHisoka {
             name: "Zack Hisoka",
             title: "El más grande genio",
             description: "El hombre con el intelecto más brillante del clan Hisoka.",
-            image: "zack.png",
+            image: "zack.jpg",
             rarity: "legendary",
             clan: "Hisoka",
             element: "Ninguno",

@@ -288,18 +288,8 @@ export class BattleUI {
         this.updateHealthBar(type, character);
         this.updateEnergyBar(type, character);
         
-        // Estadísticas
-        if (this.elements[`${prefix}Attack`]) {
-            this.elements[`${prefix}Attack`].textContent = `${character.attack.min}-${character.attack.max}`;
-        }
-        
-        if (this.elements[`${prefix}Defense`]) {
-            this.elements[`${prefix}Defense`].textContent = character.armor;
-        }
-        
-        if (this.elements[`${prefix}Resistance`]) {
-            this.elements[`${prefix}Resistance`].textContent = `${character.elementalResistance}%`;
-        }
+        // Estadísticas efectivas (considerando buffs/debuffs)
+        this.updateEffectiveStats(type, character);
         
         // Glow elemental
         if (this.elements[`${prefix}ElementGlow`]) {
@@ -368,6 +358,141 @@ export class BattleUI {
         if (this.elements[`${prefix}EnergyBar`]) {
             const energyPercent = (character.energy / character.maxEnergy) * 100;
             this.elements[`${prefix}EnergyBar`].style.width = `${energyPercent}%`;
+        }
+    }
+    
+    /**
+     * Calcula las estadísticas efectivas considerando todos los efectos de estado
+     */
+    calculateEffectiveStats(character) {
+        let effectiveStats = {
+            attack: {
+                min: character.attack.min,
+                max: character.attack.max
+            },
+            armor: character.armor,
+            elementalResistance: character.elementalResistance,
+            defenseReduction: character.defenseReduction || 0
+        };
+        
+        // Aplicar efectos de estado si existen
+        if (character.statusEffects && character.statusEffects.length > 0) {
+            character.statusEffects.forEach(effect => {
+                switch (effect.type) {
+                    case 'defense_reduction':
+                        effectiveStats.armor = Math.max(0, effectiveStats.armor - (effectiveStats.armor * (effect.value / 100)));
+                        break;
+                    case 'defense_boost':
+                        effectiveStats.armor += (effectiveStats.armor * (effect.value / 100));
+                        break;
+                    case 'attack_boost':
+                        effectiveStats.attack.min += (effectiveStats.attack.min * (effect.value / 100));
+                        effectiveStats.attack.max += (effectiveStats.attack.max * (effect.value / 100));
+                        break;
+                    case 'attack_reduction':
+                        effectiveStats.attack.min = Math.max(1, effectiveStats.attack.min - (effectiveStats.attack.min * (effect.value / 100)));
+                        effectiveStats.attack.max = Math.max(1, effectiveStats.attack.max - (effectiveStats.attack.max * (effect.value / 100)));
+                        break;
+                    case 'resistance_boost':
+                        effectiveStats.elementalResistance = Math.min(100, effectiveStats.elementalResistance + effect.value);
+                        break;
+                    case 'resistance_reduction':
+                        effectiveStats.elementalResistance = Math.max(0, effectiveStats.elementalResistance - effect.value);
+                        break;
+                    case 'nathan_ultimate':
+                        // Nathan: duplica ataque y reduce daño 50%
+                        effectiveStats.attack.min *= effect.attackMultiplier;
+                        effectiveStats.attack.max *= effect.attackMultiplier;
+                        effectiveStats.defenseReduction += effect.damageReduction;
+                        break;
+                    case 'shuna_ultimate':
+                        // Shuna: duplica todas las estadísticas
+                        effectiveStats.attack.min *= 2;
+                        effectiveStats.attack.max *= 2;
+                        effectiveStats.armor *= 2;
+                        effectiveStats.elementalResistance = Math.min(100, effectiveStats.elementalResistance * 2);
+                        break;
+                    case 'defend':
+                        // Efecto de defensa temporal
+                        effectiveStats.defenseReduction += effect.value;
+                        break;
+                }
+            });
+        }
+        
+        // Redondear valores
+        effectiveStats.attack.min = Math.floor(effectiveStats.attack.min);
+        effectiveStats.attack.max = Math.floor(effectiveStats.attack.max);
+        effectiveStats.armor = Math.floor(effectiveStats.armor);
+        effectiveStats.elementalResistance = Math.min(100, Math.max(0, Math.floor(effectiveStats.elementalResistance)));
+        effectiveStats.defenseReduction = Math.min(100, Math.max(0, Math.floor(effectiveStats.defenseReduction)));
+        
+        return effectiveStats;
+    }
+    
+    /**
+     * Actualiza las estadísticas mostradas con los valores efectivos (considerando buffs/debuffs)
+     */
+    updateEffectiveStats(type, character) {
+        const prefix = type === 'player' ? 'player' : 'enemy';
+        const effectiveStats = this.calculateEffectiveStats(character);
+        
+        // Actualizar ataque con indicador visual si está modificado
+        if (this.elements[`${prefix}Attack`]) {
+            const originalAttack = `${character.attack.min}-${character.attack.max}`;
+            const effectiveAttack = `${effectiveStats.attack.min}-${effectiveStats.attack.max}`;
+            
+            if (originalAttack !== effectiveAttack) {
+                this.elements[`${prefix}Attack`].innerHTML = `
+                    <span class="stat-modified">${effectiveAttack}</span>
+                    <span class="stat-original">(${originalAttack})</span>
+                `;
+                
+                // Determinar si es buff o debuff
+                const isBuffed = effectiveStats.attack.max > character.attack.max;
+                this.elements[`${prefix}Attack`].className = isBuffed ? 'stat-buffed' : 'stat-debuffed';
+            } else {
+                this.elements[`${prefix}Attack`].innerHTML = effectiveAttack;
+                this.elements[`${prefix}Attack`].className = '';
+            }
+        }
+        
+        // Actualizar defensa con indicador visual si está modificada
+        if (this.elements[`${prefix}Defense`]) {
+            const originalDefense = character.armor;
+            const effectiveDefense = effectiveStats.armor;
+            
+            if (originalDefense !== effectiveDefense) {
+                this.elements[`${prefix}Defense`].innerHTML = `
+                    <span class="stat-modified">${effectiveDefense}</span>
+                    <span class="stat-original">(${originalDefense})</span>
+                `;
+                
+                const isBuffed = effectiveDefense > originalDefense;
+                this.elements[`${prefix}Defense`].className = isBuffed ? 'stat-buffed' : 'stat-debuffed';
+            } else {
+                this.elements[`${prefix}Defense`].innerHTML = effectiveDefense;
+                this.elements[`${prefix}Defense`].className = '';
+            }
+        }
+        
+        // Actualizar resistencia elemental con indicador visual si está modificada
+        if (this.elements[`${prefix}Resistance`]) {
+            const originalResistance = character.elementalResistance;
+            const effectiveResistance = effectiveStats.elementalResistance;
+            
+            if (originalResistance !== effectiveResistance) {
+                this.elements[`${prefix}Resistance`].innerHTML = `
+                    <span class="stat-modified">${effectiveResistance}%</span>
+                    <span class="stat-original">(${originalResistance}%)</span>
+                `;
+                
+                const isBuffed = effectiveResistance > originalResistance;
+                this.elements[`${prefix}Resistance`].className = isBuffed ? 'stat-buffed' : 'stat-debuffed';
+            } else {
+                this.elements[`${prefix}Resistance`].innerHTML = `${effectiveResistance}%`;
+                this.elements[`${prefix}Resistance`].className = '';
+            }
         }
     }
     

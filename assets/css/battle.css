@@ -390,6 +390,46 @@ body {
     font-size: 1rem;
 }
 
+/* === ESTADÍSTICAS MODIFICADAS POR EFECTOS === */
+.stat-buffed {
+    position: relative;
+    animation: statBuff 0.5s ease-in-out;
+}
+
+.stat-buffed .stat-modified {
+    color: #22c55e !important;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+.stat-debuffed {
+    position: relative;
+    animation: statDebuff 0.5s ease-in-out;
+}
+
+.stat-debuffed .stat-modified {
+    color: #ef4444 !important;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.stat-original {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 0.3rem;
+    font-weight: normal;
+}
+
+@keyframes statBuff {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+}
+
+@keyframes statDebuff {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+}
+
 /* === CENTRO DEL COMBATE === */
 .battle-center {
     position: absolute;

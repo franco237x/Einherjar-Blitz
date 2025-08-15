@@ -409,6 +409,12 @@ export class BattleSystem {
             const defendName = this.getDefendName(character);
             this.addLogEntry('system', `${character.stats.name} usa "${defendName}" - ${customDefenseResult.message}`);
             
+            // Actualizar estadísticas visuales para mostrar el efecto de defensa personalizada
+            if (this.ui) {
+                const isPlayer = character === this.player;
+                this.ui.updateCharacterDisplay(isPlayer ? 'player' : 'enemy', character.stats);
+            }
+            
             return {
                 success: true,
                 action: 'defend',
@@ -435,6 +441,12 @@ export class BattleSystem {
         
         const defendName = this.getDefendName(character);
         this.addLogEntry('system', `${character.stats.name} usa "${defendName}" y regenera ${energyRegenerated} energía`);
+        
+        // Actualizar estadísticas visuales para mostrar el efecto de defensa
+        if (this.ui) {
+            const isPlayer = character === this.player;
+            this.ui.updateCharacterDisplay(isPlayer ? 'player' : 'enemy', character.stats);
+        }
         
         return {
             success: true,
@@ -502,6 +514,21 @@ export class BattleSystem {
         
         this.addLogEntry('player-action', `${character.stats.name} usa "${result.abilityName}"`);
         this.addLogEntry('system', result.description);
+        
+        // Actualizar estadísticas visuales para reflejar los efectos aplicados
+        if (this.ui) {
+            // Determinar qué personajes actualizar
+            const isPlayer = character === this.player;
+            const isTarget = target === (isPlayer ? this.enemy : this.player);
+            
+            // Actualizar estadísticas del personaje que usó la habilidad
+            this.ui.updateCharacterDisplay(isPlayer ? 'player' : 'enemy', character.stats);
+            
+            // Actualizar estadísticas del objetivo si fue afectado
+            if (isTarget) {
+                this.ui.updateCharacterDisplay(isPlayer ? 'enemy' : 'player', target.stats);
+            }
+        }
         
         return {
             success: true,
@@ -1093,6 +1120,8 @@ export class BattleSystem {
     processStatusEffects() {
         [this.player, this.enemy].forEach(character => {
             if (character && character.stats.statusEffects) {
+                const originalEffectsCount = character.stats.statusEffects.length;
+                
                 // Procesar efectos antes de reducir duración
                 character.stats.statusEffects.forEach(effect => {
                     // Daño por quemadura de Shuna
@@ -1116,6 +1145,12 @@ export class BattleSystem {
                         duration: effect.duration - 1
                     }))
                     .filter(effect => effect.duration > 0);
+                
+                // Si algunos efectos expiraron, actualizar estadísticas visuales
+                if (originalEffectsCount !== character.stats.statusEffects.length && this.ui) {
+                    const isPlayer = character === this.player;
+                    this.ui.updateCharacterDisplay(isPlayer ? 'player' : 'enemy', character.stats);
+                }
             }
         });
     }
