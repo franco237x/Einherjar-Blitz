@@ -181,13 +181,13 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Próximamente</div>
                 </div>
 
-                <div class="nav-card glass-card disabled">
+                <a href="gacha/index.php" class="nav-card glass-card">
                     <div class="nav-icon">
                         <i class="fas fa-gift"></i>
                     </div>
                     <div class="nav-title">Cofres</div>
-                    <div class="nav-description">Próximamente</div>
-                </div>
+                    <div class="nav-description">Sistema Gacha</div>
+                </a>
 
                 <div class="nav-card glass-card disabled">
                     <div class="nav-icon">
