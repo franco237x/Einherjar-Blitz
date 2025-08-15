@@ -7,13 +7,15 @@ import { ShunaShieda } from './ShunaShieda.js';
 import { OzenKimura } from './OzenKimura.js';
 import { XairChikyu } from './XairChikyu.js';
 import { NathanDoffens } from './NathanDoffens.js';
+import { ZackHisoka } from './ZackHisoka.js';
 
 // Mapa de personajes por ID
 export const CHARACTERS_BY_ID = {
     1: ShunaShieda,
     2: OzenKimura,
     3: XairChikyu,
-    4: NathanDoffens
+    4: NathanDoffens,
+    5: ZackHisoka
 };
 
 // Mapa de personajes por nombre
@@ -21,7 +23,8 @@ export const CHARACTERS_BY_NAME = {
     'Shuna Shieda': ShunaShieda,
     'Ozen Kimura': OzenKimura,
     'Xair Chikyu': XairChikyu,
-    'Nathan Doffens': NathanDoffens
+    'Nathan Doffens': NathanDoffens,
+    'Zack Hisoka': ZackHisoka
 };
 
 // Información de elementos (solo colores)
@@ -37,6 +40,9 @@ export const ELEMENT_SYSTEM = {
     },
     'Rayo': {
         color: '#f1c40f'
+    },
+    'Ninguno': {
+        color: '#95a5a6'
     }
 };
 
@@ -114,5 +120,6 @@ export {
     ShunaShieda,
     OzenKimura,
     XairChikyu,
-    NathanDoffens
+    NathanDoffens,
+    ZackHisoka
 };

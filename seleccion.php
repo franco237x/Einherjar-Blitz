@@ -79,6 +79,22 @@ function getCharacterData()
             'elemental_resistance' => 50,
             'clan' => 'Doffens',
             'element' => 'Rayo'
+            ],
+             [
+            'id' => 5,
+            'name' => 'Zack Hisoka',
+            'title' => 'El más grande genio',
+            'description' => 'El hombre con el intelecto más brillante del clan Hisoka.',
+            'image' => 'zack.png',
+            'rarity' => 'legendary',
+            'attack_min' => 30,
+            'attack_max' => 250,
+            'max_health' => 750,
+            'armor' => 25,
+            'defense_reduction' => 35,
+            'elemental_resistance' => 35,
+            'clan' => 'Hisoka',
+            'element' => 'Ninguno'
            ]
     ];
 }

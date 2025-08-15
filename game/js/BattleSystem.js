@@ -403,7 +403,22 @@ export class BattleSystem {
      * Realiza una acción de defensa
      */
     async performDefend(character) {
-        // Aumentar temporalmente la defensa y regenerar un poco de energía
+        // Verificar si el personaje tiene un método de defensa personalizado (como Zack)
+        if (character.defend && typeof character.defend === 'function') {
+            const customDefenseResult = character.defend();
+            const defendName = this.getDefendName(character);
+            this.addLogEntry('system', `${character.stats.name} usa "${defendName}" - ${customDefenseResult.message}`);
+            
+            return {
+                success: true,
+                action: 'defend',
+                character: character.stats.name,
+                energyRegenerated: customDefenseResult.energyGained || 0,
+                customEffect: true
+            };
+        }
+        
+        // Comportamiento de defensa estándar
         const energyRegenerated = Math.min(15, character.stats.maxEnergy - character.stats.energy);
         character.stats.energy += energyRegenerated;
         
@@ -478,6 +493,9 @@ export class BattleSystem {
             case 'Nathan Doffens':
                 result = this.nathanSpecialAbility(character, target);
                 break;
+            case 'Zack Hisoka':
+                result = this.zackSpecialAbility(character, target);
+                break;
             default:
                 result = this.defaultSpecialAbility(character, target);
         }
@@ -506,6 +524,26 @@ export class BattleSystem {
             };
         }
         
+        // Verificar si el personaje tiene curación personalizada (como Zack)
+        if (character.heal && typeof character.heal === 'function' && character.stats.name === 'Zack Hisoka') {
+            character.stats.energy -= energyCost;
+            const customHealResult = character.heal(0); // Zack no se cura, sino que gana energía
+            
+            const healName = this.getHealName(character);
+            this.addLogEntry('heal', `${character.stats.name} usa "${healName}" - ${customHealResult.message}`);
+            
+            return {
+                success: true,
+                action: 'heal',
+                character: character.stats.name,
+                healAmount: customHealResult.healing,
+                energyGained: customHealResult.energyGained,
+                currentHealth: character.stats.health.current,
+                customEffect: true
+            };
+        }
+        
+        // Curación estándar para otros personajes
         const healAmount = Math.floor(character.stats.health.max * 0.10); // 10% de vida máxima
         const actualHeal = Math.min(healAmount, character.stats.health.max - character.stats.health.current);
         
@@ -641,6 +679,70 @@ export class BattleSystem {
         };
     }
     
+    zackSpecialAbility(character, target) {
+        // Usar la habilidad Omniscio del personaje Zack
+        const omniscioResult = character.omniscio(target);
+        
+        if (!omniscioResult.success) {
+            return {
+                abilityName: 'Omniscio',
+                description: omniscioResult.message,
+                success: false
+            };
+        }
+        
+        // Procesar el efecto según el tipo de resultado
+        let effectDescription = omniscioResult.message;
+        let additionalEffects = {};
+        
+        // Aplicar efectos al objetivo si es necesario
+        if (omniscioResult.target === "enemy" && omniscioResult.statusEffect) {
+            target.stats.statusEffects = target.stats.statusEffects || [];
+            
+            // Limpiar efectos similares para evitar acumulación
+            target.stats.statusEffects = target.stats.statusEffects.filter(
+                effect => effect.type !== omniscioResult.statusEffect.type
+            );
+            
+            target.stats.statusEffects.push({
+                type: omniscioResult.statusEffect.type,
+                duration: omniscioResult.statusEffect.duration,
+                value: omniscioResult.statusEffect.value,
+                source: 'zack_omniscio'
+            });
+            
+            additionalEffects.targetStatusEffect = omniscioResult.statusEffect;
+        }
+        
+        // Aplicar daño directo si es necesario
+        if (omniscioResult.damage) {
+            const actualDamage = target.takeDamage(Math.floor(omniscioResult.damage));
+            effectDescription += ` - Causa ${actualDamage} de daño`;
+            additionalEffects.damage = actualDamage;
+            additionalEffects.targetHealth = target.stats.health.current;
+        }
+        
+        // Agregar información de curación si aplica
+        if (omniscioResult.healing) {
+            effectDescription += ` - Restaura ${omniscioResult.healing} puntos de vida`;
+            additionalEffects.healing = omniscioResult.healing;
+        }
+        
+        // Agregar información de energía ganada si aplica
+        if (omniscioResult.energyGained) {
+            effectDescription += ` - Gana ${omniscioResult.energyGained} puntos de energía`;
+            additionalEffects.energyGained = omniscioResult.energyGained;
+        }
+        
+        return {
+            abilityName: 'Omniscio',
+            description: effectDescription,
+            effectName: omniscioResult.effectName,
+            effectType: omniscioResult.effectType,
+            ...additionalEffects
+        };
+    }
+    
     defaultSpecialAbility(character, target) {
         const damage = character.calculateAttackDamage() * 1.3;
         const actualDamage = target.takeDamage(Math.floor(damage));
@@ -661,7 +763,8 @@ export class BattleSystem {
             'Shuna Shieda': 'Recubrimiento Primordial',  // Será rellenado por el usuario
             'Ozen Kimura': 'Esferas en Busqueda de la Verdad',   // Será rellenado por el usuario
             'Xair Chikyu': 'Frostbite',   // Será rellenado por el usuario
-            'Nathan Doffens': 'Kami defensivo' // Será rellenado por el usuario
+            'Nathan Doffens': 'Kami defensivo', // Será rellenado por el usuario
+            'Zack Hisoka': 'Manipulación Atómica Defensiva'
         };
         
         return defendNames[character.stats.name] || 'Defensa';
@@ -675,7 +778,8 @@ export class BattleSystem {
             'Shuna Shieda': 'Regeneración de Vida',
             'Ozen Kimura': 'Regeneración de Vida',
             'Xair Chikyu': 'Regeneración de Vida',
-            'Nathan Doffens': 'Regeneración de Vida'
+            'Nathan Doffens': 'Regeneración de Vida',
+            'Zack Hisoka': 'Conversión Energética'
         };
         
         return healNames[character.stats.name] || 'Regeneración de Vida';
@@ -735,6 +839,8 @@ export class BattleSystem {
                 return 25;
             case 'Nathan Doffens':
                 return 35;
+            case 'Zack Hisoka':
+                return 40;
             default:
                 return 30;
         }
