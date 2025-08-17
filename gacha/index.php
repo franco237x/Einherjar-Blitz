@@ -203,7 +203,7 @@ if (!$userData) {
 
                     <!-- Cofre de Terrenos -->
                     <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card terrains" data-chest-type="terrains">
+                        <div class="chest-card terrains locked" data-chest-type="terrains">
                             <div class="chest-header">
                                 <div class="chest-rarity">
                                     <i class="fas fa-mountain"></i>
@@ -211,8 +211,8 @@ if (!$userData) {
                                     <span>Terrenos</span>
                                 </div>
                                 <div class="chest-cost">
-                                    <i class="fas fa-key"></i>
-                                    <span>25</span>
+                                    <i class="fas fa-lock"></i>
+                                    <span>Bloqueado</span>
                                 </div>
                             </div>
                             
@@ -221,16 +221,18 @@ if (!$userData) {
                                 <img src="assets/images/banners/terrains-banner.jpg" 
                                      alt="Banner Terrenos" 
                                      class="chest-banner-image"
-                                     onerror="this.style.display='none'">
+                                     onerror="this.style.display='none'"
+                                     style="filter: grayscale(100%) brightness(0.5);">
                                 
                                 <div class="chest-icon">
-                                    <i class="fas fa-mountain"></i>
+                                    <i class="fas fa-lock"></i>
                                 </div>
                                 
                                 <div class="chest-overlay">
                                     <div class="chest-info">
                                         <h3 class="chest-name">Cofre de Terrenos</h3>
                                         <p class="chest-description">
+                                            <strong>PRÓXIMAMENTE DISPONIBLE</strong><br>
                                             Terrenos únicos y la codiciada Dad Key
                                         </p>
                                         
@@ -251,9 +253,9 @@ if (!$userData) {
                                     </div>
                                     
                                     <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-terrains" onclick="openChest('terrains', 25)">
-                                            <i class="fas fa-unlock-alt me-2"></i>
-                                            Abrir Cofre
+                                        <button class="btn btn-gacha btn-terrains" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                            <i class="fas fa-lock me-2"></i>
+                                            Próximamente
                                         </button>
                                     </div>
                                 </div>

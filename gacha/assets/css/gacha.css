@@ -1175,3 +1175,207 @@
     margin: 0;
     font-style: italic;
 }
+
+/* ====================================
+   ESTILOS PARA COFRES BLOQUEADOS
+   ==================================== */
+
+.chest-card.locked {
+    opacity: 0.7;
+    filter: grayscale(60%) brightness(0.8);
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.chest-card.locked::before {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(128, 128, 128, 0.5) !important;
+}
+
+.chest-card.locked:hover {
+    transform: none !important;
+    border-color: rgba(128, 128, 128, 0.5) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.chest-card.locked .chest-cost {
+    background: rgba(128, 128, 128, 0.3) !important;
+    color: #cccccc !important;
+}
+
+.chest-card.locked .chest-rarity {
+    color: #888888 !important;
+}
+
+.chest-card.locked .chest-name {
+    color: #cccccc !important;
+}
+
+.chest-card.locked .chest-description {
+    color: #aaaaaa !important;
+}
+
+.chest-card.locked .chest-description strong {
+    color: #ff6b6b !important;
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+.chest-card.locked .preview-item {
+    opacity: 0.6;
+}
+
+.chest-card.locked .btn-gacha {
+    background: linear-gradient(135deg, #444444, #666666) !important;
+    border: 1px solid #555555 !important;
+    color: #cccccc !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
+
+.chest-card.locked .btn-gacha:hover {
+    background: linear-gradient(135deg, #444444, #666666) !important;
+    transform: none !important;
+}
+
+/* ====================================
+   TOASTS DE ERROR PERSONALIZADOS
+   ==================================== */
+
+.gacha-error-toast {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gacha-toast-card {
+    background: rgba(15, 8, 32, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    animation: glow-pulse 2s infinite ease-in-out alternate;
+}
+
+.gacha-toast-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--gacha-bg-secondary), var(--gacha-bg-tertiary));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.gacha-toast-header.gacha-error-keys {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 215, 0, 0.8));
+    color: #1a1a1a;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.gacha-toast-header.gacha-error-blocked {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.9), rgba(73, 80, 87, 0.8));
+    color: #ffffff;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.gacha-error-keys .toast-icon {
+    background: rgba(0, 0, 0, 0.2);
+    color: #1a1a1a;
+}
+
+.toast-title {
+    flex: 1;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.gacha-toast-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.gacha-toast-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.gacha-error-keys .gacha-toast-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.gacha-toast-body {
+    padding: 16px;
+    color: var(--text-primary);
+}
+
+.error-message {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #f8f9fa;
+}
+
+.key-suggestion {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid var(--gold-primary);
+}
+
+.key-suggestion i {
+    color: var(--gold-primary);
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.key-suggestion small {
+    color: var(--gold-secondary);
+    font-size: 0.85rem;
+}
+
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+    100% {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.1);
+    }
+}
+
+/* Animación específica para error de llaves */
+.gacha-error-keys .gacha-toast-card {
+    animation: key-glow-pulse 2s infinite ease-in-out alternate;
+}
+
+@keyframes key-glow-pulse {
+    0% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+    100% {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.4);
+    }
+}

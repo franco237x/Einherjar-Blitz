@@ -21,6 +21,15 @@ try {
         exit;
     }
 
+    // Verificar si el cofre de terrenos está bloqueado
+    if ($chest_type === 'terrains') {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Los cofres de terrenos están temporalmente deshabilitados. ¡Próximamente disponibles!'
+        ]);
+        exit;
+    }
+
     // Incluir la base de datos
     require_once '../includes/Database.php';
 

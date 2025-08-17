@@ -162,41 +162,89 @@ class GachaSystem {
     }
 
     showError(message) {
-        // Crear toast de error moderno
+        // Determinar el tipo de error y configuración
+        const isKeyError = message.toLowerCase().includes('llave') || message.toLowerCase().includes('insuficient');
+        const isBlockedError = message.toLowerCase().includes('deshabilitado') || message.toLowerCase().includes('bloqueado');
+        
+        let config = {
+            icon: 'fas fa-exclamation-triangle',
+            title: 'Error',
+            bgClass: 'bg-danger',
+            borderColor: '#dc3545'
+        };
+        
+        if (isKeyError) {
+            config = {
+                icon: 'fas fa-key',
+                title: 'Llaves Insuficientes',
+                bgClass: 'gacha-error-keys',
+                borderColor: '#ffd700'
+            };
+        } else if (isBlockedError) {
+            config = {
+                icon: 'fas fa-lock',
+                title: 'Cofre Bloqueado',
+                bgClass: 'gacha-error-blocked',
+                borderColor: '#6c757d'
+            };
+        }
+        
+        // Crear toast personalizado para el juego
         const toast = document.createElement('div');
-        toast.className = 'position-fixed top-0 end-0 p-3';
-        toast.style.zIndex = '9999';
+        toast.className = 'gacha-error-toast position-fixed';
+        toast.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 350px;
+            max-width: 400px;
+        `;
+        
         toast.innerHTML = `
-            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-danger text-white">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong class="me-auto">Error</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="gacha-toast-card">
+                <div class="gacha-toast-header ${config.bgClass}">
+                    <div class="toast-icon">
+                        <i class="${config.icon}"></i>
+                    </div>
+                    <div class="toast-title">
+                        <strong>${config.title}</strong>
+                    </div>
+                    <button type="button" class="gacha-toast-close" onclick="this.closest('.gacha-error-toast').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="toast-body">
-                    ${message}
+                <div class="gacha-toast-body">
+                    <p class="error-message">${message}</p>
+                    ${isKeyError ? `
+                        <div class="key-suggestion">
+                            <i class="fas fa-lightbulb"></i>
+                            <small>Puedes obtener más llaves comprando en el rol</small>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
         
         document.body.appendChild(toast);
         
-        // Configurar auto-dismiss con Bootstrap si está disponible
-        if (typeof bootstrap !== 'undefined') {
-            const toastElement = toast.querySelector('.toast');
-            const bsToast = new bootstrap.Toast(toastElement, {
-                autohide: true,
-                delay: 5000
-            });
-            bsToast.show();
-        }
+        // Animación de entrada
+        setTimeout(() => {
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        }, 10);
         
-        // Limpiar elemento después del tiempo
+        // Auto-dismiss
         setTimeout(() => {
             if (toast.parentElement) {
-                toast.remove();
+                toast.style.transform = 'translateX(100%)';
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
             }
-        }, 6000);
+        }, 5000);
     }
 
     // Método para formatear números
@@ -314,6 +362,13 @@ class GachaSystem {
 // Función global para mantener compatibilidad con onclick - ESTA ES LA IMPORTANTE
 function openChest(chestType, cost) {
     console.log('openChest called with:', chestType, cost);
+    
+    // Verificar si es cofre de terrenos (bloqueado temporalmente)
+    if (chestType === 'terrains') {
+        alert('Los cofres de terrenos están temporalmente deshabilitados.\n¡Próximamente disponibles!');
+        return;
+    }
+    
     if (window.gachaSystem) {
         window.gachaSystem.openChest(chestType, cost);
     } else {
