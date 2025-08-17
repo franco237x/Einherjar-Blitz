@@ -82,13 +82,13 @@ if (!$userData) {
             <section class="chest-gallery">
                 <div class="row g-4">
                     
-                    <!-- Cofre Común -->
+                    <!-- Cofre de Uma Musume -->
                     <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card common" data-chest-type="common">
+                        <div class="chest-card uma-musume" data-chest-type="uma-musume">
                             <div class="chest-header">
                                 <div class="chest-rarity">
-                                    <i class="fas fa-star"></i>
-                                    <span>Común</span>
+                                    <i class="fas fa-horse"></i>
+                                    <span>Uma Musume</span>
                                 </div>
                                 <div class="chest-cost">
                                     <i class="fas fa-key"></i>
@@ -98,41 +98,40 @@ if (!$userData) {
                             
                             <div class="chest-visual">
                                 <!-- Aquí irá la imagen del banner -->
-                                <img src="assets/images/banners/banner_prueba.jpg" 
-                                     alt="Banner Común" 
+                                <img src="assets/images/banners/uma-musume-banner.jpg" 
+                                     alt="Banner Uma Musume" 
                                      class="chest-banner-image"
                                      onerror="this.style.display='none'">
                                 
                                 <div class="chest-icon">
-                                    <i class="fas fa-box"></i>
+                                    <i class="fas fa-horse"></i>
                                 </div>
-                                <div class="chest-glow common-glow"></div>
                                 
                                 <div class="chest-overlay">
                                     <div class="chest-info">
-                                        <h3 class="chest-name">Cofre Común</h3>
+                                        <h3 class="chest-name">Cofre Uma Musume</h3>
                                         <p class="chest-description">
-                                            Recompensas básicas para empezar tu aventura
+                                            Toda la colección de Uma Musume te espera
                                         </p>
                                         
                                         <div class="chest-preview-items">
                                             <div class="preview-item">
-                                                <i class="fas fa-globe"></i>
-                                                <span>Esferas</span>
+                                                <i class="fas fa-horse"></i>
+                                                <span>Uma Cards</span>
                                             </div>
                                             <div class="preview-item">
-                                                <i class="fas fa-shield-alt"></i>
-                                                <span>Equipos</span>
+                                                <i class="fas fa-map"></i>
+                                                <span>Terreno Secreto</span>
                                             </div>
                                             <div class="preview-item">
-                                                <i class="fas fa-potion"></i>
-                                                <span>Pociones</span>
+                                                <i class="fas fa-trophy"></i>
+                                                <span>Exclusivos</span>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-common" onclick="openChest('common', 1)">
+                                        <button class="btn btn-gacha btn-uma-musume" onclick="openChest('uma_musume', 1)">
                                             <i class="fas fa-unlock-alt me-2"></i>
                                             Abrir Cofre
                                         </button>
@@ -142,79 +141,14 @@ if (!$userData) {
                         </div>
                     </div>
 
-                    <!-- Cofre Raro -->
+                    <!-- Cofre Warhammer 40K -->
                     <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card rare" data-chest-type="rare">
+                        <div class="chest-card warhammer" data-chest-type="warhammer">
                             <div class="chest-header">
                                 <div class="chest-rarity">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <span>Raro</span>
-                                </div>
-                                <div class="chest-cost">
-                                    <i class="fas fa-key"></i>
-                                    <span>3</span>
-                                </div>
-                            </div>
-                            
-                            <div class="chest-visual">
-                                <!-- Aquí irá la imagen del banner -->
-                                <img src="assets/images/banners/rare-banner.jpg" 
-                                     alt="Banner Raro" 
-                                     class="chest-banner-image"
-                                     onerror="this.style.display='none'">
-                                
-                                <div class="chest-icon">
-                                    <i class="fas fa-treasure-chest"></i>
-                                </div>
-                                <div class="chest-glow rare-glow"></div>
-                                
-                                <div class="chest-overlay">
-                                    <div class="chest-info">
-                                        <h3 class="chest-name">Cofre Raro</h3>
-                                        <p class="chest-description">
-                                            Recompensas mejoradas con posibilidades épicas
-                                        </p>
-                                        
-                                        <div class="chest-preview-items">
-                                            <div class="preview-item">
-                                                <i class="fas fa-globe"></i>
-                                                <span>Más Esferas</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-sword"></i>
-                                                <span>Armas</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-gem"></i>
-                                                <span>Fragmentos</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-rare" onclick="openChest('rare', 3)">
-                                            <i class="fas fa-unlock-alt me-2"></i>
-                                            Abrir Cofre
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cofre Épico -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card epic" data-chest-type="epic">
-                            <div class="chest-header">
-                                <div class="chest-rarity">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <span>Épico</span>
+                                    <i class="fas fa-skull"></i>
+                                    <i class="fas fa-cog"></i>
+                                    <span>Warhammer 40K</span>
                                 </div>
                                 <div class="chest-cost">
                                     <i class="fas fa-key"></i>
@@ -224,43 +158,102 @@ if (!$userData) {
                             
                             <div class="chest-visual">
                                 <!-- Aquí irá la imagen del banner -->
-                                <img src="assets/images/banners/epic-banner.jpg" 
-                                     alt="Banner Épico" 
+                                <img src="assets/images/banners/warhammer-banner.jpg" 
+                                     alt="Banner Warhammer 40K" 
                                      class="chest-banner-image"
                                      onerror="this.style.display='none'">
                                 
                                 <div class="chest-icon">
-                                    <i class="fas fa-crown"></i>
+                                    <i class="fas fa-skull"></i>
                                 </div>
-                                <div class="chest-glow epic-glow"></div>
                                 
                                 <div class="chest-overlay">
                                     <div class="chest-info">
-                                        <h3 class="chest-name">Cofre Épico</h3>
+                                        <h3 class="chest-name">Cofre Warhammer 40K</h3>
                                         <p class="chest-description">
-                                            Las mejores recompensas para guerreros élite
+                                            El universo completo de Warhammer 40.000
                                         </p>
                                         
                                         <div class="chest-preview-items">
                                             <div class="preview-item">
-                                                <i class="fas fa-globe"></i>
-                                                <span>Muchas Esferas</span>
+                                                <i class="fas fa-skull"></i>
+                                                <span>Space Marines</span>
                                             </div>
                                             <div class="preview-item">
-                                                <i class="fas fa-magic"></i>
-                                                <span>Legendarios</span>
+                                                <i class="fas fa-cog"></i>
+                                                <span>Mechanicus</span>
                                             </div>
                                             <div class="preview-item">
-                                                <i class="fas fa-user-ninja"></i>
-                                                <span>Personajes</span>
+                                                <i class="fas fa-fire"></i>
+                                                <span>Caos</span>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-epic" onclick="openChest('epic', 5)">
+                                        <button class="btn btn-gacha btn-warhammer" onclick="openChest('warhammer', 5)">
                                             <i class="fas fa-unlock-alt me-2"></i>
                                             Abrir Cofre
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cofre de Terrenos -->
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="chest-card terrains chest-locked" data-chest-type="terrains">
+                            <div class="chest-header">
+                                <div class="chest-rarity">
+                                    <i class="fas fa-mountain"></i>
+                                    <i class="fas fa-gem"></i>
+                                    <span>Terrenos</span>
+                                </div>
+                                <div class="chest-cost">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Bloqueado</span>
+                                </div>
+                            </div>
+                            
+                            <div class="chest-visual">
+                                <!-- Aquí irá la imagen del banner -->
+                                <img src="assets/images/banners/terrains-banner.jpg" 
+                                     alt="Banner Terrenos" 
+                                     class="chest-banner-image"
+                                     onerror="this.style.display='none'">
+                                
+                                <div class="chest-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                
+                                <div class="chest-overlay">
+                                    <div class="chest-info">
+                                        <h3 class="chest-name">Cofre de Terrenos</h3>
+                                        <p class="chest-description">
+                                            ¡Próximamente disponible!
+                                        </p>
+                                        
+                                        <div class="chest-preview-items">
+                                            <div class="preview-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span>Muy Pronto</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-exclamation"></i>
+                                                <span>En Desarrollo</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-star"></i>
+                                                <span>Epic Content</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chest-actions">
+                                        <button class="btn btn-gacha btn-terrains" disabled>
+                                            <i class="fas fa-lock me-2"></i>
+                                            Bloqueado
                                         </button>
                                     </div>
                                 </div>
