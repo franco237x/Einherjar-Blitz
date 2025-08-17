@@ -203,7 +203,7 @@ if (!$userData) {
 
                     <!-- Cofre de Terrenos -->
                     <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card terrains chest-locked" data-chest-type="terrains">
+                        <div class="chest-card terrains" data-chest-type="terrains">
                             <div class="chest-header">
                                 <div class="chest-rarity">
                                     <i class="fas fa-mountain"></i>
@@ -211,8 +211,8 @@ if (!$userData) {
                                     <span>Terrenos</span>
                                 </div>
                                 <div class="chest-cost">
-                                    <i class="fas fa-lock"></i>
-                                    <span>Bloqueado</span>
+                                    <i class="fas fa-key"></i>
+                                    <span>25</span>
                                 </div>
                             </div>
                             
@@ -224,36 +224,36 @@ if (!$userData) {
                                      onerror="this.style.display='none'">
                                 
                                 <div class="chest-icon">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fas fa-mountain"></i>
                                 </div>
                                 
                                 <div class="chest-overlay">
                                     <div class="chest-info">
                                         <h3 class="chest-name">Cofre de Terrenos</h3>
                                         <p class="chest-description">
-                                            ¡Próximamente disponible!
+                                            Terrenos únicos y la codiciada Dad Key
                                         </p>
                                         
                                         <div class="chest-preview-items">
                                             <div class="preview-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span>Muy Pronto</span>
+                                                <i class="fas fa-mountain"></i>
+                                                <span>Terrenos</span>
                                             </div>
                                             <div class="preview-item">
-                                                <i class="fas fa-exclamation"></i>
-                                                <span>En Desarrollo</span>
+                                                <i class="fas fa-key"></i>
+                                                <span>Dad Key</span>
                                             </div>
                                             <div class="preview-item">
                                                 <i class="fas fa-star"></i>
-                                                <span>Epic Content</span>
+                                                <span>Legendarios</span>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-terrains" disabled>
-                                            <i class="fas fa-lock me-2"></i>
-                                            Bloqueado
+                                        <button class="btn btn-gacha btn-terrains" onclick="openChest('terrains', 25)">
+                                            <i class="fas fa-unlock-alt me-2"></i>
+                                            Abrir Cofre
                                         </button>
                                     </div>
                                 </div>

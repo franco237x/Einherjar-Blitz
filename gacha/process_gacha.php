@@ -81,33 +81,35 @@ try {
             ]
         ],
         'warhammer' => [
-    'name' => 'Cofre Warhammer 40K',
-    'cost' => 5,
-    'rewards' => [
-        // Comunes (peso 35) - Territorios y ubicaciones menores
-        ['100 Esencias Azules', 'resource', 1, 35],
+            'name' => 'Cofre Warhammer 40K',
+            'cost' => 5,
+            'rewards' => [
+                // Comunes (peso 35) - Lugares y Primarca
+                ['Ojo del Terror', 'invocation', 1, 35],
+                ['Roboute Guilliman', 'invocation', 1, 35],
+                ['Sanguinius', 'invocation', 1, 35],
 
-        // Raros (peso 25) - Objetos poderosos
-        ['Espada de los Mil Nombres', 'weapon', 1, 25],
-        ['Drach\'nyen', 'weapon', 1, 25],
+                // Raros (peso 25) - Objetos poderosos
+                ['Espada de los Mil Nombres', 'weapon', 1, 25],
+                ['Drach\'nyen', 'weapon', 1, 25],
+                
+                // Épicos (peso 20) - Artefactos supremos
+                ['Trono Dorado', 'artifact', 1, 20],
+                
+                // Legendarios (peso 10) - Dioses del Caos
+                ['Khorne', 'invocation', 1, 10],
+                ['Tzeentch', 'invocation', 1, 10],
+                ['Nurgle', 'invocation', 1, 10],
+                ['Slaanesh', 'invocation', 1, 10],
 
-        // Épicos (peso 20) - Personajes clave y terreno icónico
-        ['Roboute Guilliman', 'invocation', 1, 20],
-        ['Sanguinius', 'invocation', 1, 20],
+                // Míticos (peso 5) - Seres supremos
+                ['Horus Lupercal', 'invocation', 1, 5],
+                ['El Emperador de la Humanidad', 'invocation', 1, 5],
 
-        // Legendarios (peso 10) - Artefactos y entidades superiores
-        ['Trono Dorado', 'artifact', 1, 10],
-        ['Horus Lupercal', 'invocation', 1, 10],
-
-        // Míticos (peso 5) - Seres supremos
-        ['Khorne', 'invocation', 1, 5],
-        ['Tzeentch', 'invocation', 1, 5],
-        ['Nurgle', 'invocation', 1, 5],
-        ['Slaanesh', 'invocation', 1, 5],
-        ['El Emperador de la Humanidad', 'invocation', 1, 5]
-    ]
-],
-
+                // Ultra Mítico (peso 5) - Terreno único
+                ['Terra', 'terrain', 1, 5]
+            ]
+        ],
         'terrains' => [
             'name' => 'Cofre de Terrenos',
             'cost' => 25,
@@ -125,12 +127,6 @@ try {
 
     if (!isset($chest_config[$chest_type])) {
         echo json_encode(['success' => false, 'message' => 'Tipo de cofre inválido']);
-        exit;
-    }
-
-    // Verificar si el cofre de terrenos está habilitado
-    if ($chest_type === 'terrains') {
-        echo json_encode(['success' => false, 'message' => 'Cofre de terrenos temporalmente deshabilitado. ¡Próximamente disponible!']);
         exit;
     }
 

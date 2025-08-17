@@ -52,7 +52,7 @@ class GachaSystem {
         this.isOpening = true;
         
         try {
-            // Mostrar animación simple de apertura
+            // Mostrar animación de apertura inmediata
             this.playOpenAnimation(chestType);
             
             // Realizar petición al servidor
@@ -87,15 +87,11 @@ class GachaSystem {
                 // Agregar al historial
                 this.addToHistory(chestType, result.reward);
                 
-                // Mostrar resultado simple con notificación de éxito
-                this.showSimpleResult(result.reward, chestType);
-                
-                // Actualizar display de llaves
-                this.updateKeyDisplay(result.remaining_keys);
-                
-                // Restaurar botón después de mostrar resultado
-                this.restoreButton(chestType);
-                this.isOpening = false;
+                // Redirigir a la página de recompensa con los datos
+                setTimeout(() => {
+                    const rewardData = encodeURIComponent(JSON.stringify(result.reward));
+                    window.location.href = `reward.php?chest=${chestType}&reward=${rewardData}`;
+                }, 1500); // Esperar a que termine la animación
             } else {
                 console.error('Error del servidor:', result.message);
                 this.showError(result.message);
