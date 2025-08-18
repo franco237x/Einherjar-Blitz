@@ -78,7 +78,8 @@ try {
                 ['Narita Brian', 'invocation', 1, 3],
                 ['Tamamo Cross', 'invocation', 1, 3],
                 ['Eishin Flash', 'invocation', 1, 3],
-                
+                ['Gold Ship', 'invocation', 1, 3],
+
                 // Míticos (peso 2) - Los más raros
                 ['Kitasan Black', 'invocation', 1, 2],
                 ['Satono Diamond', 'invocation', 1, 2],

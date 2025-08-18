@@ -45,7 +45,8 @@ const REWARD_IMAGES = {
         'Narita Brian': 'assets/images/rewards/uma_musume/narita_brian.jpg',
         'Tamamo Cross': 'assets/images/rewards/uma_musume/tamamo_cross.jpg',
         'Eishin Flash': 'assets/images/rewards/uma_musume/eishin_flash.jpg',
-        
+        'Gold Ship': 'assets/images/rewards/uma_musume/gold_ship.jpg',
+
         // Míticos
         'Kitasan Black': 'assets/images/rewards/uma_musume/kitasan_black.jpg',
         'Satono Diamond': 'assets/images/rewards/uma_musume/satono_diamond.jpg',
