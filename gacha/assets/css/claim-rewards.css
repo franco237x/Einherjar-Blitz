@@ -408,8 +408,8 @@ body.claim-body {
 }
 
 .reward-icon {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 80px;
     background: linear-gradient(45deg, var(--gold-primary), var(--gold-light));
     border-radius: 50%;
     display: flex;
@@ -417,7 +417,7 @@ body.claim-body {
     justify-content: center;
     margin-right: 1.5rem;
     color: var(--dark-primary);
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
     transition: var(--transition);
 }
@@ -616,9 +616,9 @@ body.claim-body {
     }
     
     .reward-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 1.25rem;
+        width: 60px;
+        height: 70px;
+        font-size: 1.35rem;
         margin-right: 1rem;
     }
     
@@ -825,9 +825,9 @@ a:not(.btn):hover {
     }
     
     .reward-icon {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
+        width: 55px;
+        height: 65px;
+        font-size: 1.2rem;
     }
     
     .section-title {
