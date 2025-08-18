@@ -69,6 +69,12 @@ if (!$userData) {
                         <span><?php echo number_format($userData['recompensas']); ?></span>
                         <small>Esferas</small>
                     </div>
+                    <div class="resource-item">
+                        <a href="claim_rewards.php" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-gift"></i>
+                            <small>Reclamar</small>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -322,9 +328,22 @@ if (!$userData) {
                             </div>
                         </div>
                         
-                        <button type="button" class="btn btn-gacha btn-primary" data-bs-dismiss="modal">
-                            ¡Genial!
-                        </button>
+                        <div class="mt-3 p-3" style="background: rgba(212, 175, 55, 0.1); border-radius: 8px;">
+                            <small class="text-warning">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Tu recompensa se ha guardado. Puedes reclamarla y descargar un reporte desde el botón "Reclamar" en la parte superior.
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex gap-2 justify-content-center mt-3">
+                            <button type="button" class="btn btn-gacha btn-primary" data-bs-dismiss="modal">
+                                ¡Genial!
+                            </button>
+                            <a href="claim_rewards.php" class="btn btn-outline-warning">
+                                <i class="fas fa-gift me-1"></i>
+                                Ver Recompensas
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
