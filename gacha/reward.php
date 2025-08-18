@@ -8,46 +8,88 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/gacha.css">
     <link rel="stylesheet" href="assets/css/reward-animation.css">
+    <link rel="stylesheet" href="assets/css/reward-video-effects.css">
 </head>
-<body class="bg-dark">
-    <!-- Overlay de animación -->
-    <div id="rewardOverlay" class="reward-overlay">
-        <div class="reward-container">
-            <!-- Animación de apertura -->
-            <div id="openingAnimation" class="opening-animation">
-                <div class="chest-opening">
-                    <i class="fas fa-treasure-chest chest-icon"></i>
-                    <div class="light-rays"></div>
-                    <div class="sparkles"></div>
-                </div>
-                <h3 class="text-white mb-0">Abriendo cofre...</h3>
+<body class="bg-dark overflow-hidden">
+    <!-- Sistema de animación con videos -->
+    <div id="videoAnimationSystem" class="video-animation-system">
+        <!-- Video de meteoro/estrella fugaz -->
+        <div id="meteorVideo" class="meteor-video-container hidden">
+            <video id="meteorVideoElement" class="meteor-video" muted playsinline>
+                <source type="video/mp4">
+                Tu navegador no soporta videos HTML5.
+            </video>
+            <button id="skipMeteor" class="skip-button hidden">
+                <i class="fas fa-forward"></i> Saltar
+            </button>
+        </div>
+        
+        <!-- Efectos de luz ambiente -->
+        <div id="lightEffects" class="light-effects hidden">
+            <div class="light-orb orb-1"></div>
+            <div class="light-orb orb-2"></div>
+            <div class="light-orb orb-3"></div>
+            <div class="light-orb orb-4"></div>
+            <div class="light-orb orb-5"></div>
+        </div>
+        
+        <!-- Contenedor principal de revelación -->
+        <div id="splashReveal" class="splash-reveal hidden">
+            <!-- Fondo de splash art dinámico -->
+            <div class="splash-background"></div>
+            
+            <!-- Efectos de partículas -->
+            <div class="particle-system">
+                <canvas id="particleCanvas" class="particle-canvas"></canvas>
             </div>
             
-            <!-- Resultado -->
-            <div id="rewardResult" class="reward-result d-none">
-                <div class="reward-card">
-                    <div class="reward-bg">
-                        <div class="reward-rarity-glow"></div>
-                        <div class="reward-icon-container">
-                            <i id="rewardIcon" class="reward-icon"></i>
+            <!-- Información del item -->
+            <div class="item-revelation">
+                <div class="item-info">
+                    <div class="rarity-glow"></div>
+                    <div class="item-icon-container">
+                        <div class="item-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
                         </div>
-                        <div class="reward-info">
-                            <h2 id="rewardName" class="reward-name"></h2>
-                            <p id="rewardType" class="reward-type"></p>
-                            <div id="rewardValue" class="reward-value"></div>
-                            <div id="rewardRarity" class="reward-rarity"></div>
+                        <div class="item-icon">
+                            <i id="itemIcon" class="fas fa-gift"></i>
                         </div>
+                    </div>
+                    <div class="item-details">
+                        <div id="itemType" class="item-type"></div>
+                        <div id="itemName" class="item-name"></div>
+                        <div id="itemValue" class="item-value"></div>
                     </div>
                 </div>
                 
-                <div class="reward-actions mt-4">
-                    <button onclick="claimReward()" class="btn btn-lg btn-success me-3">
-                        <i class="fas fa-check me-2"></i>Reclamar
+                <!-- Botones de acción -->
+                <div class="action-buttons">
+                    <button id="claimButton" class="claim-btn">
+                        <i class="fas fa-check"></i>
+                        <span>Reclamar</span>
                     </button>
-                    <button onclick="goBack()" class="btn btn-lg btn-outline-light">
-                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    <button id="againButton" class="again-btn">
+                        <i class="fas fa-redo"></i>
+                        <span>Otra vez</span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay de carga inicial -->
+    <div id="initialLoader" class="initial-loader">
+        <div class="loader-content">
+            <div class="loading-icon">
+                <i class="fas fa-treasure-chest"></i>
+            </div>
+            <div class="loading-text">Preparando recompensa...</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
             </div>
         </div>
     </div>
@@ -55,129 +97,80 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/reward-animation.js"></script>
+    <script src="assets/js/reward-video-system.js"></script>
     
     <script>
+        // Sistema de animación con videos
+        let videoRewardSystem;
+        
         // Obtener datos de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const chestType = urlParams.get('chest');
         const rewardData = urlParams.get('reward');
         
-        if (chestType && rewardData) {
-            try {
-                const reward = JSON.parse(decodeURIComponent(rewardData));
-                setTimeout(() => {
-                    showReward(reward);
-                }, 2000); // Mostrar después de 2 segundos de animación
-            } catch (e) {
-                console.error('Error parsing reward data:', e);
+        // Inicializar sistema al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar el sistema de animaciones con videos
+            videoRewardSystem = new VideoRewardSystem();
+            
+            if (chestType && rewardData) {
+                try {
+                    const reward = JSON.parse(decodeURIComponent(rewardData));
+                    
+                    // Mostrar loader inicial
+                    setTimeout(() => {
+                        startVideoReveal(reward);
+                    }, 1000);
+                    
+                } catch (e) {
+                    console.error('Error parsing reward data:', e);
+                    goBack();
+                }
+            } else {
+                // Si no hay datos, volver al gacha principal
                 goBack();
             }
-        } else {
-            // Si no hay datos, volver al gacha principal
-            goBack();
-        }
+        });
         
-        function showReward(reward) {
-            const openingAnimation = document.getElementById('openingAnimation');
-            const rewardResult = document.getElementById('rewardResult');
-            
-            // Ocultar animación de apertura
-            openingAnimation.style.opacity = '0';
+        function startVideoReveal(reward) {
+            // Ocultar loader inicial
+            document.getElementById('initialLoader').style.opacity = '0';
             setTimeout(() => {
-                openingAnimation.classList.add('d-none');
+                document.getElementById('initialLoader').style.display = 'none';
                 
-                // Configurar resultado
-                setupRewardDisplay(reward);
-                
-                // Mostrar resultado
-                rewardResult.classList.remove('d-none');
-                setTimeout(() => {
-                    rewardResult.style.opacity = '1';
-                }, 100);
-            }, 500);
-        }
-        
-        function setupRewardDisplay(reward) {
-            const rewardIcon = document.getElementById('rewardIcon');
-            const rewardName = document.getElementById('rewardName');
-            const rewardType = document.getElementById('rewardType');
-            const rewardValue = document.getElementById('rewardValue');
-            const rewardRarity = document.getElementById('rewardRarity');
-            const rewardCard = document.querySelector('.reward-card');
-            
-            // Configurar icono basado en tipo
-            const iconMap = {
-                'currency': 'fas fa-coins',
-                'item': 'fas fa-gem',
-                'card': 'fas fa-id-card',
-                'special': 'fas fa-star',
-                'ammo': 'fas fa-bullet',
-                'weapon': 'fas fa-sword',
-                'armor': 'fas fa-shield-alt',
-                'relic': 'fas fa-crown',
-                'blessing': 'fas fa-hands-praying',
-                'resource': 'fas fa-mountain',
-                'crystal': 'fas fa-diamond',
-                'gem': 'fas fa-gem',
-                'diamond': 'fas fa-diamond',
-                'terrain': 'fas fa-map'
-            };
-            
-            rewardIcon.className = iconMap[reward.type] || 'fas fa-gift';
-            rewardName.textContent = reward.name;
-            rewardType.textContent = getTypeDisplayName(reward.type);
-            rewardValue.textContent = `Cantidad: ${reward.value}`;
-            rewardRarity.textContent = getRarityDisplayName(reward.rarity);
-            
-            // Aplicar clase de rareza
-            rewardCard.className = `reward-card rarity-${reward.rarity}`;
-        }
-        
-        function getTypeDisplayName(type) {
-            const typeNames = {
-                'currency': 'Moneda',
-                'item': 'Objeto',
-                'card': 'Carta',
-                'special': 'Especial',
-                'ammo': 'Munición',
-                'weapon': 'Arma',
-                'armor': 'Armadura',
-                'relic': 'Reliquia',
-                'blessing': 'Bendición',
-                'resource': 'Recurso',
-                'crystal': 'Cristal',
-                'gem': 'Gema',
-                'diamond': 'Diamante',
-                'terrain': 'Terreno'
-            };
-            return typeNames[type] || 'Desconocido';
-        }
-        
-        function getRarityDisplayName(rarity) {
-            const rarityNames = {
-                'common': 'Común',
-                'rare': 'Raro',
-                'epic': 'Épico',
-                'legendary': 'Legendario',
-                'mythical': 'Mítico'
-            };
-            return rarityNames[rarity] || 'Desconocido';
-        }
-        
-        function claimReward() {
-            // Animación de reclamado
-            const rewardResult = document.getElementById('rewardResult');
-            rewardResult.style.transform = 'scale(0.8)';
-            rewardResult.style.opacity = '0';
-            
-            setTimeout(() => {
-                goBack();
+                // Iniciar secuencia de animación con videos
+                videoRewardSystem.startRevealSequence(reward);
             }, 500);
         }
         
         function goBack() {
             window.location.href = 'index.php';
         }
+        
+        // Funciones para los botones
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('#claimButton')) {
+                videoRewardSystem.claimReward();
+                setTimeout(() => {
+                    goBack();
+                }, 1000);
+            }
+            
+            if (e.target.closest('#againButton')) {
+                goBack();
+            }
+            
+            if (e.target.closest('#skipMeteor')) {
+                videoRewardSystem.skipMeteor();
+            }
+        });
+        
+        // Detectar teclas para saltar
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+                videoRewardSystem.skipMeteor();
+            }
+        });
     </script>
 </body>
 </html>
