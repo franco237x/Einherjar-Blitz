@@ -218,10 +218,10 @@ $progressPercent = ($currentExp / 1000) * 100;
             <section class="quick-actions glass-card">
                 <h3 class="quick-actions-title">Acciones Rápidas</h3>
                 <div class="actions-grid">
-                    <div class="action-btn disabled">
+                    <a href="transferir.php" class="action-btn">
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transferir</span>
-                    </div>
+                    </a>
                     <div class="action-btn disabled">
                         <i class="fas fa-scroll"></i>
                         <span>Pase de Batalla</span>
