@@ -19,6 +19,7 @@ class VideoRewardSystem {
             lightEffects: document.getElementById('lightEffects'),
             splashReveal: document.getElementById('splashReveal'),
             particleCanvas: document.getElementById('particleCanvas'),
+            rewardImage: document.getElementById('rewardImage'),
             itemIcon: document.getElementById('itemIcon'),
             itemType: document.getElementById('itemType'),
             itemName: document.getElementById('itemName'),
@@ -290,6 +291,9 @@ class VideoRewardSystem {
     revealItem() {
         const reward = this.currentReward;
         
+        // Precargar y configurar imagen de la recompensa
+        this.setupRewardImage(reward);
+        
         // Configurar información del item
         this.setupItemDisplay(reward);
         
@@ -310,6 +314,84 @@ class VideoRewardSystem {
         
         // Configurar estrellas de rareza
         this.setupRarityStars(reward.rarity);
+        
+        // Revelar imagen después de un breve delay
+        setTimeout(() => {
+            this.revealRewardImage();
+        }, 1500);
+    }
+    
+    setupRewardImage(reward) {
+        // Obtener la imagen correspondiente
+        const chestType = reward.chest_type;
+        const imageSrc = getRewardImage(reward.name, chestType, reward.type);
+        
+        // Precargar la imagen
+        preloadImage(imageSrc)
+            .then((img) => {
+                if (typeof img === 'string' || img.src) {
+                    this.elements.rewardImage.src = img.src || imageSrc;
+                } else {
+                    // Es una imagen generada por canvas
+                    this.elements.rewardImage.src = img.src;
+                }
+            })
+            .catch((error) => {
+                console.warn('Error loading reward image:', error);
+                // Crear imagen de fallback con canvas
+                const fallbackImg = createFallbackImage();
+                this.elements.rewardImage.src = fallbackImg.src;
+            });
+    }
+    
+    revealRewardImage() {
+        // Efecto de revelación de la imagen estilo Genshin
+        this.elements.rewardImage.classList.add('revealed');
+        
+        // Efecto adicional para rarezas altas
+        const rarity = this.currentReward.rarity;
+        if (rarity === 'legendary' || rarity === 'mythical') {
+            // Crear destello de revelación
+            this.createImageRevealFlash();
+        }
+    }
+    
+    createImageRevealFlash() {
+        const flash = document.createElement('div');
+        flash.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+            border-radius: 20px;
+            z-index: 10;
+            pointer-events: none;
+            animation: revealFlash 0.8s ease-out forwards;
+        `;
+        
+        // Agregar estilos de animación si no existen
+        if (!document.querySelector('#revealFlashStyle')) {
+            const style = document.createElement('style');
+            style.id = 'revealFlashStyle';
+            style.textContent = `
+                @keyframes revealFlash {
+                    0% { opacity: 0; transform: scale(0.5); }
+                    30% { opacity: 1; transform: scale(1.2); }
+                    100% { opacity: 0; transform: scale(2); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        const imageContainer = document.querySelector('.reward-image-container');
+        imageContainer.appendChild(flash);
+        
+        // Remover el elemento después de la animación
+        setTimeout(() => {
+            flash.remove();
+        }, 800);
     }
     
     setupItemDisplay(reward) {

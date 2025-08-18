@@ -266,6 +266,152 @@
     opacity: 0;
     animation: itemRevealEntrance 1.5s ease-out forwards;
     animation-delay: 0.5s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.5rem;
+    padding: 3rem 2rem 2rem;
+    min-height: 80vh;
+}
+
+/* Cambiar el orden visual */
+.item-revelation .reward-image-container {
+    order: 1;
+}
+
+.item-revelation .item-info {
+    order: 2;
+}
+
+.item-revelation .action-buttons {
+    order: 3;
+}
+
+/* Contenedor de imagen de recompensa */
+.reward-image-container {
+    position: relative;
+    width: 380px;
+    height: 380px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+    opacity: 0;
+    animation: imageContainerReveal 1.5s ease-out forwards;
+    animation-delay: 1s;
+}
+
+.reward-image-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+    border-radius: 20px;
+    z-index: 1;
+}
+
+.reward-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    z-index: 2;
+    transition: all 1s ease;
+    filter: brightness(0.1) saturate(0);
+    transform: scale(1.2);
+}
+
+.reward-image.revealed {
+    opacity: 1 !important;
+    filter: brightness(1) saturate(1);
+    transform: scale(1);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.6) 100%);
+    border-radius: 20px;
+    z-index: 3;
+    opacity: 0.7;
+    transition: opacity 1s ease;
+}
+
+.reward-image.revealed + .image-overlay {
+    opacity: 0.2;
+}
+
+/* Efectos de brillo por rareza en la imagen */
+.rarity-common .reward-image-container {
+    box-shadow: 0 0 30px rgba(156, 163, 175, 0.5);
+    border: 2px solid rgba(156, 163, 175, 0.6);
+}
+
+.rarity-rare .reward-image-container {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    border: 2px solid rgba(59, 130, 246, 0.7);
+}
+
+.rarity-epic .reward-image-container {
+    box-shadow: 0 0 50px rgba(139, 92, 246, 0.7);
+    border: 2px solid rgba(139, 92, 246, 0.8);
+}
+
+.rarity-legendary .reward-image-container {
+    box-shadow: 0 0 60px rgba(245, 158, 11, 0.8);
+    border: 2px solid rgba(245, 158, 11, 0.9);
+    animation: legendaryImageGlow 2s infinite ease-in-out;
+}
+
+.rarity-mythical .reward-image-container {
+    box-shadow: 0 0 80px rgba(239, 68, 68, 0.9), 0 0 120px rgba(255, 215, 0, 0.5);
+    border: 2px solid rgba(239, 68, 68, 1);
+    animation: mythicalImageGlow 1.5s infinite ease-in-out;
+}
+
+@keyframes imageContainerReveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(50px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.05) translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes legendaryImageGlow {
+    0%, 100% {
+        box-shadow: 0 0 60px rgba(245, 158, 11, 0.8);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 80px rgba(245, 158, 11, 1), 0 0 100px rgba(255, 215, 0, 0.3);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes mythicalImageGlow {
+    0%, 100% {
+        box-shadow: 0 0 80px rgba(239, 68, 68, 0.9), 0 0 120px rgba(255, 215, 0, 0.5);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 100px rgba(239, 68, 68, 1), 0 0 150px rgba(255, 215, 0, 0.7);
+        transform: scale(1.03);
+    }
 }
 
 @keyframes itemRevealEntrance {
@@ -286,7 +432,8 @@
 /* Información del item */
 .item-info {
     position: relative;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
+    order: 2;
 }
 
 .rarity-glow {
@@ -294,8 +441,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 400px;
-    height: 400px;
+    width: 380px;
+    height: 380px;
     border-radius: 50%;
     opacity: 0.3;
     animation: rarityPulse 3s infinite ease-in-out;
@@ -356,28 +503,28 @@
 /* Contenedor del icono del item */
 .item-icon-container {
     position: relative;
-    margin: 0 auto 2rem;
-    width: 200px;
-    height: 200px;
+    margin: 0 auto 1.5rem;
+    width: 120px;
+    height: 120px;
 }
 
 /* Estrellas de rareza */
 .item-stars {
     position: absolute;
-    top: -20px;
+    top: -15px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     z-index: 2;
 }
 
 .item-stars i {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: #ffd700;
     opacity: 0;
     animation: starReveal 0.3s ease-out forwards;
-    filter: drop-shadow(0 0 6px #ffd700);
+    filter: drop-shadow(0 0 4px #ffd700);
 }
 
 .item-stars i:nth-child(1) { animation-delay: 1.0s; }
@@ -404,23 +551,23 @@
 /* Icono del item */
 .item-icon {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 120px;
-    height: 120px;
+    width: 70px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
     animation: iconFloat 3s infinite ease-in-out;
 }
 
 .item-icon i {
-    font-size: 3.5rem;
+    font-size: 2rem;
     color: #ffffff;
     opacity: 0;
     animation: iconReveal 1s ease-out forwards;
@@ -500,8 +647,9 @@
 /* Botones de acción */
 .action-buttons {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
     justify-content: center;
+    margin-top: 1.5rem;
     opacity: 0;
     animation: buttonsReveal 1s ease-out forwards;
     animation-delay: 2s;
@@ -611,22 +759,27 @@
         width: 250px;
     }
     
-    .item-icon-container {
-        width: 150px;
-        height: 150px;
+    .reward-image-container {
+        width: 300px;
+        height: 300px;
     }
     
-    .item-icon {
+    .item-icon-container {
         width: 100px;
         height: 100px;
     }
     
+    .item-icon {
+        width: 75px;
+        height: 75px;
+    }
+    
     .item-icon i {
-        font-size: 2.5rem;
+        font-size: 1.5rem;
     }
     
     .item-name {
-        font-size: 2rem;
+        font-size: 1rem;
     }
     
     .item-value {
@@ -653,6 +806,10 @@
     .rarity-glow {
         width: 300px;
         height: 300px;
+    }
+    
+    .item-revelation {
+        gap: 1.5rem;
     }
 }
 

@@ -45,6 +45,13 @@
             
             <!-- Información del item -->
             <div class="item-revelation">
+                <!-- Imagen de la recompensa -->
+                <div class="reward-image-container">
+                    <div class="reward-image-bg"></div>
+                    <img id="rewardImage" class="reward-image" src="" alt="Recompensa" style="opacity: 0;">
+                    <div class="image-overlay"></div>
+                </div>
+                
                 <div class="item-info">
                     <div class="rarity-glow"></div>
                     <div class="item-icon-container">
@@ -97,6 +104,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/reward-animation.js"></script>
+    <script src="assets/js/reward-images.js"></script>
     <script src="assets/js/reward-video-system.js"></script>
     
     <script>

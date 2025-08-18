@@ -1,0 +1,11 @@
+# Imagen de fallback creada automáticamente
+# Esta imagen se usará cuando no se encuentre la imagen específica de una recompensa
+
+# Para crear una imagen real, reemplaza este archivo con una imagen JPG de 512x512px
+# con un diseño genérico que represente una recompensa desconocida
+
+# Recomendaciones:
+# - Fondo oscuro o transparente
+# - Icono de interrogación o cofre genérico
+# - Colores neutros (grises, azules oscuros)
+# - Alta calidad para el efecto de revelación
