@@ -21,13 +21,42 @@ try {
         exit;
     }
 
-    // Verificar si el cofre de terrenos está bloqueado
-    if ($chest_type === 'terrains') {
-        echo json_encode([
-            'success' => false, 
-            'message' => 'Los cofres de terrenos están temporalmente deshabilitados. ¡Próximamente disponibles!'
-        ]);
-        exit;
+    // Funciones auxiliares para verificar terrenos únicos
+    function getAvailableTerrains($conn) {
+        // Lista completa de terrenos únicos disponibles
+        $all_terrains = [
+            'Hipódromo Valhalla (Uma Musume)',
+            'Krypton (DC Comics)',
+            'Chaldea (Fate)',
+            'Skypeia (One Piece)',
+            'Academia de Héroes (Boku No Hero)',
+            'Negocio Devil May Cry (DMC)',
+            'Atlantis (DC Comics)',
+            'Torre de los Vengadores (Marvel)',
+            'Fundación SCP',
+            'Extensión de Terreno',
+            'Dad Key'
+        ];
+        
+        // Obtener terrenos ya reclamados
+        $stmt = $conn->prepare("
+            SELECT DISTINCT recompensa_obtenida 
+            FROM recompensas_usuario 
+            WHERE tipo_recompensa = 'terrain' OR tipo_recompensa = 'special'
+            UNION
+            SELECT DISTINCT recompensa_obtenida 
+            FROM recompensas_eliminadas 
+            WHERE tipo_recompensa = 'terrain' OR tipo_recompensa = 'special'
+        ");
+        $stmt->execute();
+        $claimed_terrains = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // Retornar solo terrenos disponibles
+        return array_diff($all_terrains, $claimed_terrains);
+    }
+    
+    function isTerrainAvailable($terrain_name, $available_terrains) {
+        return in_array($terrain_name, $available_terrains);
     }
 
     // Incluir la base de datos
@@ -121,13 +150,22 @@ try {
             'name' => 'Cofre de Terrenos',
             'cost' => 25,
             'rewards' => [
-                ['Mineral de Hierro', 'resource', 10, 30],
-                ['Mineral de Plata', 'resource', 5, 25],
-                ['Mineral de Oro', 'resource', 3, 20],
-                ['Cristal Elemental', 'crystal', 1, 15],
-                ['Gema Rara', 'gem', 1, 7],
-                ['Diamante Perfecto', 'diamond', 1, 2],
-                ['Terreno Legendario', 'terrain', 1, 1]
+                // Solo terrenos únicos - se asignarán dinámicamente desde la lista específica
+                ['Terreno Único', 'terrain', 1, 100] // 100% probabilidad de terreno
+            ]
+        ],
+        'phanes' => [
+            'name' => 'Las Sombras de Phanes',
+            'cost' => 5,
+            'rewards' => [
+                // Esencias Azules (peso más alto)
+                ['250 Esencias Azules', 'resources', 250, 30],
+                
+                // Entidades de las Sombras de Phanes
+                ['Asmoday', 'invocation', 1, 5],
+                ['Istaroth', 'invocation', 1, 5],
+                ['Ronova', 'invocation', 1, 5],
+                ['Rhinedottir Naberius', 'invocation', 1, 5]
             ]
         ]
     ];
@@ -141,6 +179,22 @@ try {
 
     $database = Database::getInstance();
     $conn = $database->getConnection();
+    
+    // Variable para terrenos disponibles
+    $available_terrains = [];
+    
+    // Verificación especial para cofre de terrenos
+    if ($chest_type === 'terrains') {
+        $available_terrains = getAvailableTerrains($conn);
+        
+        if (empty($available_terrains)) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Cofre Agotado - Todos los terrenos han sido reclamados. Vuelve cuando se agreguen nuevos terrenos.'
+            ]);
+            exit;
+        }
+    }
     
     // Verificar llaves del usuario
     $stmt = $conn->prepare("SELECT llaves FROM usuarios WHERE id = ?");
@@ -170,7 +224,11 @@ try {
     $stmt->execute([$config['cost'], $user_id]);
     
     // Calcular recompensa basada en probabilidades
-    $reward = calculateReward($config['rewards']);
+    if ($chest_type === 'terrains') {
+        $reward = calculateTerrainReward($config['rewards'], $available_terrains);
+    } else {
+        $reward = calculateReward($config['rewards']);
+    }
     
     // Registrar recompensa en la base de datos
     $stmt = $conn->prepare("
@@ -220,6 +278,49 @@ try {
         $conn->rollBack();
     }
     echo json_encode(['success' => false, 'message' => 'Error del servidor: ' . $e->getMessage()]);
+}
+
+function calculateTerrainReward($rewards, $available_terrains) {
+    // El cofre de terrenos SIEMPRE da un terreno disponible
+    if (empty($available_terrains)) {
+        // Esto no debería pasar porque ya se verifica antes, pero por seguridad
+        throw new Exception('No hay terrenos disponibles');
+    }
+    
+    // Definir tipos especiales con mayor rareza
+    $special_items = ['Extensión de Terreno', 'Dad Key'];
+    $terrain_list = array_diff($available_terrains, $special_items);
+    $special_available = array_intersect($available_terrains, $special_items);
+    
+    // 20% probabilidad de objeto especial si están disponibles
+    $give_special = mt_rand(1, 100) <= 20;
+    
+    if ($give_special && !empty($special_available)) {
+        // Dar objeto especial
+        $selected_item = $special_available[array_rand($special_available)];
+        $type = 'special';
+        $weight = 5; // Peso para objetos especiales (legendario)
+    } else if (!empty($terrain_list)) {
+        // Dar terreno normal
+        $selected_item = $terrain_list[array_rand($terrain_list)];
+        $type = 'terrain';
+        $weight = 10; // Peso para terrenos normales
+    } else if (!empty($special_available)) {
+        // Solo quedan objetos especiales
+        $selected_item = $special_available[array_rand($special_available)];
+        $type = 'special';
+        $weight = 5;
+    } else {
+        // Esto no debería pasar
+        throw new Exception('Error interno: no hay terrenos disponibles');
+    }
+    
+    return [
+        'name' => $selected_item,
+        'type' => $type,
+        'value' => 1,
+        'weight' => $weight
+    ];
 }
 
 function calculateReward($rewards) {

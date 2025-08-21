@@ -78,6 +78,37 @@ const REWARD_IMAGES = {
         'El Emperador de la Humanidad': 'assets/images/rewards/warhammer/emperador.jpg'
     },
     
+    // Terrenos Únicos
+    'terrains': {
+        // Terrenos de Franquicias
+        'Hipódromo Valhalla (Uma Musume)': 'assets/images/rewards/terrains/hipodromo_valhalla.jpg',
+        'Krypton (DC Comics)': 'assets/images/rewards/terrains/krypton.jpg',
+        'Chaldea (Fate)': 'assets/images/rewards/terrains/chaldea.jpg',
+        'Skypeia (One Piece)': 'assets/images/rewards/terrains/skypeia.jpg',
+        'Academia de Héroes (Boku No Hero)': 'assets/images/rewards/terrains/academia_heroes.jpg',
+        'Negocio Devil May Cry (DMC)': 'assets/images/rewards/terrains/negocio_dmc.jpg',
+        'Atlantis (DC Comics)': 'assets/images/rewards/terrains/atlantis.jpg',
+        'Torre de los Vengadores (Marvel)': 'assets/images/rewards/terrains/torre_vengadores.jpg',
+        'Fundación SCP': 'assets/images/rewards/terrains/fundacion_scp.jpg',
+        
+        // Objetos Especiales
+        'Extensión de Terreno': 'assets/images/rewards/terrains/extension_terreno.jpg',
+        'Dad Key': 'assets/images/rewards/terrains/dad_key.jpg',
+    
+    },
+    
+    // Las Sombras de Phanes
+    'phanes': {
+        // Entidades Primordiales
+        'Asmoday': 'assets/images/rewards/phanes/asmoday.jpg',
+        'Istaroth': 'assets/images/rewards/phanes/istaroth.jpg',
+        'Ronova': 'assets/images/rewards/phanes/ronova.jpg',
+        'Rhinedottir Naberius': 'assets/images/rewards/phanes/rhinedottir_naberius.jpg',
+        
+        // Recursos
+        '250 Esencias Azules': 'assets/images/rewards/phanes/esencias_azules.jpg'
+    },
+    
     // Imágenes por defecto según tipo
     'default': {
         'currency': 'assets/images/rewards/special/coins.jpg',
@@ -90,10 +121,14 @@ const REWARD_IMAGES = {
         'relic': 'assets/images/rewards/special/relic.jpg',
         'blessing': 'assets/images/rewards/special/blessing.jpg',
         'resource': 'assets/images/rewards/special/resource.jpg',
+        'resources': 'assets/images/rewards/special/resources.jpg',
         'crystal': 'assets/images/rewards/special/crystal.jpg',
         'gem': 'assets/images/rewards/special/gem.jpg',
         'diamond': 'assets/images/rewards/special/diamond.jpg',
-        'terrain': 'assets/images/rewards/special/terrain.jpg'
+        'terrain': 'assets/images/rewards/special/terrain.jpg',
+        'invocation': 'assets/images/rewards/special/invocation.jpg',
+        'artifact': 'assets/images/rewards/special/artifact.jpg',
+        'accessory': 'assets/images/rewards/special/accessory.jpg'
     }
 };
 

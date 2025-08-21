@@ -318,7 +318,8 @@ class GachaSystem {
         const chestNames = {
             'uma_musume': 'Cofre Uma Musume',
             'warhammer': 'Cofre Warhammer 40K',
-            'terrains': 'Cofre de Terrenos'
+            'terrains': 'Cofre de Terrenos',
+            'phanes': 'Las Sombras de Phanes'
         };
 
         const historyItem = {
@@ -362,12 +363,6 @@ class GachaSystem {
 // Función global para mantener compatibilidad con onclick - ESTA ES LA IMPORTANTE
 function openChest(chestType, cost) {
     console.log('openChest called with:', chestType, cost);
-    
-    // Verificar si es cofre de terrenos (bloqueado temporalmente)
-    if (chestType === 'terrains') {
-        alert('Los cofres de terrenos están temporalmente deshabilitados.\n¡Próximamente disponibles!');
-        return;
-    }
     
     if (window.gachaSystem) {
         window.gachaSystem.openChest(chestType, cost);

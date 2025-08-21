@@ -21,6 +21,9 @@
     --color-terrains: #32cd32;
     --color-terrains-glow: rgba(50, 205, 50, 0.8);
     --color-terrains-bright: #228b22;
+    --color-phanes: #4b0082;
+    --color-phanes-glow: rgba(75, 0, 130, 0.8);
+    --color-phanes-bright: #663399;
     --color-common: #a5f3fc;
     --color-common-glow: rgba(165, 243, 252, 0.6);
     --color-common-bright: #67e8f9;
@@ -52,6 +55,7 @@
     --gradient-uma-musume: linear-gradient(135deg, #ff69b4 0%, #ff1493 50%, #ff69b4 100%);
     --gradient-warhammer: linear-gradient(135deg, #8b0000 0%, #dc143c 50%, #b22222 100%);
     --gradient-terrains: linear-gradient(135deg, #32cd32 0%, #228b22 50%, #90ee90 100%);
+    --gradient-phanes: linear-gradient(135deg, #4b0082 0%, #663399 50%, #9966cc 100%);
     --gradient-common: linear-gradient(135deg, #06b6d4 0%, #67e8f9 50%, #a5f3fc 100%);
     --gradient-rare: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
     --gradient-epic: linear-gradient(135deg, #8b5cf6 0%, #c084fc 50%, #ddd6fe 100%);
@@ -244,6 +248,13 @@
         var(--gacha-bg-card);
 }
 
+.chest-card.phanes {
+    background: linear-gradient(135deg, 
+        rgba(75, 0, 130, 0.25) 0%, 
+        rgba(102, 51, 153, 0.12) 100%),
+        var(--gacha-bg-card);
+}
+
 .chest-card.common {
     background: linear-gradient(135deg, 
         rgba(6, 182, 212, 0.15) 0%, 
@@ -279,6 +290,11 @@
 .chest-card.terrains:hover {
     border-color: var(--color-terrains-bright);
     box-shadow: 0 8px 25px rgba(50, 205, 50, 0.4);
+}
+
+.chest-card.phanes:hover {
+    border-color: var(--color-phanes-bright);
+    box-shadow: 0 8px 25px rgba(75, 0, 130, 0.4);
 }
 
 .chest-card.common:hover {
@@ -343,6 +359,10 @@
 
 .chest-card.terrains .chest-rarity {
     color: var(--color-terrains-bright);
+}
+
+.chest-card.phanes .chest-rarity {
+    color: var(--color-phanes-bright);
 }
 
 .chest-card.common .chest-rarity {
@@ -443,6 +463,10 @@
     color: var(--color-terrains-bright);
 }
 
+.chest-card.phanes .chest-icon {
+    color: var(--color-phanes-bright);
+}
+
 .chest-card.common .chest-icon {
     color: var(--color-common-bright);
 }
@@ -484,6 +508,10 @@
 
 .chest-card.terrains .chest-name {
     color: var(--color-terrains-bright);
+}
+
+.chest-card.phanes .chest-name {
+    color: var(--color-phanes-bright);
 }
 
 .chest-card.common .chest-name {
@@ -605,6 +633,11 @@
 
 .btn-terrains {
     background: linear-gradient(135deg, #32cd32, #228b22) !important;
+    color: white !important;
+}
+
+.btn-phanes {
+    background: linear-gradient(135deg, #4b0082, #663399) !important;
     color: white !important;
 }
 
