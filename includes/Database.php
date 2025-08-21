@@ -309,6 +309,90 @@ class AuthController {
         }
     }
     
+    public function getUserByEmail($email) {
+        try {
+            $stmt = $this->db->prepare("SELECT id, username, email FROM usuarios WHERE email = ? AND is_active = 1");
+            $stmt->execute([$email]);
+            return $stmt->fetch();
+        } catch (Exception $e) {
+            error_log("Error getting user by email: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function createPasswordResetToken($userId) {
+        try {
+            $token = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            
+            // Limpiar tokens anteriores del usuario
+            $stmt = $this->db->prepare("DELETE FROM password_reset_tokens WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            // Insertar nuevo token
+            $stmt = $this->db->prepare("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
+            $stmt->execute([$userId, $token, $expiresAt]);
+            
+            return $token;
+        } catch (Exception $e) {
+            error_log("Error creating password reset token: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function validatePasswordResetToken($token) {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT prt.user_id, u.username, u.email 
+                FROM password_reset_tokens prt
+                JOIN usuarios u ON prt.user_id = u.id
+                WHERE prt.token = ? 
+                AND prt.expires_at > NOW() 
+                AND prt.used = 0
+                AND u.is_active = 1
+            ");
+            $stmt->execute([$token]);
+            return $stmt->fetch();
+        } catch (Exception $e) {
+            error_log("Error validating password reset token: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function resetPassword($token, $newPassword) {
+        try {
+            $this->db->beginTransaction();
+            
+            // Validar token
+            $tokenData = $this->validatePasswordResetToken($token);
+            if (!$tokenData) {
+                return ['success' => false, 'message' => 'Token inválido o expirado'];
+            }
+            
+            // Actualizar contraseña
+            $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("UPDATE usuarios SET password_hash = ? WHERE id = ?");
+            $stmt->execute([$passwordHash, $tokenData['user_id']]);
+            
+            // Marcar token como usado
+            $stmt = $this->db->prepare("UPDATE password_reset_tokens SET used = 1 WHERE token = ?");
+            $stmt->execute([$token]);
+            
+            // Eliminar todos los tokens del usuario
+            $stmt = $this->db->prepare("DELETE FROM password_reset_tokens WHERE user_id = ?");
+            $stmt->execute([$tokenData['user_id']]);
+            
+            $this->db->commit();
+            
+            return ['success' => true, 'message' => 'Contraseña actualizada exitosamente'];
+            
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("Error resetting password: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Error al actualizar la contraseña'];
+        }
+    }
+    
     public function logout() {
         $this->sessionManager->destroySession();
         return true;

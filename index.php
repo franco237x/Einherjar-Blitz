@@ -262,6 +262,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 Iniciar Sesión
                                                 <span class="spinner-border spinner-border-sm ms-2 d-none" id="loginSpinner"></span>
                                             </button>
+                                            
+                                            <!-- Enlace de recuperación de contraseña -->
+                                            <div class="text-center mt-3">
+                                                <a href="reset_password.php" class="text-decoration-none" style="color: #FFD700; font-size: 14px; transition: all 0.3s ease;" 
+                                                   onmouseover="this.style.color='#FFA500'; this.style.textShadow='0 0 10px rgba(255, 215, 0, 0.5)'" 
+                                                   onmouseout="this.style.color='#FFD700'; this.style.textShadow='none'">
+                                                    <i class="fas fa-key me-2"></i>¿Olvidaste tu contraseña de guerrero?
+                                                </a>
+                                            </div>
                                         </form>
                                     </div>
 
@@ -436,6 +445,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     Iniciar Sesión
                                     <span class="spinner-border spinner-border-sm ms-2 d-none" id="mobileLoginSpinner"></span>
                                 </button>
+                                
+                                <!-- Enlace de recuperación de contraseña -->
+                                <div class="text-center mt-3">
+                                    <a href="reset_password.php" class="text-decoration-none" style="color: #FFD700; font-size: 14px; transition: all 0.3s ease;" 
+                                       onmouseover="this.style.color='#FFA500'; this.style.textShadow='0 0 10px rgba(255, 215, 0, 0.5)'" 
+                                       onmouseout="this.style.color='#FFD700'; this.style.textShadow='none'">
+                                        <i class="fas fa-key me-2"></i>¿Olvidaste tu contraseña de guerrero?
+                                    </a>
+                                </div>
                             </form>
                         </div>
 
