@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <!-- Botón CTA para móvil -->
-                        <div class="d-lg-none" data-aos="fade-up" data-aos-delay="400">
+                        <div class="d-lg-none">
                             <button class="btn btn-primary btn-lg w-100" onclick="showMobileAuth()">
                                 <i class="fas fa-play me-2"></i>
                                 Comenzar Aventura
