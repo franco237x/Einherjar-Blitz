@@ -111,22 +111,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
     }
 }
 
-// Obtener historial de transferencias recientes
+// Obtener historial de transferencias recientes (enviadas y recibidas)
 $transferHistory = [];
 try {
     $stmt = $db->prepare("
         SELECT 
+            user_id,
+            username as sender_username,
             tipo,
             cantidad,
             descripcion,
             destinatario,
-            fecha
+            fecha,
+            CASE 
+                WHEN user_id = ? THEN 'sent'
+                WHEN destinatario = ? THEN 'received'
+            END as transfer_type
         FROM transacciones_einherjer
-        WHERE user_id = ? AND tipo = 'transferencia'
+        WHERE (user_id = ? OR destinatario = ?) AND tipo = 'transferencia'
         ORDER BY fecha DESC
         LIMIT 10
     ");
-    $stmt->execute([$userData['id']]);
+    $stmt->execute([$userData['id'], $userData['username'], $userData['id'], $userData['username']]);
     $transferHistory = $stmt->fetchAll();
 } catch (Exception $e) {
     error_log("Error getting transfer history: " . $e->getMessage());
@@ -567,26 +573,54 @@ try {
                         <i class="fas fa-history me-2"></i>
                         Historial de Transferencias
                     </h3>
+                    <p class="text-center text-muted mb-4">
+                        <small>
+                            <i class="fas fa-arrow-up text-danger me-2"></i>Enviadas
+                            <span class="mx-3">|</span>
+                            <i class="fas fa-arrow-down text-success me-2"></i>Recibidas
+                        </small>
+                    </p>
                     
                     <?php foreach ($transferHistory as $transfer): ?>
-                        <div class="history-item history-type-sent">
-                            <div>
-                                <div class="d-flex align-items-center mb-1">
-                                    <i class="fas fa-arrow-up me-2"></i>
-                                    <strong>
-                                        Enviado a <?php echo htmlspecialchars($transfer['destinatario']); ?>
-                                    </strong>
+                        <?php if ($transfer['transfer_type'] === 'sent'): ?>
+                            <div class="history-item history-type-sent">
+                                <div>
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fas fa-arrow-up me-2 text-danger"></i>
+                                        <strong>
+                                            Enviado a <?php echo htmlspecialchars($transfer['destinatario']); ?>
+                                        </strong>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?php echo date('d/m/Y H:i', strtotime($transfer['fecha'])); ?>
+                                    </small>
                                 </div>
-                                <small class="text-muted">
-                                    <?php echo date('d/m/Y H:i', strtotime($transfer['fecha'])); ?>
-                                </small>
-                            </div>
-                            <div class="text-end">
-                                <div class="text-danger fw-bold">
-                                    -<?php echo number_format($transfer['cantidad']); ?> llaves
+                                <div class="text-end">
+                                    <div class="text-danger fw-bold">
+                                        -<?php echo number_format($transfer['cantidad']); ?> llaves
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <div class="history-item history-type-received">
+                                <div>
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fas fa-arrow-down me-2 text-success"></i>
+                                        <strong>
+                                            Recibido de <?php echo htmlspecialchars($transfer['sender_username']); ?>
+                                        </strong>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?php echo date('d/m/Y H:i', strtotime($transfer['fecha'])); ?>
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-success fw-bold">
+                                        +<?php echo number_format($transfer['cantidad']); ?> llaves
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </div>
