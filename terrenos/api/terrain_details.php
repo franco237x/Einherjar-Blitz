@@ -23,8 +23,10 @@ if (!$terrainId) {
 
 try {
     $db = Database::getInstance();
+    $userData = $auth->getUserData();
+    $currentUserId = $userData['id'];
     
-    // Get terrain details with metrics
+    // Get terrain details with metrics and ownership info
     $query = $db->prepare("
         SELECT 
             t.*,
@@ -33,14 +35,21 @@ try {
             COALESCE(m.numero_holders, 0) as numero_holders,
             COALESCE(m.volatilidad_24h, 0) as volatilidad_24h,
             COALESCE(m.rsi, 50) as rsi,
-            (t.precio_actual * t.supply_circulante) as market_cap
+            (t.precio_actual * t.supply_circulante) as market_cap,
+            CASE 
+                WHEN t.owner_id = ? THEN 'yours'
+                WHEN t.owner_id IS NULL THEN 'unowned' 
+                ELSE 'owned_by_other'
+            END as ownership_status,
+            u.username as owner_username
         FROM terrenos t
         LEFT JOIN terrenos_metricas m ON t.id = m.terreno_id 
             AND DATE(m.fecha) = CURDATE()
+        LEFT JOIN usuarios u ON t.owner_id = u.id
         WHERE t.id = ? AND t.activo = 1
     ");
     
-    $query->execute([$terrainId]);
+    $query->execute([$currentUserId, $terrainId]);
     $terrain = $query->fetch(PDO::FETCH_ASSOC);
     
     if (!$terrain) {

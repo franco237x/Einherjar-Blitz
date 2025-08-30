@@ -413,13 +413,30 @@ if (!$userData) {
         // Display terrain list
         function displayTerrainList(terrains) {
             const terrainContainer = document.getElementById('terrainList');
-            terrainContainer.innerHTML = terrains.map(terrain => `
+            terrainContainer.innerHTML = terrains.map(terrain => {
+                let ownershipBadge = '';
+                let ownershipInfo = '';
+                
+                if (terrain.ownership_status === 'yours') {
+                    ownershipBadge = '<div class="badge bg-success position-absolute top-0 end-0 m-2"><i class="fas fa-crown me-1"></i>Tu Terreno</div>';
+                    ownershipInfo = '<small class="text-success"><i class="fas fa-crown me-1"></i>Este terreno te pertenece</small>';
+                } else if (terrain.ownership_status === 'owned_by_other') {
+                    ownershipBadge = '<div class="badge bg-warning text-dark position-absolute top-0 end-0 m-2"><i class="fas fa-user me-1"></i>Propietario</div>';
+                    ownershipInfo = `<small class="text-warning"><i class="fas fa-user me-1"></i>Propietario: ${terrain.owner_username}</small>`;
+                } else {
+                    ownershipBadge = '<div class="badge bg-secondary position-absolute top-0 end-0 m-2"><i class="fas fa-map me-1"></i>Disponible</div>';
+                    ownershipInfo = '<small class="text-secondary"><i class="fas fa-map me-1"></i>Sin propietario</small>';
+                }
+                
+                return `
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="glass-card terrain-card p-3" onclick="openInvestmentModal(${terrain.id})">
+                    <div class="glass-card terrain-card p-3 position-relative" onclick="openInvestmentModal(${terrain.id})">
+                        ${ownershipBadge}
                         <img src="../images/terrains/${terrain.imagen}" alt="${terrain.nombre}" class="terrain-image mb-3">
                         <h5 class="text-gold">${terrain.nombre}</h5>
                         <p class="text-secondary small mb-2">${terrain.descripcion}</p>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        ${ownershipInfo}
+                        <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
                             <span class="fw-bold">${formatNumber(terrain.precio_actual)} <small class="text-secondary">Esencias Azules</small></span>
                             <span class="price-change price-${terrain.cambio_24h >= 0 ? 'up' : 'down'}">
                                 ${terrain.cambio_24h >= 0 ? '+' : ''}${terrain.cambio_24h}%
@@ -436,7 +453,8 @@ if (!$userData) {
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Update terrain selector
@@ -603,6 +621,15 @@ if (!$userData) {
 
         // Display investment form
         function displayInvestmentForm(terrain) {
+            let ownershipInfo = '';
+            if (terrain.ownership_status === 'yours') {
+                ownershipInfo = '<div class="alert alert-success"><i class="fas fa-crown me-2"></i><strong>Este terreno te pertenece</strong></div>';
+            } else if (terrain.ownership_status === 'owned_by_other') {
+                ownershipInfo = `<div class="alert alert-warning"><i class="fas fa-user me-2"></i><strong>Propietario:</strong> ${terrain.owner_username}</div>`;
+            } else {
+                ownershipInfo = '<div class="alert alert-info"><i class="fas fa-map me-2"></i><strong>Terreno disponible</strong> - Sin propietario actual</div>';
+            }
+            
             document.getElementById('investmentModalTitle').innerHTML = 
                 `<i class="fas fa-coins me-2"></i>Invertir en ${terrain.nombre}`;
             
@@ -612,6 +639,7 @@ if (!$userData) {
                         <img src="../images/terrains/${terrain.imagen}" alt="${terrain.nombre}" class="w-100 rounded mb-3">
                         <h5 class="text-gold">${terrain.nombre}</h5>
                         <p class="text-secondary">${terrain.descripcion}</p>
+                        ${ownershipInfo}
                         <div class="mb-3">
                                 <strong class="text-gold">Precio actual:</strong> ${formatNumber(terrain.precio_actual)} Esencias Azules<br>
                                 <strong class="text-gold">Cambio 24h:</strong> <span class="price-${terrain.cambio_24h >= 0 ? 'up' : 'down'}">${terrain.cambio_24h >= 0 ? '+' : ''}${terrain.cambio_24h}%</span><br>

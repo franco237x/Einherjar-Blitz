@@ -6,6 +6,7 @@ CREATE TABLE `terrenos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
   `descripcion` text,
+  `owner_id` int(11) DEFAULT NULL, -- ID del propietario (usuario)
   `precio_inicial` decimal(15,2) NOT NULL DEFAULT 100.00,
   `precio_actual` decimal(15,2) NOT NULL DEFAULT 100.00,
   `supply_total` bigint(20) NOT NULL DEFAULT 1000000, -- Total de "acciones" disponibles
@@ -16,7 +17,9 @@ CREATE TABLE `terrenos` (
   `ultima_actualizacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_activo` (`activo`),
-  KEY `idx_precio_actual` (`precio_actual`)
+  KEY `idx_precio_actual` (`precio_actual`),
+  KEY `idx_owner_id` (`owner_id`),
+  FOREIGN KEY (`owner_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabla de inversiones de usuarios
