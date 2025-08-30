@@ -197,13 +197,13 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Próximamente</div>
                 </div>
 
-                <div class="nav-card glass-card disabled">
+                <a href="wallet_v2/index.php" class="nav-card glass-card">
                     <div class="nav-icon">
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <div class="nav-title">Wallet</div>
-                    <div class="nav-description">Próximamente</div>
-                </div>
+                    <div class="nav-title">Wallet v2</div>
+                    <div class="nav-description">Gestiona tus activos</div>
+                </a>
 
                 <div class="nav-card glass-card disabled">
                     <div class="nav-icon">
