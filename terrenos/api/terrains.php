@@ -19,7 +19,17 @@ try {
     $userData = $auth->getUserData();
     $currentUserId = $userData['id'];
     
-    // Get all active terrains with metrics and ownership info
+    // Get pagination parameters
+    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+    $limit = isset($_GET['limit']) ? max(1, min(50, intval($_GET['limit']))) : 6; // Default 6, max 50
+    $offset = ($page - 1) * $limit;
+    
+    // Get total count for pagination info  
+    $countQuery = $db->prepare("SELECT COUNT(DISTINCT t.id) as total FROM terrenos t WHERE t.activo = 1");
+    $countQuery->execute();
+    $totalCount = $countQuery->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Get active terrains with metrics and ownership info (with pagination)
     $query = $db->prepare("
         SELECT 
             t.*,
@@ -39,9 +49,10 @@ try {
         LEFT JOIN usuarios u ON t.owner_id = u.id
         WHERE t.activo = 1
         ORDER BY market_cap DESC
+        LIMIT ? OFFSET ?
     ");
     
-    $query->execute([$currentUserId]);
+    $query->execute([$currentUserId, $limit, $offset]);
     $terrains = $query->fetchAll(PDO::FETCH_ASSOC);
     
     // Process each terrain
@@ -60,9 +71,20 @@ try {
         $terrain['supply_circulante'] = intval($terrain['supply_circulante']);
     }
     
+    // Calculate pagination metadata
+    $totalPages = ceil($totalCount / $limit);
+    $hasMore = $page < $totalPages;
+    
     echo json_encode([
         'success' => true,
-        'terrains' => $terrains
+        'terrains' => $terrains,
+        'pagination' => [
+            'current_page' => $page,
+            'per_page' => $limit,
+            'total' => $totalCount,
+            'total_pages' => $totalPages,
+            'has_more' => $hasMore
+        ]
     ]);
 
 } catch (Exception $e) {

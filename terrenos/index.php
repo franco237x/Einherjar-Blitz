@@ -343,22 +343,25 @@ if (!$userData) {
 
         let priceChart = null;
         let selectedTerrain = null;
+        let currentPage = 1;
+        let allTerrains = [];
+        let paginationData = null;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             loadMarketStats();
-            loadTerrainList();
+            loadTerrainList(1, 3); // Load only 3 initially
             loadUserInvestments();
             initializePriceChart();
             
-            // Auto-refresh every 30 seconds
+            // Auto-refresh every 30 seconds (but keep current terrains loaded)
             setInterval(() => {
                 loadMarketStats();
-                loadTerrainList();
                 loadUserInvestments();
                 if (selectedTerrain) {
                     updatePriceChart(selectedTerrain);
                 }
+                // Don't auto-refresh terrains to avoid interrupting user browsing
             }, 30000);
         });
 
@@ -397,23 +400,50 @@ if (!$userData) {
             `;
         }
 
-        // Load terrain list
-        function loadTerrainList() {
-            fetch('api/terrains.php')
+        // Load terrain list with pagination
+        function loadTerrainList(page = 1, limit = 3, append = false) {
+            const url = `api/terrains.php?page=${page}&limit=${limit}`;
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        displayTerrainList(data.terrains);
-                        updateTerrainSelector(data.terrains);
+                        paginationData = data.pagination;
+                        currentPage = page;
+                        
+                        if (append) {
+                            // Add new terrains to existing array
+                            allTerrains = allTerrains.concat(data.terrains);
+                        } else {
+                            // Replace terrains array
+                            allTerrains = data.terrains;
+                        }
+                        
+                        displayTerrainList(allTerrains, data.pagination.has_more);
+                        updateTerrainSelector(allTerrains);
                     }
                 })
                 .catch(error => console.error('Error loading terrains:', error));
         }
+        
+        // Refresh current terrains without changing pagination
+        function refreshCurrentTerrains() {
+            if (currentPage === 1) {
+                loadTerrainList(1, allTerrains.length || 3);
+            }
+        }
+        
+        // Load more terrains
+        function loadMoreTerrains() {
+            if (paginationData && paginationData.has_more) {
+                const nextPage = currentPage + 1;
+                loadTerrainList(nextPage, 3, true);
+            }
+        }
 
         // Display terrain list
-        function displayTerrainList(terrains) {
+        function displayTerrainList(terrains, hasMore = false) {
             const terrainContainer = document.getElementById('terrainList');
-            terrainContainer.innerHTML = terrains.map(terrain => {
+            const terrainsHtml = terrains.map(terrain => {
                 let ownershipBadge = '';
                 let ownershipInfo = '';
                 
@@ -455,6 +485,18 @@ if (!$userData) {
                 </div>
                 `;
             }).join('');
+            
+            // Add Load More button if there are more terrains
+            const loadMoreButton = hasMore ? `
+                <div class="col-12 text-center mb-4">
+                    <button class="btn btn-outline-gold btn-lg" id="loadMoreBtn" onclick="loadMoreTerrains()">
+                        <i class="fas fa-plus me-2"></i>Cargar Más Terrenos
+                        <span class="badge bg-gold text-dark ms-2">${paginationData ? `${terrains.length}/${paginationData.total}` : '+'}</span>
+                    </button>
+                </div>
+            ` : '';
+            
+            terrainContainer.innerHTML = terrainsHtml + loadMoreButton;
         }
 
         // Update terrain selector
@@ -800,7 +842,7 @@ if (!$userData) {
                 },
                 body: JSON.stringify({
                     terrain_id: terrainId,
-                    amount: amount
+                    shares: amount
                 })
             })
             .then(response => response.json())

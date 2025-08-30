@@ -62,10 +62,13 @@ try {
         exit();
     }
     
-    // Calculate shares and new price
+    // Calculate shares and new price with transaction fee
     $currentPrice = floatval($terrain['precio_actual']);
-    $sharesToBuy = floor($investmentAmount / $currentPrice);
+    $transactionFee = 0.02; // 2% transaction fee
+    $availableAmount = $investmentAmount * (1 - $transactionFee);
+    $sharesToBuy = floor($availableAmount / $currentPrice);
     $actualCost = $sharesToBuy * $currentPrice;
+    $totalCostWithFee = $actualCost / (1 - $transactionFee); // Include fee in total cost
     
     if ($sharesToBuy <= 0) {
         $db->rollBack();
@@ -79,12 +82,15 @@ try {
         exit();
     }
     
-    // Calculate price impact (basic algorithm)
+    // Calculate price impact (high volatility algorithm)
     $supplyPercent = ($terrain['supply_circulante'] + $sharesToBuy) / $terrain['supply_total'];
-    $demandMultiplier = 1 + ($supplyPercent * 0.1); // Price increases as supply decreases
-    $volumeMultiplier = 1 + (($actualCost / ($terrain['precio_actual'] * $terrain['supply_total'])) * 0.05); // Volume impact
+    $demandMultiplier = 1 + ($supplyPercent * 0.5); // Increased from 0.1 to 0.5 for higher impact
+    $volumeMultiplier = 1 + (($actualCost / ($terrain['precio_actual'] * $terrain['supply_total'])) * 0.25); // Increased from 0.05 to 0.25
     
-    $newPrice = $currentPrice * $demandMultiplier * $volumeMultiplier;
+    // Additional buying pressure based on purchase size
+    $purchasePressure = 1 + ($sharesToBuy / $terrain['supply_total'] * 2.0); // New factor for direct purchase impact
+    
+    $newPrice = $currentPrice * $demandMultiplier * $volumeMultiplier * $purchasePressure;
     $newSupplyCirculante = $terrain['supply_circulante'] + $sharesToBuy;
     
     // Update terrain
@@ -123,18 +129,19 @@ try {
         $insertInvestmentQuery->execute([$userData['id'], $terrainId, $sharesToBuy, $actualCost, $currentPrice]);
     }
     
-    // Record transaction
+    // Record transaction with fee
+    $feeAmount = $totalCostWithFee - $actualCost;
     $insertTransactionQuery = $db->prepare("
         INSERT INTO terrenos_transacciones 
-        (user_id, terreno_id, tipo, cantidad_acciones, precio_unitario, total_esferas, precio_antes, precio_despues)
-        VALUES (?, ?, 'compra', ?, ?, ?, ?, ?)
+        (user_id, terreno_id, tipo, cantidad_acciones, precio_unitario, total_esferas, fee_transaccion, precio_antes, precio_despues)
+        VALUES (?, ?, 'compra', ?, ?, ?, ?, ?, ?)
     ");
     $insertTransactionQuery->execute([
-        $userData['id'], $terrainId, $sharesToBuy, $currentPrice, $actualCost, $currentPrice, $newPrice
+        $userData['id'], $terrainId, $sharesToBuy, $currentPrice, $totalCostWithFee, $feeAmount, $currentPrice, $newPrice
     ]);
     
-    // Update user spheres
-    $newBalance = $userData['recompensas'] - $actualCost;
+    // Update user spheres (deduct total cost including fee)
+    $newBalance = $userData['recompensas'] - $totalCostWithFee;
     $updateUserQuery = $db->prepare("UPDATE usuarios SET recompensas = ? WHERE id = ?");
     $updateUserQuery->execute([$newBalance, $userData['id']]);
     
@@ -146,8 +153,8 @@ try {
     $insertGeneralTransactionQuery->execute([
         $userData['id'], 
         $userData['username'], 
-        -$actualCost, 
-        "Inversión en terreno: " . $terrain['nombre']
+        -$totalCostWithFee, 
+        "Inversión en terreno: " . $terrain['nombre'] . " (incluye comisión 2%)"
     ]);
     
     // Add price to history
