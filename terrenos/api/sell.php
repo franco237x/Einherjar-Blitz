@@ -72,23 +72,15 @@ try {
     
     $currentPrice = floatval($terrain['precio_actual']);
     
-    // Calculate price impact for selling (high volatility algorithm)
+    // Calculate price impact for selling (price decreases when selling)
     $supplyImpact = $sharesToSell / $terrain['supply_total'];
-    $sellPressure = 1 - ($supplyImpact * 0.3); // Increased from 0.05 to 0.3 for stronger sell pressure
-    $volumeImpact = 1 - (($sharesToSell * $currentPrice) / ($terrain['precio_actual'] * $terrain['supply_total']) * 0.15); // Increased from 0.03 to 0.15
+    $sellPressure = 1 - ($supplyImpact * 0.05); // Price decreases with sell pressure
+    $volumeImpact = 1 - (($sharesToSell * $currentPrice) / ($terrain['precio_actual'] * $terrain['supply_total']) * 0.03);
     
-    // Additional sell pressure based on market conditions
-    $marketPanic = 1 - ($sharesToSell / $terrain['supply_total'] * 1.5); // New factor for panic selling
+    $sellPrice = $currentPrice * $sellPressure * $volumeImpact;
+    $sellPrice = max($sellPrice, $terrain['precio_inicial'] * 0.1); // Minimum price floor
     
-    $sellPrice = $currentPrice * $sellPressure * $volumeImpact * $marketPanic;
-    $sellPrice = max($sellPrice, $terrain['precio_inicial'] * 0.25); // Minimum price floor at 25% (can drop to 75%)
-    
-    // Apply transaction fee and slippage penalty on sells
-    $transactionFee = 0.025; // 2.5% fee (higher than buying to discourage rapid trading)
-    $slippagePenalty = 0.98; // 2% slippage penalty (you get less than market price)
-    $effectiveSellPrice = $sellPrice * $slippagePenalty;
-    
-    $totalEarnings = $sharesToSell * $effectiveSellPrice * (1 - $transactionFee);
+    $totalEarnings = $sharesToSell * $sellPrice;
     $newSupplyCirculante = $terrain['supply_circulante'] - $sharesToSell;
     
     // Update terrain price and supply
@@ -119,16 +111,14 @@ try {
         $deleteInvestmentQuery->execute([$userData['id'], $terrainId]);
     }
     
-    // Record transaction with fee
-    $grossEarnings = $sharesToSell * $effectiveSellPrice;
-    $feeAmount = $grossEarnings - $totalEarnings;
+    // Record transaction
     $insertTransactionQuery = $db->prepare("
         INSERT INTO terrenos_transacciones 
-        (user_id, terreno_id, tipo, cantidad_acciones, precio_unitario, total_esferas, fee_transaccion, precio_antes, precio_despues)
-        VALUES (?, ?, 'venta', ?, ?, ?, ?, ?, ?)
+        (user_id, terreno_id, tipo, cantidad_acciones, precio_unitario, total_esferas, precio_antes, precio_despues)
+        VALUES (?, ?, 'venta', ?, ?, ?, ?, ?)
     ");
     $insertTransactionQuery->execute([
-        $userData['id'], $terrainId, $sharesToSell, $effectiveSellPrice, $totalEarnings, $feeAmount, $currentPrice, $sellPrice
+        $userData['id'], $terrainId, $sharesToSell, $sellPrice, $totalEarnings, $currentPrice, $sellPrice
     ]);
     
     // Update user spheres
@@ -137,10 +127,8 @@ try {
     $updateUserQuery->execute([$newBalance, $userData['id']]);
     
     // Record transaction in general transactions table
-    $grossProfit = ($sharesToSell * $effectiveSellPrice) - ($sharesToSell * $investment['precio_compra_promedio']);
-    $netProfit = $totalEarnings - ($sharesToSell * $investment['precio_compra_promedio']);
-    $feesAndSlippage = $grossProfit - $netProfit;
-    $profitText = $netProfit >= 0 ? "ganancia" : "pérdida";
+    $profit = $totalEarnings - ($sharesToSell * $investment['precio_compra_promedio']);
+    $profitText = $profit >= 0 ? "ganancia" : "pérdida";
     
     $insertGeneralTransactionQuery = $db->prepare("
         INSERT INTO transacciones_einherjer (user_id, username, tipo, cantidad, descripcion)
@@ -150,7 +138,7 @@ try {
         $userData['id'], 
         $userData['username'], 
         $totalEarnings, 
-        "Venta terreno: " . $terrain['nombre'] . " ($profitText: " . round($netProfit, 2) . ", comisiones: " . round($feesAndSlippage, 2) . ")"
+        "Venta terreno: " . $terrain['nombre'] . " ($profitText: " . round($profit, 2) . ")"
     ]);
     
     // Add price to history
