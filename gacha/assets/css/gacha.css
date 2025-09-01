@@ -10,11 +10,8 @@
     --gacha-bg-secondary: #1a0f2e;
     --gacha-bg-tertiary: #2d1b4e;
     --gacha-bg-card: rgba(45, 27, 78, 0.9);
-    
-    /* Colores de rareza más vibrantes */
-    --color-uma-musume: #ff69b4;
-    --color-uma-musume-glow: rgba(255, 105, 180, 0.6);
-    --color-uma-musume-bright: #ff1493;
+   
+   
     --color-warhammer: #8b0000;
     --color-warhammer-glow: rgba(139, 0, 0, 0.8);
     --color-warhammer-bright: #dc143c;
@@ -52,7 +49,6 @@
     --blur-backdrop: blur(12px);
     
     /* Gradientes brillantes */
-    --gradient-uma-musume: linear-gradient(135deg, #ff69b4 0%, #ff1493 50%, #ff69b4 100%);
     --gradient-warhammer: linear-gradient(135deg, #8b0000 0%, #dc143c 50%, #b22222 100%);
     --gradient-terrains: linear-gradient(135deg, #32cd32 0%, #228b22 50%, #90ee90 100%);
     --gradient-phanes: linear-gradient(135deg, #4b0082 0%, #663399 50%, #9966cc 100%);
@@ -227,13 +223,6 @@
 }
 
 /* Banner backgrounds simplificados */
-.chest-card.uma-musume {
-    background: linear-gradient(135deg, 
-        rgba(255, 105, 180, 0.2) 0%, 
-        rgba(255, 20, 147, 0.1) 100%),
-        var(--gacha-bg-card);
-}
-
 .chest-card.warhammer {
     background: linear-gradient(135deg, 
         rgba(139, 0, 0, 0.3) 0%, 
@@ -277,11 +266,6 @@
 }
 
 /* Efectos hover simplificados */
-.chest-card.uma-musume:hover {
-    border-color: var(--color-uma-musume-bright);
-    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
-}
-
 .chest-card.warhammer:hover {
     border-color: var(--color-warhammer-bright);
     box-shadow: 0 8px 25px rgba(139, 0, 0, 0.5);
@@ -349,9 +333,6 @@
     font-size: 0.6rem;
 }
 
-.chest-card.uma-musume .chest-rarity {
-    color: var(--color-uma-musume-bright);
-}
 
 .chest-card.warhammer .chest-rarity {
     color: var(--color-warhammer-bright);
@@ -451,9 +432,6 @@
     transform: translate(-50%, -50%) scale(1.1);
 }
 
-.chest-card.uma-musume .chest-icon {
-    color: var(--color-uma-musume-bright);
-}
 
 .chest-card.warhammer .chest-icon {
     color: var(--color-warhammer-bright);
@@ -498,9 +476,6 @@
     color: var(--text-primary);
 }
 
-.chest-card.uma-musume .chest-name {
-    color: var(--color-uma-musume-bright);
-}
 
 .chest-card.warhammer .chest-name {
     color: var(--color-warhammer-bright);
@@ -621,11 +596,6 @@
 }
 
 /* Botones específicos por rareza simplificados */
-.btn-uma-musume {
-    background: linear-gradient(135deg, #ff69b4, #ff1493) !important;
-    color: white !important;
-}
-
 .btn-warhammer {
     background: linear-gradient(135deg, #8b0000, #dc143c) !important;
     color: white !important;

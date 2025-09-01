@@ -4,60 +4,7 @@
    ==================================== */
 
 const REWARD_IMAGES = {
-    // Uma Musume Characters
-    'uma_musume': {
-        // Comunes
-        'Haru Urara': 'assets/images/rewards/uma_musume/haru_urara.jpg',
-        'Mejiro Ryan': 'assets/images/rewards/uma_musume/mejiro_ryan.jpg',
-        'Seiun Sky': 'assets/images/rewards/uma_musume/seiun_sky.jpg',
-        'Hishi Amazon': 'assets/images/rewards/uma_musume/hishi_amazon.jpg',
-        'Sweep Tosho': 'assets/images/rewards/uma_musume/sweep_tosho.jpg',
-        
-        // Raros
-        'Rice Shower': 'assets/images/rewards/uma_musume/rice_shower.jpg',
-        'Fine Motion': 'assets/images/rewards/uma_musume/fine_motion.jpg',
-        'Mejiro Ardan': 'assets/images/rewards/uma_musume/mejiro_ardan.jpg',
-        'Inari One': 'assets/images/rewards/uma_musume/inari_one.jpg',
-        'Meisho Tebesa': 'assets/images/rewards/uma_musume/meisho_tebesa.jpg',
-        
-        // Épicos
-        'Gold City': 'assets/images/rewards/uma_musume/gold_city.jpg',
-        'Super Creek': 'assets/images/rewards/uma_musume/super_creek.jpg',
-        'Agnes Tachyon': 'assets/images/rewards/uma_musume/agnes_tachyon.jpg',
-        'Manhattan Cafe': 'assets/images/rewards/uma_musume/manhattan_cafe.jpg',
-        'Air Groove': 'assets/images/rewards/uma_musume/air_groove.jpg',
-        
-        // Legendarios
-        'Special Week': 'assets/images/rewards/uma_musume/special_week.jpg',
-        'Silence Suzuka': 'assets/images/rewards/uma_musume/silence_suzuka.jpg',
-        'Tokai Teio': 'assets/images/rewards/uma_musume/tokai_teio.jpg',
-        'Vodka': 'assets/images/rewards/uma_musume/vodka.jpg',
-        'Daiwa Scarlet': 'assets/images/rewards/uma_musume/daiwa_scarlet.jpg',
-        
-        // Súper Raros
-        'Oguri Cap': 'assets/images/rewards/uma_musume/oguri_cap.jpg',
-        'Symboli Rudolf': 'assets/images/rewards/uma_musume/symboli_rudolf.jpg',
-        'Mejiro McQueen': 'assets/images/rewards/uma_musume/mejiro_mcqueen.jpg',
-        'Grass Wonder': 'assets/images/rewards/uma_musume/grass_wonder.jpg',
-        'Maruzensky': 'assets/images/rewards/uma_musume/maruzensky.jpg',
-        
-        // Ultra Raros
-        'Narita Brian': 'assets/images/rewards/uma_musume/narita_brian.jpg',
-        'Tamamo Cross': 'assets/images/rewards/uma_musume/tamamo_cross.jpg',
-        'Eishin Flash': 'assets/images/rewards/uma_musume/eishin_flash.jpg',
-        'Gold Ship': 'assets/images/rewards/uma_musume/gold_ship.jpg',
-
-        // Míticos
-        'Kitasan Black': 'assets/images/rewards/uma_musume/kitasan_black.jpg',
-        'Satono Diamond': 'assets/images/rewards/uma_musume/satono_diamond.jpg',
-        'Duramente': 'assets/images/rewards/uma_musume/duramente.jpg',
-        'Sakura Chiyono O': 'assets/images/rewards/uma_musume/sakura_chiyono_o.jpg',
-        
-        // Especiales
-        'Zanahoria Dorada': 'assets/images/rewards/special/zanahoria_dorada.jpg'
-    },
-    
-    // Warhammer 40K
+ // Warhammer 40K
     'warhammer': {
         // Lugares
         '100 Esencias Azules': 'assets/images/rewards/warhammer/100_esencias_azules.jpg',

@@ -64,61 +64,6 @@ try {
 
     // Configuración de cofres
     $chest_config = [
-        'uma_musume' => [
-            'name' => 'Cofre Uma Musume',
-            'cost' => 1,
-            'rewards' => [
-                // Comunes (peso 40) - Caballos base
-                ['Haru Urara', 'invocation', 1, 40],
-                ['Mejiro Ryan', 'invocation', 1, 40],
-                ['Seiun Sky', 'invocation', 1, 40],
-                ['Hishi Amazon', 'invocation', 1, 40],
-                ['Sweep Tosho', 'invocation', 1, 40],
-
-                // Raros (peso 25) - Caballos conocidos
-                ['Rice Shower', 'invocation', 1, 25],
-                ['Fine Motion', 'invocation', 1, 25],
-                ['Mejiro Ardan', 'invocation', 1, 25],
-                ['Inari One', 'invocation', 1, 25],
-                ['Meisho Tebesa', 'invocation', 1, 25],
-
-                // Épicos (peso 15) - Caballos populares
-                ['Gold City', 'invocation', 1, 15],
-                ['Super Creek', 'invocation', 1, 15],
-                ['Agnes Tachyon', 'invocation', 1, 15],
-                ['Manhattan Cafe', 'invocation', 1, 15],
-                ['Air Groove', 'invocation', 1, 15],
-                
-                // Legendarios (peso 10) - Caballos icónicos
-                ['Special Week', 'invocation', 1, 10],
-                ['Silence Suzuka', 'invocation', 1, 10],
-                ['Tokai Teio', 'invocation', 1, 10],
-                ['Vodka', 'invocation', 1, 10],
-                ['Daiwa Scarlet', 'invocation', 1, 10],
-
-                // Súper Raros (peso 5) - Caballos legendarios
-                ['Oguri Cap', 'invocation', 1, 5],
-                ['Symboli Rudolf', 'invocation', 1, 5],
-                ['Mejiro McQueen', 'invocation', 1, 5],
-                ['Grass Wonder', 'invocation', 1, 5],
-                ['Maruzensky', 'invocation', 1, 5],
-                
-                // Ultra Raros (peso 3) - Élite absoluta
-                ['Narita Brian', 'invocation', 1, 3],
-                ['Tamamo Cross', 'invocation', 1, 3],
-                ['Eishin Flash', 'invocation', 1, 3],
-                ['Gold Ship', 'invocation', 1, 3],
-
-                // Míticos (peso 2) - Los más raros
-                ['Kitasan Black', 'invocation', 1, 2],
-                ['Satono Diamond', 'invocation', 1, 2],
-                ['Duramente', 'invocation', 1, 2],
-                ['Sakura Chiyono O', 'invocation', 1, 2],
-                
-                // Objeto único mítico
-                ['Zanahoria Dorada', 'special', 1, 1]
-            ]
-        ],
         'warhammer' => [
     'name' => 'Cofre Warhammer 40K',
     'cost' => 5,

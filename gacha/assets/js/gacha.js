@@ -316,7 +316,6 @@ class GachaSystem {
         const history = this.getStoredHistory();
         
         const chestNames = {
-            'uma_musume': 'Cofre Uma Musume',
             'warhammer': 'Cofre Warhammer 40K',
             'terrains': 'Cofre de Terrenos',
             'phanes': 'Las Sombras de Phanes'

@@ -88,64 +88,7 @@ if (!$userData) {
             <section class="chest-gallery">
                 <div class="row g-4">
                     
-                    <!-- Cofre de Uma Musume -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card uma-musume" data-chest-type="uma-musume">
-                            <div class="chest-header">
-                                <div class="chest-rarity">
-                                    <i class="fas fa-horse"></i>
-                                    <span>Uma Musume</span>
-                                </div>
-                                <div class="chest-cost">
-                                    <i class="fas fa-key"></i>
-                                    <span>1</span>
-                                </div>
-                            </div>
-                            
-                            <div class="chest-visual">
-                                <!-- Aquí irá la imagen del banner -->
-                                <img src="assets/images/banners/uma-musume-banner.jpg" 
-                                     alt="Banner Uma Musume" 
-                                     class="chest-banner-image"
-                                     onerror="this.style.display='none'">
-                                
-                                <div class="chest-icon">
-                                    <i class="fas fa-horse"></i>
-                                </div>
-                                
-                                <div class="chest-overlay">
-                                    <div class="chest-info">
-                                        <h3 class="chest-name">Cofre Uma Musume</h3>
-                                        <p class="chest-description">
-                                            Toda la colección de Uma Musume te espera
-                                        </p>
-                                        
-                                        <div class="chest-preview-items">
-                                            <div class="preview-item">
-                                                <i class="fas fa-horse"></i>
-                                                <span>Uma Cards</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-map"></i>
-                                                <span>Terreno Secreto</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-trophy"></i>
-                                                <span>Exclusivos</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-uma-musume" onclick="openChest('uma_musume', 1)">
-                                            <i class="fas fa-unlock-alt me-2"></i>
-                                            Abrir Cofre
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    
 
                     <!-- Cofre Warhammer 40K -->
                     <div class="col-lg-4 col-md-6 col-12">

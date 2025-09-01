@@ -272,12 +272,6 @@
     border: 2px solid;
 }
 
-.chest-type-badge.uma_musume {
-    background: linear-gradient(45deg, rgba(255, 105, 180, 0.2), rgba(255, 20, 147, 0.2));
-    border-color: #ff69b4;
-    color: #ff69b4;
-    box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
-}
 
 .chest-type-badge.warhammer {
     background: linear-gradient(45deg, rgba(139, 0, 0, 0.2), rgba(220, 20, 60, 0.2));

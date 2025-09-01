@@ -345,7 +345,6 @@ class GachaAnimationSystem {
     // Métodos de utilidad
     getChestIcon(chestType) {
         const icons = {
-            'uma_musume': 'fas fa-horse',
             'warhammer': 'fas fa-skull',
             'terrains': 'fas fa-mountain'
         };
@@ -354,7 +353,6 @@ class GachaAnimationSystem {
 
     getChestName(chestType) {
         const names = {
-            'uma_musume': 'Cofre Uma Musume',
             'warhammer': 'Cofre Warhammer 40K',
             'terrains': 'Cofre de Terrenos'
         };
@@ -429,9 +427,9 @@ class GachaAnimationSystem {
 
     getChestCost(chestType) {
         const costs = {
-            'uma_musume': 1,
             'warhammer': 5,
-            'terrains': 25
+            'terrains': 25,
+            'phanes': 5
         };
         return costs[chestType] || 1;
     }
