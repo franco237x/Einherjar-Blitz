@@ -37,6 +37,9 @@ if (!$userData) {
     <!-- Gacha CSS -->
     <link rel="stylesheet" href="assets/css/gacha.css">
     
+    <!-- Gacha Animations CSS -->
+    <link rel="stylesheet" href="assets/css/gacha-animations.css">
+    
     <!-- Meta tags -->
     <meta name="description" content="Sistema Gacha - Cofres de Einherjer Blitz 3.0">
     <meta name="robots" content="noindex, nofollow">
@@ -274,6 +277,66 @@ if (!$userData) {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Comics que Inspiran (DC y Marvel) -->
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="chest-card comics" data-chest-type="comics">
+                            <div class="chest-header">
+                                <div class="chest-rarity">
+                                    <i class="fas fa-mask"></i>
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Comics</span>
+                                </div>
+                                <div class="chest-cost">
+                                    <i class="fas fa-key"></i>
+                                    <span>5</span>
+                                </div>
+                            </div>
+                            
+                            <div class="chest-visual">
+                                <!-- Aquí irá la imagen del banner -->
+                                <img src="assets/images/banners/comics-banner.jpg" 
+                                     alt="Banner Comics que Inspiran" 
+                                     class="chest-banner-image"
+                                     onerror="this.style.display='none'">
+                                
+                                <div class="chest-icon">
+                                    <i class="fas fa-mask"></i>
+                                </div>
+                                
+                                <div class="chest-overlay">
+                                    <div class="chest-info">
+                                        <h3 class="chest-name">Comics que Inspiran</h3>
+                                        <p class="chest-description">
+                                            Héroes y villanos de DC y Marvel
+                                        </p>
+                                        
+                                        <div class="chest-preview-items">
+                                            <div class="preview-item">
+                                                <i class="fas fa-shield-alt"></i>
+                                                <span>DC Heroes</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-spider"></i>
+                                                <span>Marvel</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-star"></i>
+                                                <span>Legendarios</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chest-actions">
+                                        <button class="btn btn-gacha btn-comics" onclick="openChest('comics', 5)">
+                                            <i class="fas fa-unlock-alt me-2"></i>
+                                            Abrir Cofre
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -380,6 +443,9 @@ if (!$userData) {
     
     <!-- Gacha JS -->
     <script src="assets/js/gacha.js"></script>
+    
+    <!-- Gacha Animations JS -->
+    <script src="assets/js/gacha-animations.js"></script>
     
     <!-- Variables PHP para JavaScript -->
     <script>

@@ -318,7 +318,8 @@ class GachaSystem {
         const chestNames = {
             'warhammer': 'Cofre Warhammer 40K',
             'terrains': 'Cofre de Terrenos',
-            'phanes': 'Las Sombras de Phanes'
+            'phanes': 'Las Sombras de Phanes',
+            'comics': 'Comics que Inspiran'
         };
 
         const historyItem = {

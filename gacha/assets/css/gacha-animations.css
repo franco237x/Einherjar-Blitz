@@ -287,6 +287,20 @@
     box-shadow: 0 0 20px rgba(50, 205, 50, 0.4);
 }
 
+.chest-type-badge.phanes {
+    background: linear-gradient(45deg, rgba(75, 0, 130, 0.2), rgba(102, 51, 153, 0.2));
+    border-color: #663399;
+    color: #663399;
+    box-shadow: 0 0 20px rgba(102, 51, 153, 0.4);
+}
+
+.chest-type-badge.comics {
+    background: linear-gradient(45deg, rgba(220, 38, 127, 0.2), rgba(37, 99, 235, 0.2));
+    border-color: #dc2563;
+    color: #dc2563;
+    box-shadow: 0 0 20px rgba(220, 38, 127, 0.4);
+}
+
 /* ====================================
    SHOWCASE DE RECOMPENSA
    ==================================== */

@@ -56,6 +56,44 @@ const REWARD_IMAGES = {
         '250 Esencias Azules': 'assets/images/rewards/phanes/esencias_azules.jpg'
     },
     
+    // Comics que Inspiran
+    'comics': {
+        // Recursos Comunes
+        '250 Esencias Azules': 'assets/images/rewards/comics/250_esencias_azules.jpg',
+        
+        // Héroes Raros
+        'Spider-Man': 'assets/images/rewards/comics/spider_man.jpg',
+        'Joker': 'assets/images/rewards/comics/joker.jpg',
+        'Moon Knight': 'assets/images/rewards/comics/moon_knight.jpg',
+        'Black Panther': 'assets/images/rewards/comics/black_panther.jpg',
+        
+        // Héroes Épicos
+        'Batman': 'assets/images/rewards/comics/batman.jpg',
+        'Captain America': 'assets/images/rewards/comics/captain_america.jpg',
+        'Iron Man': 'assets/images/rewards/comics/iron_man.jpg',
+        'Wonder Woman': 'assets/images/rewards/comics/wonder_woman.jpg',
+        'Superman New 52': 'assets/images/rewards/comics/superman_new_52.jpg',
+        
+        // Villanos Legendarios
+        'Thanos': 'assets/images/rewards/comics/thanos.jpg',
+        'Lex Luthor': 'assets/images/rewards/comics/lex_luthor.jpg',
+        'Flash': 'assets/images/rewards/comics/flash.jpg',
+        'Reverse Flash': 'assets/images/rewards/comics/reverse_flash.jpg',
+        'Extensión de Terreno': 'assets/images/rewards/comics/extension_terreno.jpg',
+        
+        // Entidades Míticas
+        'Galactus': 'assets/images/rewards/comics/galactus.jpg',
+        'Darkseid': 'assets/images/rewards/comics/darkseid.jpg',
+        'Thanos Regulador Astral': 'assets/images/rewards/comics/thanos_regulador_astral.jpg',
+        
+        // Ultra Míticos
+        'Lucifer Morningstar': 'assets/images/rewards/comics/lucifer_morningstar.jpg',
+        'EL Tribunal Viviente': 'assets/images/rewards/comics/el_tribunal_viviente.jpg',
+        'El Beyonder': 'assets/images/rewards/comics/el_beyonder.jpg',
+        'Hombre Molécula': 'assets/images/rewards/comics/hombre_molecula.jpg',
+        'Wally West: Silla de Mobius': 'assets/images/rewards/comics/wally_west_silla_mobius.jpg'
+    },
+    
     // Imágenes por defecto según tipo
     'default': {
         'currency': 'assets/images/rewards/special/coins.jpg',

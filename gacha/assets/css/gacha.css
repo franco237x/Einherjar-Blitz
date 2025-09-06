@@ -265,6 +265,13 @@
         var(--gacha-bg-card);
 }
 
+.chest-card.comics {
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 127, 0.25) 0%, 
+        rgba(37, 99, 235, 0.15) 100%),
+        var(--gacha-bg-card);
+}
+
 /* Efectos hover simplificados */
 .chest-card.warhammer:hover {
     border-color: var(--color-warhammer-bright);
@@ -294,6 +301,11 @@
 .chest-card.epic:hover {
     border-color: var(--color-epic-bright);
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+.chest-card.comics:hover {
+    border-color: #dc2563;
+    box-shadow: 0 8px 25px rgba(220, 38, 127, 0.4);
 }
 
 .chest-header {
@@ -356,6 +368,10 @@
 
 .chest-card.epic .chest-rarity {
     color: var(--color-epic-bright);
+}
+
+.chest-card.comics .chest-rarity {
+    color: #dc2563;
 }
 
 .chest-cost {
@@ -457,6 +473,10 @@
     color: var(--color-epic-bright);
 }
 
+.chest-card.comics .chest-icon {
+    color: #dc2563;
+}
+
 .chest-glow {
     display: none; /* Eliminamos el glow para simplificar */
 }
@@ -499,6 +519,10 @@
 
 .chest-card.epic .chest-name {
     color: var(--color-epic-bright);
+}
+
+.chest-card.comics .chest-name {
+    color: #dc2563;
 }
 
 .chest-description {
@@ -623,6 +647,11 @@
 
 .btn-epic {
     background: linear-gradient(135deg, #c084fc, #8b5cf6) !important;
+    color: white !important;
+}
+
+.btn-comics {
+    background: linear-gradient(135deg, #dc2563, #2563eb) !important;
     color: white !important;
 }
 

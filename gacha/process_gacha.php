@@ -112,6 +112,46 @@ try {
                 ['Ronova', 'invocation', 1, 5],
                 ['Rhinedottir Naberius', 'invocation', 1, 5]
             ]
+        ],
+        'comics' => [
+            'name' => 'Comics que Inspiran',
+            'cost' => 5,
+            'rewards' => [
+                // Comunes (peso 40) - Recursos básicos
+                ['250 Esencias Azules', 'resources', 250, 40],
+                
+                // Raros (peso 30) - Héroes menores
+                ['Spider-Man', 'invocation', 1, 30],            
+                ['Joker', 'invocation', 1, 30],
+                ['Moon Knight', 'invocation', 1, 30],
+                ['Black Panther', 'invocation', 1, 30],
+                
+                // Épicos (peso 20) - Héroes icónicos
+                ['Batman', 'invocation', 1, 20],
+                ['Superman', 'invocation', 1, 20],
+                ['Iron Man', 'invocation', 1, 20],
+                ['Wonder Woman', 'invocation', 1, 20], 
+                ['Superman New 52', 'invocation', 1, 20], 
+                
+                // Legendarios (peso 8) - Villanos poderosos
+                ['Thanos', 'invocation', 1, 8],
+                ['Lex Luthor', 'invocation', 1, 8],
+                ['Flash', 'invocation', 1, 8],
+                ['Reverse Flash', 'invocation', 1, 8],
+                ['Extensión de Terreno', 'resources', 1, 8],
+                
+                // Míticos (peso 2) - Entidades cósmicas
+                ['Galactus', 'invocation', 1, 2],
+                ['Darkseid', 'invocation', 1, 2],
+                ['Thanos Regulador Astral', 'invocation', 1, 2],
+
+                // Ultra Miticos (peso 1) - Entidades cósmicas
+                ['Lucifer Morningstar', 'invocation', 1, 1],
+                ['EL Tribunal Viviente', 'invocation', 1, 1],
+                ['El Beyonder', 'invocation', 1, 1],
+                ['Hombre Molécula', 'invocation', 1, 1],
+                ['Wally West: Silla de Mobius', 'invocation', 1, 1],
+            ]
         ]
     ];
 
