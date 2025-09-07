@@ -205,13 +205,13 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Gestiona tus terrenos y finanzas</div>
                 </a>
 
-                <div class="nav-card glass-card disabled">
+                <a href="online/index.php" class="nav-card glass-card">
                     <div class="nav-icon">
                         <i class="fas fa-users"></i>
-                    </div>
+                    </div>  
                     <div class="nav-title">Modo Online</div>
-                    <div class="nav-description">Próximamente</div>
-                </div>
+                    <div class="nav-description">Juega Online contra tus amigos</div>
+                </a>
             </section>
 
             <!-- Acciones rápidas -->
