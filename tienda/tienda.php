@@ -343,7 +343,7 @@ $totalCategorias = count($categoriasMap);
         .product-card.agotado {opacity: 0.55; filter: grayscale(0.2);}
         .product-image-wrapper {
             position: relative;
-            height: 200px;
+            height: 400px;
             overflow: hidden;
         }
         .product-image {
