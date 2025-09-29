@@ -189,12 +189,13 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Sistema Gacha</div>
                 </a>
 
-                <div class="nav-card glass-card disabled">
+                <div class="nav-card glass-card">
+                    <a href="tienda/tienda.php" class="stretched-link"></a>
                     <div class="nav-icon">
                         <i class="fas fa-store"></i>
                     </div>
                     <div class="nav-title">Tienda</div>
-                    <div class="nav-description">Próximamente</div>
+                    <div class="nav-description">Compra objetos</div>
                 </div>
 
                 <a href="wallet.php" class="nav-card glass-card">
@@ -203,6 +204,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                     </div>
                     <div class="nav-title">Wallet</div>
                     <div class="nav-description">Gestiona tus terrenos y finanzas</div>
+                </a>
+
+                <a href="conversion.php" class="nav-card glass-card">
+                    <div class="nav-icon">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <div class="nav-title">Conversión Rápida</div>
+                    <div class="nav-description">Llaves ↔ Esferas</div>
                 </a>
 
                 <a href="online/index.php" class="nav-card glass-card">
