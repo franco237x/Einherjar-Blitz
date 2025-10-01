@@ -198,6 +198,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Compra objetos</div>
                 </div>
 
+                <a href="pase/index.php" class="nav-card glass-card nav-card-highlight">
+                    <div class="nav-icon">
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <div class="nav-title">Pase de Batalla</div>
+                    <div class="nav-description">To be Hero X</div>
+                </a>
+
                 <a href="wallet.php" class="nav-card glass-card">
                     <div class="nav-icon">
                         <i class="fas fa-wallet"></i>
@@ -231,16 +239,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transferir</span>
                     </a>
-                    <div class="action-btn disabled">
+                    <a href="pase/index.php" class="action-btn action-btn-featured">
                         <i class="fas fa-scroll"></i>
                         <span>Pase de Batalla</span>
-                    </div>
+                    </a>
                     <div class="action-btn disabled">
-
                         <i class="fas fa-user-edit"></i>
                         <span>Editar Perfil</span>
-                        </div>
-                    </a>
+                    </div>
                     <div class="action-btn disabled">
                         <i class="fas fa-dragon"></i>
                         <span>Mega Jefe</span>

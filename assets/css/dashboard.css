@@ -231,6 +231,34 @@ body {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.nav-card-highlight {
+  background: linear-gradient(135deg, rgba(33, 33, 51, 0.9), rgba(82, 33, 104, 0.75));
+  border: 1px solid rgba(173, 121, 255, 0.4);
+  box-shadow: 0 0 25px rgba(121, 55, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-card-highlight::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(142, 99, 255, 0.35), transparent 55%);
+  animation: pulseGlow 6s infinite;
+  pointer-events: none;
+}
+
+.nav-card-highlight .nav-icon {
+  color: #c9aaff;
+}
+
+.nav-card-highlight .nav-description {
+  color: rgba(233, 220, 255, 0.85);
+}
+
 .progress-section {
   padding: 2rem;
   margin-bottom: 3rem;
@@ -317,6 +345,42 @@ body {
 }
 .quick-actions .action-btn.disabled i {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.action-btn-featured {
+  background: linear-gradient(135deg, rgba(142, 99, 255, 0.25), rgba(54, 217, 255, 0.2));
+  border-color: rgba(142, 99, 255, 0.45);
+  box-shadow: 0 12px 32px rgba(86, 132, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn-featured::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.action-btn-featured:hover::after {
+  opacity: 1;
+}
+
+.action-btn-featured i {
+  color: #c9aaff;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
 }
 
 /* Estilo activo para action-btn */
