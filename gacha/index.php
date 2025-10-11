@@ -91,68 +91,6 @@ if (!$userData) {
             <section class="chest-gallery">
                 <div class="row g-4">
                     
-                    
-
-                    <!-- Cofre Warhammer 40K -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card warhammer" data-chest-type="warhammer">
-                            <div class="chest-header">
-                                <div class="chest-rarity">
-                                    <i class="fas fa-skull"></i>
-                                    <i class="fas fa-cog"></i>
-                                    <span>Warhammer 40K</span>
-                                </div>
-                                <div class="chest-cost">
-                                    <i class="fas fa-key"></i>
-                                    <span>5</span>
-                                </div>
-                            </div>
-                            
-                            <div class="chest-visual">
-                                <!-- Aquí irá la imagen del banner -->
-                                <img src="assets/images/banners/warhammer-banner.jpg" 
-                                     alt="Banner Warhammer 40K" 
-                                     class="chest-banner-image"
-                                     onerror="this.style.display='none'">
-                                
-                                <div class="chest-icon">
-                                    <i class="fas fa-skull"></i>
-                                </div>
-                                
-                                <div class="chest-overlay">
-                                    <div class="chest-info">
-                                        <h3 class="chest-name">Cofre Warhammer 40K</h3>
-                                        <p class="chest-description">
-                                            El universo completo de Warhammer 40.000
-                                        </p>
-                                        
-                                        <div class="chest-preview-items">
-                                            <div class="preview-item">
-                                                <i class="fas fa-skull"></i>
-                                                <span>Space Marines</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-cog"></i>
-                                                <span>Mechanicus</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-fire"></i>
-                                                <span>Caos</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-warhammer" onclick="openChest('warhammer', 5)">
-                                            <i class="fas fa-unlock-alt me-2"></i>
-                                            Abrir Cofre
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Cofre de Terrenos -->
                     <div class="col-lg-4 col-md-6 col-12">
                         <div class="chest-card terrains" data-chest-type="terrains">
@@ -206,66 +144,6 @@ if (!$userData) {
                                         <button class="btn btn-gacha btn-terrains" onclick="openChest('terrains', 25)">
                                             <i class="fas fa-unlock-alt me-2"></i>
                                             Abrir Cofre
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Las Sombras de Phanes -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="chest-card phanes" data-chest-type="phanes">
-                            <div class="chest-header">
-                                <div class="chest-rarity">
-                                    <i class="fas fa-eye"></i>
-                                    <i class="fas fa-magic"></i>
-                                    <span>Phanes</span>
-                                </div>
-                                <div class="chest-cost">
-                                    <i class="fas fa-key"></i>
-                                    <span>5</span>
-                                </div>
-                            </div>
-                            
-                            <div class="chest-visual">
-                                <!-- Aquí irá la imagen del banner -->
-                                <img src="assets/images/banners/phanes-banner.jpg" 
-                                     alt="Banner Las Sombras de Phanes" 
-                                     class="chest-banner-image"
-                                     onerror="this.style.display='none'">
-                                
-                                <div class="chest-icon">
-                                    <i class="fas fa-eye"></i>
-                                </div>
-                                
-                                <div class="chest-overlay">
-                                    <div class="chest-info">
-                                        <h3 class="chest-name">Las Sombras de Phanes</h3>
-                                        <p class="chest-description">
-                                            Entidades primordiales de poder ancestral
-                                        </p>
-                                        
-                                        <div class="chest-preview-items">
-                                            <div class="preview-item">
-                                                <i class="fas fa-user-secret"></i>
-                                                <span>Asmoday</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span>Istaroth</span>
-                                            </div>
-                                            <div class="preview-item">
-                                                <i class="fas fa-globe"></i>
-                                                <span>Esencias</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="chest-actions">
-                                        <button class="btn btn-gacha btn-phanes" onclick="openChest('phanes', 5)">
-                                            <i class="fas fa-unlock-alt me-2"></i>
-                                            Invocar
                                         </button>
                                     </div>
                                 </div>

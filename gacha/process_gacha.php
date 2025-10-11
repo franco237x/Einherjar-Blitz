@@ -64,53 +64,12 @@ try {
 
     // Configuración de cofres
     $chest_config = [
-        'warhammer' => [
-    'name' => 'Cofre Warhammer 40K',
-    'cost' => 5,
-    'rewards' => [
-        // Comunes (peso 35) - Territorios y ubicaciones menores
-        ['100 Esencias Azules', 'resources', 1, 35],
-
-        // Raros (peso 25) - Objetos poderosos
-        ['Espada de Khaine', 'weapon', 1, 25],
-        ['Drachnyen', 'weapon', 1, 25],
-
-        // Épicos (peso 20) - Personajes clave y terreno icónico
-        ['Roboute Guilliman', 'invocation', 1, 20],
-        ['Sanguinius', 'invocation', 1, 20],
-
-        // Legendarios (peso 10) - Artefactos y entidades superiores
-        ['Trono Dorado', 'artifact', 1, 10],
-        ['Horus Lupercal', 'invocation', 1, 10],
-
-        // Míticos (peso 5) - Seres supremos
-        ['Khorne', 'invocation', 1, 5],
-        ['Tzeentch', 'invocation', 1, 5],
-        ['Nurgle', 'invocation', 1, 5],
-        ['Slaanesh', 'invocation', 1, 5],
-        ['El Emperador de la Humanidad', 'invocation', 1, 5]
-    ]
-],
         'terrains' => [
             'name' => 'Cofre de Terrenos',
             'cost' => 25,
             'rewards' => [
                 // Solo terrenos únicos - se asignarán dinámicamente desde la lista específica
                 ['Terreno Único', 'terrain', 1, 100] // 100% probabilidad de terreno
-            ]
-        ],
-        'phanes' => [
-            'name' => 'Las Sombras de Phanes',
-            'cost' => 5,
-            'rewards' => [
-                // Esencias Azules (peso más alto)
-                ['250 Esencias Azules', 'resources', 250, 30],
-                
-                // Entidades de las Sombras de Phanes
-                ['Asmoday', 'invocation', 1, 5],
-                ['Istaroth', 'invocation', 1, 5],
-                ['Ronova', 'invocation', 1, 5],
-                ['Rhinedottir Naberius', 'invocation', 1, 5]
             ]
         ],
         'comics' => [

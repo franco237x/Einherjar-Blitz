@@ -4,26 +4,6 @@
    ==================================== */
 
 const REWARD_IMAGES = {
- // Warhammer 40K
-    'warhammer': {
-        // Lugares
-        '100 Esencias Azules': 'assets/images/rewards/warhammer/100_esencias_azules.jpg',
-        'Espada de Khaine': 'assets/images/rewards/warhammer/espada_de_khaine.jpg',
-        'Drachnyen': 'assets/images/rewards/warhammer/drachnyen.jpg',
-        
-        // Primarcas
-        'Roboute Guilliman': 'assets/images/rewards/warhammer/roboute_guilliman.jpg',
-        'Sanguinius': 'assets/images/rewards/warhammer/sanguinius.jpg',
-        'Horus Lupercal': 'assets/images/rewards/warhammer/horus_lupercal.jpg',
-        'Trono Dorado': 'assets/images/rewards/warhammer/trono_dorado.jpg',
-        'Khorne': 'assets/images/rewards/warhammer/khorne.jpg',
-        'Nurgle': 'assets/images/rewards/warhammer/nurgle.jpg',
-        'Tzeentch': 'assets/images/rewards/warhammer/tzeentch.jpg',
-        'Slaanesh': 'assets/images/rewards/warhammer/slaanesh.jpg',
-        
-        // El Emperador
-        'El Emperador de la Humanidad': 'assets/images/rewards/warhammer/emperador.jpg'
-    },
     
     // Terrenos Únicos
     'terrains': {
@@ -42,18 +22,6 @@ const REWARD_IMAGES = {
         'Extensión de Terreno': 'assets/images/rewards/terrains/extension_terreno.jpg',
         'Dad Key': 'assets/images/rewards/terrains/dad_key.jpg',
     
-    },
-    
-    // Las Sombras de Phanes
-    'phanes': {
-        // Entidades Primordiales
-        'Asmoday': 'assets/images/rewards/phanes/asmoday.jpg',
-        'Istaroth': 'assets/images/rewards/phanes/istaroth.jpg',
-        'Ronova': 'assets/images/rewards/phanes/ronova.jpg',
-        'Rhinedottir Naberius': 'assets/images/rewards/phanes/rhinedottir_naberius.jpg',
-        
-        // Recursos
-        '250 Esencias Azules': 'assets/images/rewards/phanes/esencias_azules.jpg'
     },
     
     // Comics que Inspiran
