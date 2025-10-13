@@ -16,80 +16,80 @@ if (!$userData) {
 // ============================================
 // CONFIGURACIÓN DE IMÁGENES (Cambiar aquí)
 // ============================================
-$logoUrl = 'https://pbs.twimg.com/media/F179GwUaYAELd4z.jpg'; // Logo central del orbital
-$iconUrl = 'https://pbs.twimg.com/media/F179GwUaYAELd4z.jpg'; // Icono de la página (favicon)
+$logoUrl = 'https://videos.openai.com/vg-assets/assets%2Ftask_01k6yjsex7e29v63gzbny36ywq%2F1759815549_img_0.webp?se=2025-10-13T03%3A27%3A44Z&sp=r&sv=2024-08-04&sr=b&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-12T23%3A30%3A02Z&ske=2025-10-13T03%3A35%3A02Z&sks=b&skv=2024-08-04&sig=2RW3cTv4XASAHj5QVfxekROjjKAHdbO/o1UPr6uKusk%3D&az=oaivgprodscus'; // Logo central del orbital
+$iconUrl = 'https://videos.openai.com/vg-assets/assets%2Ftask_01k6yjsex7e29v63gzbny36ywq%2F1759815549_img_0.webp?se=2025-10-13T03%3A27%3A44Z&sp=r&sv=2024-08-04&sr=b&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-12T23%3A30%3A02Z&ske=2025-10-13T03%3A35%3A02Z&sks=b&skv=2024-08-04&sig=2RW3cTv4XASAHj5QVfxekROjjKAHdbO/o1UPr6uKusk%3D&az=oaivgprodscus'; // Icono de la página (favicon)
 // ============================================
 
 $levels = [
     [
         'level' => 1,
-        'title' => 'Inicio Legendario',
+        'title' => 'Apertura del Torneo',
         'free' => '75 Esencias Azules',
         'premium' => '125 Esencias Azules',
         'elite' => '250 Esencias Azules'
     ],
     [
         'level' => 2,
-        'title' => 'Cofres del Destino',
+        'title' => 'Ronda Clasificatoria',
         'free' => 'Cofre Clasificatoria x2',
         'premium' => 'Cofre Clasificatoria x2',
         'elite' => 'Cofre Buenos Deseos x2'
     ],
     [
         'level' => 3,
-        'title' => 'Invocaciones Épicas',
-        'free' => 'Invocación: Radiance (Hollow Knight)',
-        'premium' => 'Invocación: The Knight (Hollow Knight)',
-        'elite' => 'Invocación: Hornet (Silksong)'
+        'title' => 'Invocaciones Legendarias',
+        'free' => 'Invocación: Ash Ketchum',
+        'premium' => 'Invocación: Son Goku',
+        'elite' => 'Invocación: Seiya de Pegaso'
     ],
     [
         'level' => 4,
-        'title' => 'Tesoros y Objetos',
+        'title' => 'Tesoros del Campeón',
         'free' => 'Cofre de León x1',
         'premium' => 'Cofre de León x2',
         'elite' => 'Esferas del Dragón'
     ],
     [
         'level' => 5,
-        'title' => 'Poder Esencial',
+        'title' => 'Poder de Campeones',
         'free' => '75 Esencias Azules',
         'premium' => '125 Esencias Azules',
         'elite' => '250 Esencias Azules'
     ],
     [
         'level' => 6,
-        'title' => 'Arsenal Legendario',
-        'free' => 'Arma Legendaria: Espada Santa Excalibur (SAO)',
-        'premium' => 'Arma Legendaria: True Longinus',
-        'elite' => 'Arma Exclusiva: Nulificador Supremo'
+        'title' => 'Arsenal del Guerrero',
+        'free' => 'Arma: Katana Nichirin',
+        'premium' => 'Arma: Colmillo de Acero',
+        'elite' => 'Arma: Lanza Rhongomyniad'
     ],
     [
         'level' => 7,
-        'title' => 'Sabiduría Ancestral',
-        'free' => 'Libro Legendario: Rudeus Greyrat',
-        'premium' => 'Libro Exclusivo: Garou Cósmico',
-        'elite' => 'Libro Exclusivo: Accelerator'
+        'title' => 'Sabiduría Mística',
+        'free' => 'Libro: Energía Maldita (básico)',
+        'premium' => 'Libro: Darkhold',
+        'elite' => 'Libro: Libro de los Vishanti'
     ],
     [
         'level' => 8,
-        'title' => 'Objetos Raros',
+        'title' => 'Objetos Estratégicos',
         'free' => 'Objeto: Pergamino Entrenamiento Instantáneo x3',
-        'premium' => 'Objeto: Extensión de Terreno',
-        'elite' => 'Objeto: Dad Key'
+        'premium' => 'Espacio de Personaje e Invocación +1',
+        'elite' => 'Objeto: Extensión de Terreno'
     ],
     [
         'level' => 9,
-        'title' => 'Dragones Ancestrales',
+        'title' => 'Poder Dracónico',
         'free' => 'Esferas del Dragón',
         'premium' => 'Esferas del Dragón',
         'elite' => 'Super Esferas del Dragón'
     ],
     [
         'level' => 10,
-        'title' => 'Heroes Definitivos',
-        'free' => 'Invocación: Dragon Boy (To be Hero X)',
-        'premium' => 'Invocación: Queen (To be Hero X)',
-        'elite' => 'Invocación: X (To be Hero)'
+        'title' => 'Gran Final Champions',
+        'free' => 'Invocación: All Might',
+        'premium' => 'Invocación: Jin Mori',
+        'elite' => 'Invocación: Anti-Monitor'
     ],
 ];
 
@@ -98,37 +98,37 @@ $passTypes = [
         'id' => 'free',
         'name' => 'Gratis',
         'price' => 'Gratis',
-        'description' => 'Acceso básico a recompensas legendarias. Perfecto para comenzar tu aventura en Einherjar Blitz.',
+        'description' => 'Acceso básico al Champions Einherjer 2025. Obtén recompensas épicas y participa en el torneo más grande del año.',
         'benefits' => [
-            'Invocaciones de Hollow Knight',
-            'Armas y libros legendarios',
-            'Esferas del Dragón',
-            'Cofres clasificatoria'
+            'Invocación: Ash Ketchum & All Might',
+            'Katana Nichirin',
+            'Libro: Energía Maldita',
+            'Cofres clasificatoria x2'
         ]
     ],
     [
         'id' => 'premium',
         'name' => 'Premium',
         'price' => '1,250 Esencias Azules',
-        'description' => 'Mejora tus recompensas con invocaciones épicas y objetos exclusivos del universo To be Hero X.',
+        'description' => 'Eleva tu juego al nivel de los campeones. Invocaciones legendarias y armas de élite para dominar el torneo.',
         'benefits' => [
-            'The Knight de Hollow Knight',
-            'Arma True Longinus',
-            'Libro Garou Cósmico',
-            'Invocación Queen (To be Hero X)'
+            'Invocación: Son Goku & Jin Mori',
+            'Arma: Colmillo de Acero',
+            'Libro: Darkhold',
+            'Espacio de Personaje +1'
         ]
     ],
     [
         'id' => 'elite',
         'name' => 'Élite',
         'price' => '1 Sub de Kick o $5 USD',
-        'description' => 'El máximo poder. Desbloquea las mejores invocaciones, armas exclusivas y objetos únicos del juego.',
+        'description' => 'El camino del campeón definitivo. Desbloquea el arsenal más poderoso y las invocaciones más legendarias del Champions 2025.',
         'benefits' => [
-            'Hornet de Silksong',
-            'Arma Nulificador Supremo',
-            'Libro Accelerator',
-            'Invocación X (To be Hero)',
-            'Super Esferas del Dragón'
+            'Invocación: Seiya de Pegaso & Anti-Monitor',
+            'Lanza Rhongomyniad',
+            'Libro de los Vishanti',
+            'Super Esferas del Dragón',
+            'Extensión de Terreno'
         ]
     ],
 ];
@@ -138,8 +138,8 @@ $passTypes = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pase de Batalla - To be Hero X</title>
-    <meta name="description" content="Descubre el Pase de Batalla To be Hero X y domina la temporada con recompensas legendarias.">
+    <title>Champions Einherjer 2025 - Pase de Batalla</title>
+    <meta name="description" content="Únete al Champions Einherjer 2025 y conquista el torneo más épico. Recompensas legendarias te esperan.">
 
     <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($iconUrl); ?>">
     <link rel="apple-touch-icon" href="<?php echo htmlspecialchars($iconUrl); ?>">
@@ -169,9 +169,9 @@ $passTypes = [
         </nav>
         <div class="hero-content">
             <div class="hero-copy">
-                <span class="season-tag">Temporada Especial</span>
-                <h1>To be Hero X</h1>
-                <p>Una temporada interdimensional cargada de estilos neon, cinemáticas heroicas y recompensas que redefinen tu legado.</p>
+                <span class="season-tag">🏆 Temporada Champions 2025</span>
+                <h1>Champions Einherjer</h1>
+                <p>El torneo definitivo ha comenzado. Compite, conquista y demuestra que eres el campeón definitivo. Recompensas épicas, batallas legendarias y gloria eterna te esperan.</p>
                 <div class="cta-group">
                     <a href="#pase-tipologias" class="cta-primary">Ver Tipos de Pase</a>
                     <a href="#linea-progresion" class="cta-secondary">Explorar Recompensas</a>
@@ -199,9 +199,9 @@ $passTypes = [
                     <div class="hero-silhouette" style="background-image: url('<?php echo htmlspecialchars($logoUrl); ?>');" aria-hidden="true"></div>
                 </div>
                 <div class="floating-card">
-                    <span class="small-label">Recompensa Máxima → Nivel 10 Élite</span>
-                    <h4>Invocación: X (To be Hero)</h4>
-                    <p>Consigue al hero más poderoso de la temporada. Además: Super Esferas del Dragón, Libro Accelerator y Arma Nulificador Supremo.</p>
+                    <span class="small-label">Premio Máximo → Nivel 10 Élite</span>
+                    <h4>Invocación: Anti-Monitor</h4>
+                    <p>El campeón absoluto del torneo. Además: Super Esferas del Dragón, Libro de los Vishanti, Lanza Rhongomyniad y Extensión de Terreno.</p>
                 </div>
             </div>
         </div>
@@ -210,9 +210,9 @@ $passTypes = [
     <main>
         <section id="pase-tipologias" class="pass-types">
             <header class="section-header">
-                <span class="section-kicker">Elige tu destino</span>
-                <h2>Tres rutas hacia la leyenda</h2>
-                <p>El Pase de Batalla To be Hero X se adapta a tu estilo. Todas las rutas comparten la narrativa heroica, pero cada una amplifica tu colección de forma única.</p>
+                <span class="section-kicker">Elige tu camino</span>
+                <h2>Tres niveles de competencia</h2>
+                <p>El Champions Einherjer 2025 ofrece tres tipos de pase. Desde el nivel básico hasta la élite de campeones, cada uno te acerca más a la gloria.</p>
             </header>
             <div class="pass-type-grid">
                 <?php foreach ($passTypes as $type): ?>
@@ -238,10 +238,10 @@ $passTypes = [
             
             <div class="purchase-info">
                 <div class="info-icon">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fas fa-trophy"></i>
                 </div>
                 <div class="info-content">
-                    <h3>¿Cómo adquirir tu pase?</h3>
+                    <h3>¿Cómo adquirir tu pase Champions?</h3>
                     <p>Para comprar el <strong>Pase Premium</strong> o <strong>Élite</strong>, contáctame directamente por mensaje privado. Los pases se activan de forma inmediata tras la confirmación del pago.</p>
                 </div>
             </div>
@@ -249,9 +249,9 @@ $passTypes = [
 
         <section id="linea-progresion" class="progression-trail">
             <header class="section-header">
-                <span class="section-kicker">10 niveles intensos</span>
-                <h2>cada ascenso desbloquea un poder diferente</h2>
-                <p>Recorre la línea temporal heroica con scroll horizontal o mediante los controles cinéticos. Cada nivel revela un hito de la temporada.</p>
+                <span class="section-kicker">10 niveles de gloria</span>
+                <h2>El camino del campeón</h2>
+                <p>Recorre los 10 niveles del Champions y desbloquea recompensas cada vez más poderosas. Cada nivel te acerca más a la victoria definitiva.</p>
             </header>
 
             <div class="trail-wrapper">
@@ -296,16 +296,16 @@ $passTypes = [
         <section class="season-flux">
             <div class="flux-grid">
                 <article class="flux-card">
-                    <h3>Cinemáticas reactivas</h3>
-                    <p>Cada compra del Pase Élite desbloquea cinemáticas de entrada y finalización To be Hero X renderizadas en tiempo real, sincronizadas con tus victorias.</p>
+                    <h3>🎮 Competencia Global</h3>
+                    <p>Enfréntate a jugadores de todo el mundo en el torneo más competitivo de Einherjar Blitz. Solo los mejores alcanzarán la cima.</p>
                 </article>
                 <article class="flux-card">
-                    <h3>Misiones generativas</h3>
-                    <p>Recibe tareas dinámicas según tu estilo de juego. Completa desafíos heroicos para avanzar más rápido en la línea temporal.</p>
+                    <h3>⚔️ Misiones Champions</h3>
+                    <p>Completa desafíos exclusivos del Champions 2025 para avanzar más rápido en los niveles y desbloquear recompensas adicionales.</p>
                 </article>
                 <article class="flux-card">
-                    <h3>Economía sincronizada</h3>
-                    <p>El Pase Premium conecta con la wallet: multiplica ganancias de terrenos temáticos y aplica boosts temporales a tus recursos.</p>
+                    <h3>💎 Recompensas Exclusivas</h3>
+                    <p>Invocaciones legendarias, armas míticas y objetos únicos que solo están disponibles durante el Champions Einherjer 2025.</p>
                 </article>
             </div>
         </section>
@@ -313,8 +313,8 @@ $passTypes = [
 
     <footer class="hero-footer">
         <div class="footer-content">
-            <span>&copy; <?php echo date('Y'); ?> Einherjer Blitz. Temporada To be Hero X.</span>
-            <span>Diseñado para conquistar galaxias.</span>
+            <span>&copy; <?php echo date('Y'); ?> Einherjer Blitz. Champions Einherjer 2025.</span>
+            <span>Gloria, Honor y Victoria Eterna.</span>
         </div>
     </footer>
 

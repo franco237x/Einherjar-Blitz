@@ -62,7 +62,7 @@ class HeroPassExperience {
         const height = this.canvas.height;
 
         ctx.save();
-        ctx.fillStyle = '#04010d';
+        ctx.fillStyle = '#0f0e13';
         ctx.fillRect(0, 0, width, height);
 
         const gradient = ctx.createRadialGradient(
@@ -74,9 +74,9 @@ class HeroPassExperience {
             Math.max(width, height)
         );
 
-        gradient.addColorStop(0, 'rgba(73, 242, 255, 0.18)');
-        gradient.addColorStop(0.35, 'rgba(180, 123, 255, 0.15)');
-        gradient.addColorStop(1, 'rgba(4, 1, 13, 0.95)');
+        gradient.addColorStop(0, 'rgba(255, 184, 28, 0.18)');
+        gradient.addColorStop(0.35, 'rgba(255, 70, 85, 0.15)');
+        gradient.addColorStop(1, 'rgba(15, 14, 19, 0.95)');
 
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = gradient;
@@ -85,7 +85,7 @@ class HeroPassExperience {
         ctx.globalCompositeOperation = 'source-over';
         this._stars.forEach(star => {
             ctx.beginPath();
-            ctx.fillStyle = `rgba(180, 223, 255, ${star.alpha})`;
+            ctx.fillStyle = `rgba(236, 232, 225, ${star.alpha})`;
             ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
             ctx.fill();
             star.y -= star.drift;
@@ -142,7 +142,7 @@ class HeroPassExperience {
             btn.classList.toggle('is-selected', isActive);
             btn.innerHTML = isActive
                 ? '<span>Seleccionado</span><i class="fas fa-check"></i>'
-                : '<span>Preview Hero X</span><i class="fas fa-play"></i>';
+                : '<span>Preview Champions</span><i class="fas fa-trophy"></i>';
             btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
     }
@@ -331,5 +331,5 @@ document.addEventListener('DOMContentLoaded', () => {
         revealElements.forEach(el => el.classList.add('reveal-in'));
     }
 
-    console.log('🚀 Hero Pass Experience initialized', experience);
+    console.log('🏆 Champions Einherjer 2025 Experience initialized', experience);
 });
