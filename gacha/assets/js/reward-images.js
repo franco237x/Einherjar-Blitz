@@ -17,6 +17,8 @@ const REWARD_IMAGES = {
         'Atlantis (DC Comics)': 'assets/images/rewards/terrains/atlantis.jpg',
         'Torre de los Vengadores (Marvel)': 'assets/images/rewards/terrains/torre_vengadores.jpg',
         'Fundación SCP': 'assets/images/rewards/terrains/fundacion_scp.jpg',
+        'Hallownest (Hollow Knight)': 'assets/images/rewards/terrains/hallownest.jpg',
+        'Apokolips (DC Comics)': 'assets/images/rewards/terrains/apokolips.jpg',
         
         // Objetos Especiales
         'Extensión de Terreno': 'assets/images/rewards/terrains/extension_terreno.jpg',
@@ -152,3 +154,45 @@ function createFallbackImage() {
 window.REWARD_IMAGES = REWARD_IMAGES;
 window.getRewardImage = getRewardImage;
 window.preloadImage = preloadImage;
+
+// Normalización para evitar problemas por acentos, mayúsculas o puntuación
+function normalizeKey(s) {
+    if (!s) return '';
+    // Convertir a minúsculas, quitar acentos y caracteres no alfanuméricos
+    return s.toString().toLowerCase()
+        .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+// Versión que intenta coincidencias normalizadas cuando la búsqueda exacta falla
+function getRewardImageNormalized(rewardName, chestType, rewardType) {
+    // Intento exacto primero
+    const exact = getRewardImage(rewardName, chestType, rewardType);
+    if (exact && exact !== 'assets/images/rewards/special/unknown.jpg') return exact;
+
+    const normName = normalizeKey(rewardName);
+
+    // Buscar en el chestType original
+    if (REWARD_IMAGES[chestType]) {
+        for (const key in REWARD_IMAGES[chestType]) {
+            if (normalizeKey(key) === normName) return REWARD_IMAGES[chestType][key];
+        }
+    }
+
+    // Buscar en todas las categorías
+    for (const category in REWARD_IMAGES) {
+        if (category === 'default') continue;
+        for (const key in REWARD_IMAGES[category]) {
+            if (normalizeKey(key) === normName) return REWARD_IMAGES[category][key];
+        }
+    }
+
+    // Finalmente, usar default por tipo
+    if (REWARD_IMAGES.default[rewardType]) return REWARD_IMAGES.default[rewardType];
+
+    return 'assets/images/rewards/special/unknown.jpg';
+}
+
+window.getRewardImageNormalized = getRewardImageNormalized;

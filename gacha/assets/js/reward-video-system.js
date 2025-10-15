@@ -324,7 +324,10 @@ class VideoRewardSystem {
     setupRewardImage(reward) {
         // Obtener la imagen correspondiente
         const chestType = reward.chest_type;
-        const imageSrc = getRewardImage(reward.name, chestType, reward.type);
+        // Usar versión normalizada que intenta coincidencias sin acentos/puntuación
+        const imageSrc = (typeof getRewardImageNormalized === 'function')
+            ? getRewardImageNormalized(reward.name, chestType, reward.type)
+            : getRewardImage(reward.name, chestType, reward.type);
         
         // Precargar la imagen
         preloadImage(imageSrc)

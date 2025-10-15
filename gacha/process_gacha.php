@@ -35,7 +35,9 @@ try {
             'Torre de los Vengadores (Marvel)',
             'Fundación SCP',
             'Extensión de Terreno',
-            'Dad Key'
+            'Dad Key',
+            'Hallownest (Hollow Knight)',
+            'Apokolips (DC Comics)',
         ];
         
         // Obtener terrenos ya reclamados
