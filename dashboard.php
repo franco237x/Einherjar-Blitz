@@ -229,6 +229,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-title">Modo Online</div>
                     <div class="nav-description">Juega Online contra tus amigos</div>
                 </a>
+
+                <a href="terror/index.php" class="nav-card glass-card nav-card-horror">
+                    <div class="nav-icon">
+                        <i class="fas fa-skull-crossbones"></i>
+                    </div>  
+                    <div class="nav-title">Minijuego de Terror</div>
+                    <div class="nav-description">⚠️ Escapa de AM ⚠️</div>
+                </a>
             </section>
 
             <!-- Acciones rápidas -->
