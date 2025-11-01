@@ -32,7 +32,7 @@ class HeroPassExperience {
     initCanvas() {
         if (!this.canvas || !this.context) return;
         this.resizeCanvas();
-        this.generateStars(140);
+        this.generateStars(180);
         requestAnimationFrame(() => this.drawNebula());
     }
 
@@ -49,9 +49,9 @@ class HeroPassExperience {
         this._stars = Array.from({ length: total }, () => ({
             x: Math.random() * width,
             y: Math.random() * height,
-            radius: Math.random() * 1.5 + 0.3,
-            alpha: Math.random() * 0.8 + 0.2,
-            drift: Math.random() * 0.5 + 0.1
+            radius: Math.random() * 2 + 0.5,
+            alpha: Math.random() * 0.9 + 0.3,
+            drift: Math.random() * 0.8 + 0.2
         }));
     }
 
@@ -62,9 +62,10 @@ class HeroPassExperience {
         const height = this.canvas.height;
 
         ctx.save();
-        ctx.fillStyle = '#0f0e13';
+        ctx.fillStyle = '#0a0412';
         ctx.fillRect(0, 0, width, height);
 
+        // Terror cósmico - Nebulosa morada pulsante
         const gradient = ctx.createRadialGradient(
             width * 0.7,
             height * 0.25,
@@ -74,26 +75,77 @@ class HeroPassExperience {
             Math.max(width, height)
         );
 
-        gradient.addColorStop(0, 'rgba(255, 184, 28, 0.18)');
-        gradient.addColorStop(0.35, 'rgba(255, 70, 85, 0.15)');
-        gradient.addColorStop(1, 'rgba(15, 14, 19, 0.95)');
+        const pulse = Math.sin(this._nebulaTick * 0.01) * 0.1 + 0.25;
+        gradient.addColorStop(0, `rgba(168, 85, 247, ${pulse})`);
+        gradient.addColorStop(0.35, `rgba(124, 58, 237, ${pulse * 0.7})`);
+        gradient.addColorStop(0.6, `rgba(192, 132, 252, ${pulse * 0.4})`);
+        gradient.addColorStop(1, 'rgba(10, 4, 18, 0.95)');
 
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
 
+        // Vórtice oscuro central
+        const vortex = ctx.createRadialGradient(
+            width * 0.5, height * 0.5, 50,
+            width * 0.5, height * 0.5, 400
+        );
+        vortex.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
+        vortex.addColorStop(0.5, 'rgba(59, 7, 100, 0.3)');
+        vortex.addColorStop(1, 'transparent');
+        ctx.fillStyle = vortex;
+        ctx.fillRect(0, 0, width, height);
+
+        // Estrellas brillantes con efecto parpadeante
         ctx.globalCompositeOperation = 'source-over';
         this._stars.forEach(star => {
+            // Efecto de parpadeo aleatorio
+            const twinkle = Math.sin(this._nebulaTick * star.drift * 0.05) * 0.3 + 0.7;
+            const alpha = star.alpha * twinkle;
+            
             ctx.beginPath();
-            ctx.fillStyle = `rgba(236, 232, 225, ${star.alpha})`;
-            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+            const gradient = ctx.createRadialGradient(
+                star.x, star.y, 0,
+                star.x, star.y, star.radius * 2
+            );
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+            gradient.addColorStop(0.5, `rgba(192, 132, 252, ${alpha * 0.6})`);
+            gradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient;
+            ctx.arc(star.x, star.y, star.radius * 2, 0, Math.PI * 2);
             ctx.fill();
+
+            // Movimiento de deriva
             star.y -= star.drift;
+            star.x += Math.sin(this._nebulaTick * 0.001 + star.y) * 0.2;
+            
             if (star.y < -5) {
                 star.y = height + Math.random() * 20;
                 star.x = Math.random() * width;
             }
         });
+
+        // Rayos cósmicos ocasionales
+        if (Math.random() < 0.02) {
+            const x1 = Math.random() * width;
+            const y1 = Math.random() * height;
+            const angle = Math.random() * Math.PI * 2;
+            const length = Math.random() * 100 + 50;
+            const x2 = x1 + Math.cos(angle) * length;
+            const y2 = y1 + Math.sin(angle) * length;
+
+            const rayGradient = ctx.createLinearGradient(x1, y1, x2, y2);
+            rayGradient.addColorStop(0, 'rgba(168, 85, 247, 0.8)');
+            rayGradient.addColorStop(0.5, 'rgba(192, 132, 252, 0.6)');
+            rayGradient.addColorStop(1, 'transparent');
+
+            ctx.strokeStyle = rayGradient;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
 
         ctx.restore();
         this._nebulaTick += 1;
@@ -141,8 +193,8 @@ class HeroPassExperience {
             const isActive = btn.dataset.passTarget === passId;
             btn.classList.toggle('is-selected', isActive);
             btn.innerHTML = isActive
-                ? '<span>Seleccionado</span><i class="fas fa-check"></i>'
-                : '<span>Preview Champions</span><i class="fas fa-trophy"></i>';
+                ? '<span>Seleccionado</span><i class="fas fa-check-circle"></i>'
+                : '<span>Descubrir Poder</span><i class="fas fa-eye"></i>';
             btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
     }
@@ -331,5 +383,5 @@ document.addEventListener('DOMContentLoaded', () => {
         revealElements.forEach(el => el.classList.add('reveal-in'));
     }
 
-    console.log('🏆 Champions Einherjer 2025 Experience initialized', experience);
+    console.log('� Terror Cósmico 2025 - El Vacío Te Llama', experience);
 });

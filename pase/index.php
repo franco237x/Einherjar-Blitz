@@ -16,80 +16,80 @@ if (!$userData) {
 // ============================================
 // CONFIGURACIÓN DE IMÁGENES (Cambiar aquí)
 // ============================================
-$logoUrl = 'https://videos.openai.com/vg-assets/assets%2Ftask_01k6yjsex7e29v63gzbny36ywq%2F1759815549_img_0.webp?se=2025-10-13T03%3A27%3A44Z&sp=r&sv=2024-08-04&sr=b&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-12T23%3A30%3A02Z&ske=2025-10-13T03%3A35%3A02Z&sks=b&skv=2024-08-04&sig=2RW3cTv4XASAHj5QVfxekROjjKAHdbO/o1UPr6uKusk%3D&az=oaivgprodscus'; // Logo central del orbital
-$iconUrl = 'https://videos.openai.com/vg-assets/assets%2Ftask_01k6yjsex7e29v63gzbny36ywq%2F1759815549_img_0.webp?se=2025-10-13T03%3A27%3A44Z&sp=r&sv=2024-08-04&sr=b&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-12T23%3A30%3A02Z&ske=2025-10-13T03%3A35%3A02Z&sks=b&skv=2024-08-04&sig=2RW3cTv4XASAHj5QVfxekROjjKAHdbO/o1UPr6uKusk%3D&az=oaivgprodscus'; // Icono de la página (favicon)
+$logoUrl = 'https://pm1.aminoapps.com/6239/c94a7073aaf0e4feb54ca6a385c8376705a77f5b_00.jpg'; // Logo central del orbital
+$iconUrl = 'https://pm1.aminoapps.com/6239/c94a7073aaf0e4feb54ca6a385c8376705a77f5b_00.jpg'; // Icono de la página (favicon)
 // ============================================
 
 $levels = [
     [
         'level' => 1,
-        'title' => 'Apertura del Torneo',
+        'title' => 'Despertar Cósmico',
         'free' => '75 Esencias Azules',
         'premium' => '125 Esencias Azules',
         'elite' => '250 Esencias Azules'
     ],
     [
         'level' => 2,
-        'title' => 'Ronda Clasificatoria',
+        'title' => 'Ecos del Vacío',
         'free' => 'Cofre Clasificatoria x2',
         'premium' => 'Cofre Clasificatoria x2',
         'elite' => 'Cofre Buenos Deseos x2'
     ],
     [
         'level' => 3,
-        'title' => 'Invocaciones Legendarias',
-        'free' => 'Invocación: Ash Ketchum',
-        'premium' => 'Invocación: Son Goku',
-        'elite' => 'Invocación: Seiya de Pegaso'
+        'title' => 'Ojos del Abismo',
+        'free' => 'Poder Ocular: Jogan',
+        'premium' => 'Poder: Terror Cósmico',
+        'elite' => 'Poder: Energía de Dios (OPM)'
     ],
     [
         'level' => 4,
-        'title' => 'Tesoros del Campeón',
+        'title' => 'Tesoros Oscuros',
         'free' => 'Cofre de León x1',
         'premium' => 'Cofre de León x2',
         'elite' => 'Esferas del Dragón'
     ],
     [
         'level' => 5,
-        'title' => 'Poder de Campeones',
+        'title' => 'Resonancia del Cosmos',
         'free' => '75 Esencias Azules',
         'premium' => '125 Esencias Azules',
         'elite' => '250 Esencias Azules'
     ],
     [
         'level' => 6,
-        'title' => 'Arsenal del Guerrero',
-        'free' => 'Arma: Katana Nichirin',
-        'premium' => 'Arma: Colmillo de Acero',
-        'elite' => 'Arma: Lanza Rhongomyniad'
+        'title' => 'Sabiduría Prohibida',
+        'free' => 'Libro Legendario: Gojo Satoru',
+        'premium' => 'Libro Legendario: Blast',
+        'elite' => 'Libro Exclusivo: Garou Terror Cósmico'
     ],
     [
         'level' => 7,
-        'title' => 'Sabiduría Mística',
-        'free' => 'Libro: Energía Maldita (básico)',
-        'premium' => 'Libro: Darkhold',
-        'elite' => 'Libro: Libro de los Vishanti'
+        'title' => 'Pactos Infernales',
+        'free' => 'Contrato: Demonio de la Oscuridad',
+        'premium' => 'Contrato: Demonio del Cosmo',
+        'elite' => 'Contrato: Demonio Motosierra'
     ],
     [
         'level' => 8,
-        'title' => 'Objetos Estratégicos',
-        'free' => 'Objeto: Pergamino Entrenamiento Instantáneo x3',
-        'premium' => 'Espacio de Personaje e Invocación +1',
-        'elite' => 'Objeto: Extensión de Terreno'
+        'title' => 'Entidades Selladas',
+        'free' => 'Ser Sellado: Rey Espíritu',
+        'premium' => 'Ser Sellado: Eternity',
+        'elite' => 'Ser Sellado: Primer Firmamento'
     ],
     [
         'level' => 9,
-        'title' => 'Poder Dracónico',
+        'title' => 'Poder Absoluto',
         'free' => 'Esferas del Dragón',
         'premium' => 'Esferas del Dragón',
         'elite' => 'Super Esferas del Dragón'
     ],
     [
         'level' => 10,
-        'title' => 'Gran Final Champions',
-        'free' => 'Invocación: All Might',
-        'premium' => 'Invocación: Jin Mori',
-        'elite' => 'Invocación: Anti-Monitor'
+        'title' => 'Señores del Vacío',
+        'free' => 'Invocación: Empty Void',
+        'premium' => 'Invocación: Solaris',
+        'elite' => 'Invocación: Dormammu'
     ],
 ];
 
@@ -98,37 +98,37 @@ $passTypes = [
         'id' => 'free',
         'name' => 'Gratis',
         'price' => 'Gratis',
-        'description' => 'Acceso básico al Champions Einherjer 2025. Obtén recompensas épicas y participa en el torneo más grande del año.',
+        'description' => 'Adéntrate en las sombras del cosmos. Desbloquea el poder del vacío y contratos con demonios que acechan en la oscuridad.',
         'benefits' => [
-            'Invocación: Ash Ketchum & All Might',
-            'Katana Nichirin',
-            'Libro: Energía Maldita',
-            'Cofres clasificatoria x2'
+            'Invocación: Empty Void',
+            'Poder Ocular: Jogan',
+            'Libro Legendario: Gojo Satoru',
+            'Contrato: Demonio de la Oscuridad'
         ]
     ],
     [
         'id' => 'premium',
         'name' => 'Premium',
         'price' => '1,250 Esencias Azules',
-        'description' => 'Eleva tu juego al nivel de los campeones. Invocaciones legendarias y armas de élite para dominar el torneo.',
+        'description' => 'Domina el terror cósmico. Invoca entidades estelares y sella seres de poder incalculable en tu arsenal.',
         'benefits' => [
-            'Invocación: Son Goku & Jin Mori',
-            'Arma: Colmillo de Acero',
-            'Libro: Darkhold',
-            'Espacio de Personaje +1'
+            'Invocación: Solaris',
+            'Poder: Terror Cósmico',
+            'Libro Legendario: Blast',
+            'Contrato: Demonio del Cosmo'
         ]
     ],
     [
         'id' => 'elite',
         'name' => 'Élite',
         'price' => '1 Sub de Kick o $5 USD',
-        'description' => 'El camino del campeón definitivo. Desbloquea el arsenal más poderoso y las invocaciones más legendarias del Champions 2025.',
+        'description' => 'Abraza el caos absoluto del universo. Convoca a Dormammu y controla el primer firmamento. El poder definitivo te espera.',
         'benefits' => [
-            'Invocación: Seiya de Pegaso & Anti-Monitor',
-            'Lanza Rhongomyniad',
-            'Libro de los Vishanti',
-            'Super Esferas del Dragón',
-            'Extensión de Terreno'
+            'Invocación: Dormammu',
+            'Poder: Energía de Dios (OPM)',
+            'Libro Exclusivo: Garou Terror Cósmico',
+            'Contrato: Demonio Motosierra',
+            'Ser Sellado: Primer Firmamento'
         ]
     ],
 ];
@@ -138,8 +138,8 @@ $passTypes = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Champions Einherjer 2025 - Pase de Batalla</title>
-    <meta name="description" content="Únete al Champions Einherjer 2025 y conquista el torneo más épico. Recompensas legendarias te esperan.">
+    <title>Terror Cósmico - Pase de Batalla</title>
+    <meta name="description" content="Adéntrate en el vacío infinito. El terror cósmico aguarda, y solo los más valientes sobrevivirán.">
 
     <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($iconUrl); ?>">
     <link rel="apple-touch-icon" href="<?php echo htmlspecialchars($iconUrl); ?>">
@@ -150,6 +150,7 @@ $passTypes = [
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/pase.css">
+    <link rel="stylesheet" href="assets/css/cosmic-effects.css">
 </head>
 <body>
     <canvas id="nebula-background" aria-hidden="true"></canvas>
@@ -169,12 +170,12 @@ $passTypes = [
         </nav>
         <div class="hero-content">
             <div class="hero-copy">
-                <span class="season-tag">🏆 Temporada Champions 2025</span>
-                <h1>Champions Einherjer</h1>
-                <p>El torneo definitivo ha comenzado. Compite, conquista y demuestra que eres el campeón definitivo. Recompensas épicas, batallas legendarias y gloria eterna te esperan.</p>
+                <span class="season-tag">� Terror Cósmico 2025</span>
+                <h1>El Vacío Infinito</h1>
+                <p>El universo tiembla ante el despertar de antiguas entidades. Contratos demoniacos, poderes prohibidos y seres sellados esperan ser liberados. ¿Te atreves a desafiar el terror del cosmos?</p>
                 <div class="cta-group">
-                    <a href="#pase-tipologias" class="cta-primary">Ver Tipos de Pase</a>
-                    <a href="#linea-progresion" class="cta-secondary">Explorar Recompensas</a>
+                    <a href="#pase-tipologias" class="cta-primary">Enfrentar el Vacío</a>
+                    <a href="#linea-progresion" class="cta-secondary">Explorar Abismo</a>
                 </div>
                 <div class="hero-meta">
                     <div>
@@ -200,8 +201,8 @@ $passTypes = [
                 </div>
                 <div class="floating-card">
                     <span class="small-label">Premio Máximo → Nivel 10 Élite</span>
-                    <h4>Invocación: Anti-Monitor</h4>
-                    <p>El campeón absoluto del torneo. Además: Super Esferas del Dragón, Libro de los Vishanti, Lanza Rhongomyniad y Extensión de Terreno.</p>
+                    <h4>Invocación: Dormammu</h4>
+                    <p>El señor de la dimensión oscura. Además: Primer Firmamento sellado, Garou Terror Cósmico, Demonio Motosierra y Super Esferas del Dragón.</p>
                 </div>
             </div>
         </div>
@@ -210,9 +211,9 @@ $passTypes = [
     <main>
         <section id="pase-tipologias" class="pass-types">
             <header class="section-header">
-                <span class="section-kicker">Elige tu camino</span>
-                <h2>Tres niveles de competencia</h2>
-                <p>El Champions Einherjer 2025 ofrece tres tipos de pase. Desde el nivel básico hasta la élite de campeones, cada uno te acerca más a la gloria.</p>
+                <span class="section-kicker">Elige tu destino</span>
+                <h2>Tres senderos hacia el caos</h2>
+                <p>El Terror Cósmico se manifiesta en tres niveles de poder. Desde el despertar hasta el dominio absoluto del vacío.</p>
             </header>
             <div class="pass-type-grid">
                 <?php foreach ($passTypes as $type): ?>
@@ -229,8 +230,8 @@ $passTypes = [
                         <?php endforeach; ?>
                     </ul>
                     <button class="btn-select" data-pass-target="<?php echo htmlspecialchars($type['id']); ?>">
-                        <span>Preview Hero X</span>
-                        <i class="fas fa-play"></i>
+                        <span>Descubrir Poder</span>
+                        <i class="fas fa-eye"></i>
                     </button>
                 </article>
                 <?php endforeach; ?>
@@ -238,20 +239,20 @@ $passTypes = [
             
             <div class="purchase-info">
                 <div class="info-icon">
-                    <i class="fas fa-trophy"></i>
+                    <i class="fas fa-skull"></i>
                 </div>
                 <div class="info-content">
-                    <h3>¿Cómo adquirir tu pase Champions?</h3>
-                    <p>Para comprar el <strong>Pase Premium</strong> o <strong>Élite</strong>, contáctame directamente por mensaje privado. Los pases se activan de forma inmediata tras la confirmación del pago.</p>
+                    <h3>¿Cómo adquirir el poder del vacío?</h3>
+                    <p>Para comprar el <strong>Pase Premium</strong> o <strong>Élite</strong>, contáctame directamente por mensaje privado. El poder cósmico será tuyo de forma inmediata tras la confirmación.</p>
                 </div>
             </div>
         </section>
 
         <section id="linea-progresion" class="progression-trail">
             <header class="section-header">
-                <span class="section-kicker">10 niveles de gloria</span>
-                <h2>El camino del campeón</h2>
-                <p>Recorre los 10 niveles del Champions y desbloquea recompensas cada vez más poderosas. Cada nivel te acerca más a la victoria definitiva.</p>
+                <span class="section-kicker">10 niveles de oscuridad</span>
+                <h2>El descenso al abismo</h2>
+                <p>Atraviesa los 10 niveles del terror cósmico y desbloquea poderes antiguos. Cada nivel te acerca más al vacío infinito.</p>
             </header>
 
             <div class="trail-wrapper">
@@ -296,16 +297,16 @@ $passTypes = [
         <section class="season-flux">
             <div class="flux-grid">
                 <article class="flux-card">
-                    <h3>🎮 Competencia Global</h3>
-                    <p>Enfréntate a jugadores de todo el mundo en el torneo más competitivo de Einherjar Blitz. Solo los mejores alcanzarán la cima.</p>
+                    <h3>👁️ Poderes Prohibidos</h3>
+                    <p>Desbloquea poderes oculares legendarios como el Jogan y habilidades cósmicas que desafían las leyes del universo.</p>
                 </article>
                 <article class="flux-card">
-                    <h3>⚔️ Misiones Champions</h3>
-                    <p>Completa desafíos exclusivos del Champions 2025 para avanzar más rápido en los niveles y desbloquear recompensas adicionales.</p>
+                    <h3>😈 Contratos Demoniacos</h3>
+                    <p>Firma pactos con demonios de la oscuridad, el cosmos y la motosierra. Su poder será tuyo, pero el precio es alto.</p>
                 </article>
                 <article class="flux-card">
-                    <h3>💎 Recompensas Exclusivas</h3>
-                    <p>Invocaciones legendarias, armas míticas y objetos únicos que solo están disponibles durante el Champions Einherjer 2025.</p>
+                    <h3>🌑 Entidades Selladas</h3>
+                    <p>Libera seres de inmenso poder: desde el Rey Espíritu hasta Eternity y el mismísimo Primer Firmamento.</p>
                 </article>
             </div>
         </section>
@@ -313,8 +314,8 @@ $passTypes = [
 
     <footer class="hero-footer">
         <div class="footer-content">
-            <span>&copy; <?php echo date('Y'); ?> Einherjer Blitz. Champions Einherjer 2025.</span>
-            <span>Gloria, Honor y Victoria Eterna.</span>
+            <span>&copy; <?php echo date('Y'); ?> Einherjer Blitz. Terror Cósmico 2025.</span>
+            <span>El Vacío Llama. El Abismo Espera.</span>
         </div>
     </footer>
 

@@ -1,0 +1,83 @@
+/* ============================================
+   EFECTOS CÓSMICOS ADICIONALES - TERROR ESPACIAL
+   ============================================ */
+
+/* Efecto de distorsión temporal en cards activos */
+@keyframes temporalShift {
+    0% {
+        filter: blur(0);
+        opacity: 1;
+    }
+    50% {
+        filter: blur(3px);
+        opacity: 0.8;
+    }
+    100% {
+        filter: blur(0);
+        opacity: 1;
+    }
+}
+
+/* Efecto de scan line cósmico */
+@keyframes cosmicScan {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(100vh);
+    }
+}
+
+body.pase-hero::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to bottom, 
+        transparent, 
+        rgba(168, 85, 247, 0.4), 
+        transparent
+    );
+    z-index: 9999;
+    pointer-events: none;
+    animation: cosmicScan 8s linear infinite;
+    opacity: 0.4;
+}
+
+/* Respiración del orbital cósmico */
+.orbital-core {
+    animation: pulseCore 4s ease-in-out infinite, cosmicBreath 6s ease-in-out infinite !important;
+}
+
+@keyframes cosmicBreath {
+    0%, 100% { 
+        box-shadow: 0 0 60px rgba(168, 85, 247, 0.8), 
+                    0 0 100px rgba(124, 58, 237, 0.5);
+    }
+    50% { 
+        box-shadow: 0 0 100px rgba(192, 132, 252, 1),
+                    0 0 150px rgba(168, 85, 247, 0.8),
+                    0 0 200px rgba(124, 58, 237, 0.5);
+    }
+}
+
+/* Aura pulsante mejorada para números */
+.level-number {
+    animation: numberGlow 3s ease-in-out infinite, auraWave 4s ease-in-out infinite !important;
+}
+
+@keyframes auraWave {
+    0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(168, 85, 247, 0.8));
+    }
+    50% {
+        filter: drop-shadow(0 0 80px rgba(192, 132, 252, 1))
+                drop-shadow(0 0 120px rgba(168, 85, 247, 0.6));
+    }
+}
+
+/* Distorsión temporal para cards activos */
+.level-card.active {
+    animation: temporalShift 0.8s ease-out;
+}

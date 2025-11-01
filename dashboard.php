@@ -29,7 +29,7 @@ $progressPercent = ($currentExp / 1000) * 100;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Einherjer Blitz | Champions 2025</title>
+    <title>Dashboard - Einherjer Blitz | Terror Cósmico 2025</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -44,7 +44,7 @@ $progressPercent = ($currentExp / 1000) * 100;
     <link rel="stylesheet" href="assets/css/dashboard.css">
     
     <!-- Meta tags -->
-    <meta name="description" content="Dashboard de Einherjer Blitz - Champions 2025. Tu centro de comando para el torneo más épico.">
+    <meta name="description" content="Dashboard de Einherjer Blitz - Terror Cósmico 2025. Adéntrate en el vacío infinito.">
     <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="d-flex flex-column h-100">
@@ -198,12 +198,12 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Compra objetos</div>
                 </div>
 
-                <a href="pase/index.php" class="nav-card glass-card nav-card-highlight">
+                <a href="pase/index.php" class="nav-card glass-card nav-card-cosmic">
                     <div class="nav-icon">
-                        <i class="fas fa-trophy"></i>
+                        <i class="fas fa-eye"></i>
                     </div>
-                    <div class="nav-title">Champions 2025</div>
-                    <div class="nav-description">Pase de Batalla</div>
+                    <div class="nav-title">Terror Cósmico 2025</div>
+                    <div class="nav-description">🌌 Pase de Batalla del Vacío</div>
                 </a>
 
                 <a href="wallet.php" class="nav-card glass-card">
@@ -229,14 +229,6 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-title">Modo Online</div>
                     <div class="nav-description">Juega Online contra tus amigos</div>
                 </a>
-
-                <a href="terror/index.php" class="nav-card glass-card nav-card-horror">
-                    <div class="nav-icon">
-                        <i class="fas fa-skull-crossbones"></i>
-                    </div>  
-                    <div class="nav-title">Minijuego de Terror</div>
-                    <div class="nav-description">⚠️ Escapa de AM ⚠️</div>
-                </a>
             </section>
 
             <!-- Acciones rápidas -->
@@ -247,9 +239,9 @@ $progressPercent = ($currentExp / 1000) * 100;
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transferir</span>
                     </a>
-                    <a href="pase/index.php" class="action-btn action-btn-featured">
-                        <i class="fas fa-trophy"></i>
-                        <span>Champions 2025</span>
+                    <a href="pase/index.php" class="action-btn action-btn-cosmic">
+                        <i class="fas fa-eye"></i>
+                        <span>Terror Cósmico 2025</span>
                     </a>
                     <div class="action-btn disabled">
                         <i class="fas fa-user-edit"></i>
@@ -270,7 +262,7 @@ $progressPercent = ($currentExp / 1000) * 100;
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start">
                     <small class="text-muted">
-                        &copy; 2025 Einherjer Blitz. Champions Einherjer 2025 - Gloria, Honor y Victoria.
+                        &copy; 2025 Einherjer Blitz. Terror Cósmico 2025 - El Vacío Te Llama.
                     </small>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
