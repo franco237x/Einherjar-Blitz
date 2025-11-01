@@ -317,7 +317,8 @@ class GachaSystem {
         
         const chestNames = {
             'terrains': 'Cofre de Terrenos',
-            'comics': 'Comics que Inspiran'
+            'comics': 'Comics que Inspiran',
+            'kamen_rider': 'Héroes Kamen Rider'
         };
 
         const historyItem = {

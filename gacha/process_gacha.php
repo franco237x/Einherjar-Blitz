@@ -22,7 +22,8 @@ try {
     }
 
     // Funciones auxiliares para verificar terrenos únicos
-    function getAvailableTerrains($conn) {
+    function getAvailableTerrains($conn)
+    {
         // Lista completa de terrenos únicos disponibles
         $all_terrains = [
             'Hipódromo Valhalla (Uma Musume)',
@@ -39,7 +40,7 @@ try {
             'Hallownest (Hollow Knight)',
             'Apokolips (DC Comics)',
         ];
-        
+
         // Obtener terrenos ya reclamados
         $stmt = $conn->prepare("
             SELECT DISTINCT recompensa_obtenida 
@@ -52,12 +53,13 @@ try {
         ");
         $stmt->execute();
         $claimed_terrains = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
+
         // Retornar solo terrenos disponibles
         return array_diff($all_terrains, $claimed_terrains);
     }
-    
-    function isTerrainAvailable($terrain_name, $available_terrains) {
+
+    function isTerrainAvailable($terrain_name, $available_terrains)
+    {
         return in_array($terrain_name, $available_terrains);
     }
 
@@ -80,27 +82,27 @@ try {
             'rewards' => [
                 // Comunes (peso 40) - Recursos básicos
                 ['250 Esencias Azules', 'resources', 250, 40],
-                
+
                 // Raros (peso 30) - Héroes menores
-                ['Spider-Man', 'invocation', 1, 30],            
+                ['Spider-Man', 'invocation', 1, 30],
                 ['Joker', 'invocation', 1, 30],
                 ['Moon Knight', 'invocation', 1, 30],
                 ['Black Panther', 'invocation', 1, 30],
-                
+
                 // Épicos (peso 20) - Héroes icónicos
                 ['Batman', 'invocation', 1, 20],
                 ['Superman', 'invocation', 1, 20],
                 ['Iron Man', 'invocation', 1, 20],
-                ['Wonder Woman', 'invocation', 1, 20], 
-                ['Superman New 52', 'invocation', 1, 20], 
-                
+                ['Wonder Woman', 'invocation', 1, 20],
+                ['Superman New 52', 'invocation', 1, 20],
+
                 // Legendarios (peso 8) - Villanos poderosos
                 ['Thanos', 'invocation', 1, 8],
                 ['Lex Luthor', 'invocation', 1, 8],
                 ['Flash', 'invocation', 1, 8],
                 ['Reverse Flash', 'invocation', 1, 8],
                 ['Extensión de Terreno', 'resources', 1, 8],
-                
+
                 // Míticos (peso 2) - Entidades cósmicas
                 ['Galactus', 'invocation', 1, 2],
                 ['Darkseid', 'invocation', 1, 2],
@@ -112,6 +114,41 @@ try {
                 ['El Beyonder', 'invocation', 1, 1],
                 ['Hombre Molécula', 'invocation', 1, 1],
                 ['Wally West: Silla de Mobius', 'invocation', 1, 1],
+            ]
+        ],
+        'kamen_rider' => [
+            'name' => 'Héroes Kamen Rider',
+            'cost' => 5,
+            'rewards' => [
+                // Comunes (peso 40) - Recursos
+                ['300 Esencias Azules', 'resources', 300, 40],
+
+                // Raros (peso 25) - Riders Clásicos Famosos
+                ['Kamen Rider Kuuga', 'invocation', 1, 25],
+                ['Kamen Rider Agito', 'invocation', 1, 25],
+                ['Kamen Rider Faiz', 'invocation', 1, 25],
+                ['Kamen Rider Kabuto', 'invocation', 1, 25], // ← añadido
+
+                // Épicos (peso 20) - Riders Icónicos
+                ['Kamen Rider Den-O', 'invocation', 1, 20],
+                ['Kamen Rider W', 'invocation', 1, 20],
+                ['Kamen Rider OOO', 'invocation', 1, 20],
+                ['Kamen Rider Build', 'invocation', 1, 20],
+                ['Kamen Rider Gaim', 'invocation', 1, 20], // ← añadido
+
+                // Legendarios (peso 12) - Drivers Especiales
+                ['Decadriver', 'driver', 1, 12],
+                ['Ziku-Driver', 'driver', 1, 12],
+                ['Build Driver', 'driver', 1, 12],
+
+                // Legendarios (peso 10) - Riders Poderosos
+                ['Kamen Rider Decade', 'invocation', 1, 10],
+                ['Kamen Rider Zi-O', 'invocation', 1, 10],
+                ['Kamen Rider Geats', 'invocation', 1, 10],
+                ['Kamen Rider Zero-One', 'invocation', 1, 10], // ← añadido
+
+                // Mítico (peso 1) - Singularidad temporal
+                ['Kamen Rider Ohma Zi-O', 'invocation', 1, 1],
             ]
         ]
     ];
@@ -125,88 +162,88 @@ try {
 
     $database = Database::getInstance();
     $conn = $database->getConnection();
-    
+
     // Variable para terrenos disponibles
     $available_terrains = [];
-    
+
     // Verificación especial para cofre de terrenos
     if ($chest_type === 'terrains') {
         $available_terrains = getAvailableTerrains($conn);
-        
+
         if (empty($available_terrains)) {
             echo json_encode([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Cofre Agotado - Todos los terrenos han sido reclamados. Vuelve cuando se agreguen nuevos terrenos.'
             ]);
             exit;
         }
     }
-    
+
     // Verificar llaves del usuario
     $stmt = $conn->prepare("SELECT llaves FROM usuarios WHERE id = ?");
     $stmt->execute([$user_id]);
     $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$user_data) {
         echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
         exit;
     }
-    
+
     $current_keys = $user_data['llaves'];
-    
+
     if ($current_keys < $config['cost']) {
         echo json_encode([
-            'success' => false, 
+            'success' => false,
             'message' => "Llaves insuficientes. Necesitas {$config['cost']} llaves, tienes {$current_keys}"
         ]);
         exit;
     }
-    
+
     // Iniciar transacción
     $conn->beginTransaction();
-    
+
     // Descontar llaves
     $stmt = $conn->prepare("UPDATE usuarios SET llaves = llaves - ? WHERE id = ?");
     $stmt->execute([$config['cost'], $user_id]);
-    
+
     // Calcular recompensa basada en probabilidades
     if ($chest_type === 'terrains') {
         $reward = calculateTerrainReward($config['rewards'], $available_terrains);
     } else {
         $reward = calculateReward($config['rewards']);
     }
-    
+
     // Registrar recompensa en la base de datos
     $stmt = $conn->prepare("
         INSERT INTO recompensas_usuario (user_id, username, recompensa_obtenida, tipo_recompensa, valor, fecha_obtencion) 
         VALUES (?, ?, ?, ?, ?, NOW())
     ");
     $stmt->execute([
-        $user_id, 
-        $username, 
-        $reward['name'], 
-        $reward['type'], 
+        $user_id,
+        $username,
+        $reward['name'],
+        $reward['type'],
         $reward['value']
     ]);
-    
+
     // Registrar transacción
     $stmt = $conn->prepare("
         INSERT INTO transacciones_einherjer (user_id, username, tipo, cantidad, descripcion) 
         VALUES (?, ?, 'compra', ?, ?)
     ");
     $stmt->execute([
-        $user_id, 
-        $username, 
-        $config['cost'], 
+        $user_id,
+        $username,
+        $config['cost'],
         "Apertura de {$config['name']}"
     ]);
-    
+
     // Confirmar transacción
     $conn->commit();
-    
+
     // Determinar rareza basada en la probabilidad
     $rarity = determineRarity($reward['weight']);
-    
+
     echo json_encode([
         'success' => true,
         'reward' => [
@@ -218,7 +255,7 @@ try {
         ],
         'remaining_keys' => $current_keys - $config['cost']
     ]);
-    
+
 } catch (Exception $e) {
     if (isset($conn)) {
         $conn->rollBack();
@@ -226,21 +263,22 @@ try {
     echo json_encode(['success' => false, 'message' => 'Error del servidor: ' . $e->getMessage()]);
 }
 
-function calculateTerrainReward($rewards, $available_terrains) {
+function calculateTerrainReward($rewards, $available_terrains)
+{
     // El cofre de terrenos SIEMPRE da un terreno disponible
     if (empty($available_terrains)) {
         // Esto no debería pasar porque ya se verifica antes, pero por seguridad
         throw new Exception('No hay terrenos disponibles');
     }
-    
+
     // Definir tipos especiales con mayor rareza
     $special_items = ['Extensión de Terreno', 'Dad Key'];
     $terrain_list = array_diff($available_terrains, $special_items);
     $special_available = array_intersect($available_terrains, $special_items);
-    
+
     // 20% probabilidad de objeto especial si están disponibles
     $give_special = mt_rand(1, 100) <= 20;
-    
+
     if ($give_special && !empty($special_available)) {
         // Dar objeto especial
         $selected_item = $special_available[array_rand($special_available)];
@@ -260,7 +298,7 @@ function calculateTerrainReward($rewards, $available_terrains) {
         // Esto no debería pasar
         throw new Exception('Error interno: no hay terrenos disponibles');
     }
-    
+
     return [
         'name' => $selected_item,
         'type' => $type,
@@ -269,13 +307,14 @@ function calculateTerrainReward($rewards, $available_terrains) {
     ];
 }
 
-function calculateReward($rewards) {
+function calculateReward($rewards)
+{
     // Calcular peso total
     $total_weight = array_sum(array_column($rewards, 3));
-    
+
     // Generar número aleatorio
     $random = mt_rand(1, $total_weight);
-    
+
     // Encontrar recompensa basada en peso
     $current_weight = 0;
     foreach ($rewards as $reward) {
@@ -289,7 +328,7 @@ function calculateReward($rewards) {
             ];
         }
     }
-    
+
     // Fallback (no debería ocurrir)
     return [
         'name' => $rewards[0][0],
@@ -299,11 +338,16 @@ function calculateReward($rewards) {
     ];
 }
 
-function determineRarity($weight) {
-    if ($weight >= 30) return 'common';
-    if ($weight >= 15) return 'rare';
-    if ($weight >= 5) return 'epic';
-    if ($weight >= 2) return 'legendary';
+function determineRarity($weight)
+{
+    if ($weight >= 30)
+        return 'common';
+    if ($weight >= 15)
+        return 'rare';
+    if ($weight >= 5)
+        return 'epic';
+    if ($weight >= 2)
+        return 'legendary';
     return 'mythical';
 }
 ?>

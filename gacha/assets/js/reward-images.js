@@ -64,6 +64,39 @@ const REWARD_IMAGES = {
         'Wally West: Silla de Mobius': 'assets/images/rewards/comics/wally_west_silla_mobius.jpg'
     },
     
+    // Héroes Kamen Rider
+    'kamen_rider': {
+        // Recursos Comunes
+        '300 Esencias Azules': 'assets/images/rewards/kamen_rider/esencias_azules.jpg',
+        
+        // Riders Raros - Clásicos Famosos
+        'Kamen Rider Kuuga': 'assets/images/rewards/kamen_rider/kuuga.jpg',
+        'Kamen Rider Agito': 'assets/images/rewards/kamen_rider/agito.jpg',
+        'Kamen Rider Faiz': 'assets/images/rewards/kamen_rider/faiz.jpg',
+        'Kamen Rider Kabuto': 'assets/images/rewards/kamen_rider/kabuto.jpg',
+        
+        // Riders Épicos - Icónicos
+        'Kamen Rider Den-O': 'assets/images/rewards/kamen_rider/den_o.jpg',
+        'Kamen Rider W': 'assets/images/rewards/kamen_rider/w.jpg',
+        'Kamen Rider OOO': 'assets/images/rewards/kamen_rider/ooo.jpg',
+        'Kamen Rider Build': 'assets/images/rewards/kamen_rider/build.jpg',
+        'Kamen Rider Gaim': 'assets/images/rewards/kamen_rider/gaim.jpg',
+        
+        // Drivers Legendarios - Dispositivos de Transformación
+        'Decadriver': 'assets/images/rewards/kamen_rider/decadriver.jpg',
+        'Ziku-Driver': 'assets/images/rewards/kamen_rider/ziku_driver.jpg',
+        'Build Driver': 'assets/images/rewards/kamen_rider/build_driver.jpg',
+        
+        // Riders Legendarios - Poderosos
+        'Kamen Rider Decade': 'assets/images/rewards/kamen_rider/decade.jpg',
+        'Kamen Rider Zi-O': 'assets/images/rewards/kamen_rider/zi_o.jpg',
+        'Kamen Rider Geats': 'assets/images/rewards/kamen_rider/geats.jpg',
+        'Kamen Rider Zero-One': 'assets/images/rewards/kamen_rider/zero_one.jpg',
+        
+        // Rider Mítico - Singularidad Temporal
+        'Kamen Rider Ohma Zi-O': 'assets/images/rewards/kamen_rider/ohma_zi_o.jpg',
+    },
+    
     // Imágenes por defecto según tipo
     'default': {
         'currency': 'assets/images/rewards/special/coins.jpg',
@@ -83,7 +116,8 @@ const REWARD_IMAGES = {
         'terrain': 'assets/images/rewards/special/terrain.jpg',
         'invocation': 'assets/images/rewards/special/invocation.jpg',
         'artifact': 'assets/images/rewards/special/artifact.jpg',
-        'accessory': 'assets/images/rewards/special/accessory.jpg'
+        'accessory': 'assets/images/rewards/special/accessory.jpg',
+        'driver': 'assets/images/rewards/special/driver.jpg'
     }
 };
 

@@ -210,6 +210,66 @@ if (!$userData) {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Héroes Kamen Rider -->
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="chest-card kamen-rider" data-chest-type="kamen-rider">
+                            <div class="chest-header">
+                                <div class="chest-rarity">
+                                    <i class="fas fa-user-secret"></i>
+                                    <i class="fas fa-shield"></i>
+                                    <span>Kamen Rider</span>
+                                </div>
+                                <div class="chest-cost">
+                                    <i class="fas fa-key"></i>
+                                    <span>5</span>
+                                </div>
+                            </div>
+                            
+                            <div class="chest-visual">
+                                <!-- Aquí irá la imagen del banner -->
+                                <img src="assets/images/banners/kamen-rider-banner.jpg" 
+                                     alt="Banner Kamen Rider" 
+                                     class="chest-banner-image"
+                                     onerror="this.style.display='none'">
+                                
+                                <div class="chest-icon">
+                                    <i class="fas fa-user-secret"></i>
+                                </div>
+                                
+                                <div class="chest-overlay">
+                                    <div class="chest-info">
+                                        <h3 class="chest-name">Héroes Kamen Rider</h3>
+                                        <p class="chest-description">
+                                            Guerreros enmascarados legendarios
+                                        </p>
+                                        
+                                        <div class="chest-preview-items">
+                                            <div class="preview-item">
+                                                <i class="fas fa-dragon"></i>
+                                                <span>Heisei Era</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-crown"></i>
+                                                <span>Rey Demonio</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-fire"></i>
+                                                <span>Ultimate Forms</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chest-actions">
+                                        <button class="btn btn-gacha btn-kamen-rider" onclick="openChest('kamen_rider', 7)">
+                                            <i class="fas fa-unlock-alt me-2"></i>
+                                            Abrir Cofre
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
