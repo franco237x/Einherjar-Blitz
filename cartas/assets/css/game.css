@@ -1,0 +1,1113 @@
+/* ===== YU-GI-OH! DUEL LINKS STYLE GAME ===== */
+
+:root {
+    --primary-gold: #c9aa71;
+    --dark-gold: #9e8b54;
+    --bg-dark: #0a0a0a;
+    --bg-field: #1a4d2e;
+    --bg-secondary: #1a1a1a;
+    --card-bg: #151515;
+    --text-light: #eaeaea;
+    --success-green: #4caf50;
+    --danger-red: #f44336;
+    --warning-orange: #ff9800;
+    --player-blue: #4fc3f7;
+    --opponent-red: #ef5350;
+    
+    --card-width: 100px;
+    --card-height: 145px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
+    color: var(--text-light);
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ===== ORIENTACIÓN ===== */
+.orientation-message {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--bg-dark), var(--bg-secondary));
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
+
+.orientation-content {
+    text-align: center;
+    padding: 40px;
+}
+
+.orientation-content i:first-child {
+    font-size: 5rem;
+    color: var(--primary-gold);
+    margin-bottom: 20px;
+    display: block;
+}
+
+.orientation-content h2 {
+    font-size: 2rem;
+    color: var(--primary-gold);
+    margin-bottom: 15px;
+}
+
+.orientation-content p {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin-bottom: 30px;
+}
+
+.rotation-icon {
+    font-size: 4rem;
+    color: var(--primary-gold);
+    animation: rotate 2s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+    .orientation-message { display: flex; }
+    .game-container { display: none; }
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ===== HUD JUGADORES ===== */
+.opponent-hud, .player-hud {
+    position: absolute;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 2px solid;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.opponent-hud {
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, rgba(239, 83, 80, 0.2), rgba(21, 21, 21, 0.95));
+    border-color: var(--opponent-red);
+    animation: slideInLeft 0.5s ease;
+}
+
+.player-hud {
+    bottom: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, rgba(79, 195, 247, 0.2), rgba(21, 21, 21, 0.95));
+    border-color: var(--player-blue);
+    animation: slideInRight 0.5s ease;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.hud-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-gold), var(--dark-gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--bg-dark);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.hud-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hud-name {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--primary-gold);
+    text-shadow: 0 0 10px rgba(201, 170, 113, 0.5);
+}
+
+.hud-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+}
+
+.hud-hp, .hud-energy {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+}
+
+.hud-hp {
+    color: var(--danger-red);
+}
+
+.hud-energy {
+    color: var(--warning-orange);
+}
+
+/* ===== CONTROLES ===== */
+.game-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+}
+
+.btn-end-turn, .btn-exit {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.btn-end-turn {
+    background: linear-gradient(135deg, var(--success-green), #45a049);
+    color: white;
+}
+
+.btn-end-turn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+}
+
+.btn-end-turn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.btn-exit {
+    background: linear-gradient(135deg, var(--danger-red), #da190b);
+    color: white;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    justify-content: center;
+}
+
+.btn-exit:hover {
+    transform: translateY(-2px) rotate(10deg);
+    box-shadow: 0 6px 20px rgba(244, 67, 54, 0.6);
+}
+
+/* ===== INDICADOR DE TURNO ===== */
+.turn-indicator {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--primary-gold);
+    padding: 12px 30px;
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.2), rgba(21, 21, 21, 0.95));
+    border-radius: 25px;
+    border: 3px solid var(--primary-gold);
+    box-shadow: 0 0 30px rgba(201, 170, 113, 0.6);
+    text-shadow: 0 0 15px rgba(201, 170, 113, 0.8);
+    animation: pulseGlow 2s ease-in-out infinite;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(201, 170, 113, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(201, 170, 113, 1);
+    }
+}
+
+/* ===== CAMPO DE DUELO ===== */
+.duel-field {
+    position: absolute;
+    inset: 80px 15px 80px 280px;
+    background: 
+        radial-gradient(ellipse at center, rgba(26, 77, 46, 0.8), rgba(10, 30, 20, 0.9)),
+        linear-gradient(45deg, #1a4d2e 25%, transparent 25%, transparent 75%, #1a4d2e 75%),
+        linear-gradient(45deg, #1a4d2e 25%, transparent 25%, transparent 75%, #1a4d2e 75%);
+    background-size: cover, 20px 20px, 20px 20px;
+    background-position: 0 0, 0 0, 10px 10px;
+    border: 4px solid var(--primary-gold);
+    border-radius: 15px;
+    box-shadow: 
+        0 0 50px rgba(201, 170, 113, 0.4),
+        inset 0 0 100px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1500px;
+}
+
+/* ===== SECCIONES ===== */
+.field-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 170px;
+}
+
+.opponent-section {
+    justify-content: space-between;
+    transform: rotateX(5deg);
+}
+
+.center-section {
+    flex: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+}
+
+.player-section {
+    justify-content: space-between;
+    transform: rotateX(-5deg);
+}
+
+/* ===== ZONAS DE CARTAS ===== */
+.monster-zone {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex: 1;
+}
+
+.card-slot {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.1), rgba(0, 0, 0, 0.4));
+    border: 2px dashed rgba(201, 170, 113, 0.3);
+    border-radius: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.card-slot:hover {
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.2), rgba(0, 0, 0, 0.5));
+    border-color: rgba(201, 170, 113, 0.6);
+}
+
+.card-slot::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(201, 170, 113, 0.2);
+    border-radius: 6px;
+}
+
+.hand-zone {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(21, 21, 21, 0.6));
+    border-radius: 12px;
+    border: 2px solid rgba(201, 170, 113, 0.2);
+    min-height: calc(var(--card-height) + 20px);
+    flex: 1;
+    overflow-x: auto;
+}
+
+.hand-zone::-webkit-scrollbar {
+    height: 6px;
+}
+
+.hand-zone::-webkit-scrollbar-thumb {
+    background: rgba(201, 170, 113, 0.5);
+    border-radius: 4px;
+}
+
+.opponent-hand {
+    border-color: rgba(239, 83, 80, 0.3);
+}
+
+.player-hand {
+    border-color: rgba(79, 195, 247, 0.3);
+}
+
+.deck-zone {
+    width: var(--card-width);
+    height: var(--card-height);
+}
+
+.deck-pile {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 3px solid var(--primary-gold);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.deck-pile i {
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 5px;
+}
+
+.deck-pile span {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+.battle-area {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.battle-effects {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* ===== GAME LOG SIDEBAR ===== */
+.game-log-sidebar {
+    position: absolute;
+    left: 10px;
+    top: 90px;
+    bottom: 90px;
+    width: 180px;
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.1), rgba(21, 21, 21, 0.95));
+    border: 2px solid rgba(201, 170, 113, 0.3);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+}
+
+.log-header {
+    padding: 12px;
+    font-weight: bold;
+    color: var(--primary-gold);
+    border-bottom: 2px solid rgba(201, 170, 113, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.log-content {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 0.75rem;
+}
+
+.log-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.log-content::-webkit-scrollbar-thumb {
+    background: rgba(201, 170, 113, 0.5);
+    border-radius: 4px;
+}
+
+.log-content p {
+    margin-bottom: 8px;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 2px solid var(--primary-gold);
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ===== CARTAS ===== */
+.card {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+    border-radius: 10px;
+    border: 3px solid var(--primary-gold);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(201, 170, 113, 0.2);
+    flex-shrink: 0;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, 
+        rgba(201, 170, 113, 0.1) 0%, 
+        transparent 50%, 
+        rgba(201, 170, 113, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.card:hover {
+    transform: translateY(-15px) scale(1.1);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(201, 170, 113, 0.6);
+    z-index: 100;
+    border-color: #d4b885;
+}
+
+.card.character {
+    border-color: var(--primary-gold);
+}
+
+.card.spell {
+    border-color: #9c27b0;
+    background: linear-gradient(135deg, #1a0f2e 0%, #0f0a1a 100%);
+}
+
+.card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+}
+
+.card.selected {
+    border-color: #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    animation: selectedPulse 1s ease-in-out infinite;
+}
+
+@keyframes selectedPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(0, 255, 0, 1);
+    }
+}
+
+.card.face-down {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #555;
+}
+
+.card.face-down .card-image,
+.card.face-down .card-stats,
+.card.face-down .card-name {
+    display: none;
+}
+
+.card.face-down::after {
+    content: '?';
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.card-cost {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: linear-gradient(135deg, var(--warning-orange), #e68900);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.card-image {
+    width: 100%;
+    height: 60%;
+    object-fit: cover;
+    display: block;
+    border-bottom: 2px solid rgba(201, 170, 113, 0.3);
+}
+
+.card-name {
+    padding: 4px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.7rem;
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.2), rgba(0, 0, 0, 0.8));
+    color: var(--primary-gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+    font-size: 0.8rem;
+    font-weight: bold;
+    flex: 1;
+    align-items: center;
+}
+
+.card-attack {
+    color: var(--danger-red);
+}
+
+.card-hp {
+    color: var(--success-green);
+}
+
+/* ===== PANEL DE DETALLES ===== */
+.card-detail-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.1), rgba(21, 21, 21, 0.98));
+    border: 3px solid var(--primary-gold);
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 400px;
+    width: 90%;
+    z-index: 1000;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.card-detail-panel.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: all;
+}
+
+.card-detail-panel h3 {
+    color: var(--primary-gold);
+    margin-bottom: 15px;
+}
+
+.card-detail-panel img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.card-detail-panel button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--danger-red), #da190b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+    .duel-field {
+        inset: 80px 120px 80px 120px;
+    }
+    .game-log-sidebar {
+        width: 110px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+    :root {
+        --card-width: 60px;
+        --card-height: 86px;
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    /* Log minimizado en móvil - esquina inferior izquierda */
+    .game-log-sidebar {
+        position: fixed;
+        bottom: 3px;
+        left: 3px;
+        width: 40px;
+        height: 40px;
+        z-index: 160;
+        background: rgba(10, 10, 10, 0.95);
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .game-log-sidebar::before {
+        content: '\f15c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1.1rem;
+        color: var(--gold);
+    }
+
+    .game-log-sidebar.expanded {
+        width: 280px;
+        height: 50vh;
+        border-radius: 15px;
+        padding: 10px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .game-log-sidebar.expanded::before {
+        display: none;
+    }
+
+    .game-log-sidebar h3 {
+        display: none;
+    }
+
+    .game-log-sidebar.expanded h3 {
+        display: block;
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    .game-log {
+        display: none;
+    }
+
+    .game-log-sidebar.expanded .game-log {
+        display: block;
+    }
+
+    /* HUD Oponente - Esquina superior izquierda */
+    .opponent-hud {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        padding: 4px 8px;
+        border-radius: 10px;
+        max-width: 150px;
+        z-index: 150;
+    }
+
+    .opponent-hud .hud-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .opponent-hud .hud-name {
+        font-size: 0.65rem;
+    }
+
+    .opponent-hud .hud-stats {
+        font-size: 0.6rem;
+        gap: 6px;
+    }
+
+    /* HUD Jugador - Esquina inferior derecha */
+    .player-hud {
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        padding: 4px 8px;
+        border-radius: 10px;
+        max-width: 150px;
+        z-index: 150;
+    }
+
+    .player-hud .hud-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .player-hud .hud-name {
+        font-size: 0.65rem;
+    }
+
+    .player-hud .hud-stats {
+        font-size: 0.6rem;
+        gap: 6px;
+    }
+
+    .hud-hp i, .hud-energy i {
+        font-size: 0.7rem;
+    }
+
+    /* Controles - Esquina superior derecha */
+    .game-controls {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        gap: 5px;
+        z-index: 150;
+    }
+
+    .btn-end-turn {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+    }
+
+    .btn-exit {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+
+    /* Indicador de turno - Centro superior */
+    .turn-indicator {
+        position: absolute;
+        top: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        z-index: 150;
+        border-width: 2px;
+    }
+
+    .turn-indicator i {
+        font-size: 0.7rem;
+    }
+
+    /* Campo de duelo - Ocupa TODO el espacio disponible */
+    .duel-field {
+        position: absolute;
+        inset: 40px 3px 40px 3px;
+        padding: 5px 4px;
+        border-width: 2px;
+        border-radius: 10px;
+    }
+
+    /* Secciones del campo más compactas */
+    .field-section {
+        min-height: auto;
+        gap: 4px;
+    }
+
+    .opponent-section,
+    .player-section {
+        transform: none;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .center-section {
+        flex: 0.25;
+        min-height: 50px;
+    }
+
+    /* Zona de monstruos horizontal */
+    .monster-zone {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        flex: 1;
+    }
+
+    .card-slot {
+        width: var(--card-width);
+        height: var(--card-height);
+        border-width: 1px;
+    }
+
+    .card-slot::before {
+        inset: 3px;
+    }
+
+    /* Mano compacta */
+    .hand-zone {
+        min-height: calc(var(--card-height) + 10px);
+        padding: 4px;
+        gap: 3px;
+        flex: 1;
+        max-width: 210px;
+        border-width: 1px;
+    }
+
+    .hand-zone::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    /* Deck más pequeño */
+    .deck-zone {
+        width: var(--card-width);
+        height: var(--card-height);
+    }
+
+    .deck-pile {
+        border-width: 2px;
+        border-radius: 8px;
+    }
+
+    .deck-pile i {
+        font-size: 1.3rem;
+        margin-bottom: 3px;
+    }
+
+    .deck-pile span {
+        font-size: 0.7rem;
+        padding: 1px 5px;
+    }
+
+    /* Cartas más pequeñas */
+    .card {
+        border-width: 2px;
+        border-radius: 8px;
+    }
+
+    .card:hover {
+        transform: translateY(-6px) scale(1.05);
+    }
+
+    .card-name {
+        font-size: 0.52rem;
+        padding: 2px;
+    }
+
+    .card-stats {
+        font-size: 0.6rem;
+        padding: 2px;
+    }
+
+    .card-cost {
+        width: 18px;
+        height: 18px;
+        font-size: 0.65rem;
+        border-width: 1px;
+        top: 3px;
+        left: 3px;
+    }
+
+    .card.face-down::after {
+        font-size: 2rem;
+    }
+
+    .card-image {
+        border-bottom-width: 1px;
+    }
+
+    /* Panel de detalles */
+    .card-detail-panel {
+        max-width: 80%;
+        padding: 10px;
+        border-width: 2px;
+    }
+
+    .card-detail-panel h3 {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+
+    .card-detail-panel p {
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+    }
+
+    .card-detail-panel button {
+        padding: 8px;
+        font-size: 0.75rem;
+    }
+
+    /* Batalla area sin altura fija */
+    .battle-area {
+        min-height: 30px;
+    }
+}
+
+/* Móvil muy pequeño (landscape) */
+@media (max-width: 667px) and (orientation: landscape) {
+    :root {
+        --card-width: 64px;
+        --card-height: 92px;
+    }
+
+    .duel-field {
+        inset: 45px 5px 45px 5px;
+        padding: 6px 4px;
+    }
+
+    .opponent-hud,
+    .player-hud {
+        padding: 5px 8px;
+        max-width: 160px;
+    }
+
+    .opponent-hud .hud-avatar,
+    .player-hud .hud-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
+    }
+
+    .opponent-hud .hud-name,
+    .player-hud .hud-name {
+        font-size: 0.68rem;
+    }
+
+    .opponent-hud .hud-stats,
+    .player-hud .hud-stats {
+        font-size: 0.65rem;
+        gap: 6px;
+    }
+
+    .btn-end-turn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .btn-exit {
+        width: 34px;
+        height: 34px;
+    }
+
+    .turn-indicator {
+        font-size: 0.8rem;
+        padding: 5px 12px;
+    }
+
+    .monster-zone {
+        gap: 4px;
+    }
+
+    .hand-zone {
+        gap: 3px;
+        padding: 5px;
+        max-width: 200px;
+    }
+
+    .deck-pile i {
+        font-size: 1.4rem;
+    }
+
+    .deck-pile span {
+        font-size: 0.7rem;
+    }
+
+    .card-name {
+        font-size: 0.55rem;
+        padding: 2px;
+    }
+
+    .card-stats {
+        font-size: 0.65rem;
+        padding: 2px;
+    }
+
+    .card-cost {
+        width: 18px;
+        height: 18px;
+        font-size: 0.65rem;
+    }
+
+    .card.face-down::after {
+        font-size: 2rem;
+    }
+}

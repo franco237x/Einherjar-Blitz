@@ -328,6 +328,76 @@ body {
       }
     }
   }
+  
+  // Tarjeta especial - Einherjar Cards
+  &.nav-card-cards {
+    border-color: rgba(201, 170, 113, 0.6);
+    background: linear-gradient(135deg, rgba(201, 170, 113, 0.15), rgba(0, 0, 0, 0.9));
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201, 170, 113, 0.3), transparent);
+      animation: cardsGlow 3s ease-in-out infinite;
+    }
+    
+    .nav-icon {
+      color: $primary-gold;
+      animation: cardsPulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 12px rgba(201, 170, 113, 0.8));
+      font-size: 2.5rem;
+    }
+    
+    .nav-title {
+      color: $primary-gold;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(201, 170, 113, 0.5);
+    }
+    
+    .nav-description {
+      color: #d4b885;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(201, 170, 113, 0.4);
+    }
+    
+    &:hover {
+      border-color: rgba(201, 170, 113, 0.9);
+      background: linear-gradient(135deg, rgba(201, 170, 113, 0.25), rgba(0, 0, 0, 0.85));
+      box-shadow: 0 15px 40px rgba(201, 170, 113, 0.5), 0 0 30px rgba(212, 184, 133, 0.4);
+      
+      .nav-icon {
+        color: #d4b885;
+        transform: scale(1.15) rotate(5deg);
+        filter: drop-shadow(0 0 20px rgba(201, 170, 113, 1));
+      }
+      
+      .nav-title {
+        color: #d4b885;
+      }
+    }
+  }
+}
+
+@keyframes cardsGlow {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes cardsPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    filter: drop-shadow(0 0 12px rgba(201, 170, 113, 0.8));
+  }
+  50% { 
+    transform: scale(1.08); 
+    filter: drop-shadow(0 0 25px rgba(212, 184, 133, 1));
+  }
 }
 
 @keyframes cosmicGlow {

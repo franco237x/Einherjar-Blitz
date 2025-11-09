@@ -229,6 +229,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-title">Modo Online</div>
                     <div class="nav-description">Juega Online contra tus amigos</div>
                 </a>
+
+                <a href="cartas/index.php" class="nav-card glass-card nav-card-cards">
+                    <div class="nav-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="nav-title">Einherjar Cards</div>
+                    <div class="nav-description">Juego de Cartas Estratégico</div>
+                </a>
             </section>
 
             <!-- Acciones rápidas -->
