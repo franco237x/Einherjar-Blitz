@@ -60,23 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
         $insertTx = $db->prepare("INSERT INTO transacciones_einherjer (user_id, username, tipo, cantidad, descripcion) VALUES (?, ?, 'compra', ?, ?)");
         $insertTx->execute([$userData['id'], $userRow['username'], $product['Precio_Esferas'], $product['Nombre']]);
 
-        // NUEVO: Crear ticket en lugar de recompensa_usuario
-        $insertTicket = $db->prepare("
-            INSERT INTO tienda_tickets (
-                user_id, username, ticket_type, item_name, item_description,
-                cantidad, precio_pagado, moneda_usada, categoria, imagen_url,
-                transaction_id
-            ) VALUES (?, ?, 'tienda', ?, ?, 1, ?, 'esferas', ?, ?, LAST_INSERT_ID())
-        ");
-        $insertTicket->execute([
-            $userData['id'], 
-            $userRow['username'], 
-            $product['Nombre'],
-            $product['descripcion'] ?? null,
-            $product['Precio_Esferas'],
-            $product['categoria'] ?? 'General',
-            $product['Imagen_URL'] ?? null
-        ]);
+        $insertReward = $db->prepare("INSERT INTO recompensas_usuario (user_id, username, recompensa_obtenida, tipo_recompensa, valor) VALUES (?, ?, ?, ?, ?)");
+        $insertReward->execute([$userData['id'], $userRow['username'], $product['Nombre'], 'tienda', $product['Precio_Esferas']]);
 
         $db->commit();
 
@@ -217,83 +202,47 @@ $totalCategorias = count($categoriasMap);
         .header-right {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            gap: 1rem;
         }
         .currency-badge {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             align-items: center;
-            padding: 0.6rem 0.9rem;
+            padding: 0.75rem 1.2rem;
             border-radius: 12px;
             background: rgba(0,0,0,0.45);
             border: 1px solid var(--card-border);
             box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-            min-width: 0;
         }
         .currency-badge i {
             color: var(--gold);
-            font-size: 1.2rem;
-            flex-shrink: 0;
+            font-size: 1.4rem;
         }
         .currency-label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             letter-spacing: 0.04em;
             text-transform: uppercase;
             color: var(--text-muted);
-            white-space: nowrap;
         }
         .currency-value {
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: var(--text-light);
-            white-space: nowrap;
         }
         .history-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.4rem;
             background: transparent;
             border: 1px solid var(--card-border);
             color: var(--text-light);
-            padding: 0.6rem 0.9rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        .history-btn:hover {border-color: var(--gold); color: var(--gold);}
-        .history-btn span {
-            display: inline;
-        }
-        .marketplace-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: linear-gradient(135deg, rgba(201,170,113,0.18), rgba(201,170,113,0.08));
-            border: 1px solid var(--gold);
-            color: var(--gold);
             padding: 0.65rem 1.1rem;
             border-radius: 10px;
             cursor: pointer;
             transition: var(--transition-smooth);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(201,170,113,0.25);
         }
-        .marketplace-btn:hover {
-            background: linear-gradient(135deg, rgba(201,170,113,0.28), rgba(201,170,113,0.15));
-            color: var(--gold-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(201,170,113,0.4);
-        }
-        .marketplace-btn span {
-            display: inline;
-        }
+        .history-btn:hover {border-color: var(--gold); color: var(--gold);}
         .feedback-toast {
             position: fixed;
             top: 1.5rem;
@@ -527,6 +476,118 @@ $totalCategorias = count($categoriasMap);
             transition: var(--transition-smooth);
         }
         .floating-back:hover {border-color: var(--gold); color: var(--gold);}
+        
+        /* Marketplace Link Button */
+        .marketplace-link {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 0.75rem;
+            background: linear-gradient(135deg, rgba(201,170,113,0.15), rgba(201,170,113,0.05));
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            text-decoration: none;
+            color: var(--gold);
+            transition: var(--transition-smooth);
+            box-shadow: 0 8px 24px rgba(201,170,113,0.25);
+            z-index: 1000;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        
+        .marketplace-link:hover {
+            transform: translateY(-50%) scale(1.05);
+            background: linear-gradient(135deg, rgba(201,170,113,0.25), rgba(201,170,113,0.15));
+            box-shadow: 0 12px 32px rgba(201,170,113,0.4);
+            color: var(--gold-hover);
+        }
+        
+        .marketplace-link i {
+            font-size: 2rem;
+        }
+        
+        .marketplace-link-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 8px 24px rgba(201,170,113,0.25);
+            }
+            50% {
+                box-shadow: 0 8px 32px rgba(201,170,113,0.45);
+            }
+        }
+        
+        /* Swipe hint overlay */
+        .swipe-hint-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .swipe-hint-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .swipe-hint-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .swipe-hint-icon {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            animation: swipeAnimation 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes swipeAnimation {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+        }
+        
+        .swipe-hint-text {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .swipe-hint-subtext {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 768px) {
+            .marketplace-link {
+                right: 10px;
+                padding: 0.75rem 0.5rem;
+            }
+            .marketplace-link i {
+                font-size: 1.5rem;
+            }
+            .marketplace-link-text {
+                font-size: 0.65rem;
+            }
+        }
         .historial-contenido {
             min-height: 220px;
             display: flex;
@@ -662,155 +723,24 @@ $totalCategorias = count($categoriasMap);
         .product-card.champions.agotado .champions-particles span {animation-duration: 5.5s; opacity: 0.6;}
         .product-card.champions.agotado .champions-ribbon {background: linear-gradient(120deg, rgba(255,200,140,0.8), rgba(200,110,40,0.8));}
         @media (max-width: 992px) {
-            .store-header {flex-direction: column; align-items: stretch; padding: 1rem 1.2rem;}
-            .header-right {
-                justify-content: space-between;
-                gap: 0.5rem;
-            }
-            .currency-badge {
-                padding: 0.5rem 0.75rem;
-                flex: 1;
-                min-width: 0;
-            }
-            .currency-badge i {
-                font-size: 1rem;
-            }
-            .currency-label {
-                font-size: 0.65rem;
-            }
-            .currency-value {
-                font-size: 1rem;
-            }
-            .history-btn, .marketplace-btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.85rem;
-                gap: 0.3rem;
-            }
-            .history-btn span, .marketplace-btn span {
-                display: inline;
-                font-size: 0.75rem;
-                white-space: nowrap;
-            }
-            .history-btn i, .marketplace-btn i {
-                font-size: 1rem;
-            }
+            .store-header {flex-direction: column; align-items: stretch;}
+            .header-right {justify-content: space-between;}
             .store-toolbar {flex-direction: column; align-items: stretch;}
         }
-        @media (max-width: 500px) {
-            .store-header {padding: 0.9rem 1rem;}
-            .store-title {font-size: 1.5rem;}
-            .store-subtitle {font-size: 0.8rem;}
-            .store-toolbar, .store-section {padding: 1rem 1rem;}
+        @media (max-width: 576px) {
+            .store-header {padding: 1.2rem 1.35rem;}
+            .store-toolbar, .store-section {padding: 1.2rem;}
             .store-grid {grid-template-columns: 1fr;}
             .floating-back {display: none;}
-            .header-right {
-                width: 100%;
-                flex-wrap: wrap;
-                gap: 0.4rem;
-            }
-            .currency-badge {
-                font-size: 0.7rem;
-                flex: 1 1 100%;
-                margin-bottom: 0.4rem;
-                padding: 0.5rem 0.8rem;
-            }
-            .currency-badge .currency-label {
-                font-size: 0.6rem;
-            }
-            .currency-badge .currency-value {
-                font-size: 0.9rem;
-            }
-            .history-btn, .marketplace-btn {
-                padding: 0.45rem 0.5rem;
-                font-size: 0.7rem;
-                flex: 1 1 calc(50% - 0.2rem);
-                min-width: 0;
-                justify-content: center;
-                gap: 0.25rem;
-            }
-            .history-btn span, .marketplace-btn span {
-                display: inline;
-                font-size: 0.65rem;
-                white-space: nowrap;
-            }
-            .history-btn i, .marketplace-btn i {
-                font-size: 0.85rem;
-            }
-        }
-        
-        @media (min-width: 501px) and (max-width: 650px) {
-            .store-header {padding: 1rem 1.1rem;}
-            .store-title {font-size: 1.6rem;}
-            .header-right {
-                width: 100%;
-                flex-wrap: wrap;
-                gap: 0.45rem;
-            }
-            .currency-badge {
-                flex: 1 1 100%;
-                font-size: 0.75rem;
-                margin-bottom: 0.4rem;
-            }
-            .history-btn, .marketplace-btn {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.72rem;
-                flex: 1 1 calc(50% - 0.25rem);
-                gap: 0.3rem;
-            }
-            .history-btn span, .marketplace-btn span {
-                display: inline;
-                font-size: 0.68rem;
-                white-space: nowrap;
-            }
-        }
-        
-        @media (min-width: 651px) and (max-width: 820px) {
-            .store-header {padding: 1rem 1.2rem;}
-            .header-right {
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-            .currency-badge {
-                flex: 1 1 100%;
-                margin-bottom: 0.4rem;
-            }
-            .history-btn, .marketplace-btn {
-                flex: 1 1 calc(33.333% - 0.35rem);
-                font-size: 0.75rem;
-                padding: 0.55rem 0.65rem;
-                gap: 0.3rem;
-            }
-            .history-btn span, .marketplace-btn span {
-                display: inline;
-                font-size: 0.72rem;
-                white-space: nowrap;
-            }
-        }
-        
-        @media (min-width: 821px) and (max-width: 992px) {
-            .header-right {
-                gap: 0.6rem;
-            }
-            .history-btn, .marketplace-btn {
-                font-size: 0.85rem;
-                padding: 0.6rem 0.8rem;
-            }
-            .history-btn span, .marketplace-btn span {
-                display: inline;
-                font-size: 0.82rem;
-                white-space: nowrap;
-            }
         }
     </style>
 </head>
 <body>
+    <!-- REMOVED: Marketplace Link para iframe -->
+    
     <header class="store-header">
         <div class="header-left">
-            <a href="../dashboard.php" class="brand-link">
-                <i class="fas fa-arrow-left"></i>
-                <span>Volver</span>
-            </a>
-            <h1 class="store-title">Tienda de Einherjer</h1>
+            <h1 class="store-title">Tienda Oficial</h1>
             <p class="store-subtitle">Articulos exclusivos para tu inventario</p>
         </div>
         <div class="header-right">
@@ -825,14 +755,6 @@ $totalCategorias = count($categoriasMap);
                 <i class="fas fa-receipt"></i>
                 <span>Historial</span>
             </button>
-            <a href="tickets.php" class="history-btn" style="border-color: rgba(75,192,192,0.35); color: #4bc0c0;">
-                <i class="fas fa-ticket-alt"></i>
-                <span>Mis Tickets</span>
-            </a>
-            <a href="marketplace.php" class="marketplace-btn">
-                <i class="fas fa-users"></i>
-                <span>Marketplace</span>
-            </a>
         </div>
     </header>
 
