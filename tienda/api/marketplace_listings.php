@@ -26,6 +26,7 @@ try {
     $db = Database::getInstance();
     
     // Parámetros opcionales
+    $listingId = $_GET['listing_id'] ?? null; // ID específico de listing
     $filter = $_GET['filter'] ?? 'all'; // all, esferas, llaves, cupones
     $sortBy = $_GET['sort'] ?? 'recent'; // recent, price_low, price_high, popular
     $searchQuery = $_GET['search'] ?? '';
@@ -45,6 +46,12 @@ try {
             WHERE ml.is_active = 1 AND ml.is_sold = 0 AND ml.stock_quantity > 0";
     
     $params = [];
+    
+    // Si se solicita un listing específico, filtrar por ID
+    if ($listingId !== null) {
+        $sql .= " AND ml.id = ?";
+        $params[] = (int)$listingId;
+    }
     
     // Filtro por tipo de precio
     if ($filter === 'esferas') {
