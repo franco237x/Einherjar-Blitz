@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0a0a0a">
+    
+    <title>Einherjar Blitz - Batalla Online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/battle-mobile.css">
+    <link rel="stylesheet" href="assets/css/battle-online.css">
+</head>
+<body>
+    <!-- Background dinámico -->
+    <div class="battle-background">
+        <div class="particles"></div>
+        <div class="energy-waves"></div>
+    </div>
+
+    <!-- Indicador de conexión -->
+    <div class="connection-status" id="connectionStatus">
+        <i class="fas fa-wifi"></i>
+        <span id="connectionText">Conectado</span>
+    </div>
+
+    <!-- Container principal del juego -->
+    <div class="game-container">
+        <!-- Header de batalla -->
+        <header class="battle-header">
+            <div class="battle-info">
+                <div class="round-counter">
+                    <span class="round-label">Ronda</span>
+                    <span class="round-number" id="roundNumber">1</span>
+                </div>
+                <div class="turn-indicator">
+                    <span class="turn-label">Turno:</span>
+                    <span class="turn-player" id="currentTurn">Esperando...</span>
+                </div>
+                <div class="turn-timer" id="turnTimerContainer">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span id="turnTimer">30</span>
+                </div>
+            </div>
+            <div class="opponent-info-badge" id="opponentBadge">
+                <i class="fas fa-user"></i>
+                <span id="opponentName">Oponente</span>
+                <span class="connection-dot" id="opponentConnection"></span>
+            </div>
+        </header>
+
+        <!-- Arena de batalla -->
+        <main class="battle-arena">
+            <!-- Personaje del jugador -->
+            <section class="player-section" id="playerSection">
+                <div class="character-container player-character">
+                    <div class="character-info">
+                        <div class="character-image-wrapper">
+                            <img src="" alt="Tu personaje" id="playerImage" class="character-image">
+                            <div class="character-status" id="playerStatus"></div>
+                            <div class="damage-indicator" id="playerDamage"></div>
+                        </div>
+                        
+                        <div class="character-details">
+                            <div class="character-header">
+                                <h2 class="character-name" id="playerName">Cargando...</h2>
+                                <div class="player-rank-badge" id="playerRankBadge"></div>
+                            </div>
+                            
+                            <div class="stats-panel">
+                                <!-- Barra de vida -->
+                                <div class="stat-bar health-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-heart"></i>
+                                            <span>Vida</span>
+                                        </div>
+                                        <span class="stat-values" id="playerHealthText">1000/1000</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill health-fill" id="playerHealthBar" style="width: 100%"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Barra de energía -->
+                                <div class="stat-bar energy-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-bolt"></i>
+                                            <span>Energía</span>
+                                        </div>
+                                        <span class="stat-values" id="playerEnergyText">100/100</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill energy-fill" id="playerEnergyBar" style="width: 100%"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Efectos de estado -->
+                            <div class="status-effects" id="playerStatusEffects"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zona central de batalla -->
+            <section class="battle-center">
+                <!-- Área de mensajes de batalla -->
+                <div class="battle-log">
+                    <div class="log-container" id="battleLogContainer">
+                        <div class="log-entry system-message">
+                            <i class="fas fa-info-circle"></i>
+                            Conectando con el servidor...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enemigo -->
+            <section class="enemy-section" id="enemySection">
+                <div class="character-container enemy-character">
+                    <div class="character-info">
+                        <div class="character-image-wrapper">
+                            <img src="" alt="Oponente" id="enemyImage" class="character-image">
+                            <div class="character-status" id="enemyStatus"></div>
+                            <div class="damage-indicator" id="enemyDamage"></div>
+                        </div>
+                        
+                        <div class="character-details">
+                            <div class="character-header">
+                                <h2 class="character-name" id="enemyName">Oponente</h2>
+                                <div class="enemy-rank-badge" id="enemyRankBadge"></div>
+                            </div>
+                            
+                            <div class="stats-panel">
+                                <!-- Barra de vida -->
+                                <div class="stat-bar health-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-heart"></i>
+                                            <span>Vida</span>
+                                        </div>
+                                        <span class="stat-values" id="enemyHealthText">1000/1000</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill health-fill" id="enemyHealthBar" style="width: 100%"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Barra de energía -->
+                                <div class="stat-bar energy-bar">
+                                    <div class="stat-label">
+                                        <div>
+                                            <i class="fas fa-bolt"></i>
+                                            <span>Energía</span>
+                                        </div>
+                                        <span class="stat-values" id="enemyEnergyText">100/100</span>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill energy-fill" id="enemyEnergyBar" style="width: 100%"></div>
+                                        <div class="bar-shine"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Efectos de estado -->
+                            <div class="status-effects" id="enemyStatusEffects"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Panel de acciones del jugador -->
+        <footer class="action-panel" id="actionPanel">
+            <div class="actions-container">
+                <!-- Botón de ataque básico -->
+                <button class="action-btn primary-action" id="attackBtn" data-action="attack">
+                    <div class="btn-icon">
+                        <i class="fas fa-sword"></i>
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-title">Atacar</span>
+                        <span class="btn-subtitle">Ataque básico</span>
+                    </div>
+                    <div class="btn-cost">
+                        <span class="cost-value">0</span>
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </button>
+
+                <!-- Botón de defensa -->
+                <button class="action-btn secondary-action" id="defendBtn" data-action="defend">
+                    <div class="btn-icon">
+                        <i class="fas fa-shield"></i>  
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-title">Defender</span>
+                        <span class="btn-subtitle">Reduce daño</span>
+                    </div>
+                    <div class="btn-cost">
+                        <span class="cost-value">0</span>
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </button>
+
+                <!-- Botón de habilidad especial -->
+                <button class="action-btn special-action" id="specialBtn" data-action="special">
+                    <div class="btn-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-title">Habilidad</span>
+                        <span class="btn-subtitle" id="specialName">Especial</span>
+                    </div>
+                    <div class="btn-cost">
+                        <span class="cost-value" id="specialCost">30</span>
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </button>
+
+                <!-- Botón de curación -->
+                <button class="action-btn utility-action" id="healBtn" data-action="heal">
+                    <div class="btn-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-title">Curar</span>
+                        <span class="btn-subtitle">Restaura vida</span>
+                    </div>
+                    <div class="btn-cost">
+                        <span class="cost-value">20</span>
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Botón de rendirse -->
+            <button class="surrender-btn" id="surrenderBtn">
+                <i class="fas fa-flag"></i>
+                <span>Rendirse</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Modal de fin de batalla -->
+    <div class="modal-overlay" id="battleEndModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="battleResultTitle">¡Batalla Finalizada!</h2>
+                <div class="result-icon" id="resultIcon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="battle-summary">
+                    <h3 class="summary-title">Resultado</h3>
+                    <div class="result-stats">
+                        <div class="result-item">
+                            <i class="fas fa-trophy"></i>
+                            <span class="label">Copas:</span>
+                            <span class="value" id="cupsChange">+0</span>
+                        </div>
+                        <div class="result-item">
+                            <i class="fas fa-clock"></i>
+                            <span class="label">Duración:</span>
+                            <span class="value" id="battleDuration">0:00</span>
+                        </div>
+                        <div class="result-item">
+                            <i class="fas fa-repeat"></i>
+                            <span class="label">Rondas:</span>
+                            <span class="value" id="totalRounds">1</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-message" id="resultMessage"></div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-primary" id="returnBtn">Volver al Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de desconexión -->
+    <div class="modal-overlay" id="disconnectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Conexión Perdida</h2>
+                <div class="result-icon">
+                    <i class="fas fa-wifi-slash"></i>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <p id="disconnectMessage">Intentando reconectar...</p>
+                <div class="reconnect-spinner">
+                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="assets/js/BattleOnline.js"></script>
+</body>
+</html>

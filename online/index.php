@@ -163,9 +163,9 @@ $rankImage = getRankImage($userData['rango']);
                                     para el siguiente rango
                                 </p>
                                 <div class="recent-matches">
-                                    <span class="matches-label">Historial de partidas:</span>
-                                    <div class="match-results">
-                                        <span class="text-muted">Próximamente disponible</span>
+                                    <span class="matches-label">Historial reciente:</span>
+                                    <div class="match-results" id="recentMatchResults">
+                                        <span class="text-muted">Cargando...</span>
                                     </div>
                                 </div>
                             </div>
@@ -180,24 +180,73 @@ $rankImage = getRankImage($userData['rango']);
                     
                     <!-- Selección de Personaje -->
                     <div class="col-lg-6">
-                        <div class="glass-card character-selection disabled">
+                        <div class="glass-card character-selection">
                             <div class="card-header">
                                 <h3>
                                     <i class="fas fa-user-ninja"></i>
                                     Seleccionar Personaje
                                 </h3>
                             </div>
-                            <div class="coming-soon-content">
-                                <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">Próximamente</h5>
-                                <p class="text-muted">La selección de personajes estará disponible pronto</p>
+                            <div class="character-selection-content">
+                                <div id="selectedCharacterDisplay" class="mb-3">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Selecciona un personaje para comenzar</span>
+                                    </div>
+                                </div>
+                                <div class="character-grid" id="characterGrid">
+                                    <!-- Shuna Shieda -->
+                                    <div class="character-slot" data-character-id="1">
+                                        <img src="../images/shuna.jpg" alt="Shuna Shieda" class="character-avatar">
+                                        <span class="character-name">Shuna</span>
+                                        <span class="character-element element-devastacion">
+                                            <i class="fas fa-fire"></i>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Ozen Kimura -->
+                                    <div class="character-slot" data-character-id="2">
+                                        <img src="../images/ozen.jpg" alt="Ozen Kimura" class="character-avatar">
+                                        <span class="character-name">Ozen</span>
+                                        <span class="character-element element-tierra">
+                                            <i class="fas fa-mountain"></i>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Xair Chikyu -->
+                                    <div class="character-slot" data-character-id="3">
+                                        <img src="../images/xair.png" alt="Xair Chikyu" class="character-avatar">
+                                        <span class="character-name">Xair</span>
+                                        <span class="character-element element-viento">
+                                            <i class="fas fa-wind"></i>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Nathan Doffens -->
+                                    <div class="character-slot" data-character-id="4">
+                                        <img src="../images/nathan.png" alt="Nathan Doffens" class="character-avatar">
+                                        <span class="character-name">Nathan</span>
+                                        <span class="character-element element-rayo">
+                                            <i class="fas fa-bolt"></i>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Zack Hisoka -->
+                                    <div class="character-slot" data-character-id="5">
+                                        <img src="../images/zack.jpg" alt="Zack Hisoka" class="character-avatar">
+                                        <span class="character-name">Zack</span>
+                                        <span class="character-element element-ninguno">
+                                            <i class="fas fa-infinity"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Búsqueda de Partida -->
                     <div class="col-lg-6">
-                        <div class="glass-card match-search disabled">
+                        <div class="glass-card match-search">
                             <div class="card-header">
                                 <h3>
                                     <i class="fas fa-search"></i>
@@ -205,10 +254,50 @@ $rankImage = getRankImage($userData['rango']);
                                 </h3>
                             </div>
                             
-                            <div class="coming-soon-content">
-                                <i class="fas fa-gamepad fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">Próximamente</h5>
-                                <p class="text-muted">El sistema de matchmaking estará disponible pronto</p>
+                            <div class="match-search-content">
+                                <div class="match-info mb-3">
+                                    <p class="text-light mb-2">
+                                        <i class="fas fa-info-circle text-info"></i>
+                                        Serás emparejado con jugadores de rango similar
+                                    </p>
+                                    <div class="rank-range">
+                                        <span class="badge bg-gold">Tu Rango: <?php echo htmlspecialchars($userData['rango']); ?></span>
+                                        <span class="badge bg-secondary"><?php echo number_format($userData['copas']); ?> copas</span>
+                                    </div>
+                                    
+                                    <!-- Advertencia cuando no hay oponentes -->
+                                    <div id="noOpponentsWarning" class="alert alert-warning mt-3" style="display: none;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span>No hay oponentes disponibles en este momento</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="search-actions">
+                                    <button 
+                                        id="searchMatchBtn" 
+                                        class="btn btn-primary btn-lg w-100 mb-2" 
+                                        disabled>
+                                        <i class="fas fa-search"></i>
+                                        <span>Buscar Partida</span>
+                                    </button>
+                                    
+                                    <button 
+                                        id="cancelSearchBtn" 
+                                        class="btn btn-danger w-100" 
+                                        style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                        <span>Cancelar Búsqueda</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="queue-status mt-3" id="queueStatus" style="display: none;">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-gold" role="status">
+                                            <span class="visually-hidden">Buscando...</span>
+                                        </div>
+                                        <p class="mt-2 text-light">Buscando oponente<span class="searching-dots">...</span></p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -219,38 +308,38 @@ $rankImage = getRankImage($userData['rango']);
             <section class="online-stats">
                 <div class="row g-4">
                     <div class="col-md-3">
-                        <div class="glass-card stat-card disabled">
+                        <div class="glass-card stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-globe"></i>
                             </div>
-                            <div class="stat-value">---</div>
+                            <div class="stat-value" id="playersOnline">0</div>
                             <div class="stat-label">Jugadores Online</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="glass-card stat-card disabled">
+                        <div class="glass-card stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-search"></i>
                             </div>
-                            <div class="stat-value">---</div>
+                            <div class="stat-value" id="playersSearching">0</div>
                             <div class="stat-label">Buscando Partida</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="glass-card stat-card disabled">
+                        <div class="glass-card stat-card">
                             <div class="stat-icon">
-                                <i class="fas fa-sword"></i>
+                                <i class="fas fa-swords"></i>
                             </div>
-                            <div class="stat-value">---</div>
+                            <div class="stat-value" id="playersInBattle">0</div>
                             <div class="stat-label">En Batalla</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="glass-card stat-card disabled">
+                        <div class="glass-card stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-clock"></i>
                             </div>
-                            <div class="stat-value">---</div>
+                            <div class="stat-value" id="avgWaitTime">--</div>
                             <div class="stat-label">Tiempo de Espera</div>
                         </div>
                     </div>
@@ -259,13 +348,13 @@ $rankImage = getRankImage($userData['rango']);
 
             <!-- Elementos Estéticos -->
             <section class="aesthetic-elements">
-                <div class="glass-card coming-soon-banner">
+                <div class="glass-card">
                     <div class="text-center py-4">
-                        <i class="fas fa-rocket fa-4x text-gold mb-3"></i>
-                        <h3 class="text-gold mb-3">Modo Online en Desarrollo</h3>
+                        <i class="fas fa-shield-alt fa-4x text-gold mb-3"></i>
+                        <h3 class="text-gold mb-3">Modo Ranked</h3>
                         <p class="text-muted mb-0">
-                            Estamos trabajando en traerte la mejor experiencia de juego online. 
-                            ¡Mantente atento a las actualizaciones!
+                            Compite contra jugadores de todo el mundo y escala en el ranking.
+                            ¡Cada victoria te acerca más a la cima!
                         </p>
                     </div>
                 </div>
@@ -273,6 +362,45 @@ $rankImage = getRankImage($userData['rango']);
 
         </div>
     </main>
+
+    <!-- Modal de Búsqueda -->
+    <div class="modal-overlay" id="searchingModal" style="display: none;">
+        <div class="modal-content text-center">
+            <div class="searching-spinner"></div>
+            <h3 class="text-gold mb-3">Buscando Oponente</h3>
+            <p class="text-light mb-2">Esto puede tomar unos segundos<span class="searching-dots">...</span></p>
+            <p class="text-muted small">Buscando jugadores de rango similar</p>
+            <button class="btn btn-danger mt-3" onclick="window.onlineMode.cancelMatchmaking()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Partida Encontrada -->
+    <div class="modal-overlay" id="matchFoundModal" style="display: none;">
+        <div class="modal-content match-found-content">
+            <h2 class="text-gold mb-4">¡Partida Encontrada!</h2>
+            
+            <div class="opponent-info mb-4">
+                <h4 class="text-light mb-3">Tu Oponente:</h4>
+                <div class="opponent-details">
+                    <p><i class="fas fa-user"></i> <span id="opponentUsername">Jugador</span></p>
+                    <p><i class="fas fa-trophy"></i> <span id="opponentRank">Rango</span></p>
+                    <p><i class="fas fa-star"></i> <span id="opponentCups">0</span> copas</p>
+                </div>
+            </div>
+            
+            <div class="countdown-circle">
+                <span id="battleCountdown">3</span>
+            </div>
+            
+            <p class="text-muted">Preparándose para la batalla...</p>
+            
+            <button class="btn btn-primary" id="battleReadyBtn">
+                <i class="fas fa-swords"></i> ¡Listo para Batalla!
+            </button>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer mt-auto py-3 border-top border-gold-opacity">
