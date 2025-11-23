@@ -284,6 +284,7 @@
 .element-viento { background: linear-gradient(135deg, #87ceeb, #4682b4); }
 .element-rayo { background: linear-gradient(135deg, #ffd700, #ffb700); }
 .element-ninguno { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+.element-oscuridad { background: linear-gradient(135deg, #2c3e50, #34495e); }
 
 /* Match Search */
 .match-search {

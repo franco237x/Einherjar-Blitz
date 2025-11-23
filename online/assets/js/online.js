@@ -9,38 +9,38 @@ class OnlineMode {
         this.heartbeatInterval = null;
         this.selectedCharacter = null;
         this.currentBattleId = null;
-        
+
         this.init();
     }
-    
+
     init() {
         console.log('Online Mode initialized');
-        
+
         // Initialize real ping and server detection
         this.measurePing();
         this.detectServerLocation();
-        
+
         // Update ping every 30 seconds
         setInterval(() => {
             this.measurePing();
         }, 30000);
-        
+
         // Update stats every 5 seconds
         this.updateOnlineStats();
         this.statsInterval = setInterval(() => {
             this.updateOnlineStats();
         }, 5000);
-        
+
         // Load recent match history
         this.loadMatchHistory();
-        
+
         // Setup event listeners
         this.setupEventListeners();
-        
+
         // Load selected character from session
         this.loadSelectedCharacter();
     }
-    
+
     setupEventListeners() {
         // Character selection buttons
         const characterSlots = document.querySelectorAll('.character-slot');
@@ -50,31 +50,31 @@ class OnlineMode {
                 this.selectCharacter(charId);
             });
         });
-        
+
         // Search match button
         const searchBtn = document.getElementById('searchMatchBtn');
         if (searchBtn) {
             searchBtn.addEventListener('click', () => this.startMatchmaking());
         }
-        
+
         // Cancel search button
         const cancelBtn = document.getElementById('cancelSearchBtn');
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => this.cancelMatchmaking());
         }
-        
+
         // Battle ready button
         const readyBtn = document.getElementById('battleReadyBtn');
         if (readyBtn) {
             readyBtn.addEventListener('click', () => this.navigateToBattle());
         }
     }
-    
+
     async loadSelectedCharacter() {
         try {
             const response = await fetch('api/get_selected_character.php');
             const data = await response.json();
-            
+
             if (data.success && data.character_id) {
                 this.selectedCharacter = data.character_id;
                 this.updateCharacterUI();
@@ -84,7 +84,7 @@ class OnlineMode {
             console.log('No character selected yet');
         }
     }
-    
+
     async selectCharacter(characterId) {
         try {
             const response = await fetch('api/save_selected_character.php', {
@@ -92,9 +92,9 @@ class OnlineMode {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `character_id=${characterId}`
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.selectedCharacter = characterId;
                 this.updateCharacterUI();
@@ -106,7 +106,7 @@ class OnlineMode {
             this.showNotification('Error al seleccionar personaje', 'error');
         }
     }
-    
+
     updateCharacterUI() {
         // Update selected character display
         const selectedDisplay = document.getElementById('selectedCharacterDisplay');
@@ -116,9 +116,10 @@ class OnlineMode {
                 '2': 'Ozen Kimura',
                 '3': 'Xair Chikyu',
                 '4': 'Nathan Doffens',
-                '5': 'Zack Hisoka'
+                '5': 'Zack Hisoka',
+                '6': 'Raiden'
             };
-            
+
             selectedDisplay.innerHTML = `
                 <div class="selected-character-info">
                     <i class="fas fa-check-circle text-success"></i>
@@ -126,7 +127,7 @@ class OnlineMode {
                 </div>
             `;
         }
-        
+
         // Highlight selected character slot
         const characterSlots = document.querySelectorAll('.character-slot');
         characterSlots.forEach(slot => {
@@ -137,33 +138,33 @@ class OnlineMode {
             }
         });
     }
-    
+
     enableSearchButton() {
         const searchBtn = document.getElementById('searchMatchBtn');
         if (searchBtn && this.selectedCharacter) {
             searchBtn.disabled = false;
         }
     }
-    
+
     async startMatchmaking() {
         if (!this.selectedCharacter) {
             this.showNotification('Debes seleccionar un personaje primero', 'warning');
             return;
         }
-        
+
         if (this.inQueue) {
             return;
         }
-        
+
         try {
             const response = await fetch('api/matchmaking.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `action=join_queue&character_id=${this.selectedCharacter}`
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 if (data.matched) {
                     // Match found immediately
@@ -184,12 +185,12 @@ class OnlineMode {
             this.showNotification('Error al conectar con el servidor', 'error');
         }
     }
-    
+
     updateSearchUI(searching) {
         const searchBtn = document.getElementById('searchMatchBtn');
         const cancelBtn = document.getElementById('cancelSearchBtn');
         const queueStatus = document.getElementById('queueStatus');
-        
+
         if (searching) {
             if (searchBtn) searchBtn.style.display = 'none';
             if (cancelBtn) cancelBtn.style.display = 'block';
@@ -200,7 +201,7 @@ class OnlineMode {
             if (queueStatus) queueStatus.style.display = 'none';
         }
     }
-    
+
     async cancelMatchmaking() {
         try {
             await fetch('api/matchmaking.php', {
@@ -208,7 +209,7 @@ class OnlineMode {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'action=leave_queue'
             });
-            
+
             this.inQueue = false;
             this.matchFound = false;
             this.stopPolling();
@@ -220,21 +221,21 @@ class OnlineMode {
             console.error('Error canceling matchmaking:', error);
         }
     }
-    
+
     startPolling() {
         // Poll every 2 seconds for match
         this.pollInterval = setInterval(async () => {
             await this.checkForMatch();
         }, 2000);
     }
-    
+
     stopPolling() {
         if (this.pollInterval) {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
     }
-    
+
     startHeartbeat() {
         // Send heartbeat every 10 seconds
         this.heartbeatInterval = setInterval(async () => {
@@ -245,19 +246,19 @@ class OnlineMode {
             });
         }, 10000);
     }
-    
+
     stopHeartbeat() {
         if (this.heartbeatInterval) {
             clearInterval(this.heartbeatInterval);
             this.heartbeatInterval = null;
         }
     }
-    
+
     async checkForMatch() {
         try {
             const response = await fetch('api/matchmaking.php?action=check_match');
             const data = await response.json();
-            
+
             if (data.success) {
                 if (data.matched) {
                     this.handleMatchFound(data);
@@ -278,27 +279,27 @@ class OnlineMode {
             console.error('Error checking for match:', error);
         }
     }
-    
+
     updateSearchingMessage(data) {
         const messageEl = document.querySelector('#searchingModal .modal-text');
         if (messageEl) {
             const time = data.time_in_queue || 0;
             let message = 'Buscando oponente';
-            
+
             if (data.extended_search) {
                 message = 'Ampliando búsqueda a todos los rangos';
             }
-            
+
             message += ` (${time}s)`;
-            
+
             if (data.message) {
                 message = data.message + ` (${time}s)`;
             }
-            
+
             messageEl.textContent = message;
         }
     }
-    
+
     handleMatchFound(data) {
         this.matchFound = true;
         this.currentBattleId = data.battle_id;
@@ -306,46 +307,46 @@ class OnlineMode {
         this.stopPolling();
         this.stopHeartbeat();
         this.updateSearchUI(false);
-        
+
         this.showMatchFoundModal(data.opponent);
     }
-    
+
     showSearchingModal() {
         const modal = document.getElementById('searchingModal');
         if (modal) {
             modal.style.display = 'flex';
         }
     }
-    
+
     hideSearchingModal() {
         const modal = document.getElementById('searchingModal');
         if (modal) {
             modal.style.display = 'none';
         }
     }
-    
+
     showMatchFoundModal(opponent) {
         this.hideSearchingModal();
-        
+
         const modal = document.getElementById('matchFoundModal');
         if (modal) {
             // Update opponent info
             const usernameEl = document.getElementById('opponentUsername');
             const rankEl = document.getElementById('opponentRank');
             const cupsEl = document.getElementById('opponentCups');
-            
+
             if (usernameEl) usernameEl.textContent = opponent.username;
             if (rankEl) rankEl.textContent = opponent.rango;
             if (cupsEl) cupsEl.textContent = opponent.copas;
-            
+
             modal.style.display = 'flex';
-            
+
             // Start countdown
             let countdown = 3;
             const countdownEl = document.getElementById('battleCountdown');
             if (countdownEl) {
                 countdownEl.textContent = countdown;
-                
+
                 const countdownInterval = setInterval(() => {
                     countdown--;
                     if (countdown > 0) {
@@ -358,18 +359,18 @@ class OnlineMode {
             }
         }
     }
-    
+
     navigateToBattle() {
         if (this.currentBattleId) {
             window.location.href = `battle_online.html?battle_id=${this.currentBattleId}`;
         }
     }
-    
+
     async updateOnlineStats() {
         try {
             const response = await fetch('api/matchmaking.php?action=get_stats');
             const data = await response.json();
-            
+
             if (data.success && data.stats) {
                 this.displayStats(data.stats);
             }
@@ -377,14 +378,14 @@ class OnlineMode {
             console.error('Error updating stats:', error);
         }
     }
-    
+
     displayStats(stats) {
         const playersOnlineEl = document.getElementById('playersOnline');
         const searchingEl = document.getElementById('playersSearching');
         const inBattleEl = document.getElementById('playersInBattle');
         const avgWaitEl = document.getElementById('avgWaitTime');
         const noOpponentsWarning = document.getElementById('noOpponentsWarning');
-        
+
         if (playersOnlineEl) playersOnlineEl.textContent = stats.players_online || '0';
         if (searchingEl) searchingEl.textContent = stats.searching || '0';
         if (inBattleEl) inBattleEl.textContent = stats.in_battle || '0';
@@ -392,7 +393,7 @@ class OnlineMode {
             const waitTime = stats.avg_wait_time || 0;
             avgWaitEl.textContent = waitTime > 0 ? `${Math.round(waitTime)}s` : '--';
         }
-        
+
         // Mostrar advertencia si no hay oponentes disponibles (solo el usuario está online/buscando)
         if (noOpponentsWarning) {
             const totalOtherPlayers = (stats.players_online || 0) - 1; // Excluir al usuario actual
@@ -400,12 +401,12 @@ class OnlineMode {
             noOpponentsWarning.style.display = shouldShowWarning ? 'block' : 'none';
         }
     }
-    
+
     async loadMatchHistory() {
         try {
             const response = await fetch('api/rewards.php?action=match_history&limit=5');
             const data = await response.json();
-            
+
             if (data.success && data.matches && data.matches.length > 0) {
                 this.displayMatchHistory(data.matches);
             } else {
@@ -422,43 +423,43 @@ class OnlineMode {
             }
         }
     }
-    
+
     displayMatchHistory(matches) {
         const container = document.getElementById('recentMatchResults');
         if (!container) return;
-        
+
         const matchesHtml = matches.slice(0, 5).map(match => {
             const resultClass = match.result === 'win' ? 'win' : 'loss';
             const resultIcon = match.result === 'win' ? 'trophy' : 'times';
             const resultText = match.result === 'win' ? 'V' : 'D';
-            
+
             return `
                 <span class="match-result ${resultClass}" title="${match.result === 'win' ? 'Victoria' : 'Derrota'} vs ${match.opponent_username}">
                     ${resultText}
                 </span>
             `;
         }).join('');
-        
+
         container.innerHTML = matchesHtml;
     }
-    
+
     async measurePing() {
         const pingElement = document.getElementById('pingValue');
         if (!pingElement) return;
-        
+
         try {
             const startTime = performance.now();
-            
+
             await fetch('api/matchmaking.php?action=ping', {
                 method: 'HEAD',
                 cache: 'no-cache'
             });
-            
+
             const endTime = performance.now();
             const ping = Math.round(endTime - startTime);
-            
+
             pingElement.textContent = `${ping}ms`;
-            
+
             if (ping < 50) {
                 pingElement.className = 'text-success';
             } else if (ping < 100) {
@@ -466,21 +467,21 @@ class OnlineMode {
             } else {
                 pingElement.className = 'text-danger';
             }
-            
+
         } catch (error) {
             pingElement.textContent = 'Error';
             pingElement.className = 'text-danger';
         }
     }
-    
+
     async detectServerLocation() {
         const serverElement = document.getElementById('serverLocation');
         if (!serverElement) return;
-        
+
         // Fallback to browser language detection
         const language = navigator.language || navigator.userLanguage;
         let region = 'Local';
-        
+
         if (language.startsWith('es')) {
             if (language.includes('AR') || language.includes('CL') || language.includes('CO')) {
                 region = 'América del Sur';
@@ -494,11 +495,11 @@ class OnlineMode {
         } else if (language.startsWith('pt')) {
             region = 'América del Sur';
         }
-        
+
         serverElement.textContent = region;
         serverElement.className = 'text-info';
     }
-    
+
     showNotification(message, type = 'info') {
         // Create a simple toast notification
         const toast = document.createElement('div');
@@ -507,19 +508,19 @@ class OnlineMode {
             <i class="fas fa-${this.getNotificationIcon(type)}"></i>
             <span>${message}</span>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         setTimeout(() => {
             toast.classList.add('show');
         }, 100);
-        
+
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
-    
+
     getNotificationIcon(type) {
         const icons = {
             'success': 'check-circle',
@@ -532,7 +533,7 @@ class OnlineMode {
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     window.onlineMode = new OnlineMode();
 });
 

@@ -5,6 +5,7 @@
  */
 
 require_once '../../includes/Database.php';
+require_once 'character_stats.php';
 
 header('Content-Type: application/json');
 
@@ -396,27 +397,41 @@ function updateHeartbeat($db, $userData) {
  * Crear una nueva batalla online
  */
 function createBattle($db, $player1Id, $player2Id, $data) {
-    // Estado inicial de la batalla
+    // Get character stats for both players
+    $player1CharStats = CharacterStats::getCharacterStats($data['player1_character']);
+    $player2CharStats = CharacterStats::getCharacterStats($data['player2_character']);
+    
+    // Estado inicial de la batalla con stats reales de personajes
     $initialState = [
         'player1' => [
-            'health' => 1000,
-            'maxHealth' => 1000,
-            'energy' => 100,
-            'maxEnergy' => 100,
-            'statusEffects' => [],
-            'stats' => []
+            'character_id' => $data['player1_character'],
+            'health' => $player1CharStats['health_max'],
+            'maxHealth' => $player1CharStats['health_max'],
+            'energy' => $player1CharStats['energy_max'],
+            'maxEnergy' => $player1CharStats['energy_max'],
+            'statusEffects' => []
         ],
         'player2' => [
-            'health' => 1000,
-            'maxHealth' => 1000,
-            'energy' => 100,
-            'maxEnergy' => 100,
-            'statusEffects' => [],
-            'stats' => []
+            'character_id' => $data['player2_character'],
+            'health' => $player2CharStats['health_max'],
+            'maxHealth' => $player2CharStats['health_max'],
+            'energy' => $player2CharStats['energy_max'],
+            'maxEnergy' => $player2CharStats['energy_max'],
+            'statusEffects' => []
         ],
         'round' => 1,
         'turnHistory' => []
     ];
+    
+    // Initialize shield for Raiden (character ID 6)
+    if ($data['player1_character'] == 6) {
+        $initialState['player1']['shield'] = 0;
+        $initialState['player1']['maxShield'] = $player1CharStats['max_shield'] ?? 300;
+    }
+    if ($data['player2_character'] == 6) {
+        $initialState['player2']['shield'] = 0;
+        $initialState['player2']['maxShield'] = $player2CharStats['max_shield'] ?? 300;
+    }
     
     $battleStateJson = json_encode($initialState);
     

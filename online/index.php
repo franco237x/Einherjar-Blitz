@@ -1,59 +1,8 @@
 <?php
 require_once '../includes/Database.php';
+require_once 'includes/rank_helper.php';
 
-$auth = new AuthController();
-
-// Verificar autenticación
-if (!$auth->isAuthenticated()) {
-    header('Location: ../index.php');
-    exit();
-}
-
-$userData = $auth->getUserData();
-if (!$userData) {
-    header('Location: ../index.php');
-    exit();
-}
-
-// Calcular progreso del rango (arbitrario basado en copas)
-function calculateRankProgress($copas, $rango) {
-    $rankThresholds = [
-        'Bronce' => ['min' => 0, 'max' => 1000],
-        'Plata' => ['min' => 1000, 'max' => 2500],
-        'Oro' => ['min' => 2500, 'max' => 5000],
-        'Platino' => ['min' => 5000, 'max' => 8000],
-        'Diamante' => ['min' => 8000, 'max' => 12000],
-        'Gran Maestro' => ['min' => 12000, 'max' => 20000]
-    ];
-    
-    $currentRank = $rankThresholds[$rango] ?? $rankThresholds['Bronce'];
-    $progress = (($copas - $currentRank['min']) / ($currentRank['max'] - $currentRank['min'])) * 100;
-    $progress = max(0, min(100, $progress));
-    
-    return [
-        'progress' => $progress,
-        'current' => $copas - $currentRank['min'],
-        'needed' => $currentRank['max'] - $copas,
-        'total' => $currentRank['max'] - $currentRank['min']
-    ];
-}
-
-$rankProgress = calculateRankProgress($userData['copas'], $userData['rango']);
-
-// Obtener imagen del rango
-function getRankImage($rango) {
-    $rankImages = [
-        'Bronce' => 'bronce.png',
-        'Plata' => 'plata.png',
-        'Oro' => 'oro.png',
-        'Platino' => 'platino.png',
-        'Diamante' => 'diamante.png',
-        'Gran Maestro' => 'granmaestro.png'
-    ];
-    return $rankImages[$rango] ?? 'bronce.png';
-}
-
-$rankImage = getRankImage($userData['rango']);
+// $auth, $userData, $rankProgress, y $rankImage ya están definidos en rank_helper.php
 ?>
 <!DOCTYPE html>
 <html lang="es" class="h-100">
@@ -237,6 +186,15 @@ $rankImage = getRankImage($userData['rango']);
                                         <span class="character-name">Zack</span>
                                         <span class="character-element element-ninguno">
                                             <i class="fas fa-infinity"></i>
+                                        </span>
+                                    </div>
+
+                                    <!-- Raiden -->
+                                    <div class="character-slot" data-character-id="6">
+                                        <img src="../images/raiden.jpeg" alt="Raiden" class="character-avatar">
+                                        <span class="character-name">Raiden</span>
+                                        <span class="character-element element-oscuridad">
+                                            <i class="fas fa-moon"></i>
                                         </span>
                                     </div>
                                 </div>

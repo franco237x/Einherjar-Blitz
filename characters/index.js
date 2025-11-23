@@ -8,6 +8,7 @@ import { OzenKimura } from './OzenKimura.js';
 import { XairChikyu } from './XairChikyu.js';
 import { NathanDoffens } from './NathanDoffens.js';
 import { ZackHisoka } from './ZackHisoka.js';
+import { Raiden } from './Raiden.js';
 
 // Mapa de personajes por ID
 export const CHARACTERS_BY_ID = {
@@ -15,7 +16,8 @@ export const CHARACTERS_BY_ID = {
     2: OzenKimura,
     3: XairChikyu,
     4: NathanDoffens,
-    5: ZackHisoka
+    5: ZackHisoka,
+    6: Raiden
 };
 
 // Mapa de personajes por nombre
@@ -24,7 +26,8 @@ export const CHARACTERS_BY_NAME = {
     'Ozen Kimura': OzenKimura,
     'Xair Chikyu': XairChikyu,
     'Nathan Doffens': NathanDoffens,
-    'Zack Hisoka': ZackHisoka
+    'Zack Hisoka': ZackHisoka,
+    'Raiden': Raiden
 };
 
 // Información de elementos (solo colores)
@@ -40,6 +43,9 @@ export const ELEMENT_SYSTEM = {
     },
     'Rayo': {
         color: '#f1c40f'
+    },
+    'Oscuridad': {
+        color: '#2c3e50'
     },
     'Ninguno': {
         color: '#95a5a6'
@@ -105,9 +111,9 @@ export function getElementalEffectiveness(attackerElement, defenderElement) {
 export function calculateElementalDamage(baseDamage, attackerElement, defender) {
     // Solo aplicar resistencia elemental básica si existe
     const resistanceReduction = defender.stats.elementalResistance ? defender.stats.elementalResistance / 100 : 0;
-    
+
     const finalDamage = Math.floor(baseDamage * (1 - resistanceReduction));
-    
+
     return {
         damage: Math.max(1, finalDamage),
         effectiveness: 1.0,
@@ -121,5 +127,6 @@ export {
     OzenKimura,
     XairChikyu,
     NathanDoffens,
-    ZackHisoka
+    ZackHisoka,
+    Raiden
 };

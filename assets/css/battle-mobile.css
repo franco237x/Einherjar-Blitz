@@ -462,6 +462,38 @@ body {
     background: linear-gradient(90deg, var(--energy), #2980b9);
 }
 
+.shield-fill {
+    background: linear-gradient(90deg, #9b59b6, #8e44ad);
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease-out, left 0.6s ease-out;
+    opacity: 0.85;
+    box-shadow: 0 0 10px rgba(155, 89, 182, 0.6);
+    z-index: 1;
+}
+
+.shield-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    animation: shieldPulse 2s ease-in-out infinite;
+}
+
+@keyframes shieldPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
 .bar-shine {
     position: absolute;
     top: 0;

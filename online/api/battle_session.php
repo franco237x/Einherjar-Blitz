@@ -5,6 +5,7 @@
  */
 
 require_once '../../includes/Database.php';
+require_once 'character_stats.php';
 
 header('Content-Type: application/json');
 
@@ -302,46 +303,157 @@ function submitAction($db, $userData) {
 function applyAction($state, $playerKey, $action) {
     $opponentKey = $playerKey == 'player1' ? 'player2' : 'player1';
     
+    // Get character stats
+    $playerCharId = $state[$playerKey]['character_id'];
+    $opponentCharId = $state[$opponentKey]['character_id'];
+    $playerCharStats = CharacterStats::getCharacterStats($playerCharId);
+    $opponentCharStats = CharacterStats::getCharacterStats($opponentCharId);
+    
     switch ($action['type']) {
         case 'attack':
-            $damage = $action['damage'] ?? 0;
-            $state[$opponentKey]['health'] = max(0, $state[$opponentKey]['health'] - $damage);
+            // Calculate damage using character stats
+            $attackResult = CharacterStats::calculateAttackDamage(
+                $playerCharStats, 
+                $state[$playerKey]['statusEffects']
+            );
+            $baseDamage = $attackResult['damage'];
+            
+            // Check initial shield state
+            $initialShield = isset($state[$opponentKey]['shield']) ? $state[$opponentKey]['shield'] : 0;
+            
+            // Apply damage to opponent considering their armor, passives, and shield
+            $finalDamage = CharacterStats::calculateDamageTaken(
+                $baseDamage,
+                $opponentCharStats,
+                $state[$opponentKey]['statusEffects'],
+                $state[$opponentKey] // Pass state for shield absorption
+            );
+            
+            $state[$opponentKey]['health'] = max(0, $state[$opponentKey]['health'] - $finalDamage);
+            
+            // Check for dodge
+            $dodged = ($finalDamage === 0 && $baseDamage > 0);
+            
+            // Check if shield absorbed damage (shield went down but no health damage)
+            $finalShield = isset($state[$opponentKey]['shield']) ? $state[$opponentKey]['shield'] : 0;
+            $shieldAbsorbed = ($initialShield > 0 && $finalDamage === 0 && !$dodged);
+            
+            $state['lastAction'] = [
+                'type' => 'attack',
+                'damage' => $finalDamage > 0 ? $finalDamage : ($initialShield - $finalShield),
+                'critical' => $attackResult['critical'],
+                'dodged' => $dodged,
+                'shieldAbsorbed' => $shieldAbsorbed,
+                'characterName' => $playerCharStats['name'],
+                'targetName' => $opponentCharStats['name'],
+                'shieldBroken' => ($initialShield > 0 && $finalShield == 0 && $baseDamage > 0)
+            ];
             break;
         
         case 'defend':
-            // Añadir efecto de defensa
+            // Añadir efecto de defensa y regenerar energía
             $state[$playerKey]['statusEffects'][] = [
                 'type' => 'defending',
                 'duration' => 1
             ];
+            $energyGain = 15;
+            $state[$playerKey]['energy'] = min(
+                $state[$playerKey]['maxEnergy'],
+                $state[$playerKey]['energy'] + $energyGain
+            );
+            $state['lastAction'] = [
+                'type' => 'defend',
+                'energyGained' => $energyGain,
+                'characterName' => $playerCharStats['name']
+            ];
             break;
         
         case 'special':
-            $damage = $action['damage'] ?? 0;
-            $energyCost = $action['energyCost'] ?? 0;
-            $state[$playerKey]['energy'] = max(0, $state[$playerKey]['energy'] - $energyCost);
-            $state[$opponentKey]['health'] = max(0, $state[$opponentKey]['health'] - $damage);
+            $energyCost = $playerCharStats['special_cost'];
             
-            // Efectos adicionales
-            if (isset($action['effects'])) {
-                foreach ($action['effects'] as $effect) {
-                    if ($effect['target'] == 'self') {
-                        $state[$playerKey]['statusEffects'][] = $effect;
-                    } else {
-                        $state[$opponentKey]['statusEffects'][] = $effect;
-                    }
-                }
+            // Verify energy
+            if ($state[$playerKey]['energy'] < $energyCost) {
+                $state['lastAction'] = [
+                    'type' => 'special',
+                    'error' => 'Energía insuficiente',
+                    'characterName' => $playerCharStats['name']
+                ];
+                break;
             }
+            
+            // Consume energy
+            $state[$playerKey]['energy'] = max(0, $state[$playerKey]['energy'] - $energyCost);
+            
+            // Execute special ability
+            $specialResult = CharacterStats::executeSpecialAbility(
+                $playerCharId,
+                $state[$playerKey],
+                $state[$opponentKey]
+            );
+            
+            // Ozen special case: restore energy AFTER consumption
+            if (isset($specialResult['restoreEnergy']) && $specialResult['restoreEnergy']) {
+                $state[$playerKey]['energy'] = $state[$playerKey]['maxEnergy'];
+                $specialResult['energyRestored'] = $state[$playerKey]['maxEnergy'];
+            }
+            
+            // Apply damage if any
+            if (isset($specialResult['damage']) && $specialResult['damage'] > 0) {
+                $finalDamage = CharacterStats::calculateDamageTaken(
+                    $specialResult['damage'],
+                    $opponentCharStats,
+                    $state[$opponentKey]['statusEffects'],
+                    $state[$opponentKey] // Pass state for shield absorption
+                );
+                $state[$opponentKey]['health'] = max(0, $state[$opponentKey]['health'] - $finalDamage);
+                $specialResult['actualDamage'] = $finalDamage;
+            }   
+            
+            // Add character and ability info for logging
+            $specialResult['characterName'] = $playerCharStats['name'];
+            $specialResult['abilityName'] = $playerCharStats['special_name'];
+            
+            $state['lastAction'] = array_merge(['type' => 'special'], $specialResult);
             break;
         
         case 'heal':
-            $healAmount = $action['amount'] ?? 0;
-            $energyCost = $action['energyCost'] ?? 0;
-            $state[$playerKey]['energy'] = max(0, $state[$playerKey]['energy'] - $energyCost);
-            $state[$playerKey]['health'] = min(
-                $state[$playerKey]['maxHealth'],
-                $state[$playerKey]['health'] + $healAmount
-            );
+            $healAmount = floor($state[$playerKey]['maxHealth'] * 0.10); // 10% of max health
+            $energyCost = 20;
+            
+            // Verify energy
+            if ($state[$playerKey]['energy'] < $energyCost) {
+                $state['lastAction'] = [
+                    'type' => 'heal',
+                    'error' => 'Energía insuficiente'
+                ];
+                break;
+            }
+            
+            // Zack special case: doesn't heal, gains energy instead
+            if ($playerCharId == 5) {
+                $state[$playerKey]['energy'] = min(
+                    $state[$playerKey]['maxEnergy'],
+                    $state[$playerKey]['energy'] + 30 // Net gain of 10 after cost
+                );
+                $state['lastAction'] = [
+                    'type' => 'heal',
+                    'message' => 'Zack no puede regenerarse, pero gana energía',
+                    'energyGained' => 30,
+                    'characterName' => $playerCharStats['name']
+                ];
+            } else {
+                $state[$playerKey]['energy'] = max(0, $state[$playerKey]['energy'] - $energyCost);
+                $actualHeal = min($healAmount, $state[$playerKey]['maxHealth'] - $state[$playerKey]['health']);
+                $state[$playerKey]['health'] = min(
+                    $state[$playerKey]['maxHealth'],
+                    $state[$playerKey]['health'] + $actualHeal
+                );
+                $state['lastAction'] = [
+                    'type' => 'heal',
+                    'amount' => $actualHeal,
+                    'characterName' => $playerCharStats['name']
+                ];
+            }
             break;
     }
     
@@ -350,6 +462,9 @@ function applyAction($state, $playerKey, $action) {
         $state[$playerKey]['maxEnergy'],
         $state[$playerKey]['energy'] + 10
     );
+    
+    // Process status effects (burn, etc.)
+    CharacterStats::processStatusEffects($state);
     
     // Incrementar ronda si ambos jugadores han jugado
     if (count($state['turnHistory']) % 2 == 0) {

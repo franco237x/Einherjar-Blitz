@@ -69,6 +69,10 @@ class BattleOnline {
         // Load player character
         const playerChar = await createCharacterById(this.playerData.character_id);
         this.displayCharacter(playerChar, 'player');
+        
+        // Store player character for energy costs
+        this.playerCharacter = playerChar;
+        this.updateAbilityCosts();
 
         // Load opponent character
         const opponentChar = await createCharacterById(this.opponentData.character_id);
@@ -101,7 +105,7 @@ class BattleOnline {
             img.src = `/dashboard/Einherjar%20Blitz/images/${character.stats.image}`;
             img.alt = character.stats.name;
         }
-        
+
         // Set character name
         const nameEl = document.getElementById(`${prefix}Name`);
         if (nameEl && character.stats) {
@@ -175,7 +179,7 @@ class BattleOnline {
 
             const text = await response.text();
             let data;
-            
+
             try {
                 data = JSON.parse(text);
             } catch (e) {
@@ -190,8 +194,10 @@ class BattleOnline {
                 this.currentState = data.state;
                 this.updateBattleState(data.state, data.current_turn);
 
-                // Add log message
-                this.addLogMessage('player', this.getActionMessage(actionType, actionData));
+                // Add detailed log message from server data
+                if (data.state && data.state.lastAction) {
+                    this.addDetailedLogMessage(data.state.lastAction);
+                }
 
                 // Check if battle ended
                 if (data.battle_ended) {
@@ -215,9 +221,9 @@ class BattleOnline {
 
         switch (actionType) {
             case 'attack':
+                // Server will calculate damage based on character stats
                 return {
-                    type: 'attack',
-                    damage: Math.floor(Math.random() * 46) + 70 // 70-115 damage (ejemplo)
+                    type: 'attack'
                 };
 
             case 'defend':
@@ -226,38 +232,124 @@ class BattleOnline {
                 };
 
             case 'special':
+                // Server will handle energy cost and special ability logic
                 return {
-                    type: 'special',
-                    damage: Math.floor(Math.random() * 81) + 120, // 120-200 damage
-                    energyCost: 30,
-                    effects: []
+                    type: 'special'
                 };
 
             case 'heal':
+                // Server will calculate heal amount (10% of max health)
                 return {
-                    type: 'heal',
-                    amount: 200,
-                    energyCost: 20
+                    type: 'heal'
                 };
 
             default:
-                return { type: 'attack', damage: 50 };
+                return { type: 'attack' };
         }
     }
 
     getActionMessage(actionType, actionData) {
         switch (actionType) {
             case 'attack':
-                return `Atacaste e infligiste ${actionData.damage} de daño`;
+                return `Atacaste al enemigo`;
             case 'defend':
-                return 'Te preparaste para defender';
+                return 'Te preparaste para defender y regeneraste energía';
             case 'special':
-                return `Usaste tu habilidad especial e infligiste ${actionData.damage} de daño`;
+                return `Usaste tu habilidad especial`;
             case 'heal':
-                return `Te curaste ${actionData.amount} puntos de vida`;
+                return `Intentaste curarte`;
             default:
                 return 'Realizaste una acción';
         }
+    }
+
+    addDetailedLogMessage(actionData) {
+        if (!actionData) return;
+
+        let message = '';
+        let messageType = 'player';
+
+        switch (actionData.type) {
+            case 'attack':
+                if (actionData.dodged) {
+                    message = `${actionData.characterName} atacó a ${actionData.targetName} pero el ataque fue esquivado!`;
+                    messageType = 'warning';
+                } else if (actionData.shieldAbsorbed) {
+                    message = `${actionData.characterName} atacó a ${actionData.targetName} pero el escudo de sombras absorbió ${actionData.damage} de daño`;
+                    messageType = 'system';
+                } else {
+                    message = `${actionData.characterName} atacó a ${actionData.targetName} causando ${actionData.damage} de daño`;
+                    if (actionData.critical) {
+                        message += ' ¡CRÍTICO!';
+                        messageType = 'critical';
+                    }
+                    if (actionData.shieldBroken) {
+                        message += ' ¡El escudo ha sido destruido!';
+                    }
+                }
+                break;
+
+            case 'defend':
+                message = `${actionData.characterName} se defiende y regenera ${actionData.energyGained} de energía`;
+                messageType = 'system';
+                break;
+
+            case 'special':
+                if (actionData.error) {
+                    message = `${actionData.characterName} no pudo usar ${actionData.abilityName || 'habilidad especial'}: ${actionData.error}`;
+                    messageType = 'error';
+                } else {
+                    message = `${actionData.characterName} usa "${actionData.abilityName}"`;
+
+                    // Add damage info
+                    if (actionData.actualDamage && actionData.actualDamage > 0) {
+                        message += ` causando ${actionData.actualDamage} de daño`;
+                    }
+
+                    // Add healing info
+                    if (actionData.healing && actionData.healing > 0) {
+                        message += ` y se cura ${actionData.healing} HP`;
+                    }
+
+                    // Add energy info
+                    if (actionData.energyRestored) {
+                        message += ' y restaura toda su energía';
+                    } else if (actionData.energyGained && actionData.energyGained > 0) {
+                        message += ` y gana ${actionData.energyGained} de energía`;
+                    }
+
+                    // Add effect description
+                    if (actionData.message) {
+                        message += `. ${actionData.message}`;
+                    }
+
+                    messageType = 'special';
+                }
+                break;
+
+            case 'heal':
+                if (actionData.error) {
+                    message = `${actionData.characterName} no pudo curarse: ${actionData.error}`;
+                    messageType = 'error';
+                } else if (actionData.message) {
+                    // Zack's special case
+                    message = `${actionData.characterName}: ${actionData.message}`;
+                    if (actionData.energyGained) {
+                        message += ` (+${actionData.energyGained} energía)`;
+                    }
+                    messageType = 'system';
+                } else {
+                    message = `${actionData.characterName} se cura ${actionData.amount} puntos de vida`;
+                    messageType = 'heal';
+                }
+                break;
+
+            default:
+                message = 'Acción realizada';
+                messageType = 'system';
+        }
+
+        this.addLogMessage(messageType, message);
     }
 
     startSynchronization() {
@@ -335,13 +427,36 @@ class BattleOnline {
     updateCharacterStats(side, stats) {
         const prefix = side === 'player' ? 'player' : 'enemy';
 
-        // Update health
+        // Update health with shield support (Raiden)
         const healthBar = document.getElementById(`${prefix}HealthBar`);
         const healthText = document.getElementById(`${prefix}HealthText`);
         if (healthBar && stats) {
             const healthPercent = (stats.health / stats.maxHealth) * 100;
             healthBar.style.width = `${healthPercent}%`;
-            healthText.textContent = `${stats.health}/${stats.maxHealth}`;
+            
+            // Check if character has shield (Raiden)
+            if (stats.shield && stats.shield > 0) {
+                const shieldPercent = (stats.shield / stats.maxHealth) * 100;
+                healthText.textContent = `${stats.health}+${stats.shield}/${stats.maxHealth}`;
+                
+                // Create or update shield bar
+                let shieldBar = document.getElementById(`${prefix}ShieldBar`);
+                if (!shieldBar) {
+                    shieldBar = document.createElement('div');
+                    shieldBar.id = `${prefix}ShieldBar`;
+                    shieldBar.className = 'bar-fill shield-fill';
+                    healthBar.parentElement.appendChild(shieldBar);
+                }
+                shieldBar.style.width = `${Math.min(100, healthPercent + shieldPercent)}%`;
+                shieldBar.style.left = `${healthPercent}%`;
+            } else {
+                // Remove shield bar if no shield
+                const shieldBar = document.getElementById(`${prefix}ShieldBar`);
+                if (shieldBar) {
+                    shieldBar.remove();
+                }
+                healthText.textContent = `${stats.health}/${stats.maxHealth}`;
+            }
         }
 
         // Update energy
@@ -524,7 +639,7 @@ class BattleOnline {
 
     showBattleResult(result) {
         console.log('Showing battle result:', result);
-        
+
         const modal = document.getElementById('battleEndModal');
         const titleEl = document.getElementById('battleResultTitle');
         const iconEl = document.getElementById('resultIcon');
@@ -564,7 +679,7 @@ class BattleOnline {
         setTimeout(() => {
             modal.classList.add('active');
         }, 10);
-        
+
         console.log('Modal display set to flex');
 
         // Setup return button
@@ -613,13 +728,51 @@ class BattleOnline {
         }
     }
 
+    updateAbilityCosts() {
+        if (!this.playerCharacter || !this.playerCharacter.stats) return;
+        
+        const stats = this.playerCharacter.stats;
+        
+        // Update special ability cost and name
+        const specialCostEl = document.getElementById('specialCost');
+        const specialNameEl = document.getElementById('specialName');
+        
+        if (specialCostEl) {
+            // Get cost from character stats mapping
+            const specialCosts = {
+                1: 40, // Shuna
+                2: 50, // Ozen
+                3: 40, // Xair
+                4: 35, // Nathan
+                5: 40, // Zack
+                6: 40  // Raiden
+            };
+            specialCostEl.textContent = specialCosts[stats.id] || 30;
+        }
+        
+        if (specialNameEl && stats.name) {
+            const specialNames = {
+                'Shuna Shieda': 'Despertar',
+                'Ozen Kimura': 'Bijudama',
+                'Xair Chikyu': 'Molecular',
+                'Nathan Doffens': 'Modo Kami',
+                'Zack Hisoka': 'Omniscio',
+                'Raiden': 'Resurrección'
+            };
+            specialNameEl.textContent = specialNames[stats.name] || 'Especial';
+        }
+    }
+
     getLogIcon(type) {
         const icons = {
             'system': 'fas fa-info-circle',
             'player': 'fas fa-user',
             'enemy': 'fas fa-user-shield',
             'warning': 'fas fa-exclamation-triangle',
-            'error': 'fas fa-times-circle'
+            'error': 'fas fa-times-circle',
+            'critical': 'fas fa-burst',
+            'special': 'fas fa-star',
+            'heal': 'fas fa-heart'
         };
         return icons[type] || 'fas fa-circle';
     }
