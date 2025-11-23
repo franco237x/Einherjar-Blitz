@@ -496,6 +496,15 @@ class BattleOnline {
             } else {
                 timerContainer.classList.remove('warning');
             }
+            
+            // Auto-pass turn if time runs out and it's player's turn
+            if (timeLeft <= 0 && this.isMyTurn) {
+                this.addLogMessage('warning', '¡Tiempo agotado! Turno pasado automáticamente');
+                // Perform defend action as default when time runs out
+                setTimeout(() => {
+                    this.performAction('defend');
+                }, 500);
+            }
         }
     }
 
