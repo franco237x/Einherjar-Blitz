@@ -38,7 +38,7 @@ class CharacterStats {
                 'defense_reduction' => 5,
                 'elemental_resistance' => 65,
                 'energy_max' => 100,
-                'special_cost' => 50,
+                'special_cost' => 55,
                 'special_name' => 'Bijudama Definitivo',
                 'passive' => null
             ],
@@ -47,12 +47,12 @@ class CharacterStats {
                 'name' => 'Xair Chikyu',
                 'element' => 'Hielo',
                 'rarity' => 'rare',
-                'attack_min' => 90,
-                'attack_max' => 120,
-                'health_max' => 900,
-                'armor' => 15,
+                'attack_min' => 95,
+                'attack_max' => 125,
+                'health_max' => 950,
+                'armor' => 18,
                 'defense_reduction' => 15,
-                'elemental_resistance' => 25,
+                'elemental_resistance' => 30,
                 'energy_max' => 100,
                 'special_cost' => 40,
                 'special_name' => 'Activación Molecular',
@@ -63,14 +63,14 @@ class CharacterStats {
                 'name' => 'Nathan Doffens',
                 'element' => 'Rayo',
                 'rarity' => 'epic',
-                'attack_min' => 70,
-                'attack_max' => 115,
+                'attack_min' => 80,
+                'attack_max' => 125,
                 'health_max' => 1000,
                 'armor' => 17,
                 'defense_reduction' => 30,
                 'elemental_resistance' => 50,
                 'energy_max' => 100,
-                'special_cost' => 35,
+                'special_cost' => 30,
                 'special_name' => 'Modo Kami',
                 'passive' => 'dodge' // 30% chance to dodge
             ],
@@ -81,14 +81,14 @@ class CharacterStats {
                 'rarity' => 'legendary',
                 'attack_min' => 30,
                 'attack_max' => 250,
-                'health_max' => 750,
-                'armor' => 25,
+                'health_max' => 800,
+                'armor' => 20,
                 'defense_reduction' => 85,
                 'elemental_resistance' => 35,
                 'energy_max' => 100,
                 'special_cost' => 40,
                 'special_name' => 'Omniscio',
-                'passive' => 'damage_reduction_50' // 50% damage reduction
+                'passive' => 'damage_reduction_40' // 40% damage reduction (NERFEADO)
             ],
             6 => [ // Raiden
                 'id' => 6,
@@ -168,9 +168,9 @@ class CharacterStats {
             }
         }
         
-        // Zack: 50% passive damage reduction
+        // Zack: 40% passive damage reduction (NERFEADO)
         if ($characterStats['id'] == 5) {
-            $damage *= 0.5;
+            $damage *= 0.6;
         }
         
         // Apply armor reduction
@@ -241,29 +241,29 @@ class CharacterStats {
     }
     
     private static function shunaSpecial(&$playerState, &$opponentState) {
-        // Duplicar estadísticas por 4 turnos y aplicar quemadura
+        // Duplicar estadísticas por 3 turnos y aplicar quemadura (NERFEADO)
         $playerState['statusEffects'][] = [
             'type' => 'shuna_ultimate',
-            'duration' => 4,
+            'duration' => 3,
             'statsMultiplier' => 2
         ];
         
         $opponentState['statusEffects'][] = [
             'type' => 'burn',
-            'duration' => 4,
-            'damagePerTurn' => 40
+            'duration' => 3,
+            'damagePerTurn' => 30
         ];
         
         return [
             'success' => true,
-            'message' => 'Shuna despierta su poder primordial: duplica todas sus estadísticas por 4 turnos y aplica quemadura al enemigo (40 daño/turno)',
+            'message' => 'Shuna despierta su poder primordial: duplica todas sus estadísticas por 3 turnos y aplica quemadura al enemigo (30 daño/turno)',
             'damage' => 0
         ];
     }
     
     private static function ozenSpecial(&$playerState, &$opponentState) {
-        // Ataque masivo 300-400 + restaurar energía
-        $damage = rand(300, 400);
+        // Ataque masivo 250-320 + restaurar energía (NERFEADO)
+        $damage = rand(250, 320);
         
         // Mark that energy should be restored (will be done in battle_session after consumption)
         return [
