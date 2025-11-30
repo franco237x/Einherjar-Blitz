@@ -15,10 +15,10 @@ class CharacterStats {
                 'name' => 'Shuna Shieda',
                 'element' => 'Devastación',
                 'rarity' => 'legendary',
-                'attack_min' => 115,
-                'attack_max' => 140,
-                'health_max' => 1000,
-                'armor' => 15,
+                'attack_min' => 135,
+                'attack_max' => 170,
+                'health_max' => 1100,
+                'armor' => 20,
                 'defense_reduction' => 45,
                 'elemental_resistance' => 60,
                 'energy_max' => 100,
@@ -47,9 +47,9 @@ class CharacterStats {
                 'name' => 'Xair Chikyu',
                 'element' => 'Hielo',
                 'rarity' => 'rare',
-                'attack_min' => 95,
-                'attack_max' => 125,
-                'health_max' => 950,
+                'attack_min' => 105,
+                'attack_max' => 135,
+                'health_max' => 975,
                 'armor' => 18,
                 'defense_reduction' => 15,
                 'elemental_resistance' => 30,
@@ -63,8 +63,8 @@ class CharacterStats {
                 'name' => 'Nathan Doffens',
                 'element' => 'Rayo',
                 'rarity' => 'epic',
-                'attack_min' => 80,
-                'attack_max' => 125,
+                'attack_min' => 100,
+                'attack_max' => 150,
                 'health_max' => 1000,
                 'armor' => 17,
                 'defense_reduction' => 30,
@@ -79,9 +79,9 @@ class CharacterStats {
                 'name' => 'Zack Hisoka',
                 'element' => 'Ninguno',
                 'rarity' => 'legendary',
-                'attack_min' => 30,
+                'attack_min' => 50,
                 'attack_max' => 250,
-                'health_max' => 800,
+                'health_max' => 1000,
                 'armor' => 20,
                 'defense_reduction' => 85,
                 'elemental_resistance' => 35,
@@ -106,6 +106,22 @@ class CharacterStats {
                 'special_name' => 'Resurrección de Sombra',
                 'passive' => 'shadow_shield', // Can have shield
                 'max_shield' => 300
+            ],
+            7 => [ // Yozora
+                'id' => 7,
+                'name' => 'Yozora',
+                'element' => 'Originium',
+                'rarity' => 'legendary',
+                'attack_min' => 160,
+                'attack_max' => 200,
+                'health_max' => 1300,
+                'armor' => 35,
+                'defense_reduction' => 20,
+                'elemental_resistance' => 70,
+                'energy_max' => 100,
+                'special_cost' => 35,
+                'special_name' => 'Apocalipsis Elemental de Originium',
+                'passive' => 'elemental_reduction_30' // Reduce daño elemental en 30
             ]
         ];
         
@@ -232,6 +248,9 @@ class CharacterStats {
             case 6: // Raiden - Resurrección de Sombra
                 return self::raidenSpecial($playerState, $opponentState);
             
+            case 7: // Yozora - Apocalipsis Elemental de Originium
+                return self::yozoraSpecial($playerState, $opponentState);
+            
             default:
                 return [
                     'success' => false,
@@ -251,19 +270,19 @@ class CharacterStats {
         $opponentState['statusEffects'][] = [
             'type' => 'burn',
             'duration' => 3,
-            'damagePerTurn' => 30
+            'damagePerTurn' => 50
         ];
         
         return [
             'success' => true,
-            'message' => 'Shuna despierta su poder primordial: duplica todas sus estadísticas por 3 turnos y aplica quemadura al enemigo (30 daño/turno)',
+            'message' => 'Shuna despierta su poder primordial: duplica todas sus estadísticas por 3 turnos y aplica quemadura al enemigo (50 daño/turno)',
             'damage' => 0
         ];
     }
     
     private static function ozenSpecial(&$playerState, &$opponentState) {
-        // Ataque masivo 250-320 + restaurar energía (NERFEADO)
-        $damage = rand(250, 320);
+        // Ataque masivo 250-300 + restaurar energía (NERFEADO)
+        $damage = rand(250, 300);
         
         // Mark that energy should be restored (will be done in battle_session after consumption)
         return [
@@ -333,21 +352,21 @@ class CharacterStats {
                 'name' => 'Quemadura Atómica',
                 'type' => 'debuff',
                 'target' => 'enemy',
-                'effect' => ['type' => 'burn', 'duration' => 3, 'damagePerTurn' => 25],
+                'effect' => ['type' => 'burn', 'duration' => 3, 'damagePerTurn' => 75],
                 'message' => 'La materia inestable quema al enemigo a nivel atómico'
             ],
             [
                 'name' => 'Reparación Molecular',
                 'type' => 'heal',
                 'target' => 'self',
-                'effect' => ['type' => 'healing', 'value' => 150],
+                'effect' => ['type' => 'healing', 'value' => 250],
                 'message' => 'La materia reparadora restaura la estructura molecular de Zack'
             ],
             [
                 'name' => 'Desintegración Parcial',
                 'type' => 'damage',
                 'target' => 'enemy',
-                'effect' => ['type' => 'pure_damage', 'value' => rand(150, 250)],
+                'effect' => ['type' => 'pure_damage', 'value' => rand(200, 300)],
                 'message' => 'La materia desintegradora causa daño directo al enemigo'
             ]
         ];
@@ -400,6 +419,44 @@ class CharacterStats {
             'message' => 'Raiden invoca el poder de las sombras: duplica su daño y gana un escudo de 300 puntos por 5 turnos',
             'damage' => 0,
             'shieldGained' => 300
+        ];
+    }
+    
+    private static function yozoraSpecial(&$playerState, &$opponentState) {
+        // Apocalipsis Elemental: 150 daño fijo + efecto elemental aleatorio
+        $damage = 150;
+        
+        // Efectos elementales posibles
+        $elementalEffects = [
+            [
+                'name' => 'Quemadura de Originium',
+                'effect' => ['type' => 'burn', 'duration' => 3, 'damagePerTurn' => 25]
+            ],
+            [
+                'name' => 'Congelación de Originium',
+                'effect' => ['type' => 'freeze', 'duration' => 2, 'missChance' => 40]
+            ],
+            [
+                'name' => 'Descarga de Originium',
+                'effect' => ['type' => 'shock', 'duration' => 2, 'damagePerTurn' => 30]
+            ],
+            [
+                'name' => 'Envenenamiento de Originium',
+                'effect' => ['type' => 'poison', 'duration' => 4, 'damagePerTurn' => 20]
+            ],
+            [
+                'name' => 'Debilidad de Originium',
+                'effect' => ['type' => 'weakness', 'duration' => 3, 'damageReduction' => 30]
+            ]
+        ];
+        
+        $selectedEffect = $elementalEffects[array_rand($elementalEffects)];
+        $opponentState['statusEffects'][] = $selectedEffect['effect'];
+        
+        return [
+            'success' => true,
+            'message' => "Yozora desata el Apocalipsis Elemental de Originium: {$selectedEffect['name']}!",
+            'damage' => $damage
         ];
     }
     

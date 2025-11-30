@@ -9,6 +9,7 @@ import { XairChikyu } from './XairChikyu.js';
 import { NathanDoffens } from './NathanDoffens.js';
 import { ZackHisoka } from './ZackHisoka.js';
 import { Raiden } from './Raiden.js';
+import { Yozora } from './Yozora.js';
 
 // Mapa de personajes por ID
 export const CHARACTERS_BY_ID = {
@@ -17,7 +18,8 @@ export const CHARACTERS_BY_ID = {
     3: XairChikyu,
     4: NathanDoffens,
     5: ZackHisoka,
-    6: Raiden
+    6: Raiden,
+    7: Yozora
 };
 
 // Mapa de personajes por nombre
@@ -27,7 +29,8 @@ export const CHARACTERS_BY_NAME = {
     'Xair Chikyu': XairChikyu,
     'Nathan Doffens': NathanDoffens,
     'Zack Hisoka': ZackHisoka,
-    'Raiden': Raiden
+    'Raiden': Raiden,
+    'Yozora': Yozora
 };
 
 // Información de elementos (solo colores)
@@ -49,6 +52,9 @@ export const ELEMENT_SYSTEM = {
     },
     'Ninguno': {
         color: '#95a5a6'
+    },
+    'Originium': {
+        color: '#e67e22' // Naranja/cobre para Originium
     }
 };
 
@@ -128,5 +134,6 @@ export {
     XairChikyu,
     NathanDoffens,
     ZackHisoka,
-    Raiden
+    Raiden,
+    Yozora
 };

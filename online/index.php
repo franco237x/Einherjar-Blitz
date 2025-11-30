@@ -197,6 +197,15 @@ require_once 'includes/rank_helper.php';
                                             <i class="fas fa-moon"></i>
                                         </span>
                                     </div>
+
+                                    <!-- Yozora -->
+                                    <div class="character-slot" data-character-id="7">
+                                        <img src="../images/yozora.png" alt="Yozora" class="character-avatar">
+                                        <span class="character-name">Yozora</span>
+                                        <span class="character-element element-originium">
+                                            <i class="fas fa-atom"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
