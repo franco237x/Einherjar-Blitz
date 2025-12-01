@@ -323,6 +323,11 @@ class BattleOnline {
                         message += `. ${actionData.message}`;
                     }
 
+                    // Trigger golden effect for Kuaidul's Transamu Armor Nova
+                    if (actionData.goldenEffect) {
+                        this.triggerGoldenEffect();
+                    }
+
                     messageType = 'special';
                 }
                 break;
@@ -754,7 +759,9 @@ class BattleOnline {
                 3: 40, // Xair
                 4: 35, // Nathan
                 5: 40, // Zack
-                6: 40  // Raiden
+                6: 40, // Raiden
+                7: 35, // Yozora
+                8: 50  // Kuaidul
             };
             specialCostEl.textContent = specialCosts[stats.id] || 30;
         }
@@ -766,9 +773,91 @@ class BattleOnline {
                 'Xair Chikyu': 'Molecular',
                 'Nathan Doffens': 'Modo Kami',
                 'Zack Hisoka': 'Omniscio',
-                'Raiden': 'Resurrección'
+                'Raiden': 'Resurrección',
+                'Yozora': 'Apocalipsis',
+                'Kuaidul Velguear': 'Transamu'
             };
             specialNameEl.textContent = specialNames[stats.name] || 'Especial';
+        }
+    }
+
+    /**
+     * Trigger golden visual effect for Kuaidul's Transamu Armor Nova
+     */
+    triggerGoldenEffect() {
+        // Get battle container for screen flash
+        const battleContainer = document.querySelector('.battle-container') || document.body;
+        
+        // Apply golden screen flash
+        battleContainer.classList.add('golden-screen-flash');
+        setTimeout(() => {
+            battleContainer.classList.remove('golden-screen-flash');
+        }, 1200);
+        
+        // Get player character element for golden aura
+        const playerCharElement = document.querySelector('.player-character');
+        if (playerCharElement) {
+            playerCharElement.classList.add('golden-aura');
+            
+            // Remove aura after 3 turns worth of time (roughly 30 seconds in online battles)
+            // The actual effect duration is managed server-side
+        }
+        
+        // Create golden particles effect
+        this.createGoldenParticles();
+    }
+    
+    /**
+     * Create golden particles for Transamu effect
+     */
+    createGoldenParticles() {
+        const container = document.querySelector('.battle-container') || document.body;
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'golden-particle';
+            particle.style.cssText = `
+                position: fixed;
+                width: ${Math.random() * 10 + 5}px;
+                height: ${Math.random() * 10 + 5}px;
+                background: radial-gradient(circle, #FFD700, #FFA500);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                left: ${Math.random() * 100}vw;
+                top: ${Math.random() * 100}vh;
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+                animation: goldenParticleFade 1.5s ease-out forwards;
+            `;
+            container.appendChild(particle);
+            
+            // Remove particle after animation
+            setTimeout(() => particle.remove(), 1500);
+        }
+        
+        // Add particle animation style if not exists
+        if (!document.getElementById('goldenParticleStyle')) {
+            const style = document.createElement('style');
+            style.id = 'goldenParticleStyle';
+            style.textContent = `
+                @keyframes goldenParticleFade {
+                    0% {
+                        transform: scale(0) translateY(0);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: scale(1.5) translateY(-50px);
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: scale(0.5) translateY(-100px);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         }
     }
 

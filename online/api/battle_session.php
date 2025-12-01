@@ -351,21 +351,54 @@ function applyAction($state, $playerKey, $action) {
             break;
         
         case 'defend':
-            // Añadir efecto de defensa y regenerar energía
-            $state[$playerKey]['statusEffects'][] = [
-                'type' => 'defending',
-                'duration' => 1
-            ];
-            $energyGain = 15;
-            $state[$playerKey]['energy'] = min(
-                $state[$playerKey]['maxEnergy'],
-                $state[$playerKey]['energy'] + $energyGain
-            );
-            $state['lastAction'] = [
-                'type' => 'defend',
-                'energyGained' => $energyGain,
-                'characterName' => $playerCharStats['name']
-            ];
+            // Check for Kuaidul's special defend (Kuriboh)
+            if ($playerCharId == 8) {
+                $defendResult = CharacterStats::executeDefend($playerCharId, $state[$playerKey]);
+                $energyGain = $defendResult['energyGained'];
+                
+                // Add defense effect with possible Kuriboh negate
+                if ($defendResult['kuribohActivated'] ?? false) {
+                    $state[$playerKey]['statusEffects'][] = [
+                        'type' => 'kuriboh_negate',
+                        'duration' => 1,
+                        'completeNegate' => true
+                    ];
+                } else {
+                    $state[$playerKey]['statusEffects'][] = [
+                        'type' => 'defending',
+                        'duration' => 1
+                    ];
+                }
+                
+                $state[$playerKey]['energy'] = min(
+                    $state[$playerKey]['maxEnergy'],
+                    $state[$playerKey]['energy'] + $energyGain
+                );
+                
+                $state['lastAction'] = [
+                    'type' => 'defend',
+                    'energyGained' => $energyGain,
+                    'characterName' => $playerCharStats['name'],
+                    'kuribohActivated' => $defendResult['kuribohActivated'] ?? false,
+                    'message' => $defendResult['message']
+                ];
+            } else {
+                // Standard defend for other characters
+                $state[$playerKey]['statusEffects'][] = [
+                    'type' => 'defending',
+                    'duration' => 1
+                ];
+                $energyGain = 15;
+                $state[$playerKey]['energy'] = min(
+                    $state[$playerKey]['maxEnergy'],
+                    $state[$playerKey]['energy'] + $energyGain
+                );
+                $state['lastAction'] = [
+                    'type' => 'defend',
+                    'energyGained' => $energyGain,
+                    'characterName' => $playerCharStats['name']
+                ];
+            }
             break;
         
         case 'special':
@@ -582,26 +615,21 @@ function processRewards($db, $battle, $winnerId, $state = null) {
         $state = json_decode($battle['battle_state'], true);
     }
     
-    // Calcular cambio de copas basado en diferencia de ranking
-    $copasDiff = abs($player1Copas - $player2Copas);
-    $baseCupChange = 30;
+    // Sistema de copas balanceado tipo Elo
+    // Base: 30 copas, modificado por diferencia de copas entre jugadores
+    $copasDiff = $player1Copas - $player2Copas; // Positivo si P1 tiene más copas
     
-    if ($copasDiff > 500) {
-        $baseCupChange = 40; // Más copas si derrotas a alguien más fuerte
-    } elseif ($copasDiff < 100) {
-        $baseCupChange = 25; // Menos copas si es rango similar
-    }
-    
-    // El ganador gana copas, el perdedor pierde copas
-    $player1CupChange = 0;
-    $player2CupChange = 0;
-    
+    // Calcular copas para cada jugador basado en quién ganó
     if ($winnerId == $player1Id) {
-        $player1CupChange = $baseCupChange;
-        $player2CupChange = -$baseCupChange;
+        // Player 1 ganó
+        $cupResult = calculateCupChange($player1Copas, $player2Copas, true);
+        $player1CupChange = $cupResult['winner'];
+        $player2CupChange = $cupResult['loser'];
     } else {
-        $player1CupChange = -$baseCupChange;
-        $player2CupChange = $baseCupChange;
+        // Player 2 ganó
+        $cupResult = calculateCupChange($player2Copas, $player1Copas, true);
+        $player2CupChange = $cupResult['winner'];
+        $player1CupChange = $cupResult['loser'];
     }
     
     // Actualizar copas y victorias/derrotas
@@ -631,6 +659,67 @@ function processRewards($db, $battle, $winnerId, $state = null) {
     // Guardar en historial para ambos jugadores
     saveMatchHistory($db, $battle['id'], $player1Id, $player2Id, $winnerId, $player1CupChange, $duration, $state, $battle);
     saveMatchHistory($db, $battle['id'], $player2Id, $player1Id, $winnerId, $player2CupChange, $duration, $state, $battle);
+}
+
+/**
+ * Calcular cambio de copas basado en diferencia de copas (sistema tipo Elo mejorado)
+ * 
+ * Reglas:
+ * - Underdog gana: Gana MUCHAS copas, favorito pierde MUCHAS
+ * - Favorito gana: Gana POCAS copas, underdog pierde POCAS
+ * - Copas similares: Ambos ganan/pierden cantidad normal
+ * 
+ * @param int $winnerCopas - Copas del ganador
+ * @param int $loserCopas - Copas del perdedor
+ * @param bool $isWin - Si es una victoria
+ * @return array ['winner' => int, 'loser' => int]
+ */
+function calculateCupChange($winnerCopas, $loserCopas, $isWin = true) {
+    $baseCups = 30; // Base de copas
+    $minCups = 8;   // Mínimo de copas a ganar/perder
+    $maxCups = 50;  // Máximo de copas a ganar/perder
+    
+    // Diferencia de copas: positivo si ganador tenía más copas
+    $diff = $winnerCopas - $loserCopas;
+    
+    // Factor de escala - cada 100 copas de diferencia modifica ~5 copas
+    $scaleFactor = 0.05;
+    
+    // Calcular ajuste base
+    $adjustment = $diff * $scaleFactor;
+    
+    // CASO 1: Underdog gana (tenía MENOS copas que el oponente)
+    // diff es negativo → underdog gana MUCHAS copas, favorito pierde MUCHAS
+    if ($diff < 0) {
+        // Ganador (underdog): gana más porque venció a alguien más fuerte
+        $winnerGain = round($baseCups + abs($adjustment));
+        $winnerGain = max($minCups, min($maxCups, $winnerGain));
+        
+        // Perdedor (favorito): pierde más porque perdió contra alguien más débil
+        $loserLoss = round($baseCups + abs($adjustment));
+        $loserLoss = max($minCups, min($maxCups, $loserLoss));
+    }
+    // CASO 2: Favorito gana (tenía MÁS copas que el oponente)
+    // diff es positivo → favorito gana POCAS copas, underdog pierde POCAS
+    else if ($diff > 0) {
+        // Ganador (favorito): gana menos porque venció a alguien más débil
+        $winnerGain = round($baseCups - $adjustment);
+        $winnerGain = max($minCups, min($maxCups, $winnerGain));
+        
+        // Perdedor (underdog): pierde menos porque perdió contra alguien más fuerte
+        $loserLoss = round($baseCups - $adjustment);
+        $loserLoss = max($minCups, min($maxCups, $loserLoss));
+    }
+    // CASO 3: Copas similares
+    else {
+        $winnerGain = $baseCups;
+        $loserLoss = $baseCups;
+    }
+    
+    return [
+        'winner' => $winnerGain,
+        'loser' => -$loserLoss
+    ];
 }
 
 /**

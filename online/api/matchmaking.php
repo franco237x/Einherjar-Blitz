@@ -433,6 +433,16 @@ function createBattle($db, $player1Id, $player2Id, $data) {
         $initialState['player2']['maxShield'] = $player2CharStats['max_shield'] ?? 300;
     }
     
+    // Initialize shield for Kuaidul Velguear (character ID 8) - Starts with full shield
+    if ($data['player1_character'] == 8) {
+        $initialState['player1']['shield'] = $player1CharStats['initial_shield'] ?? 650;
+        $initialState['player1']['maxShield'] = $player1CharStats['max_shield'] ?? 650;
+    }
+    if ($data['player2_character'] == 8) {
+        $initialState['player2']['shield'] = $player2CharStats['initial_shield'] ?? 650;
+        $initialState['player2']['maxShield'] = $player2CharStats['max_shield'] ?? 650;
+    }
+    
     $battleStateJson = json_encode($initialState);
     
     $stmt = $db->prepare("

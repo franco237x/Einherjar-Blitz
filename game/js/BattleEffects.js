@@ -105,6 +105,42 @@ export class BattleEffects {
                 animation: poweredGlow 2s ease-in-out infinite;
             }
             
+            /* Efecto dorado especial - Transamu Armor Nova */
+            .golden-aura {
+                filter: brightness(1.4) saturate(1.8);
+                animation: goldenAuraGlow 1.5s ease-in-out infinite;
+            }
+            
+            .golden-screen-flash {
+                animation: goldenScreenFlash 1.2s ease-out forwards;
+            }
+            
+            @keyframes goldenAuraGlow {
+                0%, 100% { 
+                    filter: brightness(1.4) saturate(1.8);
+                    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(201, 170, 113, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.3);
+                }
+                50% { 
+                    filter: brightness(1.6) saturate(2.2);
+                    box-shadow: 0 0 35px rgba(255, 215, 0, 0.9), 0 0 70px rgba(201, 170, 113, 0.6), inset 0 0 25px rgba(255, 215, 0, 0.5);
+                }
+            }
+            
+            @keyframes goldenScreenFlash {
+                0% {
+                    box-shadow: inset 0 0 0 0 rgba(255, 215, 0, 0);
+                }
+                15% {
+                    box-shadow: inset 0 0 100px 50px rgba(255, 215, 0, 0.8);
+                }
+                30% {
+                    box-shadow: inset 0 0 150px 75px rgba(255, 215, 0, 0.5);
+                }
+                100% {
+                    box-shadow: inset 0 0 0 0 rgba(255, 215, 0, 0);
+                }
+            }
+            
             /* Keyframes */
             @keyframes actionPulse {
                 0% { transform: scale(1); }
@@ -387,6 +423,9 @@ export class BattleEffects {
             case 'Teletransporte Paradójico':
                 this.createTeleportEffect(character);
                 break;
+            case 'Astral Fusion: Transamu Armor Nova':
+                this.createTransamuGoldenEffect(character);
+                break;
         }
         
         // Partículas especiales
@@ -639,6 +678,98 @@ export class BattleEffects {
                 glow: true
             });
             this.particles.push(particle);
+        }
+    }
+    
+    /**
+     * Efecto especial dorado - Transamu Armor Nova (Kuaidul Velguear)
+     * Crea un efecto dorado épico con flash de pantalla y aura brillante
+     */
+    createTransamuGoldenEffect(character) {
+        const characterElement = document.querySelector(`.${character}-character`);
+        const battleContainer = document.querySelector('.battle-container') || document.body;
+        
+        // Flash dorado en toda la pantalla
+        battleContainer.classList.add('golden-screen-flash');
+        setTimeout(() => {
+            battleContainer.classList.remove('golden-screen-flash');
+        }, 1200);
+        
+        // Aura dorada en el personaje (dura 3 turnos, pero visualmente más tiempo)
+        if (characterElement) {
+            characterElement.classList.add('golden-aura');
+            // El aura se mantendrá y se quitará cuando termine el efecto de Transamu
+        }
+        
+        // Partículas doradas intensas - Explosión inicial
+        const goldenColors = ['#FFD700', '#FFC125', '#FFEC8B', '#FFE4B5', '#c9aa71'];
+        
+        // Onda de partículas que salen del centro
+        for (let i = 0; i < 40; i++) {
+            const angle = (i / 40) * Math.PI * 2;
+            const speed = 4 + Math.random() * 6;
+            
+            const particle = new Particle({
+                x: this.particleCanvas.width / 2,
+                y: this.particleCanvas.height / 2,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: Math.random() * 8 + 4,
+                color: goldenColors[Math.floor(Math.random() * goldenColors.length)],
+                life: 80 + Math.random() * 40,
+                decay: 0.97,
+                glow: true
+            });
+            this.particles.push(particle);
+        }
+        
+        // Partículas brillantes que ascienden
+        for (let i = 0; i < 25; i++) {
+            const particle = new Particle({
+                x: this.particleCanvas.width / 2 + (Math.random() - 0.5) * 150,
+                y: this.particleCanvas.height / 2 + (Math.random() - 0.5) * 100,
+                vx: (Math.random() - 0.5) * 2,
+                vy: -Math.random() * 4 - 2,
+                size: Math.random() * 6 + 3,
+                color: goldenColors[Math.floor(Math.random() * goldenColors.length)],
+                life: 100 + Math.random() * 50,
+                decay: 0.98,
+                glow: true
+            });
+            this.particles.push(particle);
+        }
+        
+        // Anillo dorado expansivo
+        for (let ring = 0; ring < 3; ring++) {
+            setTimeout(() => {
+                for (let i = 0; i < 16; i++) {
+                    const angle = (i / 16) * Math.PI * 2;
+                    const radius = 30 + ring * 25;
+                    
+                    const particle = new Particle({
+                        x: this.particleCanvas.width / 2 + Math.cos(angle) * radius,
+                        y: this.particleCanvas.height / 2 + Math.sin(angle) * radius,
+                        vx: Math.cos(angle) * 3,
+                        vy: Math.sin(angle) * 3,
+                        size: 5,
+                        color: '#FFD700',
+                        life: 50,
+                        decay: 0.96,
+                        glow: true
+                    });
+                    this.particles.push(particle);
+                }
+            }, ring * 150);
+        }
+    }
+    
+    /**
+     * Remueve el aura dorada de Transamu
+     */
+    removeGoldenAura(character) {
+        const characterElement = document.querySelector(`.${character}-character`);
+        if (characterElement) {
+            characterElement.classList.remove('golden-aura');
         }
     }
     

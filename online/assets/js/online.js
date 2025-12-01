@@ -118,7 +118,8 @@ class OnlineMode {
                 '4': 'Nathan Doffens',
                 '5': 'Zack Hisoka',
                 '6': 'Raiden',
-                '7': 'Yozora'
+                '7': 'Yozora',
+                '8': 'Kuaidul Velguear'
             };
 
             selectedDisplay.innerHTML = `

@@ -122,6 +122,24 @@ class CharacterStats {
                 'special_cost' => 35,
                 'special_name' => 'Apocalipsis Elemental de Originium',
                 'passive' => 'elemental_reduction_30' // Reduce daño elemental en 30
+            ],
+            8 => [ // Kuaidul Velguear
+                'id' => 8,
+                'name' => 'Kuaidul Velguear',
+                'element' => 'Ninguno',
+                'rarity' => 'legendary',
+                'attack_min' => 120,
+                'attack_max' => 240,
+                'health_max' => 650,
+                'armor' => 10,
+                'defense_reduction' => 15,
+                'elemental_resistance' => 20,
+                'energy_max' => 100,
+                'special_cost' => 50,
+                'special_name' => 'Astral Fusion: Transamu Armor Nova',
+                'passive' => 'initial_shield', // Comienza con escudo de 650
+                'max_shield' => 650,
+                'initial_shield' => 650
             ]
         ];
         
@@ -162,6 +180,9 @@ class CharacterStats {
                     case 'raiden_shadow_resurrection':
                         $damage *= 2; // Raiden doubles damage
                         break;
+                    case 'kuaidul_transamu_armor':
+                        $damage *= 2; // Kuaidul doubles damage with Transamu
+                        break;
                 }
             }
         }
@@ -176,6 +197,20 @@ class CharacterStats {
      * Calculate damage taken considering armor, passives, and shield
      */
     public static function calculateDamageTaken($damage, $characterStats, $statusEffects = [], &$playerState = null) {
+        // Check for Kuriboh negate (Kuaidul's special defense)
+        foreach ($statusEffects as $key => $effect) {
+            if (isset($effect['type']) && $effect['type'] == 'kuriboh_negate' && isset($effect['completeNegate']) && $effect['completeNegate']) {
+                // Remove the effect after use (one-time negate)
+                if ($playerState !== null) {
+                    $playerState['statusEffects'] = array_filter($playerState['statusEffects'], function($e) {
+                        return !isset($e['type']) || $e['type'] !== 'kuriboh_negate';
+                    });
+                    $playerState['statusEffects'] = array_values($playerState['statusEffects']);
+                }
+                return 0; // Complete negate - Kuriboh absorbs the attack
+            }
+        }
+        
         // Nathan: Dodge chance
         if ($characterStats['id'] == 4) {
             $dodgeChance = min(30, ($characterStats['speed'] ?? 95) / 100 * 30);
@@ -250,6 +285,9 @@ class CharacterStats {
             
             case 7: // Yozora - Apocalipsis Elemental de Originium
                 return self::yozoraSpecial($playerState, $opponentState);
+            
+            case 8: // Kuaidul Velguear - Astral Fusion: Transamu Armor Nova
+                return self::kuaidulSpecial($playerState, $opponentState);
             
             default:
                 return [
@@ -458,6 +496,63 @@ class CharacterStats {
             'message' => "Yozora desata el Apocalipsis Elemental de Originium: {$selectedEffect['name']}!",
             'damage' => $damage
         ];
+    }
+    
+    private static function kuaidulSpecial(&$playerState, &$opponentState) {
+        // Astral Fusion: Transamu Armor Nova
+        // Corte de 250-300 daño + duplicar estadísticas por 3 turnos
+        $slashDamage = rand(250, 300);
+        
+        // Activar buff de Transamu (duplica daño por 3 turnos)
+        $playerState['statusEffects'][] = [
+            'type' => 'kuaidul_transamu_armor',
+            'duration' => 3,
+            'damageMultiplier' => 2,
+            'goldenAura' => true
+        ];
+        
+        return [
+            'success' => true,
+            'message' => '¡ASTRAL FUSION! Kuaidul invoca a Transamu Armor Nova - ¡Un aura dorada envuelve el campo de batalla! Duplica su daño por 3 turnos',
+            'damage' => $slashDamage,
+            'goldenEffect' => true,
+            'statsDoubled' => true
+        ];
+    }
+    
+    /**
+     * Execute defend ability for a character (Kuaidul's Kuriboh)
+     */
+    public static function executeDefend($characterId, &$playerState) {
+        // Default defend: 50% damage reduction and energy regen
+        $result = [
+            'success' => true,
+            'energyGained' => 15,
+            'defenseBoost' => 50,
+            'message' => 'Se prepara para defenderse'
+        ];
+        
+        // Kuaidul's special defend: Kuriboh (50% chance to negate attack completely)
+        if ($characterId == 8) {
+            $kuribohNegate = rand(1, 100) <= 50;
+            
+            if ($kuribohNegate) {
+                $playerState['statusEffects'][] = [
+                    'type' => 'kuriboh_negate',
+                    'duration' => 1,
+                    'completeNegate' => true
+                ];
+                $result['defenseBoost'] = 100;
+                $result['kuribohActivated'] = true;
+                $result['message'] = '¡Kuriboh aparece! El próximo ataque será negado completamente';
+            } else {
+                $result['defenseBoost'] = 30;
+                $result['kuribohActivated'] = false;
+                $result['message'] = 'Kuriboh no respondió al llamado esta vez';
+            }
+        }
+        
+        return $result;
     }
     
     /**

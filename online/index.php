@@ -206,6 +206,15 @@ require_once 'includes/rank_helper.php';
                                             <i class="fas fa-atom"></i>
                                         </span>
                                     </div>
+
+                                    <!-- Kuaidul Velguear -->
+                                    <div class="character-slot" data-character-id="8">
+                                        <img src="../images/kuaidul.jpg" alt="Kuaidul Velguear" class="character-avatar">
+                                        <span class="character-name">Kuaidul</span>
+                                        <span class="character-element element-ninguno">
+                                            <i class="fas fa-clone"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

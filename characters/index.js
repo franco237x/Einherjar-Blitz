@@ -10,6 +10,7 @@ import { NathanDoffens } from './NathanDoffens.js';
 import { ZackHisoka } from './ZackHisoka.js';
 import { Raiden } from './Raiden.js';
 import { Yozora } from './Yozora.js';
+import { KuaidulVelguear } from './KuaidulVelguear.js';
 
 // Mapa de personajes por ID
 export const CHARACTERS_BY_ID = {
@@ -19,7 +20,8 @@ export const CHARACTERS_BY_ID = {
     4: NathanDoffens,
     5: ZackHisoka,
     6: Raiden,
-    7: Yozora
+    7: Yozora,
+    8: KuaidulVelguear
 };
 
 // Mapa de personajes por nombre
@@ -30,7 +32,8 @@ export const CHARACTERS_BY_NAME = {
     'Nathan Doffens': NathanDoffens,
     'Zack Hisoka': ZackHisoka,
     'Raiden': Raiden,
-    'Yozora': Yozora
+    'Yozora': Yozora,
+    'Kuaidul Velguear': KuaidulVelguear
 };
 
 // Información de elementos (solo colores)
@@ -135,5 +138,6 @@ export {
     NathanDoffens,
     ZackHisoka,
     Raiden,
-    Yozora
+    Yozora,
+    KuaidulVelguear
 };
