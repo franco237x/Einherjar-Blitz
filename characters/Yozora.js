@@ -12,7 +12,7 @@ export class Yozora {
             name: "Yozora",
             title: "El Titán de Originium",
             description: "Un guerrero titánico que controla el poder del Originium, capaz de generar caos elemental en el campo de batalla.",
-            image: "yozora.png",
+            image: "yozora.jpeg",
             rarity: "legendary",
             clan: "Kimura",
             element: "Originium",
