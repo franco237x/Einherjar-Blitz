@@ -199,21 +199,21 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Compra objetos</div>
                 </div>
 
-                <a href="pase/index.php" class="nav-card glass-card nav-card-cosmic">
+                <!-- <a href="pase/index.php" class="nav-card glass-card nav-card-cosmic">
                     <div class="nav-icon">
                         <i class="fas fa-eye"></i>
                     </div>
                     <div class="nav-title">Terror Cósmico 2025</div>
                     <div class="nav-description">🌌 Pase de Batalla del Vacío</div>
-                </a>
+                </a> -->
 
-                <a href="wallet.php" class="nav-card glass-card">
+                <!-- <a href="wallet.php" class="nav-card glass-card">
                     <div class="nav-icon">
                         <i class="fas fa-wallet"></i>
                     </div>
                     <div class="nav-title">Wallet</div>
                     <div class="nav-description">Gestiona tus terrenos y finanzas</div>
-                </a>
+                </a> -->
 
                 <a href="conversion.php" class="nav-card glass-card">
                     <div class="nav-icon">
@@ -231,13 +231,13 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Juega Online contra tus amigos</div>
                 </a>
 
-                <a href="cartas/index.php" class="nav-card glass-card nav-card-cards">
+                <!-- <a href="cartas/index.php" class="nav-card glass-card nav-card-cards">
                     <div class="nav-icon">
                         <i class="fas fa-layer-group"></i>
                     </div>
                     <div class="nav-title">Einherjar Cards</div>
                     <div class="nav-description">Juego de Cartas Estratégico</div>
-                </a>
+                </a> -->
             </section>
 
             <!-- Acciones rápidas -->
@@ -248,10 +248,10 @@ $progressPercent = ($currentExp / 1000) * 100;
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transferir</span>
                     </a>
-                    <a href="pase/index.php" class="action-btn action-btn-cosmic">
+                    <!-- <a href="pase/index.php" class="action-btn action-btn-cosmic">
                         <i class="fas fa-eye"></i>
                         <span>Terror Cósmico 2025</span>
-                    </a>
+                    </a> -->
                     <div class="action-btn disabled">
                         <i class="fas fa-user-edit"></i>
                         <span>Editar Perfil</span>
