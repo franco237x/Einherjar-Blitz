@@ -483,3 +483,132 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('📊 Sistema de estadísticas activo');
     console.log('🎨 Efectos visuales mejorados');
 });
+
+// ========================================
+// PROFILE EDIT MODAL SYSTEM
+// ========================================
+
+let selectedAvatar = null;
+let profileModal = null;
+
+// Abrir modal de perfil
+function openProfileModal() {
+    profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+    profileModal.show();
+    
+    // Inicializar selección de avatar
+    initAvatarSelection();
+    updateCharCount();
+}
+
+// Inicializar sistema de selección de avatares
+function initAvatarSelection() {
+    const avatarOptions = document.querySelectorAll('.avatar-option');
+    const previewAvatar = document.getElementById('previewAvatar');
+    const phraseInput = document.getElementById('phraseInput');
+    const previewPhrase = document.getElementById('previewPhrase');
+    
+    // Obtener avatar actual
+    selectedAvatar = document.querySelector('.avatar-option.active')?.dataset.avatar;
+    
+    // Click en avatar
+    avatarOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remover activo de todos
+            avatarOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Activar seleccionado
+            this.classList.add('active');
+            selectedAvatar = this.dataset.avatar;
+            
+            // Actualizar preview
+            previewAvatar.src = 'images/' + selectedAvatar;
+        });
+    });
+    
+    // Actualizar preview de frase en tiempo real
+    phraseInput.addEventListener('input', function() {
+        previewPhrase.textContent = this.value || 'Guerrero de Einherjer';
+        updateCharCount();
+    });
+}
+
+// Actualizar contador de caracteres
+function updateCharCount() {
+    const phraseInput = document.getElementById('phraseInput');
+    const charCount = document.getElementById('charCount');
+    if (phraseInput && charCount) {
+        charCount.textContent = phraseInput.value.length;
+    }
+}
+
+// Guardar cambios de perfil
+async function saveProfile() {
+    const phraseInput = document.getElementById('phraseInput');
+    const phrase = phraseInput.value.trim();
+    
+    if (!selectedAvatar) {
+        showNotification('Selecciona un avatar', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('api/update_profile.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'update_profile',
+                avatar: selectedAvatar,
+                phrase: phrase
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Perfil actualizado correctamente', 'success');
+            
+            // Actualizar UI
+            document.querySelector('.user-avatar').src = 'images/' + data.avatar;
+            document.querySelector('.welcome-subtitle').textContent = data.phrase;
+            
+            // Cerrar modal
+            if (profileModal) {
+                profileModal.hide();
+            }
+            
+            // Recargar después de 1 segundo
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showNotification(data.message || 'Error al actualizar perfil', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+// Sistema de notificaciones
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} position-fixed top-0 start-50 translate-middle-x mt-3`;
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.style.textAlign = 'center';
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        ${message}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}

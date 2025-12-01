@@ -136,11 +136,11 @@ $progressPercent = ($currentExp / 1000) * 100;
 
                 <div class="glass-card stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-skull"></i>
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <div class="stat-value"><?php echo number_format($userData['jefes_derrotados']); ?></div>
-                    <div class="stat-label">Jefes Derrotados</div>
-                    <div class="stat-sublabel">Mega: <?php echo $userData['megajefes_derrotados']; ?></div>
+                    <div class="stat-value"><?php echo number_format($userData['horas_jugadas']); ?>h</div>
+                    <div class="stat-label">Horas Jugadas</div>
+                    <div class="stat-sublabel">Tiempo total</div>
                 </div>
             </section>
 
@@ -174,12 +174,13 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Entra en batalla</div>
                 </a>
 
-                <div class="nav-card glass-card disabled">
+                <div class="nav-card glass-card">
+                    <a href="estadisticas.php" class="stretched-link"></a>
                     <div class="nav-icon">
                         <i class="fas fa-chart-bar"></i>
                     </div>
                     <div class="nav-title">Estadísticas</div>
-                    <div class="nav-description">Próximamente</div>
+                    <div class="nav-description">Ver estadísticas completas</div>
                 </div>
 
                 <a href="gacha/index.php" class="nav-card glass-card">
@@ -252,10 +253,10 @@ $progressPercent = ($currentExp / 1000) * 100;
                         <i class="fas fa-eye"></i>
                         <span>Terror Cósmico 2025</span>
                     </a> -->
-                    <div class="action-btn disabled">
+                    <button class="action-btn" onclick="openProfileModal()">
                         <i class="fas fa-user-edit"></i>
                         <span>Editar Perfil</span>
-                    </div>
+                    </button>
                     <div class="action-btn disabled">
                         <i class="fas fa-dragon"></i>
                         <span>Mega Jefe</span>
@@ -283,6 +284,85 @@ $progressPercent = ($currentExp / 1000) * 100;
             </div>
         </div>
     </footer>
+
+    <!-- Modal de Editar Perfil -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-gold">
+                <div class="modal-header border-gold-opacity">
+                    <h5 class="modal-title text-gold">
+                        <i class="fas fa-user-edit"></i> Editar Perfil
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Avatar Selection -->
+                    <div class="mb-4">
+                        <label class="form-label text-gold">Selecciona tu Avatar</label>
+                        <div class="avatar-grid" id="avatarGrid">
+                            <?php
+                            $avatars = [
+                                ['file' => 'default.jpg', 'name' => 'Default'],
+                                ['file' => 'nathan.png', 'name' => 'Nathan'],
+                                ['file' => 'ozen.jpg', 'name' => 'Ozen'],
+                                ['file' => 'raiden.jpeg', 'name' => 'Raiden'],
+                                ['file' => 'shuna.jpg', 'name' => 'Shuna'],
+                                ['file' => 'xair.png', 'name' => 'Xair'],
+                                ['file' => 'yozora.jpeg', 'name' => 'Yozora'],
+                                ['file' => 'zack.jpg', 'name' => 'Zack'],
+                                ['file' => 'kuaidul.jpg', 'name' => 'Kuaidul']
+                            ];
+                            
+                            foreach ($avatars as $avatar) {
+                                $isActive = $avatar['file'] === $userData['perfil_imagen'] ? 'active' : '';
+                                echo '<div class="avatar-option ' . $isActive . '" data-avatar="' . $avatar['file'] . '">';
+                                echo '<img src="images/' . $avatar['file'] . '" alt="' . $avatar['name'] . '">';
+                                echo '<span>' . $avatar['name'] . '</span>';
+                                echo '</div>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+
+                    <!-- Phrase Input -->
+                    <div class="mb-3">
+                        <label for="phraseInput" class="form-label text-gold">Tu Frase Personal</label>
+                        <input type="text" 
+                               class="form-control bg-dark-subtle text-light border-gold-opacity" 
+                               id="phraseInput" 
+                               maxlength="100" 
+                               value="<?php echo htmlspecialchars($userData['frase']); ?>"
+                               placeholder="Escribe tu frase...">
+                        <div class="form-text text-secondary">
+                            <span id="charCount">0</span>/100 caracteres
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="profile-preview glass-card p-3">
+                        <h6 class="text-gold mb-2">Vista Previa</h6>
+                        <div class="d-flex align-items-center">
+                            <img id="previewAvatar" 
+                                 src="images/<?php echo htmlspecialchars($userData['perfil_imagen']); ?>" 
+                                 alt="Preview" 
+                                 class="rounded-circle me-3" 
+                                 style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--gold);">
+                            <div>
+                                <h5 class="mb-1"><?php echo htmlspecialchars($userData['username']); ?></h5>
+                                <p class="mb-0 text-secondary" id="previewPhrase"><?php echo htmlspecialchars($userData['frase']); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-gold-opacity">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-gold" onclick="saveProfile()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
