@@ -50,6 +50,12 @@ try {
             updateHeartbeat($db, $userData);
             break;
         
+        case 'ping':
+            // Simple ping endpoint para medir latencia
+            http_response_code(200);
+            echo json_encode(['success' => true, 'timestamp' => time()]);
+            break;
+        
         default:
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Acción no válida']);
