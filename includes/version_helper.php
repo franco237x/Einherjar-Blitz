@@ -62,11 +62,15 @@ function js_script($path, $basePath = null, $module = false) {
  * @return string - Solo el parámetro ?v=timestamp o vacío si no existe
  */
 function v($relativePath) {
+    // Detectar la ruta raíz del proyecto automáticamente
+    // Busca desde includes/ hacia arriba hasta encontrar el archivo
+    $currentDir = dirname(__DIR__); // Desde includes/ a raíz del proyecto
+    
     // Intentar encontrar el archivo desde diferentes rutas base
     $possibleBases = [
-        dirname(__DIR__) . '/',           // Desde includes/
-        dirname(__DIR__) . '/../',        // Un nivel arriba
-        $_SERVER['DOCUMENT_ROOT'] . '/dashboard/Einherjar Blitz/',
+        $currentDir . '/',                    // Raíz del proyecto (donde está includes/)
+        dirname($currentDir) . '/',           // Un nivel arriba por si acaso
+        $_SERVER['DOCUMENT_ROOT'] . '/',      // Document root del servidor
     ];
     
     foreach ($possibleBases as $base) {
@@ -76,6 +80,7 @@ function v($relativePath) {
         }
     }
     
-    // Fallback: usar timestamp actual (fuerza recarga)
+    // Fallback: usar timestamp actual (fuerza recarga siempre)
+    // Útil en desarrollo o si el archivo no se encuentra
     return '?v=' . time();
 }
