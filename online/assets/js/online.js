@@ -117,7 +117,8 @@ class OnlineMode {
                 '3': 'Xair Chikyu',
                 '4': 'Nathan Doffens',
                 '5': 'Zack Hisoka',
-                '6': 'Raiden'
+                '6': 'Raiden',
+                '7': 'Yozora'
             };
 
             selectedDisplay.innerHTML = `
