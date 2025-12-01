@@ -364,7 +364,7 @@ class OnlineMode {
 
     navigateToBattle() {
         if (this.currentBattleId) {
-            window.location.href = `battle_online.html?battle_id=${this.currentBattleId}`;
+            window.location.href = `battle_online.php?battle_id=${this.currentBattleId}`;
         }
     }
 

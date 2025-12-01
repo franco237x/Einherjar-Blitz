@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['champion_id'])) {
         if ($c['id'] === $champId) {
             $_SESSION['selected_champion'] = $champId;
             $_SESSION['selected_champion_data'] = $c;
-            header('Location: game/battle.html');
+            header('Location: game/battle.php');
             exit();
         }
     }

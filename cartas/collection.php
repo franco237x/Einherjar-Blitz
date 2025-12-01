@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/Database.php';
+require_once '../includes/version_helper.php';
 
 $auth = new AuthController();
 if (!$auth->isAuthenticated()) {
@@ -18,7 +19,7 @@ $userData = $auth->getUserData();
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="assets/css/menu.css">
+    <link rel="stylesheet" href="assets/css/menu.css<?php echo v('cartas/assets/css/menu.css'); ?>">
     <style>
         .coming-soon {
             min-height: 80vh;

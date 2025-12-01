@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/Database.php';
+require_once 'includes/version_helper.php';
 
 $auth = new AuthController();
 
@@ -41,7 +42,7 @@ $progressPercent = ($currentExp / 1000) * 100;
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Dashboard CSS -->
-    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css<?php echo v('assets/css/dashboard.css'); ?>">
     
     <!-- Meta tags -->
     <meta name="description" content="Dashboard de Einherjer Blitz - Terror Cósmico 2025. Adéntrate en el vacío infinito.">
@@ -287,7 +288,7 @@ $progressPercent = ($currentExp / 1000) * 100;
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Dashboard JS -->
-    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/dashboard.js<?php echo v('assets/js/dashboard.js'); ?>"></script>
     
     <!-- Variables PHP para JavaScript -->
     <script>

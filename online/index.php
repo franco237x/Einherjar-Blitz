@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/Database.php';
+require_once '../includes/version_helper.php';
 require_once 'includes/rank_helper.php';
 
 // $auth, $userData, $rankProgress, y $rankImage ya están definidos en rank_helper.php
@@ -21,10 +22,10 @@ require_once 'includes/rank_helper.php';
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Dashboard CSS (reusando estilos) -->
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css<?php echo v('assets/css/dashboard.css'); ?>">
     
     <!-- Online Mode CSS -->
-    <link rel="stylesheet" href="assets/css/online.css">
+    <link rel="stylesheet" href="assets/css/online.css<?php echo v('online/assets/css/online.css'); ?>">
     
     <meta name="description" content="Modo Online de Einherjer Blitz 3.0 - Batalla contra otros jugadores">
     <meta name="robots" content="noindex, nofollow">
@@ -401,10 +402,10 @@ require_once 'includes/rank_helper.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Dashboard JS -->
-    <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/dashboard.js<?php echo v('assets/js/dashboard.js'); ?>"></script>
     
     <!-- Online Mode JS -->
-    <script src="assets/js/online.js"></script>
+    <script src="assets/js/online.js<?php echo v('online/assets/js/online.js'); ?>"></script>
     
     <!-- Variables PHP para JavaScript -->
     <script>

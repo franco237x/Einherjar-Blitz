@@ -2,7 +2,7 @@
 
 const CACHE_NAME = 'einherjar-blitz-v1.0.0';
 const urlsToCache = [
-    '/game/battle.html',
+    '/game/battle.php',
     '/assets/css/battle-mobile.css',
     '/game/js/mobile-utils.js',
     '/characters/index.js',
@@ -92,7 +92,7 @@ self.addEventListener('fetch', (event) => {
                     .catch(() => {
                         // Fallback para pages offline
                         if (event.request.destination === 'document') {
-                            return caches.match('/game/battle.html');
+                            return caches.match('/game/battle.php');
                         }
                     });
             })
@@ -153,7 +153,7 @@ self.addEventListener('notificationclick', (event) => {
 
     if (event.action === 'explore') {
         event.waitUntil(
-            clients.openWindow('/game/battle.html')
+            clients.openWindow('/game/battle.php')
         );
     }
 });

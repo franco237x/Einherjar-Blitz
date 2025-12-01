@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/Database.php';
+require_once '../includes/version_helper.php';
 
 $auth = new AuthController();
 if (!$auth->isAuthenticated()) {
@@ -41,7 +42,7 @@ if (!$progress) {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>AM - Allied Mastercomputer</title>
-    <link rel="stylesheet" href="assets/css/am-game.css">
+    <link rel="stylesheet" href="assets/css/am-game.css<?php echo v('terror/assets/css/am-game.css'); ?>">
 </head>
 <body>
     <div id="glitch-overlay"></div>
@@ -88,6 +89,6 @@ if (!$progress) {
         const USER_NAME = "<?php echo htmlspecialchars($userData['username'], ENT_QUOTES); ?>";
         const INITIAL_PROGRESS = <?php echo json_encode($progress); ?>;
     </script>
-    <script type="module" src="assets/js/am-game.js"></script>
+    <script type="module" src="assets/js/am-game.js<?php echo v('terror/assets/js/am-game.js'); ?>"></script>
 </body>
 </html>

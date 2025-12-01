@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/Database.php';
+require_once 'includes/version_helper.php';
 
 $auth = new AuthController();
 
@@ -75,7 +76,7 @@ $terrains = $terrainsQuery->fetchAll();
     
     
     <!-- Dashboard CSS -->
-    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css<?php echo v('assets/css/dashboard.css'); ?>">
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -665,10 +666,10 @@ $terrains = $terrainsQuery->fetchAll();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Dashboard JS -->
-    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/dashboard.js<?php echo v('assets/js/dashboard.js'); ?>"></script>
     
     <!-- Wallet JS -->
-    <script src="assets/js/wallet.js"></script>
+    <script src="assets/js/wallet.js<?php echo v('assets/js/wallet.js'); ?>"></script>
     
     <script>
         // Variables globales

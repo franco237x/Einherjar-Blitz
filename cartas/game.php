@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/Database.php';
+require_once '../includes/version_helper.php';
 
 $auth = new AuthController();
 if (!$auth->isAuthenticated()) {
@@ -21,7 +22,7 @@ $userData = $auth->getUserData();
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="assets/css/game.css">
+    <link rel="stylesheet" href="assets/css/game.css<?php echo v('cartas/assets/css/game.css'); ?>">
 </head>
 <body>
     <!-- Mensaje de orientación para móviles -->
@@ -170,6 +171,6 @@ $userData = $auth->getUserData();
         </div>
     </div>
 
-    <script type="module" src="assets/js/game.js"></script>
+    <script type="module" src="assets/js/game.js<?php echo v('cartas/assets/js/game.js'); ?>"></script>
 </body>
 </html>

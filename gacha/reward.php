@@ -1,3 +1,6 @@
+<?php
+require_once '../includes/version_helper.php';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,9 +9,9 @@
     <title>Resultado del Cofre - Einherjar Blitz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/gacha.css">
-    <link rel="stylesheet" href="assets/css/reward-animation.css">
-    <link rel="stylesheet" href="assets/css/reward-video-effects.css">
+    <link rel="stylesheet" href="assets/css/gacha.css<?php echo v('gacha/assets/css/gacha.css'); ?>">
+    <link rel="stylesheet" href="assets/css/reward-animation.css<?php echo v('gacha/assets/css/reward-animation.css'); ?>">
+    <link rel="stylesheet" href="assets/css/reward-video-effects.css<?php echo v('gacha/assets/css/reward-video-effects.css'); ?>">
 </head>
 <body class="bg-dark overflow-hidden">
     <!-- Sistema de animación con videos -->
@@ -103,9 +106,9 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/reward-animation.js"></script>
-    <script src="assets/js/reward-images.js"></script>
-    <script src="assets/js/reward-video-system.js"></script>
+    <script src="assets/js/reward-animation.js<?php echo v('gacha/assets/js/reward-animation.js'); ?>"></script>
+    <script src="assets/js/reward-images.js<?php echo v('gacha/assets/js/reward-images.js'); ?>"></script>
+    <script src="assets/js/reward-video-system.js<?php echo v('gacha/assets/js/reward-video-system.js'); ?>"></script>
     
     <script>
         // Sistema de animación con videos

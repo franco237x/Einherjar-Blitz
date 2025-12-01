@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/Database.php';
+require_once '../includes/version_helper.php';
 
 $auth = new AuthController();
 
@@ -32,13 +33,13 @@ if (!$userData) {
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Dashboard CSS -->
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css<?php echo v('../assets/css/dashboard.css'); ?>">
     
     <!-- Gacha CSS -->
-    <link rel="stylesheet" href="assets/css/gacha.css">
+    <link rel="stylesheet" href="assets/css/gacha.css<?php echo v('gacha/assets/css/gacha.css'); ?>">
     
     <!-- Gacha Animations CSS -->
-    <link rel="stylesheet" href="assets/css/gacha-animations.css">
+    <link rel="stylesheet" href="assets/css/gacha-animations.css<?php echo v('gacha/assets/css/gacha-animations.css'); ?>">
     
     <!-- Meta tags -->
     <meta name="description" content="Sistema Gacha - Cofres de Einherjer Blitz 3.0">
@@ -375,10 +376,10 @@ if (!$userData) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Gacha JS -->
-    <script src="assets/js/gacha.js"></script>
+    <script src="assets/js/gacha.js<?php echo v('gacha/assets/js/gacha.js'); ?>"></script>
     
     <!-- Gacha Animations JS -->
-    <script src="assets/js/gacha-animations.js"></script>
+    <script src="assets/js/gacha-animations.js<?php echo v('gacha/assets/js/gacha-animations.js'); ?>"></script>
     
     <!-- Variables PHP para JavaScript -->
     <script>

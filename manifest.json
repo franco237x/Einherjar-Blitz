@@ -2,7 +2,7 @@
   "name": "Einherjar Blitz",
   "short_name": "Einherjar",
   "description": "Juego de batallas épicas - Optimizado para móviles",
-  "start_url": "/game/battle.html",
+  "start_url": "/game/battle.php",
   "display": "fullscreen",
   "orientation": "portrait-primary",
   "theme_color": "#c9aa71",
@@ -65,7 +65,7 @@
       "name": "Nueva Batalla",
       "short_name": "Batalla",
       "description": "Iniciar una nueva batalla",
-      "url": "/game/battle.html",
+      "url": "/game/battle.php",
       "icons": [
         {
           "src": "../images/battle-icon.png",

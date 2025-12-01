@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/Database.php';
+require_once '../includes/version_helper.php';
 
 $auth = new AuthController();
 if (!$auth->isAuthenticated()) {
@@ -1093,7 +1094,7 @@ $isPremium = $premiumStmt->fetch();
     <?php include 'marketplace_modals.php'; ?>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="api/marketplace.js"></script>
+    <script src="api/marketplace.js<?php echo v('tienda/api/marketplace.js'); ?>"></script>
     <script>
         // Tab Navigation
         const tabBtns = document.querySelectorAll('.tab-btn');

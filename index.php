@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/Database.php';
+require_once 'includes/version_helper.php';
 
 $auth = new AuthController();
 $sessionManager = SessionManager::getInstance();
@@ -95,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/main.css<?php echo v('assets/css/main.css'); ?>">
     
     <!-- Meta tags -->
     <meta name="description" content="Einherjer Blitz 3.0 - El juego de estrategia y combate más épico">
@@ -527,6 +528,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <!-- Custom JavaScript -->
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/main.js<?php echo v('assets/js/main.js'); ?>"></script>
 </body>
 </html>
