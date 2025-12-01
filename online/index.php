@@ -200,7 +200,7 @@ require_once 'includes/rank_helper.php';
 
                                     <!-- Yozora -->
                                     <div class="character-slot" data-character-id="7">
-                                        <img src="../images/yozora.png" alt="Yozora" class="character-avatar">
+                                        <img src="../images/yozora.jpeg" alt="Yozora" class="character-avatar">
                                         <span class="character-name">Yozora</span>
                                         <span class="character-element element-originium">
                                             <i class="fas fa-atom"></i>
