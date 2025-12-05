@@ -345,18 +345,14 @@ class GachaAnimationSystem {
     // Métodos de utilidad
     getChestIcon(chestType) {
         const icons = {
-            'terrains': 'fas fa-mountain',
-            'comics': 'fas fa-mask',
-            'kamen_rider': 'fas fa-robot'
+            'terrains': 'fas fa-mountain'
         };
         return icons[chestType] || 'fas fa-gift';
     }
 
     getChestName(chestType) {
         const names = {
-            'terrains': 'Cofre de Terrenos',
-            'comics': 'Comics que Inspiran',
-            'kamen_rider': 'Héroes Kamen Rider'
+            'terrains': 'Cofre de Terrenos'
         };
         return names[chestType] || 'Cofre Misterioso';
     }
@@ -429,9 +425,7 @@ class GachaAnimationSystem {
 
     getChestCost(chestType) {
         const costs = {
-            'terrains': 25,
-            'comics': 5,
-            'kamen_rider': 5
+            'terrains': 25
         };
         return costs[chestType] || 1;
     }
