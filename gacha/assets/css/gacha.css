@@ -223,6 +223,13 @@
         var(--gacha-bg-card);
 }
 
+.chest-card.elden-souls {
+    background: linear-gradient(135deg, 
+        rgba(255, 107, 0, 0.25) 0%, 
+        rgba(139, 0, 0, 0.15) 100%),
+        var(--gacha-bg-card);
+}
+
 
 .chest-card.common {
     background: linear-gradient(135deg, 
@@ -264,6 +271,11 @@
 .chest-card.terrains:hover {
     border-color: var(--color-terrains-bright);
     box-shadow: 0 8px 25px rgba(50, 205, 50, 0.4);
+}
+
+.chest-card.elden-souls:hover {
+    border-color: #ff6b00;
+    box-shadow: 0 8px 25px rgba(255, 107, 0, 0.4);
 }
 
 
@@ -332,6 +344,10 @@
 
 .chest-card.terrains .chest-rarity {
     color: var(--color-terrains-bright);
+}
+
+.chest-card.elden-souls .chest-rarity {
+    color: #ff6b00;
 }
 
 
@@ -434,6 +450,10 @@
     color: var(--color-terrains-bright);
 }
 
+.chest-card.elden-souls .chest-icon {
+    color: #ff6b00;
+}
+
 .chest-card.common .chest-icon {
     color: var(--color-common-bright);
 }
@@ -476,6 +496,10 @@
 
 .chest-card.terrains .chest-name {
     color: var(--color-terrains-bright);
+}
+
+.chest-card.elden-souls .chest-name {
+    color: #ff6b00;
 }
 
 
@@ -597,6 +621,11 @@
 
 .btn-terrains {
     background: linear-gradient(135deg, #32cd32, #228b22) !important;
+    color: white !important;
+}
+
+.btn-elden-souls {
+    background: linear-gradient(135deg, #ff6b00, #8b0000) !important;
     color: white !important;
 }
 

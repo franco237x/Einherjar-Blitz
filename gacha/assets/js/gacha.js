@@ -316,7 +316,8 @@ class GachaSystem {
         const history = this.getStoredHistory();
         
         const chestNames = {
-            'terrains': 'Cofre de Terrenos'
+            'terrains': 'Cofre de Terrenos',
+            'elden_souls': 'Cofre Elden Ring/Dark Souls'
         };
 
         const historyItem = {

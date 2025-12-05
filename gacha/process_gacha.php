@@ -76,6 +76,33 @@ try {
                 ['Terreno Único', 'terrain', 1, 100] // 100% probabilidad de terreno
             ]
         ],
+        'elden_souls' => [
+            'name' => 'Cofre Elden Ring/Dark Souls',
+            'cost' => 5,
+            'rewards' => [
+                // Elden Ring - Invocaciones
+                ['Invocación: Godrick', 'invocation', 1, 10],
+                ['Invocación: Radahn', 'invocation', 1, 10],
+                ['Invocación: Radagon', 'invocation', 1, 9],
+                ['Invocación: Maliketh', 'invocation', 1, 7],
+                ['Invocación: Malenia', 'invocation', 1, 3],
+                // Elden Ring - Armas
+                ['Arma: Cetro del Devorador', 'weapon', 1, 15],
+                ['Arma: Espada magna de la hoja injertada', 'weapon', 1, 12],
+                ['Arma: Espada Magna de la Orden Dorada', 'weapon', 1, 10],
+                // Dark Souls - Invocaciones
+                ['Invocación: Ornstein y Smough', 'invocation', 1, 7],
+                ['Invocación: Gwyn', 'invocation', 1, 5],
+                ['Invocación: Artorias', 'invocation', 1, 4],
+                ['Invocación: Rey sin Nombre', 'invocation', 1, 3],
+                ['Invocación: Alma de Cenizas', 'invocation', 1, 2],
+                // Dark Souls - Armas
+                ['Arma: Espadón de Artorias', 'weapon', 1, 5],
+                ['Arma: Arco Luna Oscura', 'weapon', 1, 7],
+                // Dark Souls - Exclusivos
+                ['Poder: Primera Llama', 'special', 1, 1]
+            ]
+        ],
 
     ];
 

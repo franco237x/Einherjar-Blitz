@@ -345,14 +345,16 @@ class GachaAnimationSystem {
     // Métodos de utilidad
     getChestIcon(chestType) {
         const icons = {
-            'terrains': 'fas fa-mountain'
+            'terrains': 'fas fa-mountain',
+            'elden_souls': 'fas fa-fire'
         };
         return icons[chestType] || 'fas fa-gift';
     }
 
     getChestName(chestType) {
         const names = {
-            'terrains': 'Cofre de Terrenos'
+            'terrains': 'Cofre de Terrenos',
+            'elden_souls': 'Cofre Elden Ring/Dark Souls'
         };
         return names[chestType] || 'Cofre Misterioso';
     }

@@ -152,6 +152,65 @@ if (!$userData) {
                         </div>
                     </div>
 
+                    <!-- Cofre Elden Ring/Dark Souls -->
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="chest-card elden-souls" data-chest-type="elden-souls">
+                            <div class="chest-header">
+                                <div class="chest-rarity">
+                                    <i class="fas fa-fire"></i>
+                                    <i class="fas fa-skull"></i>
+                                    <span>Elden/Souls</span>
+                                </div>
+                                <div class="chest-cost">
+                                    <i class="fas fa-key"></i>
+                                    <span>5</span>
+                                </div>
+                            </div>
+                            
+                            <div class="chest-visual">
+                                <img src="assets/images/banners/elden-souls-banner.jpg" 
+                                     alt="Banner Elden Ring/Dark Souls" 
+                                     class="chest-banner-image"
+                                     onerror="this.style.display='none'">
+                                
+                                <div class="chest-icon">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                
+                                <div class="chest-overlay">
+                                    <div class="chest-info">
+                                        <h3 class="chest-name">Cofre Elden Ring/Dark Souls</h3>
+                                        <p class="chest-description">
+                                            Invocaciones y armas legendarias
+                                        </p>
+                                        
+                                        <div class="chest-preview-items">
+                                            <div class="preview-item">
+                                                <i class="fas fa-user"></i>
+                                                <span>Invocaciones</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-khanda"></i>
+                                                <span>Armas</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <i class="fas fa-fire"></i>
+                                                <span>Legendarios</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chest-actions">
+                                        <button class="btn btn-gacha btn-elden-souls" onclick="openChest('elden_souls', 5)">
+                                            <i class="fas fa-unlock-alt me-2"></i>
+                                            Abrir Cofre
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
             </section>

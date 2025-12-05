@@ -26,6 +26,31 @@ const REWARD_IMAGES = {
     
     },
     
+    // Elden Ring / Dark Souls
+    'elden_souls': {
+        // Elden Ring - Invocaciones
+        'Invocación: Godrick': 'assets/images/rewards/elden_souls/godrick.jpg',
+        'Invocación: Radahn': 'assets/images/rewards/elden_souls/radahn.jpg',
+        'Invocación: Radagon': 'assets/images/rewards/elden_souls/radagon.jpg',
+        'Invocación: Maliketh': 'assets/images/rewards/elden_souls/maliketh.jpg',
+        'Invocación: Malenia': 'assets/images/rewards/elden_souls/malenia.jpg',
+        // Elden Ring - Armas
+        'Arma: Cetro del Devorador': 'assets/images/rewards/elden_souls/cetro_devorador.jpeg',
+        'Arma: Espada magna de la hoja injertada': 'assets/images/rewards/elden_souls/espada_injertada.jpeg',
+        'Arma: Espada Magna de la Orden Dorada': 'assets/images/rewards/elden_souls/orden_dorada.jpg',
+        // Dark Souls - Invocaciones
+        'Invocación: Ornstein y Smough': 'assets/images/rewards/elden_souls/ornstein_smough.jpg',
+        'Invocación: Gwyn': 'assets/images/rewards/elden_souls/gwyn.jpeg',
+        'Invocación: Artorias': 'assets/images/rewards/elden_souls/artorias.jpg',
+        'Invocación: Alma de Cenizas': 'assets/images/rewards/elden_souls/alma_cenizas.jpg',
+        'Invocación: Rey sin Nombre': 'assets/images/rewards/elden_souls/rey_sin_nombre.jpg',
+        // Dark Souls - Armas
+        'Arma: Espadón de Artorias': 'assets/images/rewards/elden_souls/espadon_artorias.jpeg',
+        'Arma: Arco Luna Oscura': 'assets/images/rewards/elden_souls/arco_luna_oscura.jpg',
+        // Dark Souls - Exclusivos
+        'Primera Llama': 'assets/images/rewards/elden_souls/primera_llama.jpg'
+    },
+    
     
     // Imágenes por defecto según tipo
     'default': {
