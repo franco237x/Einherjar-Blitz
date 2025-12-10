@@ -232,6 +232,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Juega Online contra tus amigos</div>
                 </a>
 
+                <a href="AR-05EX/index.php" class="nav-card glass-card">
+                    <div class="nav-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>  
+                    <div class="nav-title">AR-12 Chat</div>
+                    <div class="nav-description">Asistente IA Inteligente</div>
+                </a>
+
                 <!-- <a href="cartas/index.php" class="nav-card glass-card nav-card-cards">
                     <div class="nav-icon">
                         <i class="fas fa-layer-group"></i>
