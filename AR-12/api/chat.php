@@ -43,7 +43,7 @@ if ($currentUsage >= 5) {
 try {
     // ID DEL MODELO CORRECTO
     // Opciones: 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-robotics-er-1.5-preview'
-    $modelToUse = 'gemini-robotics-er-1.5-preview'; // Modelo de pago "mini"
+    $modelToUse = 'gemma-3-1b-it'; // Modelo de pago "mini"
 
     $systemInstruction = "Eres AR-12 Mini, una IA asistente del universo Einherjar Blitz. Respondes de forma breve y eficiente.";
     
