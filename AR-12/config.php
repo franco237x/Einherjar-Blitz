@@ -1,3 +1,3 @@
 <?php
 // config.php
-define('GEMINI_API_KEY', 'AIzaSyBj3gF5rxFv-Q5-V3akvSXBEg52cQE4fhI'); // Pon tu nueva clave aquí
+define('GEMINI_API_KEY', 'AIzaSyAl7Ix559M37-HgKX1JjdLe6ke9ENHwNRA'); // Pon tu nueva clave aquí

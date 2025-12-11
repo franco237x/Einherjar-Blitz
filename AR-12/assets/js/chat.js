@@ -5,6 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelButton = document.getElementById('modelButton');
     const modelDropdown = document.getElementById('modelDropdown');
     const usageInfo = document.getElementById('usageInfo');
+    const contextCircle = document.getElementById('contextCircle');
+    const contextPercent = document.getElementById('contextPercent');
+    const contextChars = document.getElementById('contextChars');
+
+    const DEFAULT_MAX_CONTEXT_TOKENS = 2048; // debe corresponder al backend
+    const CHARS_PER_TOKEN = 4; // aproximación
+    let maxContextTokens = DEFAULT_MAX_CONTEXT_TOKENS;
+    let usedTokens = 0;
 
     let isProcessing = false;
     let currentModel = 'mini';
@@ -55,6 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
+    // Actualizar gauge de contexto
+    const estimateTokens = (text) => Math.ceil(text.length / CHARS_PER_TOKEN);
+
+    const updateContextGauge = (tokenCount) => {
+        const percent = Math.min(100, Math.round((tokenCount / maxContextTokens) * 100));
+        contextCircle.style.setProperty('--percent', (percent / 100));
+        contextPercent.textContent = `${percent}%`;
+        contextChars.textContent = `${tokenCount} / ${maxContextTokens} tokens`;
+    };
+
+    updateContextGauge(0);
+
     // Add message to UI with proper Markdown rendering
     const addMessage = (text, type) => {
         const div = document.createElement('div');
@@ -85,9 +105,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle form submission
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const message = userInput.value.trim();
+        const rawMessage = userInput.value.trim();
 
-        if (!message || isProcessing) return;
+        if (!rawMessage || isProcessing) return;
+
+        const tokenEstimate = estimateTokens(rawMessage);
+        const available = maxContextTokens - usedTokens;
+
+        if (available <= 0) {
+            // Permite enviar pero responde con mensaje automático de límite
+            addMessage(rawMessage, 'user');
+            addMessage('Has llegado al límite de uso semanal.', 'ai');
+            usageInfo.textContent = 'Has llegado al límite de uso semanal.';
+            userInput.value = '';
+            return;
+        }
+
+        let message = rawMessage;
+        if (tokenEstimate > available) {
+            const allowedChars = Math.max(0, available * CHARS_PER_TOKEN);
+            message = rawMessage.slice(0, allowedChars);
+            usageInfo.textContent = `Recortado a ~${available} tokens disponibles.`;
+        }
 
         // Add user message
         addMessage(message, 'user');
@@ -147,10 +186,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const updateUsageInfo = (usage) => {
-        if (usage.remaining !== undefined) {
-            usageInfo.textContent = `Usos restantes hoy: ${usage.remaining}`;
-        } else {
-            usageInfo.textContent = '';
+        if (usage.contextTokenLimit) {
+            maxContextTokens = usage.contextTokenLimit;
+        }
+
+        usedTokens = usage.promptTokensUsed ?? usage.promptTokens ?? usage.promptTokensApprox ?? usedTokens;
+        const remaining = usage.remainingTokens ?? (maxContextTokens - usedTokens);
+
+        usageInfo.textContent = usage.truncated ? `Recortado; quedan ~${remaining} tokens` : '';
+
+        updateContextGauge(usedTokens);
+    };
+
+    // Fetch current usage on load so the gauge persists across reloads
+    const loadInitialUsage = async () => {
+        try {
+            const resp = await fetch('api/chat.php', { method: 'GET' });
+            const data = await resp.json();
+            if (data.success && data.usage) {
+                updateUsageInfo(data.usage);
+            }
+        } catch (err) {
+            console.error('No se pudo cargar el uso inicial:', err);
         }
     };
+
+    loadInitialUsage();
+
+    // Escuchar cambios para el gauge de contexto
+    userInput.addEventListener('input', () => {
+        const tokens = estimateTokens(userInput.value);
+        updateContextGauge(Math.min(maxContextTokens, usedTokens + tokens));
+    });
 });

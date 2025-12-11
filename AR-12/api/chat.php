@@ -13,7 +13,54 @@ if (!$auth->isAuthenticated()) {
     exit();
 }
 
-// 2. Input Parsing
+// 2. User data (sin límite de usos)
+$userData = $auth->getUserData();
+$userId = $userData['id'];
+$db = Database::getInstance()->getConnection();
+$today = date('Y-m-d');
+
+$stmt = $db->prepare("SELECT id, request_count, context_limit_tokens, prompt_tokens_used, output_tokens_used FROM ai_chat_usage WHERE user_id = ? AND model_type = 'mini' AND usage_date = ?");
+$stmt->execute([$userId, $today]);
+$usage = $stmt->fetch();
+
+// Ensure a daily usage row exists without mutating schema at runtime
+if (!$usage) {
+    $insert = $db->prepare("INSERT INTO ai_chat_usage (user_id, model_type, usage_date) VALUES (?, 'mini', ?)");
+    $insert->execute([$userId, $today]);
+    $usage = [
+        'id' => $db->lastInsertId(),
+        'request_count' => 0,
+        'context_limit_tokens' => null,
+        'prompt_tokens_used' => 0,
+        'output_tokens_used' => 0,
+    ];
+}
+
+// Limite de contexto por tokens (aprox) configurable
+$defaultContextTokens = 2048;
+$maxContextTokens = (int)($usage['context_limit_tokens'] ?? $defaultContextTokens);
+$charsPerToken = 4; // aproximación
+$maxContextChars = $maxContextTokens * $charsPerToken;
+$wasTruncated = false;
+$usedPromptTokens = (int)($usage['prompt_tokens_used'] ?? 0);
+$usedOutputTokens = (int)($usage['output_tokens_used'] ?? 0);
+
+// 3. Return current usage if requested (GET) without altering state
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    echo json_encode([
+        'success' => true,
+        'usage' => [
+            'promptTokensUsed' => $usedPromptTokens,
+            'outputTokensUsed' => $usedOutputTokens,
+            'contextTokenLimit' => $maxContextTokens,
+            'remainingTokens' => max(0, $maxContextTokens - $usedPromptTokens),
+            'truncated' => false
+        ]
+    ]);
+    exit();
+}
+
+// 4. Input Parsing (POST)
 $input = json_decode(file_get_contents('php://input'), true);
 $message = $input['message'] ?? '';
 
@@ -22,47 +69,73 @@ if (empty($message)) {
     exit();
 }
 
-// 3. Rate Limiting (5 requests max)
-$userData = $auth->getUserData();
-$userId = $userData['id'];
-$db = Database::getInstance()->getConnection();
-$today = date('Y-m-d');
+// Calcular tokens estimados y truncar según disponible
+$estimatedPromptTokens = (int) ceil(mb_strlen($message) / max(1, $charsPerToken));
+$availableTokens = $maxContextTokens - $usedPromptTokens;
 
-$stmt = $db->prepare("SELECT id, request_count FROM ai_chat_usage WHERE user_id = ? AND model_type = 'mini' AND usage_date = ?");
-$stmt->execute([$userId, $today]);
-$usage = $stmt->fetch();
-
-$currentUsage = $usage ? $usage['request_count'] : 0;
-
-if ($currentUsage >= 5) {
-    echo json_encode(['success' => false, 'message' => 'Has alcanzado el límite de 5 preguntas diarias. Vuelve mañana.']);
+if ($availableTokens <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Has llegado al límite de uso semanal.']);
     exit();
 }
 
-// 4. Logic
+if ($estimatedPromptTokens > $availableTokens) {
+    $allowedChars = max(0, $availableTokens * $charsPerToken);
+    $message = mb_substr($message, 0, $allowedChars);
+    $wasTruncated = true;
+    $estimatedPromptTokens = (int) ceil(mb_strlen($message) / max(1, $charsPerToken));
+}
+
+// 5. Logic
 try {
-    // ID DEL MODELO CORRECTO
-    // Opciones: 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-robotics-er-1.5-preview'
-    $modelToUse = 'gemma-3-1b-it'; // Modelo de pago "mini"
+    // ID DEL MODELO
+    // Opciones: 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemma-2-2b-it'
+    $modelToUse = 'gemma-3-1b-it'; // Mini
 
     $systemInstruction = "Eres AR-12 Mini, una IA asistente del universo Einherjar Blitz. Respondes de forma breve y eficiente.";
     
     // Llamada a la API con el modelo corregido
     $apiResult = callGeminiAPI($message, $modelToUse, GEMINI_API_KEY, $systemInstruction);
 
-    // Update usage count
-    if ($usage) {
-        $update = $db->prepare("UPDATE ai_chat_usage SET request_count = request_count + 1 WHERE id = ?");
-        $update->execute([$usage['id']]);
-    } else {
-        $insert = $db->prepare("INSERT INTO ai_chat_usage (user_id, model_type, usage_date, request_count) VALUES (?, 'mini', ?, 1)");
-        $insert->execute([$userId, $today]);
-    }
+    $promptTokens = $apiResult['usage']['promptTokenCount'] ?? null;
+    $outputTokens = $apiResult['usage']['candidatesTokenCount'] ?? null;
+    // estimación fallback si la API no devuelve conteo
+    $promptTokensApprox = $promptTokens ?? (int) ceil(mb_strlen($message) / max(1, $charsPerToken));
+
+    // Persistir tokens en ai_chat_usage (último uso)
+    $latestPromptTokens = $promptTokens ?? $promptTokensApprox;
+    $latestOutputTokens = $outputTokens ?? 0;
+    $newUsedPromptTokens = $usedPromptTokens + $latestPromptTokens;
+    $newUsedOutputTokens = $usedOutputTokens + $latestOutputTokens;
+
+    $updateTokens = $db->prepare("UPDATE ai_chat_usage
+        SET request_count = request_count + 1,
+            prompt_tokens = ?,
+            output_tokens = ?,
+            prompt_tokens_used = ?,
+            output_tokens_used = ?,
+            model_type = 'mini',
+            context_limit_tokens = ?
+        WHERE user_id = ? AND model_type = 'mini' AND usage_date = ?");
+    $updateTokens->execute([
+        $latestPromptTokens,
+        $latestOutputTokens,
+        $newUsedPromptTokens,
+        $newUsedOutputTokens,
+        $maxContextTokens,
+        $userId,
+        $today
+    ]);
 
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'response' => $apiResult['text'],
-        'usage' => ['remaining' => 5 - ($currentUsage + 1)]
+        'usage' => [
+            'promptTokensUsed' => $newUsedPromptTokens,
+            'outputTokensUsed' => $newUsedOutputTokens,
+            'contextTokenLimit' => $maxContextTokens,
+            'remainingTokens' => max(0, $maxContextTokens - $newUsedPromptTokens),
+            'truncated' => $wasTruncated
+        ]
     ]);
 
 } catch (Exception $e) {
@@ -94,6 +167,11 @@ function callGeminiAPI($prompt, $modelName, $apiKey, $systemInstruction = "") {
                     "role" => "user",
                     "parts" => [ ["text" => $fullPrompt] ]
                 ]
+            ],
+            "generationConfig" => [
+                "maxOutputTokens" => 512,
+                "temperature" => 0.7,
+                "topP" => 0.9
             ]
         ];
     } else {
@@ -104,6 +182,11 @@ function callGeminiAPI($prompt, $modelName, $apiKey, $systemInstruction = "") {
                     "role" => "user",
                     "parts" => [ ["text" => $prompt] ]
                 ]
+            ],
+            "generationConfig" => [
+                "maxOutputTokens" => 512,
+                "temperature" => 0.7,
+                "topP" => 0.9
             ]
         ];
 

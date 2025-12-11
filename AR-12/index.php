@@ -62,6 +62,15 @@ $userData = $auth->getUserData();
                                 </div>
                             </div>
                         </div>
+                        <div class="context-usage">
+                            <div class="usage-circle" id="contextCircle">
+                                <span id="contextPercent">0%</span>
+                            </div>
+                            <div class="usage-label">
+                                <div class="label-title">Contexto</div>
+                                <div class="label-sub" id="contextChars">0 / 2048 tokens</div>
+                            </div>
+                        </div>
                         <div id="usageInfo" class="usage-badge"></div>
                         <button type="submit" class="btn-send"><i class="fas fa-arrow-up"></i></button>
                     </div>
