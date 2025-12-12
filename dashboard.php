@@ -240,6 +240,14 @@ $progressPercent = ($currentExp / 1000) * 100;
                     <div class="nav-description">Asistente IA Inteligente</div>
                 </a>
 
+                <a href="terror-umbra/index.php" class="nav-card glass-card nav-card-horror">
+                    <div class="nav-icon">
+                        <i class="fas fa-skull"></i>
+                    </div>  
+                    <div class="nav-title">UMBRA</div>
+                    <div class="nav-description">🌑 Terror Psicológico</div>
+                </a>
+
                 <!-- <a href="cartas/index.php" class="nav-card glass-card nav-card-cards">
                     <div class="nav-icon">
                         <i class="fas fa-layer-group"></i>
