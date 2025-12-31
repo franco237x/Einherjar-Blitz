@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Recompensas Canjeadas! | Kick</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --kick-green: #53FC18;
+            --kick-green-dark: #3ED10F;
+            --kick-green-glow: rgba(83, 252, 24, 0.4);
+            --white: #FFFFFF;
+            --dark-bg: #0A0A0A;
+            --dark-card: #141414;
+            --gray-text: #A0A0A0;
+            --gold: #FFD700;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--kick-green-glow) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--kick-green);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-up 3s ease-in-out infinite;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Main Card */
+        .card {
+            background: var(--dark-card);
+            border: 1px solid rgba(83, 252, 24, 0.2);
+            border-radius: 24px;
+            padding: 60px 50px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            max-width: 480px;
+            width: 90%;
+            box-shadow:
+                0 0 60px rgba(83, 252, 24, 0.1),
+                0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: card-appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes card-appear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success Checkmark */
+        .checkmark-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .checkmark-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--kick-green) 0%, var(--kick-green-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: circle-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+            transform: scale(0);
+            box-shadow: 0 0 40px var(--kick-green-glow);
+        }
+
+        @keyframes circle-pop {
+            0% {
+                transform: scale(0) rotate(-45deg);
+            }
+
+            50% {
+                transform: scale(1.1) rotate(0deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .checkmark {
+            width: 50px;
+            height: 50px;
+            stroke: var(--dark-bg);
+            stroke-width: 4;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .checkmark-path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: draw-check 0.5s ease-out 0.7s forwards;
+        }
+
+        @keyframes draw-check {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Ring animation */
+        .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--kick-green);
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            animation: ring-expand 1s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes ring-expand {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* Kick Logo */
+        .kick-logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--kick-green);
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            animation: fade-in 0.6s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fade-in {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Title */
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 15px;
+            animation: slide-up 0.6s ease-out 0.6s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slide-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Subtitle */
+        .subtitle {
+            font-size: 16px;
+            color: var(--gray-text);
+            line-height: 1.6;
+            margin-bottom: 35px;
+            animation: slide-up 0.6s ease-out 0.7s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .highlight {
+            color: var(--kick-green);
+            font-weight: 600;
+        }
+
+        /* Benefits List */
+        .benefits {
+            text-align: left;
+            margin-bottom: 35px;
+            padding: 25px;
+            background: rgba(83, 252, 24, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(83, 252, 24, 0.1);
+            animation: slide-up 0.6s ease-out 0.8s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .benefits-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--kick-green);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .benefits-title::after {
+            content: "VIP ACCESS";
+            font-size: 10px;
+            background: var(--kick-green);
+            color: var(--dark-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--white);
+            font-size: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .benefit-item:last-child {
+            border-bottom: none;
+        }
+
+        .benefit-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(83, 252, 24, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--kick-green);
+        }
+
+        .benefit-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+
+        .benefit-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .benefit-label {
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .benefit-desc {
+            font-size: 12px;
+            color: var(--gray-text);
+        }
+
+        /* Close Message */
+        .close-msg {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--gray-text);
+            font-size: 14px;
+            animation: fade-in 0.6s ease-out 1.2s forwards;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .close-icon {
+            width: 18px;
+            height: 18px;
+            stroke: var(--gray-text);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            opacity: 0;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1) rotate(180deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="card">
+        <div class="checkmark-container">
+            <div class="ring"></div>
+            <div class="checkmark-circle">
+                <svg class="checkmark" viewBox="0 0 50 50">
+                    <path class="checkmark-path" d="M14 27 L22 35 L38 16" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="kick-logo">KICK SUBSCRIBER</div>
+
+        <h1 class="title">¡Recompensas Desbloqueadas!</h1>
+
+        <p class="subtitle">
+            Gracias por tu suscripción en Kick. <br>
+            Has recibido items exclusivos directamente en tu cuenta.
+        </p>
+
+        <div class="benefits">
+            <div class="benefits-title">Items Recibidos</div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                </div>
+                <div class="benefit-text">
+                    <span class="benefit-label">Pase de Batalla Elite</span>
+                    <span class="benefit-desc">Acceso a todas las recompensas de temporada</span>
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                    </svg>
+                </div>
+                <div class="benefit-text">
+                    <span class="benefit-label">x10 Llaves de Gacha</span>
+                    <span class="benefit-desc">Para los banners especiales</span>
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <circle cx="12" cy="14" r="3" />
+                        <path d="M14 2v6h6" />
+                    </svg>
+                </div>
+                <div class="benefit-text">
+                    <span class="benefit-label">+1 Información Extra</span>
+                    <span class="benefit-desc">Más información disponible</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="close-msg">
+            <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M15 9l-6 6" />
+                <path d="M9 9l6 6" />
+            </svg>
+            Ya puedes cerrar esta pestaña con seguridad
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 20;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 3 + 's';
+            particle.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            particle.style.width = (Math.random() * 8 + 4) + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.opacity = Math.random() * 0.5 + 0.3;
+            particlesContainer.appendChild(particle);
+        }
+
+        // Create confetti on load
+        function createConfetti() {
+            const colors = ['#53FC18', '#FFFFFF', '#3ED10F', '#FFD700']; // Added Gold
+            const shapes = ['square', 'circle'];
+
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-20px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)] === 'circle' ? '50%' : '2px';
+                    confetti.style.width = (Math.random() * 10 + 6) + 'px';
+                    confetti.style.height = (Math.random() * 10 + 6) + 'px';
+                    confetti.style.animation = `confetti-fall ${Math.random() * 2 + 2}s linear forwards`;
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 40);
+            }
+        }
+
+        // Create sparkles
+        function createSparkles() {
+            const checkmarkContainer = document.querySelector('.checkmark-container');
+            const sparkleCount = 8;
+
+            for (let i = 0; i < sparkleCount; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 20 20">
+                            <path d="M10 0L12 8L20 10L12 12L10 20L8 12L0 10L8 8L10 0Z" fill="#53FC18"/>
+                        </svg>
+                    `;
+
+                    const angle = (i / sparkleCount) * Math.PI * 2;
+                    const radius = 70 + Math.random() * 20;
+                    const x = Math.cos(angle) * radius + 40;
+                    const y = Math.sin(angle) * radius + 40;
+
+                    sparkle.style.left = x + 'px';
+                    sparkle.style.top = y + 'px';
+                    sparkle.style.animation = `sparkle 0.6s ease-out forwards`;
+
+                    checkmarkContainer.appendChild(sparkle);
+
+                    setTimeout(() => sparkle.remove(), 600);
+                }, 700 + i * 100);
+            }
+        }
+
+        setTimeout(() => {
+            createConfetti();
+            createSparkles();
+        }, 500);
+    </script>
+</body>
+
+</html>
