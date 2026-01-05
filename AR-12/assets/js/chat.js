@@ -65,15 +65,23 @@ document.addEventListener('DOMContentLoaded', () => {
     modelDropdown.addEventListener('click', (e) => {
         const option = e.target.closest('.model-option');
         if (option && !option.classList.contains('disabled')) {
-            currentModel = option.dataset.value;
+            const newModel = option.dataset.value;
 
-            modelDropdown.querySelectorAll('.model-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            option.classList.add('active');
+            // Only update if changed
+            if (currentModel !== newModel) {
+                currentModel = newModel;
 
-            const modelName = option.querySelector('.model-name').textContent;
-            modelButton.querySelector('span').textContent = modelName;
+                modelDropdown.querySelectorAll('.model-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                option.classList.add('active');
+
+                const modelName = option.querySelector('.model-name').textContent;
+                modelButton.querySelector('span').textContent = modelName;
+
+                // Fetch usage for the new model
+                loadInitialUsage(currentModel);
+            }
 
             modelButton.classList.remove('active');
             modelDropdown.classList.remove('show');
@@ -218,17 +226,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            const data = await response.json();
+            // Streaming Handling
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
 
+            // Remove loading indicator immediately as we start streaming
             loadingDiv.remove();
 
-            if (data.success) {
-                addMessage(data.response, 'ai');
-                if (data.usage) {
-                    updateUsageInfo(data.usage);
+            // Create a message bubble for the AI response
+            const aiMessageDiv = addMessage('', 'ai');
+            const aiContentDiv = aiMessageDiv.querySelector('.content');
+            let fullText = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const jsonStr = line.slice(6);
+                            if (!jsonStr) continue;
+                            const data = JSON.parse(jsonStr);
+
+                            if (data.text) {
+                                fullText += data.text;
+                                // Simple incremental rendering
+                                if (typeof marked !== 'undefined') {
+                                    aiContentDiv.innerHTML = marked.parse(fullText);
+                                } else {
+                                    aiContentDiv.textContent = fullText;
+                                }
+                                scrollToBottom();
+                            } else if (data.done) {
+                                // Final update with usage stats
+                                if (data.usage) {
+                                    updateUsageInfo(data.usage);
+                                }
+                            } else if (data.error) {
+                                addMessage('Error del sistema: ' + data.error, 'error');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE:', e);
+                        }
+                    }
                 }
-            } else {
-                addMessage(data.message || 'Error desconocido', 'error');
             }
 
         } catch (error) {
@@ -257,9 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ===== LOAD INITIAL USAGE =====
-    const loadInitialUsage = async () => {
+    const loadInitialUsage = async (model = 'mini') => {
         try {
-            const resp = await fetch('api/chat.php', { method: 'GET' });
+            const resp = await fetch(`api/chat.php?model=${model}`, { method: 'GET' });
             const data = await resp.json();
             if (data.success && data.usage) {
                 updateUsageInfo(data.usage);
@@ -269,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    loadInitialUsage();
+    loadInitialUsage(currentModel);
 
     // ===== CONTEXT GAUGE LIVE UPDATE =====
     userInput.addEventListener('input', () => {

@@ -13,9 +13,11 @@ $userData = $auth->getUserData();
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,6 +28,7 @@ $userData = $auth->getUserData();
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/chat.css<?php echo v('AR-12/assets/css/chat.css'); ?>">
 </head>
+
 <body class="dark-theme">
     <div class="chat-container">
         <!-- Header -->
@@ -38,30 +41,27 @@ $userData = $auth->getUserData();
                 <h1><i class="fas fa-robot"></i> AR-12</h1>
             </div>
             <div class="header-actions">
-                <span class="version-badge">v0.7.3</span>
+                <span class="version-badge">v0.8.3</span>
             </div>
         </header>
-        
+
         <!-- Messages Area -->
         <main class="chat-messages" id="chatMessages">
             <div class="message ai">
                 <div class="avatar"><i class="fas fa-robot"></i></div>
                 <div class="content">
-                    <p>Bienvenido, <strong><?php echo htmlspecialchars($userData['username']); ?></strong>. Soy AR-12, tu asistente de IA. ¿En qué puedo ayudarte hoy?</p>
+                    <p>Bienvenido, <strong><?php echo htmlspecialchars($userData['username']); ?></strong>. Soy AR-12,
+                        tu asistente de IA. ¿En qué puedo ayudarte hoy?</p>
                 </div>
             </div>
         </main>
-        
+
         <!-- Input Area -->
         <footer class="chat-input-area">
             <div class="input-wrapper">
                 <form id="chatForm">
-                    <textarea 
-                        id="userInput" 
-                        placeholder="Escribe tu mensaje aquí..." 
-                        autocomplete="off"
-                        rows="1"
-                    ></textarea>
+                    <textarea id="userInput" placeholder="Escribe tu mensaje aquí..." autocomplete="off"
+                        rows="1"></textarea>
                     <div class="input-footer">
                         <div class="model-selector">
                             <button type="button" class="model-button" id="modelButton">
@@ -72,24 +72,22 @@ $userData = $auth->getUserData();
                             <div class="model-dropdown" id="modelDropdown">
                                 <div class="model-option active" data-value="mini">
                                     <div class="model-info">
-                                        <div class="model-name">AR-12 Mini</div>
+                                        <div class="model-name">AR-12 Mini (4B)</div>
                                         <div class="model-desc">Rápido y eficiente</div>
                                     </div>
                                     <i class="fas fa-check"></i>
                                 </div>
-                                <div class="model-option disabled" data-value="standard">
+                                <div class="model-option" data-value="standard">
                                     <div class="model-info">
-                                        <div class="model-name">AR-12 Standard</div>
+                                        <div class="model-name">AR-12 Standard (12B)</div>
                                         <div class="model-desc">Equilibrio perfecto</div>
                                     </div>
-                                    <span class="coming-soon-badge">Próximamente</span>
                                 </div>
-                                <div class="model-option disabled model-pro" data-value="pro">
+                                <div class="model-option model-pro" data-value="pro">
                                     <div class="model-info">
-                                        <div class="model-name">AR-12 Pro</div>
+                                        <div class="model-name">AR-12 Pro (27B)</div>
                                         <div class="model-desc">Máximo rendimiento</div>
                                     </div>
-                                    <span class="coming-soon-badge pro-badge">Próximamente</span>
                                 </div>
                             </div>
                         </div>
@@ -116,4 +114,5 @@ $userData = $auth->getUserData();
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="assets/js/chat.js<?php echo v('AR-12/assets/js/chat.js'); ?>"></script>
 </body>
+
 </html>
