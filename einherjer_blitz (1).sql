@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-12-2025 a las 19:44:55
+-- Tiempo de generación: 05-01-2026 a las 05:15:22
 -- Versión del servidor: 10.4.27-MariaDB
 -- Versión de PHP: 8.2.0
 
@@ -20,11 +20,14 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `einherjer_blitz`
 --
+CREATE DATABASE IF NOT EXISTS `einherjer_blitz` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `einherjer_blitz`;
 
 DELIMITER $$
 --
 -- Procedimientos
 --
+DROP PROCEDURE IF EXISTS `sp_claim_all_tickets`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_claim_all_tickets` (IN `p_user_id` INT, OUT `p_tickets_claimed` INT, OUT `p_success` BOOLEAN)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -49,6 +52,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_claim_all_tickets` (IN `p_user_i
     SET p_success = TRUE;
 END$$
 
+DROP PROCEDURE IF EXISTS `sp_cleanup_expired_tickets`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_cleanup_expired_tickets` ()   BEGIN
     DECLARE v_deleted_count INT DEFAULT 0;
     
@@ -81,9 +85,45 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `ai_chat_usage`
+--
+
+DROP TABLE IF EXISTS `ai_chat_usage`;
+CREATE TABLE `ai_chat_usage` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `model_type` varchar(32) NOT NULL,
+  `usage_date` date NOT NULL,
+  `request_count` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `prompt_tokens` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `output_tokens` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `context_limit_tokens` int(10) UNSIGNED NOT NULL DEFAULT 2048,
+  `prompt_tokens_used` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `output_tokens_used` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `ai_chat_usage`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
+-- Volcado de datos para la tabla `ai_chat_usage`
+--
+
+INSERT INTO `ai_chat_usage` (`id`, `user_id`, `model_type`, `usage_date`, `request_count`, `prompt_tokens`, `output_tokens`, `context_limit_tokens`, `prompt_tokens_used`, `output_tokens_used`, `created_at`, `updated_at`) VALUES
+(1, 1, 'mini', '2025-12-12', 1, 35, 6, 2048, 35, 6, '2025-12-12 02:55:38', '2025-12-12 02:55:54');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura Stand-in para la vista `marketplace_active_listings`
 -- (Véase abajo para la vista actual)
 --
+DROP VIEW IF EXISTS `marketplace_active_listings`;
 CREATE TABLE `marketplace_active_listings` (
 `id` int(11)
 ,`seller_id` int(11)
@@ -115,6 +155,7 @@ CREATE TABLE `marketplace_active_listings` (
 -- Estructura de tabla para la tabla `marketplace_cupones`
 --
 
+DROP TABLE IF EXISTS `marketplace_cupones`;
 CREATE TABLE `marketplace_cupones` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -128,12 +169,21 @@ CREATE TABLE `marketplace_cupones` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `marketplace_cupones`:
+--   `user_id`
+--       `usuarios` -> `id`
+--   `transaction_id`
+--       `marketplace_transactions` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `marketplace_listings`
 --
 
+DROP TABLE IF EXISTS `marketplace_listings`;
 CREATE TABLE `marketplace_listings` (
   `id` int(11) NOT NULL,
   `seller_id` int(11) NOT NULL,
@@ -160,8 +210,19 @@ CREATE TABLE `marketplace_listings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- RELACIONES PARA LA TABLA `marketplace_listings`:
+--   `seller_id`
+--       `usuarios` -> `id`
+--   `reward_id`
+--       `recompensas_usuario` -> `id`
+--   `ticket_id`
+--       `tienda_tickets` -> `id`
+--
+
+--
 -- Disparadores `marketplace_listings`
 --
+DROP TRIGGER IF EXISTS `after_marketplace_sale`;
 DELIMITER $$
 CREATE TRIGGER `after_marketplace_sale` AFTER UPDATE ON `marketplace_listings` FOR EACH ROW BEGIN
     IF NEW.is_sold = 1 AND OLD.is_sold = 0 AND NEW.reward_id IS NOT NULL THEN
@@ -173,6 +234,7 @@ CREATE TRIGGER `after_marketplace_sale` AFTER UPDATE ON `marketplace_listings` F
 END
 $$
 DELIMITER ;
+DROP TRIGGER IF EXISTS `increment_listing_views`;
 DELIMITER $$
 CREATE TRIGGER `increment_listing_views` BEFORE UPDATE ON `marketplace_listings` FOR EACH ROW BEGIN
     IF NEW.views_count > OLD.views_count THEN
@@ -188,6 +250,7 @@ DELIMITER ;
 -- Estructura de tabla para la tabla `marketplace_premium`
 --
 
+DROP TABLE IF EXISTS `marketplace_premium`;
 CREATE TABLE `marketplace_premium` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -202,6 +265,12 @@ CREATE TABLE `marketplace_premium` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- RELACIONES PARA LA TABLA `marketplace_premium`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
 -- Volcado de datos para la tabla `marketplace_premium`
 --
 
@@ -214,6 +283,7 @@ INSERT INTO `marketplace_premium` (`id`, `user_id`, `username`, `premium_active`
 -- Estructura Stand-in para la vista `marketplace_seller_stats`
 -- (Véase abajo para la vista actual)
 --
+DROP VIEW IF EXISTS `marketplace_seller_stats`;
 CREATE TABLE `marketplace_seller_stats` (
 `seller_id` int(11)
 ,`seller_username` varchar(50)
@@ -232,6 +302,7 @@ CREATE TABLE `marketplace_seller_stats` (
 -- Estructura de tabla para la tabla `marketplace_transactions`
 --
 
+DROP TABLE IF EXISTS `marketplace_transactions`;
 CREATE TABLE `marketplace_transactions` (
   `id` int(11) NOT NULL,
   `listing_id` int(11) NOT NULL,
@@ -249,12 +320,23 @@ CREATE TABLE `marketplace_transactions` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `marketplace_transactions`:
+--   `listing_id`
+--       `marketplace_listings` -> `id`
+--   `seller_id`
+--       `usuarios` -> `id`
+--   `buyer_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `online_battles`
 --
 
+DROP TABLE IF EXISTS `online_battles`;
 CREATE TABLE `online_battles` (
   `id` int(11) NOT NULL,
   `player1_id` int(11) NOT NULL,
@@ -280,12 +362,21 @@ CREATE TABLE `online_battles` (
   `player2_last_heartbeat` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `online_battles`:
+--   `player1_id`
+--       `usuarios` -> `id`
+--   `player2_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `online_match_history`
 --
 
+DROP TABLE IF EXISTS `online_match_history`;
 CREATE TABLE `online_match_history` (
   `id` int(11) NOT NULL,
   `battle_id` int(11) NOT NULL,
@@ -304,12 +395,23 @@ CREATE TABLE `online_match_history` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `online_match_history`:
+--   `battle_id`
+--       `online_battles` -> `id`
+--   `player_id`
+--       `usuarios` -> `id`
+--   `opponent_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `online_queue`
 --
 
+DROP TABLE IF EXISTS `online_queue`;
 CREATE TABLE `online_queue` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -323,12 +425,19 @@ CREATE TABLE `online_queue` (
   `match_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `online_queue`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `pase_batalla`
 --
 
+DROP TABLE IF EXISTS `pase_batalla`;
 CREATE TABLE `pase_batalla` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -340,12 +449,19 @@ CREATE TABLE `pase_batalla` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `pase_batalla`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `password_reset_tokens`
 --
 
+DROP TABLE IF EXISTS `password_reset_tokens`;
 CREATE TABLE `password_reset_tokens` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -355,12 +471,19 @@ CREATE TABLE `password_reset_tokens` (
   `used` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `password_reset_tokens`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `productos`
 --
 
+DROP TABLE IF EXISTS `productos`;
 CREATE TABLE `productos` (
   `ID` int(11) NOT NULL,
   `Nombre` varchar(100) NOT NULL,
@@ -371,6 +494,10 @@ CREATE TABLE `productos` (
   `categoria` varchar(50) DEFAULT 'general',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `productos`:
+--
 
 --
 -- Volcado de datos para la tabla `productos`
@@ -386,6 +513,7 @@ INSERT INTO `productos` (`ID`, `Nombre`, `Precio_Esferas`, `Stock`, `Imagen_URL`
 -- Estructura de tabla para la tabla `recompensas_eliminadas`
 --
 
+DROP TABLE IF EXISTS `recompensas_eliminadas`;
 CREATE TABLE `recompensas_eliminadas` (
   `id` int(11) NOT NULL,
   `original_id` int(11) NOT NULL,
@@ -398,12 +526,19 @@ CREATE TABLE `recompensas_eliminadas` (
   `fecha_eliminacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- RELACIONES PARA LA TABLA `recompensas_eliminadas`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `recompensas_usuario`
 --
 
+DROP TABLE IF EXISTS `recompensas_usuario`;
 CREATE TABLE `recompensas_usuario` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -415,62 +550,29 @@ CREATE TABLE `recompensas_usuario` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- RELACIONES PARA LA TABLA `recompensas_usuario`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
 -- Volcado de datos para la tabla `recompensas_usuario`
 --
 
 INSERT INTO `recompensas_usuario` (`id`, `user_id`, `username`, `recompensa_obtenida`, `tipo_recompensa`, `valor`, `fecha_obtencion`) VALUES
-(24, 1, 'admin', 'Chaldea (Fate)', 'terrain_vendido_vendido', 1, '2025-10-15 19:08:47');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `terrenos`
---
-
-CREATE TABLE `terrenos` (
-  `id` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `owner_id` int(11) NOT NULL,
-  `precio_inicial` decimal(15,2) NOT NULL DEFAULT 1000.00,
-  `precio_actual` decimal(15,2) NOT NULL DEFAULT 1000.00,
-  `supply_total` decimal(15,2) NOT NULL DEFAULT 10000.00,
-  `supply_circulante` decimal(15,2) NOT NULL DEFAULT 10000.00,
-  `volumen_24h` decimal(15,2) DEFAULT 0.00,
-  `cambio_24h` decimal(5,2) DEFAULT 0.00,
-  `imagen_url` varchar(500) DEFAULT 'default_terrain.jpg',
-  `categoria` varchar(50) DEFAULT 'residencial',
-  `ubicacion` varchar(200) DEFAULT NULL,
-  `activo` tinyint(1) DEFAULT 1,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
-  `ultima_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `terrenos`
---
-
-INSERT INTO `terrenos` (`id`, `nombre`, `descripcion`, `owner_id`, `precio_inicial`, `precio_actual`, `supply_total`, `supply_circulante`, `volumen_24h`, `cambio_24h`, `imagen_url`, `categoria`, `ubicacion`, `activo`, `fecha_creacion`, `ultima_actualizacion`) VALUES
-(1, 'Fortaleza de la Soledad', NULL, 1, '1000.00', '3375.00', '10000.00', '100.00', '0.00', '0.00', 'fortaleza1.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(2, 'Cybertron', NULL, 1, '1000.00', '6075.00', '10000.00', '100.00', '0.00', '0.00', 'cybertron.jpg', 'industrial', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(3, 'Fortaleza Dimensional Infinita', NULL, 1, '1000.00', '2600.00', '10000.00', '100.00', '0.00', '0.00', 'fortaleza2.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(4, 'Marineford', NULL, 1, '1000.00', '1365.00', '10000.00', '100.00', '0.00', '0.00', 'marineford.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(5, 'Fortaleza Karma', NULL, 1, '1000.00', '1675.00', '10000.00', '100.00', '0.00', '0.00', 'karma.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(6, 'Colegio Técnico de Hechicería Metropolitana de Tokio', NULL, 1, '1000.00', '1200.00', '10000.00', '100.00', '0.00', '0.00', 'tokyo.jpg', 'comercial', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(7, 'Liyue', NULL, 1, '1000.00', '1814.00', '10000.00', '100.00', '0.00', '0.00', 'liyue.jpg', 'comercial', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(8, 'Fontaine', NULL, 1, '1000.00', '7013.91', '10000.00', '100.00', '759.40', '0.00', 'fontaine.jpg', 'natural', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 04:22:38'),
-(9, 'Sociedad de Almas', NULL, 1, '1000.00', '2012.00', '10000.00', '100.00', '0.00', '0.00', 'almas.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(10, 'Penacony', NULL, 1, '1000.00', '3128.00', '10000.00', '100.00', '0.00', '0.00', 'penacony.jpg', 'comercial', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(11, 'Wano', NULL, 1, '1000.00', '1915.00', '10000.00', '100.00', '0.00', '0.00', 'wano.jpg', 'natural', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(12, 'Inazuma', NULL, 1, '1000.00', '1275.00', '10000.00', '100.00', '0.00', '0.00', 'inazuma.jpg', 'natural', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(13, 'Templo de Kamisama', NULL, 1, '1000.00', '3806.00', '10000.00', '100.00', '0.00', '0.00', 'kamisama.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(14, 'Natlan', NULL, 1, '1000.00', '3750.00', '10000.00', '100.00', '0.00', '0.00', 'natlan.jpg', 'natural', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(15, 'La Senda', NULL, 1, '1000.00', '2137.00', '10000.00', '100.00', '0.00', '0.00', 'senda.jpg', 'natural', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(16, 'Piltover/Zaun', NULL, 1, '1000.00', '2900.00', '10000.00', '100.00', '0.00', '0.00', 'piltover.jpg', 'industrial', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(17, 'Sumeru', NULL, 1, '1000.00', '2713.00', '10000.00', '100.00', '0.00', '0.00', 'sumeru.jpg', 'natural', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(18, 'Rhodes Island', NULL, 1, '1000.00', '2670.00', '10000.00', '100.00', '0.00', '0.00', 'rhodes.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(19, 'Mary Geoise', NULL, 1, '1000.00', '1447.00', '10000.00', '100.00', '0.00', '0.00', 'mary.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14'),
-(20, 'Nazarick', NULL, 1, '1000.00', '2656.00', '10000.00', '100.00', '0.00', '0.00', 'nazarick.jpg', 'fortaleza', NULL, 1, '2025-08-30 03:48:14', '2025-08-30 03:48:14');
+(24, 1, 'admin', 'Chaldea (Fate)', 'terrain_vendido_vendido', 1, '2025-10-15 19:08:47'),
+(54, 1, 'admin', 'Dad Key', 'special', 1, '2025-12-05 02:31:52'),
+(55, 1, 'admin', 'Hipódromo Valhalla (Uma Musume)', 'terrain', 1, '2025-12-05 02:41:11'),
+(56, 1, 'admin', 'Krypton (DC Comics)', 'terrain', 1, '2025-12-05 02:45:30'),
+(57, 1, 'admin', 'Hallownest (Hollow Knight)', 'terrain', 1, '2025-12-05 02:46:55'),
+(58, 1, 'admin', 'Skypeia (One Piece)', 'terrain', 1, '2025-12-05 02:48:27'),
+(59, 1, 'admin', 'Torre de los Vengadores (Marvel)', 'terrain', 1, '2025-12-05 02:50:49'),
+(60, 1, 'admin', 'Invocación: Godrick', 'invocation', 1, '2025-12-05 02:58:41'),
+(61, 1, 'admin', 'Invocación: Radahn', 'invocation', 1, '2025-12-05 03:13:24'),
+(62, 1, 'admin', 'Arma: Cetro del Devorador', 'weapon', 1, '2025-12-05 03:13:33'),
+(63, 1, 'admin', 'Invocación: Rey sin Nombre', 'invocation', 1, '2025-12-05 03:13:41'),
+(64, 1, 'admin', 'Arma: Espada magna de la hoja injertada', 'weapon', 1, '2025-12-05 03:13:52'),
+(65, 1, 'admin', 'Invocación: Godrick', 'invocation', 1, '2025-12-05 03:14:01');
 
 -- --------------------------------------------------------
 
@@ -478,6 +580,7 @@ INSERT INTO `terrenos` (`id`, `nombre`, `descripcion`, `owner_id`, `precio_inici
 -- Estructura de tabla para la tabla `tienda_tickets`
 --
 
+DROP TABLE IF EXISTS `tienda_tickets`;
 CREATE TABLE `tienda_tickets` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -502,6 +605,12 @@ CREATE TABLE `tienda_tickets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- RELACIONES PARA LA TABLA `tienda_tickets`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
 -- Volcado de datos para la tabla `tienda_tickets`
 --
 
@@ -521,6 +630,7 @@ INSERT INTO `tienda_tickets` (`id`, `user_id`, `username`, `ticket_type`, `item_
 --
 -- Disparadores `tienda_tickets`
 --
+DROP TRIGGER IF EXISTS `trg_ticket_claimed`;
 DELIMITER $$
 CREATE TRIGGER `trg_ticket_claimed` AFTER UPDATE ON `tienda_tickets` FOR EACH ROW BEGIN
     IF NEW.claimed = 1 AND OLD.claimed = 0 THEN
@@ -544,6 +654,7 @@ CREATE TRIGGER `trg_ticket_claimed` AFTER UPDATE ON `tienda_tickets` FOR EACH RO
 END
 $$
 DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_ticket_created`;
 DELIMITER $$
 CREATE TRIGGER `trg_ticket_created` AFTER INSERT ON `tienda_tickets` FOR EACH ROW BEGIN
     -- Insertar o actualizar estadísticas
@@ -578,6 +689,7 @@ DELIMITER ;
 -- Estructura de tabla para la tabla `tienda_tickets_historial`
 --
 
+DROP TABLE IF EXISTS `tienda_tickets_historial`;
 CREATE TABLE `tienda_tickets_historial` (
   `id` int(11) NOT NULL,
   `ticket_id` int(11) NOT NULL,
@@ -589,6 +701,10 @@ CREATE TABLE `tienda_tickets_historial` (
   `claimed_date` datetime NOT NULL,
   `notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `tienda_tickets_historial`:
+--
 
 --
 -- Volcado de datos para la tabla `tienda_tickets_historial`
@@ -612,6 +728,7 @@ INSERT INTO `tienda_tickets_historial` (`id`, `ticket_id`, `user_id`, `username`
 -- Estructura de tabla para la tabla `tienda_tickets_stats`
 --
 
+DROP TABLE IF EXISTS `tienda_tickets_stats`;
 CREATE TABLE `tienda_tickets_stats` (
   `user_id` int(11) NOT NULL,
   `total_tickets` int(11) NOT NULL DEFAULT 0,
@@ -623,6 +740,12 @@ CREATE TABLE `tienda_tickets_stats` (
   `last_ticket_date` datetime DEFAULT NULL,
   `last_claim_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `tienda_tickets_stats`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
 
 --
 -- Volcado de datos para la tabla `tienda_tickets_stats`
@@ -637,6 +760,7 @@ INSERT INTO `tienda_tickets_stats` (`user_id`, `total_tickets`, `tickets_claimed
 -- Estructura de tabla para la tabla `transacciones_einherjer`
 --
 
+DROP TABLE IF EXISTS `transacciones_einherjer`;
 CREATE TABLE `transacciones_einherjer` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -647,6 +771,12 @@ CREATE TABLE `transacciones_einherjer` (
   `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
   `destinatario` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `transacciones_einherjer`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
 
 --
 -- Volcado de datos para la tabla `transacciones_einherjer`
@@ -707,7 +837,170 @@ INSERT INTO `transacciones_einherjer` (`id`, `user_id`, `username`, `tipo`, `can
 (55, 1, 'admin', 'compra', '10.00', 'Prueba 2', '2025-11-10 22:15:10', NULL),
 (56, 1, 'admin', 'compra', '10.00', 'Prueba 2', '2025-11-10 22:20:05', NULL),
 (57, 1, 'admin', 'compra', '10.00', 'Prueba 2', '2025-11-10 22:20:44', NULL),
-(58, 1, 'admin', 'compra', '1000.00', 'Valorant', '2025-11-10 22:28:44', NULL);
+(58, 1, 'admin', 'compra', '1000.00', 'Valorant', '2025-11-10 22:28:44', NULL),
+(59, 1, 'admin', 'compra', '25.00', 'Apertura de Cofre de Terrenos', '2025-12-05 02:31:52', NULL),
+(60, 1, 'admin', 'compra', '25.00', 'Apertura de Cofre de Terrenos', '2025-12-05 02:41:11', NULL),
+(61, 1, 'admin', 'compra', '25.00', 'Apertura de Cofre de Terrenos', '2025-12-05 02:45:30', NULL),
+(62, 1, 'admin', 'compra', '25.00', 'Apertura de Cofre de Terrenos', '2025-12-05 02:46:55', NULL),
+(63, 1, 'admin', 'compra', '25.00', 'Apertura de Cofre de Terrenos', '2025-12-05 02:48:27', NULL),
+(64, 1, 'admin', 'compra', '25.00', 'Apertura de Cofre de Terrenos', '2025-12-05 02:50:49', NULL),
+(65, 1, 'admin', 'compra', '5.00', 'Apertura de Cofre Elden Ring/Dark Souls', '2025-12-05 02:58:41', NULL),
+(66, 1, 'admin', 'compra', '5.00', 'Apertura de Cofre Elden Ring/Dark Souls', '2025-12-05 03:13:24', NULL),
+(67, 1, 'admin', 'compra', '5.00', 'Apertura de Cofre Elden Ring/Dark Souls', '2025-12-05 03:13:33', NULL),
+(68, 1, 'admin', 'compra', '5.00', 'Apertura de Cofre Elden Ring/Dark Souls', '2025-12-05 03:13:41', NULL),
+(69, 1, 'admin', 'compra', '5.00', 'Apertura de Cofre Elden Ring/Dark Souls', '2025-12-05 03:13:52', NULL),
+(70, 1, 'admin', 'compra', '5.00', 'Apertura de Cofre Elden Ring/Dark Souls', '2025-12-05 03:14:01', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `umbra_endings`
+--
+
+DROP TABLE IF EXISTS `umbra_endings`;
+CREATE TABLE `umbra_endings` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `ending_type` varchar(50) NOT NULL,
+  `ending_variation` int(11) DEFAULT 1,
+  `achieved_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `session_number` int(11) DEFAULT NULL,
+  `final_paranoia` int(11) DEFAULT NULL,
+  `final_perception` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `umbra_endings`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
+-- Volcado de datos para la tabla `umbra_endings`
+--
+
+INSERT INTO `umbra_endings` (`id`, `user_id`, `ending_type`, `ending_variation`, `achieved_at`, `session_number`, `final_paranoia`, `final_perception`) VALUES
+(1, 1, 'cycle', 1, '2025-12-11 04:49:22', 1, 71, 100),
+(2, 1, 'consumed', 1, '2025-12-11 04:49:55', 2, 71, 100),
+(3, 1, 'consumed', 1, '2025-12-11 04:54:43', 5, 71, 100),
+(4, 1, 'consumed', 1, '2025-12-11 04:55:19', 7, 71, 100),
+(5, 1, 'cycle', 1, '2025-12-11 04:56:53', 9, 26, 100),
+(6, 1, 'escape', 1, '2025-12-11 05:00:07', 12, 45, 100),
+(7, 1, 'truth', 1, '2025-12-11 05:01:43', 14, 36, 100);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `umbra_player_events`
+--
+
+DROP TABLE IF EXISTS `umbra_player_events`;
+CREATE TABLE `umbra_player_events` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `event_type` varchar(50) NOT NULL,
+  `event_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`event_data`)),
+  `session_number` int(11) DEFAULT 1,
+  `occurred_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `umbra_player_events`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
+-- Volcado de datos para la tabla `umbra_player_events`
+--
+
+INSERT INTO `umbra_player_events` (`id`, `user_id`, `event_type`, `event_data`, `session_number`, `occurred_at`) VALUES
+(4, 1, 'first_visit', '{\"timestamp\":\"2025-12-11 05:47:28\"}', 1, '2025-12-11 04:47:28'),
+(5, 1, 'ending_reached', '{\"ending\":\"cycle\",\"sanity\":40,\"paranoia\":71}', 1, '2025-12-11 04:49:22'),
+(6, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:49:28\",\"previous_chapter\":31,\"previous_paranoia\":71}', 2, '2025-12-11 04:49:28'),
+(7, 1, 'ending_reached', '{\"ending\":\"consumed\",\"sanity\":40,\"paranoia\":71}', 2, '2025-12-11 04:49:55'),
+(8, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:50:16\",\"previous_chapter\":31,\"previous_paranoia\":71}', 3, '2025-12-11 04:50:16'),
+(9, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:50:18\",\"previous_chapter\":31,\"previous_paranoia\":71}', 4, '2025-12-11 04:50:18'),
+(10, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:54:31\",\"previous_chapter\":31,\"previous_paranoia\":71}', 5, '2025-12-11 04:54:31'),
+(11, 1, 'ending_reached', '{\"ending\":\"consumed\",\"sanity\":40,\"paranoia\":71}', 5, '2025-12-11 04:54:43'),
+(12, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:54:50\",\"previous_chapter\":31,\"previous_paranoia\":71}', 6, '2025-12-11 04:54:50'),
+(13, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:55:07\",\"previous_chapter\":31,\"previous_paranoia\":71}', 7, '2025-12-11 04:55:07'),
+(14, 1, 'ending_reached', '{\"ending\":\"consumed\",\"sanity\":40,\"paranoia\":71}', 7, '2025-12-11 04:55:19'),
+(15, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:55:21\",\"previous_chapter\":1,\"previous_paranoia\":0}', 9, '2025-12-11 04:55:21'),
+(16, 1, 'ending_reached', '{\"ending\":\"cycle\",\"sanity\":75,\"paranoia\":26}', 9, '2025-12-11 04:56:53'),
+(17, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:56:58\",\"previous_chapter\":1,\"previous_paranoia\":0}', 11, '2025-12-11 04:56:58'),
+(18, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 05:59:14\",\"previous_chapter\":1,\"previous_paranoia\":0}', 12, '2025-12-11 04:59:14'),
+(19, 1, 'ending_reached', '{\"ending\":\"escape\",\"sanity\":100,\"paranoia\":45}', 12, '2025-12-11 05:00:07'),
+(20, 1, 'return_visit', '{\"timestamp\":\"2025-12-11 06:00:14\",\"previous_chapter\":1,\"previous_paranoia\":0}', 14, '2025-12-11 05:00:14'),
+(21, 1, 'ending_reached', '{\"ending\":\"truth\",\"sanity\":40,\"paranoia\":36}', 14, '2025-12-11 05:01:43'),
+(22, 1, 'return_visit', '{\"timestamp\":\"2025-12-12 03:52:51\",\"previous_chapter\":34,\"previous_paranoia\":36}', 15, '2025-12-12 02:52:51');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `umbra_progress`
+--
+
+DROP TABLE IF EXISTS `umbra_progress`;
+CREATE TABLE `umbra_progress` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `session_count` int(11) DEFAULT 1,
+  `chapter` int(11) DEFAULT 1,
+  `paranoia_level` int(11) DEFAULT 0,
+  `perception` int(11) DEFAULT 100,
+  `trust` int(11) DEFAULT 50,
+  `sanity` int(11) DEFAULT 100,
+  `has_seen_face` tinyint(1) DEFAULT 0,
+  `knows_name` tinyint(1) DEFAULT 0,
+  `room_revealed` tinyint(1) DEFAULT 0,
+  `made_pact` tinyint(1) DEFAULT 0,
+  `attempted_escape` int(11) DEFAULT 0,
+  `current_room` varchar(50) DEFAULT 'void',
+  `inventory` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`inventory`)),
+  `discovered_secrets` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`discovered_secrets`)),
+  `event_log` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`event_log`)),
+  `whispers_heard` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`whispers_heard`)),
+  `total_playtime_minutes` int(11) DEFAULT 0,
+  `last_chapter_time` timestamp NULL DEFAULT NULL,
+  `last_played` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `umbra_progress`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
+
+--
+-- Volcado de datos para la tabla `umbra_progress`
+--
+
+INSERT INTO `umbra_progress` (`id`, `user_id`, `session_count`, `chapter`, `paranoia_level`, `perception`, `trust`, `sanity`, `has_seen_face`, `knows_name`, `room_revealed`, `made_pact`, `attempted_escape`, `current_room`, `inventory`, `discovered_secrets`, `event_log`, `whispers_heard`, `total_playtime_minutes`, `last_chapter_time`, `last_played`, `created_at`) VALUES
+(2, 1, 15, 34, 36, 100, 80, 80, 0, 0, 0, 0, 1, 'void', NULL, NULL, NULL, NULL, 0, NULL, '2025-12-12 02:52:51', '2025-12-11 04:47:28');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `umbra_whispers`
+--
+
+DROP TABLE IF EXISTS `umbra_whispers`;
+CREATE TABLE `umbra_whispers` (
+  `id` int(11) NOT NULL,
+  `content` text NOT NULL,
+  `trigger_condition` varchar(100) DEFAULT NULL,
+  `min_paranoia` int(11) DEFAULT 0,
+  `max_perception` int(11) DEFAULT 100,
+  `rarity` int(11) DEFAULT 50,
+  `is_personalized` tinyint(1) DEFAULT 0,
+  `category` enum('ambient','threat','memory','revelation','fourth_wall') DEFAULT 'ambient'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `umbra_whispers`:
+--
 
 -- --------------------------------------------------------
 
@@ -715,6 +1008,7 @@ INSERT INTO `transacciones_einherjer` (`id`, `user_id`, `username`, `tipo`, `can
 -- Estructura de tabla para la tabla `user_sessions`
 --
 
+DROP TABLE IF EXISTS `user_sessions`;
 CREATE TABLE `user_sessions` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -725,6 +1019,12 @@ CREATE TABLE `user_sessions` (
   `ip_address` varchar(45) DEFAULT NULL,
   `user_agent` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- RELACIONES PARA LA TABLA `user_sessions`:
+--   `user_id`
+--       `usuarios` -> `id`
+--
 
 --
 -- Volcado de datos para la tabla `user_sessions`
@@ -759,7 +1059,12 @@ INSERT INTO `user_sessions` (`id`, `user_id`, `session_token`, `created_at`, `ex
 (31, 1, '427a05000e71e2ddc8f082ad91a80cb400a54dcced031a13713686840d50d610', '2025-11-30 00:33:33', '2025-12-01 04:35:41', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
 (32, 1, 'c6fa93c7296ebebb55bbc7046733173d9c69eb73b823c693c4c1d2fb93bdf51e', '2025-12-01 04:47:39', '2025-12-02 09:25:01', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
 (33, 5, 'e3411c57aec919645440159aa1ad4bce18b124cc23464d2a603b19015630e1df', '2025-12-01 04:54:17', '2025-12-02 09:09:59', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0'),
-(34, 1, '4c4d5c02ceea755959c060f5ca63ea0ffb550e650175a1b77a7a743e941ae439', '2025-12-01 18:41:49', '2025-12-02 22:43:10', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36');
+(34, 1, '4c4d5c02ceea755959c060f5ca63ea0ffb550e650175a1b77a7a743e941ae439', '2025-12-01 18:41:49', '2025-12-02 22:53:01', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
+(35, 1, '42824058799e18f192f82464c8174eb34887f0569bd47ede70f652cecf60dbef', '2025-12-05 02:31:40', '2025-12-06 06:54:47', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
+(36, 1, 'd5cef8caf16a9a315c0c044b8fe70f984ab9171b1863d4d98bcdceafc50d5cbb', '2025-12-05 02:56:18', '2025-12-06 07:14:08', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
+(37, 1, '337c3adb41c03e62efbe6ab267c4006a573ecf306a23017961ed70384594e69a', '2025-12-10 03:09:45', '2025-12-11 08:57:22', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
+(38, 1, '2280a22d0820e2d58340e4e8b2a78a724e2cca94a0533fef586bbc5b5d6cba80', '2025-12-11 01:26:59', '2025-12-12 09:01:51', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'),
+(39, 1, 'e88966d7079c088f4fbc5a1204db50d14bfb3cf52d75d2342c03bdcd21c095d1', '2025-12-12 02:52:45', '2025-12-13 06:55:52', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -767,6 +1072,7 @@ INSERT INTO `user_sessions` (`id`, `user_id`, `session_token`, `created_at`, `ex
 -- Estructura de tabla para la tabla `usuarios`
 --
 
+DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
@@ -792,11 +1098,15 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- RELACIONES PARA LA TABLA `usuarios`:
+--
+
+--
 -- Volcado de datos para la tabla `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `email`, `password_hash`, `unique_id`, `created_at`, `last_login`, `is_active`, `jefes_derrotados`, `megajefes_derrotados`, `horas_jugadas`, `rango`, `copas`, `llaves`, `recompensas`, `perfil_imagen`, `frase`, `nivel`, `experiencia`, `victorias`, `derrotas`) VALUES
-(1, 'admin', 'gg4545149@gmail.com', '$2y$10$.01.ubnWV4CQRj9CdsOMle4RYl1JNwowsAHMqlSKpO1.4X9YyoFbO', 'ADMIN2024', '2025-05-24 22:46:51', '2025-12-01 18:41:49', 1, 0, 0, 0, 'Bronce', 30, 620, 810, 'shuna.jpg', 'El más capo', 50, 0, 12, 8),
+(1, 'admin', 'gg4545149@gmail.com', '$2y$10$.01.ubnWV4CQRj9CdsOMle4RYl1JNwowsAHMqlSKpO1.4X9YyoFbO', 'ADMIN2024', '2025-05-24 22:46:51', '2025-12-12 02:52:45', 1, 0, 0, 0, 'Bronce', 10, 440, 810, 'shuna.jpg', 'El más capo', 50, 0, 12, 8),
 (5, 'fran2', 'geweqeqweq@gmail.com', '$argon2id$v=19$m=65536,t=4,p=1$TUQ2eEQ4NkgyU0ZVSkJXSg$ftskKH0TGJ/CoEWVCBWGLUPlpxBlbuBtsK4Tz56YQWI', 'CC7D8430ABE83E01', '2025-11-21 04:27:24', '2025-12-01 04:54:17', 1, 0, 0, 0, 'Bronce', 0, 0, 0, 'default.jpg', 'Guerrero de Einherjer', 1, 0, 8, 12);
 
 -- --------------------------------------------------------
@@ -805,6 +1115,7 @@ INSERT INTO `usuarios` (`id`, `username`, `email`, `password_hash`, `unique_id`,
 -- Estructura Stand-in para la vista `v_tickets_historial_completo`
 -- (Véase abajo para la vista actual)
 --
+DROP VIEW IF EXISTS `v_tickets_historial_completo`;
 CREATE TABLE `v_tickets_historial_completo` (
 `id` int(11)
 ,`ticket_id` int(11)
@@ -825,6 +1136,7 @@ CREATE TABLE `v_tickets_historial_completo` (
 -- Estructura Stand-in para la vista `v_tickets_pendientes`
 -- (Véase abajo para la vista actual)
 --
+DROP VIEW IF EXISTS `v_tickets_pendientes`;
 CREATE TABLE `v_tickets_pendientes` (
 `id` int(11)
 ,`user_id` int(11)
@@ -858,7 +1170,46 @@ CREATE TABLE `v_tickets_pendientes` (
 --
 DROP TABLE IF EXISTS `marketplace_active_listings`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `marketplace_active_listings`  AS SELECT `ml`.`id` AS `id`, `ml`.`seller_id` AS `seller_id`, `ml`.`seller_username` AS `seller_username`, `ml`.`item_name` AS `item_name`, `ml`.`item_description` AS `item_description`, `ml`.`item_image` AS `item_image`, `ml`.`reward_id` AS `reward_id`, `ml`.`price_llaves` AS `price_llaves`, `ml`.`price_esferas` AS `price_esferas`, `ml`.`price_cupones` AS `price_cupones`, `ml`.`is_premium_listing` AS `is_premium_listing`, `ml`.`is_active` AS `is_active`, `ml`.`is_sold` AS `is_sold`, `ml`.`stock_quantity` AS `stock_quantity`, `ml`.`views_count` AS `views_count`, `ml`.`created_at` AS `created_at`, `ml`.`updated_at` AS `updated_at`, `ml`.`sold_at` AS `sold_at`, `u`.`perfil_imagen` AS `seller_avatar`, `u`.`rango` AS `seller_rank`, `mp`.`premium_active` AS `seller_is_premium`, `mp`.`highlighted_listing` AS `seller_has_highlight` FROM ((`marketplace_listings` `ml` join `usuarios` `u` on(`ml`.`seller_id` = `u`.`id`)) left join `marketplace_premium` `mp` on(`ml`.`seller_id` = `mp`.`user_id` and `mp`.`premium_active` = 1)) WHERE `ml`.`is_active` = 1 AND `ml`.`is_sold` = 0 AND `ml`.`stock_quantity` > 0 ORDER BY `ml`.`is_premium_listing` DESC, `ml`.`created_at` AS `DESCdesc` ASC  ;
+DROP VIEW IF EXISTS `marketplace_active_listings`;
+CREATE ALGORITHM=UNDEFINED
+DEFINER=`root`@`localhost`
+SQL SECURITY DEFINER
+VIEW `marketplace_active_listings` AS
+SELECT
+  ml.id,
+  ml.seller_id,
+  ml.seller_username,
+  ml.item_name,
+  ml.item_description,
+  ml.item_image,
+  ml.reward_id,
+  ml.price_llaves,
+  ml.price_esferas,
+  ml.price_cupones,
+  ml.is_premium_listing,
+  ml.is_active,
+  ml.is_sold,
+  ml.stock_quantity,
+  ml.views_count,
+  ml.created_at,
+  ml.updated_at,
+  ml.sold_at,
+  u.perfil_imagen AS seller_avatar,
+  u.rango AS seller_rank,
+  mp.premium_active AS seller_is_premium,
+  mp.highlighted_listing AS seller_has_highlight
+FROM marketplace_listings ml
+JOIN usuarios u ON ml.seller_id = u.id
+LEFT JOIN marketplace_premium mp
+  ON ml.seller_id = mp.user_id
+  AND mp.premium_active = 1
+WHERE ml.is_active = 1
+  AND ml.is_sold = 0
+  AND ml.stock_quantity > 0
+ORDER BY
+  ml.is_premium_listing DESC,
+  ml.created_at DESC;
+
 
 -- --------------------------------------------------------
 
@@ -867,7 +1218,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `marketplace_seller_stats`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `marketplace_seller_stats`  AS SELECT `u`.`id` AS `seller_id`, `u`.`username` AS `seller_username`, count(distinct `ml`.`id`) AS `total_listings`, count(distinct case when `ml`.`is_active` = 1 and `ml`.`is_sold` = 0 then `ml`.`id` end) AS `active_listings`, count(distinct `mt`.`id`) AS `total_sales`, coalesce(sum(`mt`.`paid_llaves`),0) AS `total_llaves_earned`, coalesce(sum(`mt`.`paid_esferas`),0) AS `total_esferas_earned`, coalesce(sum(`mt`.`paid_cupones`),0) AS `total_cupones_earned`, `mp`.`premium_active` AS `is_premium` FROM (((`usuarios` `u` left join `marketplace_listings` `ml` on(`u`.`id` = `ml`.`seller_id`)) left join `marketplace_transactions` `mt` on(`u`.`id` = `mt`.`seller_id` and `mt`.`status` = 'completed')) left join `marketplace_premium` `mp` on(`u`.`id` = `mp`.`user_id` and `mp`.`premium_active` = 1)) GROUP BY `u`.`id``id`  ;
+DROP VIEW IF EXISTS `marketplace_seller_stats`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `marketplace_seller_stats`  AS SELECT `u`.`id` AS `seller_id`, `u`.`username` AS `seller_username`, count(distinct `ml`.`id`) AS `total_listings`, count(distinct case when `ml`.`is_active` = 1 and `ml`.`is_sold` = 0 then `ml`.`id` end) AS `active_listings`, count(distinct `mt`.`id`) AS `total_sales`, coalesce(sum(`mt`.`paid_llaves`),0) AS `total_llaves_earned`, coalesce(sum(`mt`.`paid_esferas`),0) AS `total_esferas_earned`, coalesce(sum(`mt`.`paid_cupones`),0) AS `total_cupones_earned`, `mp`.`premium_active` AS `is_premium` FROM (((`usuarios` `u` left join `marketplace_listings` `ml` on(`u`.`id` = `ml`.`seller_id`)) left join `marketplace_transactions` `mt` on(`u`.`id` = `mt`.`seller_id` and `mt`.`status` = 'completed')) left join `marketplace_premium` `mp` on(`u`.`id` = `mp`.`user_id` and `mp`.`premium_active` = 1)) GROUP BY `u`.`id`;
 
 -- --------------------------------------------------------
 
@@ -876,7 +1228,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_tickets_historial_completo`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_tickets_historial_completo`  AS SELECT `h`.`id` AS `id`, `h`.`ticket_id` AS `ticket_id`, `h`.`user_id` AS `user_id`, `h`.`username` AS `username`, `h`.`item_name` AS `item_name`, `h`.`cantidad` AS `cantidad`, `h`.`ticket_type` AS `ticket_type`, `h`.`claimed_date` AS `claimed_date`, `h`.`notes` AS `notes`, date_format(`h`.`claimed_date`,'%d/%m/%Y %H:%i') AS `fecha_formateada`, CASE WHEN `h`.`ticket_type` = 'tienda' THEN 'Compra en Tienda' WHEN `h`.`ticket_type` = 'marketplace_compra' THEN 'Compra en Marketplace' WHEN `h`.`ticket_type` = 'marketplace_venta' THEN 'Venta en Marketplace' END AS `tipo_label` FROM `tienda_tickets_historial` AS `h` ORDER BY `h`.`claimed_date` AS `DESCdesc` ASC  ;
+DROP VIEW IF EXISTS `v_tickets_historial_completo`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_tickets_historial_completo`  AS SELECT `h`.`id` AS `id`, `h`.`ticket_id` AS `ticket_id`, `h`.`user_id` AS `user_id`, `h`.`username` AS `username`, `h`.`item_name` AS `item_name`, `h`.`cantidad` AS `cantidad`, `h`.`ticket_type` AS `ticket_type`, `h`.`claimed_date` AS `claimed_date`, `h`.`notes` AS `notes`, date_format(`h`.`claimed_date`,'%d/%m/%Y %H:%i') AS `fecha_formateada`, CASE WHEN `h`.`ticket_type` = 'tienda' THEN 'Compra en Tienda' WHEN `h`.`ticket_type` = 'marketplace_compra' THEN 'Compra en Marketplace' WHEN `h`.`ticket_type` = 'marketplace_venta' THEN 'Venta en Marketplace' END AS `tipo_label` FROM `tienda_tickets_historial` AS `h` ORDER BY `h`.`claimed_date` DESC;
 
 -- --------------------------------------------------------
 
@@ -885,11 +1238,19 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_tickets_pendientes`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_tickets_pendientes`  AS SELECT `t`.`id` AS `id`, `t`.`user_id` AS `user_id`, `t`.`username` AS `username`, `t`.`ticket_type` AS `ticket_type`, `t`.`item_name` AS `item_name`, `t`.`item_description` AS `item_description`, `t`.`cantidad` AS `cantidad`, `t`.`precio_pagado` AS `precio_pagado`, `t`.`moneda_usada` AS `moneda_usada`, `t`.`categoria` AS `categoria`, `t`.`imagen_url` AS `imagen_url`, `t`.`transaction_id` AS `transaction_id`, `t`.`seller_id` AS `seller_id`, `t`.`seller_username` AS `seller_username`, `t`.`listing_id` AS `listing_id`, `t`.`claimed` AS `claimed`, `t`.`claimed_date` AS `claimed_date`, `t`.`created_at` AS `created_at`, `t`.`expires_at` AS `expires_at`, `t`.`notes` AS `notes`, CASE WHEN `t`.`ticket_type` = 'tienda' THEN 'Compra en Tienda' WHEN `t`.`ticket_type` = 'marketplace_compra' THEN 'Compra en Marketplace' WHEN `t`.`ticket_type` = 'marketplace_venta' THEN 'Venta en Marketplace' END AS `tipo_label`, CASE WHEN `t`.`moneda_usada` = 'esferas' THEN concat(`t`.`precio_pagado`,' Esferas') WHEN `t`.`moneda_usada` = 'llaves' THEN concat(`t`.`precio_pagado`,' Llaves') WHEN `t`.`moneda_usada` = 'cupones_azules' THEN concat(`t`.`precio_pagado`,' Cupones Azules') END AS `precio_label`, to_days(current_timestamp()) - to_days(`t`.`created_at`) AS `dias_antiguedad` FROM `tienda_tickets` AS `t` WHERE `t`.`claimed` = 0 ORDER BY `t`.`created_at` AS `DESCdesc` ASC  ;
+DROP VIEW IF EXISTS `v_tickets_pendientes`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_tickets_pendientes`  AS SELECT `t`.`id` AS `id`, `t`.`user_id` AS `user_id`, `t`.`username` AS `username`, `t`.`ticket_type` AS `ticket_type`, `t`.`item_name` AS `item_name`, `t`.`item_description` AS `item_description`, `t`.`cantidad` AS `cantidad`, `t`.`precio_pagado` AS `precio_pagado`, `t`.`moneda_usada` AS `moneda_usada`, `t`.`categoria` AS `categoria`, `t`.`imagen_url` AS `imagen_url`, `t`.`transaction_id` AS `transaction_id`, `t`.`seller_id` AS `seller_id`, `t`.`seller_username` AS `seller_username`, `t`.`listing_id` AS `listing_id`, `t`.`claimed` AS `claimed`, `t`.`claimed_date` AS `claimed_date`, `t`.`created_at` AS `created_at`, `t`.`expires_at` AS `expires_at`, `t`.`notes` AS `notes`, CASE WHEN `t`.`ticket_type` = 'tienda' THEN 'Compra en Tienda' WHEN `t`.`ticket_type` = 'marketplace_compra' THEN 'Compra en Marketplace' WHEN `t`.`ticket_type` = 'marketplace_venta' THEN 'Venta en Marketplace' END AS `tipo_label`, CASE WHEN `t`.`moneda_usada` = 'esferas' THEN concat(`t`.`precio_pagado`,' Esferas') WHEN `t`.`moneda_usada` = 'llaves' THEN concat(`t`.`precio_pagado`,' Llaves') WHEN `t`.`moneda_usada` = 'cupones_azules' THEN concat(`t`.`precio_pagado`,' Cupones Azules') END AS `precio_label`, to_days(current_timestamp()) - to_days(`t`.`created_at`) AS `dias_antiguedad` FROM `tienda_tickets` AS `t` WHERE `t`.`claimed` = 0 ORDER BY `t`.`created_at` DESC;
 
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `ai_chat_usage`
+--
+ALTER TABLE `ai_chat_usage`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_usage` (`user_id`,`model_type`,`usage_date`);
 
 --
 -- Indices de la tabla `marketplace_cupones`
@@ -1003,15 +1364,6 @@ ALTER TABLE `recompensas_usuario`
   ADD KEY `username` (`username`);
 
 --
--- Indices de la tabla `terrenos`
---
-ALTER TABLE `terrenos`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_owner` (`owner_id`),
-  ADD KEY `idx_categoria` (`categoria`),
-  ADD KEY `idx_precio` (`precio_actual`);
-
---
 -- Indices de la tabla `tienda_tickets`
 --
 ALTER TABLE `tienda_tickets`
@@ -1049,6 +1401,34 @@ ALTER TABLE `transacciones_einherjer`
   ADD KEY `tipo` (`tipo`);
 
 --
+-- Indices de la tabla `umbra_endings`
+--
+ALTER TABLE `umbra_endings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_umbra_endings_user` (`user_id`);
+
+--
+-- Indices de la tabla `umbra_player_events`
+--
+ALTER TABLE `umbra_player_events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_event` (`user_id`,`event_type`),
+  ADD KEY `idx_umbra_events_user` (`user_id`);
+
+--
+-- Indices de la tabla `umbra_progress`
+--
+ALTER TABLE `umbra_progress`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_umbra_progress_user` (`user_id`);
+
+--
+-- Indices de la tabla `umbra_whispers`
+--
+ALTER TABLE `umbra_whispers`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `user_sessions`
 --
 ALTER TABLE `user_sessions`
@@ -1070,6 +1450,12 @@ ALTER TABLE `usuarios`
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
+
+--
+-- AUTO_INCREMENT de la tabla `ai_chat_usage`
+--
+ALTER TABLE `ai_chat_usage`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `marketplace_cupones`
@@ -1141,13 +1527,7 @@ ALTER TABLE `recompensas_eliminadas`
 -- AUTO_INCREMENT de la tabla `recompensas_usuario`
 --
 ALTER TABLE `recompensas_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
-
---
--- AUTO_INCREMENT de la tabla `terrenos`
---
-ALTER TABLE `terrenos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT de la tabla `tienda_tickets`
@@ -1165,13 +1545,37 @@ ALTER TABLE `tienda_tickets_historial`
 -- AUTO_INCREMENT de la tabla `transacciones_einherjer`
 --
 ALTER TABLE `transacciones_einherjer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+
+--
+-- AUTO_INCREMENT de la tabla `umbra_endings`
+--
+ALTER TABLE `umbra_endings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `umbra_player_events`
+--
+ALTER TABLE `umbra_player_events`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT de la tabla `umbra_progress`
+--
+ALTER TABLE `umbra_progress`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `umbra_whispers`
+--
+ALTER TABLE `umbra_whispers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `user_sessions`
 --
 ALTER TABLE `user_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -1182,6 +1586,12 @@ ALTER TABLE `usuarios`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `ai_chat_usage`
+--
+ALTER TABLE `ai_chat_usage`
+  ADD CONSTRAINT `ai_chat_usage_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `marketplace_cupones`
@@ -1258,12 +1668,6 @@ ALTER TABLE `recompensas_usuario`
   ADD CONSTRAINT `recompensas_usuario_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `terrenos`
---
-ALTER TABLE `terrenos`
-  ADD CONSTRAINT `terrenos_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
-
---
 -- Filtros para la tabla `tienda_tickets`
 --
 ALTER TABLE `tienda_tickets`
@@ -1282,6 +1686,24 @@ ALTER TABLE `transacciones_einherjer`
   ADD CONSTRAINT `transacciones_einherjer_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `umbra_endings`
+--
+ALTER TABLE `umbra_endings`
+  ADD CONSTRAINT `umbra_endings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `umbra_player_events`
+--
+ALTER TABLE `umbra_player_events`
+  ADD CONSTRAINT `umbra_player_events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `umbra_progress`
+--
+ALTER TABLE `umbra_progress`
+  ADD CONSTRAINT `umbra_progress_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `user_sessions`
 --
 ALTER TABLE `user_sessions`
@@ -1291,11 +1713,13 @@ DELIMITER $$
 --
 -- Eventos
 --
+DROP EVENT IF EXISTS `cleanup_old_queue_entries`$$
 CREATE DEFINER=`root`@`localhost` EVENT `cleanup_old_queue_entries` ON SCHEDULE EVERY 1 MINUTE STARTS '2025-11-19 15:53:01' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
     DELETE FROM online_queue 
     WHERE last_heartbeat < DATE_SUB(NOW(), INTERVAL 5 MINUTE);
 END$$
 
+DROP EVENT IF EXISTS `cleanup_abandoned_battles`$$
 CREATE DEFINER=`root`@`localhost` EVENT `cleanup_abandoned_battles` ON SCHEDULE EVERY 5 MINUTE STARTS '2025-11-19 15:53:01' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
     UPDATE online_battles 
     SET status = 'abandoned',
