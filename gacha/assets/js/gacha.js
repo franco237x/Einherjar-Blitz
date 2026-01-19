@@ -9,13 +9,13 @@ class GachaSystem {
         this.userKeys = 0;
         this.init();
     }
-    
+
     init() {
         this.bindEvents();
         this.loadUserData();
         this.loadRecentHistory(); // Cargar historial al inicializar
     }
-    
+
     bindEvents() {
         // Botones de apertura de cofres
         document.querySelectorAll('.open-chest-btn').forEach(btn => {
@@ -47,14 +47,14 @@ class GachaSystem {
             console.log('Ya hay un cofre abriéndose, ignorando clic');
             return;
         }
-        
+
         console.log(`Abriendo cofre: ${chestType}, costo: ${keyCost}`);
         this.isOpening = true;
-        
+
         try {
             // Mostrar animación de apertura inmediata
             this.playOpenAnimation(chestType);
-            
+
             // Realizar petición al servidor
             console.log('Enviando petición al servidor...');
             const response = await fetch('process_gacha.php', {
@@ -66,13 +66,13 @@ class GachaSystem {
                     chest_type: chestType
                 })
             });
-            
+
             console.log('Respuesta del servidor recibida, status:', response.status);
-            
+
             // Verificar si la respuesta es JSON válida
             const responseText = await response.text();
             console.log('Respuesta raw:', responseText);
-            
+
             let result;
             try {
                 result = JSON.parse(responseText);
@@ -82,15 +82,15 @@ class GachaSystem {
                 console.error('Response text:', responseText);
                 throw new Error('El servidor devolvió una respuesta inválida');
             }
-            
+
             if (result.success) {
                 // Agregar al historial
                 this.addToHistory(chestType, result.reward);
-                
+
                 // Redirigir a la página de recompensa con los datos
                 setTimeout(() => {
                     const rewardData = encodeURIComponent(JSON.stringify(result.reward));
-                    window.location.href = `reward.php?chest=${chestType}&reward=${rewardData}`;
+                    window.location.href = `csgo-reward.php?chest=${chestType}&reward=${rewardData}`;
                 }, 1500); // Esperar a que termine la animación
             } else {
                 console.error('Error del servidor:', result.message);
@@ -98,7 +98,7 @@ class GachaSystem {
                 this.restoreButton(chestType);
                 this.isOpening = false;
             }
-            
+
         } catch (error) {
             console.error('Error opening chest:', error);
             this.showError('Error del servidor. Inténtalo de nuevo.');
@@ -110,20 +110,20 @@ class GachaSystem {
     playOpenAnimation(chestType) {
         // Convertir guiones bajos a guiones para el selector
         const selectorType = chestType.replace(/_/g, '-');
-        
+
         // Buscar la tarjeta de cofre usando el data-chest-type
         const card = document.querySelector(`[data-chest-type="${selectorType}"]`);
-        
+
         if (!card) {
             console.warn(`No se encontró la tarjeta del cofre: ${chestType} (selector: ${selectorType})`);
             return;
         }
-        
+
         // Efecto visual de apertura
         card.style.transform = 'scale(1.05)';
         card.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.8)';
         card.style.transition = 'all 0.3s ease';
-        
+
         // Añadir clase de cargando al botón
         const btn = card.querySelector('.open-chest-btn, button[onclick*="openChest"]');
         if (btn) {
@@ -137,19 +137,19 @@ class GachaSystem {
     restoreButton(chestType) {
         // Convertir guiones bajos a guiones para el selector
         const selectorType = chestType.replace(/_/g, '-');
-        
+
         // Buscar la tarjeta de cofre usando el data-chest-type
         const card = document.querySelector(`[data-chest-type="${selectorType}"]`);
-        
+
         if (!card) {
             console.warn(`No se encontró la tarjeta del cofre para restaurar: ${chestType} (selector: ${selectorType})`);
             return;
         }
-        
+
         // Restaurar efectos visuales
         card.style.transform = '';
         card.style.boxShadow = '';
-        
+
         const btn = card.querySelector('.open-chest-btn, button[onclick*="openChest"]');
         if (btn) {
             const originalText = btn.getAttribute('data-original-text');
@@ -165,18 +165,18 @@ class GachaSystem {
         // Determinar el tipo de error y configuración
         const isKeyError = message.toLowerCase().includes('llave') || message.toLowerCase().includes('insuficient');
         const isBlockedError = message.toLowerCase().includes('deshabilitado') || message.toLowerCase().includes('bloqueado');
-        
+
         let config = {
             icon: 'fas fa-exclamation-triangle',
             title: 'Error',
             bgClass: 'bg-danger',
             borderColor: '#dc3545'
         };
-        
+
         if (isKeyError) {
             config = {
-                icon: 'fas fa-key',
-                title: 'Llaves Insuficientes',
+                icon: 'fas fa-lock',
+                title: '¡Cofre Sellado!',
                 bgClass: 'gacha-error-keys',
                 borderColor: '#ffd700'
             };
@@ -188,7 +188,7 @@ class GachaSystem {
                 borderColor: '#6c757d'
             };
         }
-        
+
         // Crear toast personalizado para el juego
         const toast = document.createElement('div');
         toast.className = 'gacha-error-toast position-fixed';
@@ -199,7 +199,7 @@ class GachaSystem {
             min-width: 350px;
             max-width: 400px;
         `;
-        
+
         toast.innerHTML = `
             <div class="gacha-toast-card">
                 <div class="gacha-toast-header ${config.bgClass}">
@@ -217,22 +217,22 @@ class GachaSystem {
                     <p class="error-message">${message}</p>
                     ${isKeyError ? `
                         <div class="key-suggestion">
-                            <i class="fas fa-lightbulb"></i>
-                            <small>Puedes obtener más llaves comprando en el rol</small>
+                            <i class="fas fa-scroll"></i>
+                            <small>Consigue llaves mágicas en el rol o comerciando con otros Einherjar</small>
                         </div>
                     ` : ''}
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         // Animación de entrada
         setTimeout(() => {
             toast.style.transform = 'translateX(0)';
             toast.style.opacity = '1';
         }, 10);
-        
+
         // Auto-dismiss
         setTimeout(() => {
             if (toast.parentElement) {
@@ -261,7 +261,7 @@ class GachaSystem {
     loadRecentHistory() {
         console.log('Loading recent history...');
         const historyList = document.getElementById('historyList');
-        
+
         if (!historyList) {
             console.warn('History list element not found');
             return;
@@ -269,7 +269,7 @@ class GachaSystem {
 
         // Obtener historial del localStorage
         const history = this.getStoredHistory();
-        
+
         if (history.length === 0) {
             historyList.innerHTML = `
                 <div class="history-empty">
@@ -282,7 +282,7 @@ class GachaSystem {
 
         // Mostrar los últimos 5 elementos
         const recentHistory = history.slice(-5).reverse();
-        
+
         historyList.innerHTML = recentHistory.map(item => `
             <div class="history-item">
                 <div class="history-icon">
@@ -314,7 +314,7 @@ class GachaSystem {
     // Agregar elemento al historial
     addToHistory(chestType, reward) {
         const history = this.getStoredHistory();
-        
+
         const chestNames = {
             'terrains': 'Cofre de Terrenos',
             'elden_souls': 'Cofre Elden Ring/Dark Souls'
@@ -329,7 +329,7 @@ class GachaSystem {
         };
 
         history.push(historyItem);
-        
+
         // Mantener solo los últimos 20 elementos
         if (history.length > 20) {
             history.splice(0, history.length - 20);
@@ -351,9 +351,9 @@ class GachaSystem {
         const hours = Math.floor(diff / 3600000);
         const days = Math.floor(diff / 86400000);
 
-        if (days > 0) return `Hace ${days}d`;
-        if (hours > 0) return `Hace ${hours}h`;
-        if (minutes > 0) return `Hace ${minutes}m`;
+        if (days > 0) return `Hace ${days} d`;
+        if (hours > 0) return `Hace ${hours} h`;
+        if (minutes > 0) return `Hace ${minutes} m`;
         return 'Hace un momento';
     }
 }
@@ -361,7 +361,7 @@ class GachaSystem {
 // Función global para mantener compatibilidad con onclick - ESTA ES LA IMPORTANTE
 function openChest(chestType, cost) {
     console.log('openChest called with:', chestType, cost);
-    
+
     if (window.gachaSystem) {
         window.gachaSystem.openChest(chestType, cost);
     } else {
@@ -392,19 +392,19 @@ window.openChest = openChest;
 window.refreshHistory = refreshHistory;
 
 // Inicializar sistema cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Initializing Gacha System...');
     window.gachaSystem = new GachaSystem();
-    
+
     // Precargar recursos para las animaciones
     const preloadImages = [
         'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%23ffd700" stroke-width="4"/></svg>'
     ];
-    
+
     preloadImages.forEach(src => {
         const img = new Image();
         img.src = src;
     });
-    
+
     console.log('Gacha System initialized successfully');
 });

@@ -145,9 +145,12 @@ try {
     $current_keys = $user_data['llaves'];
 
     if ($current_keys < $config['cost']) {
+        $faltantes = $config['cost'] - $current_keys;
         echo json_encode([
             'success' => false,
-            'message' => "Llaves insuficientes. Necesitas {$config['cost']} llaves, tienes {$current_keys}"
+            'message' => "¡El cofre está sellado! Te faltan {$faltantes} llave(s) mágica(s) para abrirlo.",
+            'keys_needed' => $config['cost'],
+            'keys_current' => $current_keys
         ]);
         exit;
     }
