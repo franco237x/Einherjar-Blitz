@@ -1,6 +1,7 @@
 /**
  * Einherjer Blitz 3.0 - JavaScript Principal
- * Sistema de autenticación y efectos visuales
+ * Sistema de autenticación, efectos visuales y mejoras UX
+ * Mobile-First Optimizado
  */
 
 class EinherjerAuth {
@@ -12,63 +13,221 @@ class EinherjerAuth {
         // Inicializar efectos visuales
         this.createParticles();
         this.initAnimations();
-        
+
         // Eventos
         this.bindEvents();
-        
+
+        // Password strength checker
+        this.initPasswordStrength();
+
+        // Form validation
+        this.initFormValidation();
+
         // Inicializar AOS (Animate On Scroll)
         if (typeof AOS !== 'undefined') {
             AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
+                duration: 600,
+                easing: 'ease-out',
                 once: true,
-                offset: 100
+                offset: 50,
+                disable: 'mobile' // Disable on mobile for performance
             });
         }
     }
 
-    // Crear partículas flotantes
+    // Crear partículas flotantes con runas nórdicas
     createParticles() {
         const particlesContainer = document.getElementById('particles');
         if (!particlesContainer) return;
 
-        const particleCount = window.innerWidth < 768 ? 30 : 50;
+        // Reducir partículas en móvil para mejor rendimiento
+        const isMobile = window.innerWidth < 768;
+        const particleCount = isMobile ? 15 : 30;
+        const runeCount = isMobile ? 5 : 10;
 
+        // Partículas normales
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = (Math.random() * 3 + 1) + 'px';
+            particle.style.height = particle.style.width;
             particle.style.animationDelay = Math.random() * 15 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.animationDuration = (Math.random() * 15 + 15) + 's';
             particlesContainer.appendChild(particle);
+        }
+
+        // Runas flotantes (solo en desktop)
+        if (!isMobile) {
+            const runes = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᚺ', 'ᚾ', 'ᛁ', 'ᛃ', 'ᛈ', 'ᛇ', 'ᛉ', 'ᛊ', 'ᛏ', 'ᛒ', 'ᛖ', 'ᛗ'];
+
+            for (let i = 0; i < runeCount; i++) {
+                const rune = document.createElement('div');
+                rune.className = 'particle-rune';
+                rune.textContent = runes[Math.floor(Math.random() * runes.length)];
+                rune.style.left = Math.random() * 100 + '%';
+                rune.style.fontSize = (Math.random() * 1.5 + 0.8) + 'rem';
+                rune.style.animationDelay = Math.random() * 20 + 's';
+                rune.style.animationDuration = (Math.random() * 20 + 20) + 's';
+                particlesContainer.appendChild(rune);
+            }
         }
     }
 
     // Inicializar animaciones
     initAnimations() {
-        // Animación de entrada del body
+        // Fade in del body
         document.body.style.opacity = '0';
-        setTimeout(() => {
-            document.body.style.transition = 'opacity 1s ease';
+        requestAnimationFrame(() => {
+            document.body.style.transition = 'opacity 0.5s ease';
             document.body.style.opacity = '1';
-        }, 100);
+        });
     }
 
     // Eventos
     bindEvents() {
-        // Evento para redimensionar ventana
-        window.addEventListener('resize', this.handleResize.bind(this));
+        // Resize handler con debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => this.handleResize(), 250);
+        });
+
+        // Form submissions
+        const authForm = document.getElementById('authForm');
+        if (authForm) {
+            authForm.addEventListener('submit', (e) => this.handleLogin(e));
+        }
+
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+        }
+
+        // Tab change - clear alerts
+        const tabButtons = document.querySelectorAll('[data-bs-toggle="pill"]');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('shown.bs.tab', () => {
+                this.clearAlerts();
+            });
+        });
     }
 
     // Manejar redimensionamiento
     handleResize() {
-        // Recrear partículas si es necesario
         const particlesContainer = document.getElementById('particles');
-        if (particlesContainer && window.innerWidth < 768 && particlesContainer.children.length > 30) {
-            // Remover partículas extras en móvil
-            while (particlesContainer.children.length > 30) {
-                particlesContainer.removeChild(particlesContainer.lastChild);
+        if (particlesContainer && window.innerWidth < 768) {
+            // Reducir partículas en móvil
+            const particles = particlesContainer.querySelectorAll('.particle, .particle-rune');
+            if (particles.length > 20) {
+                for (let i = 20; i < particles.length; i++) {
+                    particles[i].remove();
+                }
             }
+        }
+    }
+
+    // Password strength checker
+    initPasswordStrength() {
+        const passwordField = document.getElementById('regPassword');
+        const strengthContainer = document.getElementById('passwordStrength');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const strengthLabel = document.getElementById('strengthLabel');
+        const strengthHint = document.getElementById('strengthHint');
+
+        if (!passwordField || !strengthContainer) return;
+
+        passwordField.addEventListener('input', () => {
+            const password = passwordField.value;
+
+            if (password.length === 0) {
+                strengthContainer.style.display = 'none';
+                return;
+            }
+
+            strengthContainer.style.display = 'block';
+            const strength = this.calculatePasswordStrength(password);
+
+            strengthFill.className = 'strength-fill ' + strength.level;
+            strengthText.className = 'strength-text ' + strength.level;
+            strengthLabel.textContent = strength.label;
+            strengthHint.textContent = strength.hint;
+        });
+    }
+
+    calculatePasswordStrength(password) {
+        let score = 0;
+        const checks = {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            numbers: /\d/.test(password),
+            symbols: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        score += checks.length ? 1 : 0;
+        score += checks.lowercase ? 1 : 0;
+        score += checks.uppercase ? 1 : 0;
+        score += checks.numbers ? 1 : 0;
+        score += checks.symbols ? 1 : 0;
+        score += password.length >= 12 ? 1 : 0;
+
+        if (password.length < 6) {
+            return { level: 'weak', label: 'Muy débil', hint: 'Mínimo 6 caracteres' };
+        } else if (score <= 2) {
+            return { level: 'weak', label: 'Débil', hint: 'Añade mayúsculas y números' };
+        } else if (score <= 3) {
+            return { level: 'fair', label: 'Regular', hint: 'Añade símbolos especiales' };
+        } else if (score <= 4) {
+            return { level: 'good', label: 'Buena', hint: 'Casi perfecta' };
+        } else {
+            return { level: 'strong', label: 'Excelente', hint: '¡Contraseña segura!' };
+        }
+    }
+
+    // Form validation
+    initFormValidation() {
+        // Password confirmation validation
+        const confirmField = document.getElementById('regConfirmPassword');
+        const passwordField = document.getElementById('regPassword');
+
+        if (confirmField && passwordField) {
+            confirmField.addEventListener('input', () => {
+                const password = passwordField.value;
+                const confirm = confirmField.value;
+
+                if (confirm.length > 0) {
+                    if (password === confirm) {
+                        confirmField.classList.add('is-valid');
+                        confirmField.classList.remove('is-invalid');
+                    } else {
+                        confirmField.classList.add('is-invalid');
+                        confirmField.classList.remove('is-valid');
+                    }
+                } else {
+                    confirmField.classList.remove('is-valid', 'is-invalid');
+                }
+            });
+        }
+
+        // Username validation
+        const usernameField = document.getElementById('regUsername');
+        if (usernameField) {
+            usernameField.addEventListener('input', () => {
+                const username = usernameField.value;
+                if (username.length > 0) {
+                    if (username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username)) {
+                        usernameField.classList.add('is-valid');
+                        usernameField.classList.remove('is-invalid');
+                    } else {
+                        usernameField.classList.add('is-invalid');
+                        usernameField.classList.remove('is-valid');
+                    }
+                } else {
+                    usernameField.classList.remove('is-valid', 'is-invalid');
+                }
+            });
         }
     }
 
@@ -79,10 +238,15 @@ class EinherjerAuth {
 
         const alertElement = document.createElement('div');
         alertElement.className = `alert alert-${type} alert-dismissible fade show`;
+        alertElement.setAttribute('role', 'alert');
+
+        const icon = type === 'success' ? 'check-circle' :
+            type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle';
+
         alertElement.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            <i class="fas fa-${icon} me-2"></i>
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar"></button>
         `;
 
         container.innerHTML = '';
@@ -91,9 +255,15 @@ class EinherjerAuth {
         // Auto-remover después de 5 segundos
         setTimeout(() => {
             if (alertElement.parentNode) {
-                alertElement.remove();
+                alertElement.classList.remove('show');
+                setTimeout(() => alertElement.remove(), 150);
             }
         }, 5000);
+
+        // Scroll to alert on mobile
+        if (window.innerWidth < 768) {
+            alertElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 
     // Limpiar alertas
@@ -105,26 +275,24 @@ class EinherjerAuth {
     }
 
     // Manejar login
-    async handleLogin(event, isMobile = false) {
+    async handleLogin(event) {
         event.preventDefault();
-        
-        const formPrefix = isMobile ? 'mobile' : '';
-        const btnId = `${formPrefix}LoginBtn`;
-        const spinnerId = `${formPrefix}LoginSpinner`;
-        const alertContainer = isMobile ? 'mobileAlertContainer' : 'alertContainer';
-        
-        const loginBtn = document.getElementById(btnId);
-        const loginSpinner = document.getElementById(spinnerId);
-        const formData = new FormData(event.target);
-        
+
+        const loginBtn = document.getElementById('loginBtn');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const form = event.target;
+        const formData = new FormData(form);
+
         // Agregar campos adicionales
-        formData.append('action', 'login');
-        const useUniqueIdField = document.getElementById(isMobile ? 'mobileUseUniqueId' : 'useUniqueId');
-        formData.append('use_unique_id', useUniqueIdField.checked);
+        const useUniqueIdField = document.getElementById('useUniqueId');
+        const rememberMeField = document.getElementById('rememberMe');
+
+        formData.append('use_unique_id', useUniqueIdField?.checked ? 'true' : 'false');
+        formData.append('remember_me', rememberMeField?.checked ? 'true' : 'false');
 
         // Mostrar loading
         this.setLoading(loginBtn, loginSpinner, true);
-        this.clearAlerts(alertContainer);
+        this.clearAlerts();
 
         try {
             const response = await fetch('index.php', {
@@ -135,39 +303,62 @@ class EinherjerAuth {
             const result = await response.json();
 
             if (result.success) {
-                this.showAlert('¡Bienvenido de vuelta, guerrero! Redirigiendo...', 'success', alertContainer);
+                this.showAlert('¡Bienvenido, guerrero! Entrando al reino...', 'success');
+
+                // Haptic feedback on mobile if available
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 50, 50]);
+                }
+
                 setTimeout(() => {
                     window.location.href = result.redirect;
-                }, 1500);
+                }, 1000);
             } else {
-                this.showAlert(result.message, 'danger', alertContainer);
+                this.showAlert(result.message, 'danger');
+
+                // Update attempts counter if present
+                if (result.attempts_remaining !== undefined) {
+                    this.updateAttemptsCounter(result.attempts_remaining);
+                }
+
+                // If blocked, disable form
+                if (result.blocked) {
+                    this.handleRateLimitBlock(result.remaining_seconds);
+                }
             }
         } catch (error) {
             console.error('Error:', error);
-            this.showAlert('Error de conexión. Por favor, inténtalo de nuevo.', 'danger', alertContainer);
+            this.showAlert('Error de conexión. Verifica tu internet.', 'danger');
         } finally {
             this.setLoading(loginBtn, loginSpinner, false);
         }
     }
 
     // Manejar registro
-    async handleRegister(event, isMobile = false) {
+    async handleRegister(event) {
         event.preventDefault();
-        
-        const formPrefix = isMobile ? 'mobile' : '';
-        const btnId = `${formPrefix}RegisterBtn`;
-        const spinnerId = `${formPrefix}RegisterSpinner`;
-        const alertContainer = isMobile ? 'mobileAlertContainer' : 'alertContainer';
-        
-        const registerBtn = document.getElementById(btnId);
-        const registerSpinner = document.getElementById(spinnerId);
+
+        const registerBtn = document.getElementById('registerBtn');
+        const registerSpinner = document.getElementById('registerSpinner');
         const formData = new FormData(event.target);
-        
-        formData.append('action', 'register');
+
+        // Validar antes de enviar
+        const password = formData.get('reg_password');
+        const confirmPassword = formData.get('reg_confirm_password');
+
+        if (password !== confirmPassword) {
+            this.showAlert('Las contraseñas no coinciden', 'danger');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showAlert('La contraseña debe tener al menos 6 caracteres', 'danger');
+            return;
+        }
 
         // Mostrar loading
         this.setLoading(registerBtn, registerSpinner, true);
-        this.clearAlerts(alertContainer);
+        this.clearAlerts();
 
         try {
             const response = await fetch('index.php', {
@@ -178,31 +369,69 @@ class EinherjerAuth {
             const result = await response.json();
 
             if (result.success) {
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+
                 this.showAlert(
-                    `¡Cuenta creada exitosamente! Tu ID único es: <strong>${result.unique_id}</strong>. Guárdalo bien, lo necesitarás para iniciar sesión.`, 
-                    'success', 
-                    alertContainer
+                    `¡Cuenta creada! Tu ID único es: <strong>${result.unique_id}</strong>. Guárdalo.`,
+                    'success'
                 );
-                
+
                 // Cambiar a tab de login después de 3 segundos
                 setTimeout(() => {
-                    if (isMobile) {
-                        this.switchMobileTab('login');
-                        document.querySelector('#mobileLoginForm [name="username"]').value = formData.get('reg_username');
-                    } else {
-                        this.switchTab('login');
-                        document.querySelector('#loginForm [name="username"]').value = formData.get('reg_username');
+                    this.switchTab('login');
+                    const usernameField = document.getElementById('loginUsername');
+                    if (usernameField) {
+                        usernameField.value = formData.get('reg_username');
+                        usernameField.focus();
                     }
                 }, 3000);
             } else {
-                this.showAlert(result.message, 'danger', alertContainer);
+                this.showAlert(result.message, 'danger');
             }
         } catch (error) {
             console.error('Error:', error);
-            this.showAlert('Error de conexión. Por favor, inténtalo de nuevo.', 'danger', alertContainer);
+            this.showAlert('Error de conexión. Por favor, inténtalo de nuevo.', 'danger');
         } finally {
             this.setLoading(registerBtn, registerSpinner, false);
         }
+    }
+
+    // Update attempts counter
+    updateAttemptsCounter(remaining) {
+        const counter = document.getElementById('attemptsCount');
+        const warning = document.getElementById('rateLimitWarning');
+
+        if (counter) {
+            counter.textContent = remaining;
+        }
+
+        if (warning && remaining < 5) {
+            warning.style.display = 'flex';
+        }
+    }
+
+    // Handle rate limit block
+    handleRateLimitBlock(seconds) {
+        const loginBtn = document.getElementById('loginBtn');
+        if (!loginBtn) return;
+
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = `<i class="fas fa-clock me-2"></i>Espera ${seconds}s`;
+
+        const interval = setInterval(() => {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión';
+                this.clearAlerts();
+            } else {
+                loginBtn.innerHTML = `<i class="fas fa-clock me-2"></i>Espera ${seconds}s`;
+            }
+        }, 1000);
     }
 
     // Configurar estado de loading
@@ -211,205 +440,84 @@ class EinherjerAuth {
             button.disabled = isLoading;
         }
         if (spinner) {
-            if (isLoading) {
-                spinner.classList.remove('d-none');
-            } else {
-                spinner.classList.add('d-none');
-            }
+            spinner.classList.toggle('d-none', !isLoading);
         }
     }
 
-    // Cambiar tab (desktop)
+    // Cambiar tab
     switchTab(tabName) {
-        // Activar tab
-        const tabs = document.querySelectorAll('#authTabs .nav-link');
-        tabs.forEach(tab => tab.classList.remove('active'));
-        document.getElementById(`${tabName}-tab`).classList.add('active');
-
-        // Mostrar contenido
-        const contents = document.querySelectorAll('#authTabContent .tab-pane');
-        contents.forEach(content => {
-            content.classList.remove('show', 'active');
-        });
-        document.getElementById(`${tabName}-content`).classList.add('show', 'active');
-
-        this.clearAlerts('alertContainer');
-    }
-
-    // Cambiar tab (móvil)
-    switchMobileTab(tabName) {
-        // Activar tab
-        const tabs = document.querySelectorAll('#mobileAuthTabs .nav-link');
-        tabs.forEach(tab => tab.classList.remove('active'));
-        document.getElementById(`mobile-${tabName}-tab`).classList.add('active');
-
-        // Mostrar contenido
-        const contents = document.querySelectorAll('#mobileAuthTabContent .tab-pane');
-        contents.forEach(content => {
-            content.classList.remove('show', 'active');
-        });
-        document.getElementById(`mobile-${tabName}-content`).classList.add('show', 'active');
-
-        this.clearAlerts('mobileAlertContainer');
+        const tab = document.getElementById(`${tabName}-tab`);
+        if (tab) {
+            const bsTab = new bootstrap.Tab(tab);
+            bsTab.show();
+        }
+        this.clearAlerts();
     }
 }
 
-// Funciones globales (para mantener compatibilidad con el HTML)
+// Funciones globales
 let authSystem;
 
 // Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     authSystem = new EinherjerAuth();
 });
 
-// Funciones de utilidad
+// Toggle password visibility
 function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
-    const button = field.nextElementSibling.querySelector('i');
-    
+    if (!field) return;
+
+    const button = field.parentElement.querySelector('button i');
+
     if (field.type === 'password') {
         field.type = 'text';
-        button.className = 'fas fa-eye-slash';
+        if (button) button.className = 'fas fa-eye-slash';
     } else {
         field.type = 'password';
-        button.className = 'fas fa-eye';
+        if (button) button.className = 'fas fa-eye';
     }
 }
 
+// Toggle password mode (password/unique ID)
 function togglePasswordMode() {
-    const useUniqueId = document.getElementById('useUniqueId').checked;
+    const useUniqueId = document.getElementById('useUniqueId')?.checked;
     const passwordLabel = document.getElementById('passwordLabel');
-    const passwordField = document.getElementById('passwordField');
+    const passwordField = document.getElementById('loginPassword');
 
-    if (useUniqueId) {
-        passwordLabel.innerHTML = '<i class="fas fa-fingerprint me-1"></i> ID Único';
-        passwordField.placeholder = 'Ingresa tu ID único';
-    } else {
-        passwordLabel.innerHTML = '<i class="fas fa-lock me-1"></i> Contraseña';
-        passwordField.placeholder = 'Tu contraseña';
-    }
-}
-
-function toggleMobilePasswordMode() {
-    const useUniqueId = document.getElementById('mobileUseUniqueId').checked;
-    const passwordLabel = document.getElementById('mobilePasswordLabel');
-    const passwordField = document.getElementById('mobilePasswordField');
-
-    if (useUniqueId) {
-        passwordLabel.innerHTML = '<i class="fas fa-fingerprint me-1"></i> ID Único';
-        passwordField.placeholder = 'Ingresa tu ID único';
-    } else {
-        passwordLabel.innerHTML = '<i class="fas fa-lock me-1"></i> Contraseña';
-        passwordField.placeholder = 'Tu contraseña';
-    }
-}
-
-function showMobileAuth() {
-    const modal = new bootstrap.Modal(document.getElementById('mobileAuthModal'));
-    modal.show();
-}
-
-// Handlers de formularios
-function handleLogin(event) {
-    return authSystem.handleLogin(event, false);
-}
-
-function handleRegister(event) {
-    return authSystem.handleRegister(event, false);
-}
-
-function handleMobileLogin(event) {
-    return authSystem.handleLogin(event, true);
-}
-
-function handleMobileRegister(event) {
-    return authSystem.handleRegister(event, true);
-}
-
-// Efectos adicionales
-document.addEventListener('DOMContentLoaded', function() {
-    // Efecto parallax suave en el scroll
-    let ticking = false;
-    
-    function updateParallax() {
-        const scrolled = window.pageYOffset;
-        const parallax = document.querySelector('.animated-bg');
-        const speed = scrolled * 0.5;
-        
-        if (parallax) {
-            parallax.style.transform = `translate3d(0, ${speed}px, 0)`;
-        }
-        
-        ticking = false;
-    }
-    
-    function requestParallaxUpdate() {
-        if (!ticking) {
-            requestAnimationFrame(updateParallax);
-            ticking = true;
+    if (passwordLabel && passwordField) {
+        if (useUniqueId) {
+            passwordLabel.innerHTML = '<i class="fas fa-fingerprint me-1"></i> ID Único';
+            passwordField.placeholder = 'Ingresa tu ID único';
+            passwordField.autocomplete = 'off';
+        } else {
+            passwordLabel.innerHTML = '<i class="fas fa-lock me-1"></i> Contraseña';
+            passwordField.placeholder = 'Tu contraseña';
+            passwordField.autocomplete = 'current-password';
         }
     }
-    
-    window.addEventListener('scroll', requestParallaxUpdate);
-    
-    // Efecto de hover en las tarjetas
-    const cards = document.querySelectorAll('.glass-card');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-    
-    // Validación en tiempo real para formularios
-    const passwordFields = document.querySelectorAll('input[type="password"]');
-    passwordFields.forEach(field => {
-        field.addEventListener('input', function() {
-            const password = this.value;
-            const isValid = password.length >= 6;
-            
-            if (password.length > 0) {
-                if (isValid) {
-                    this.classList.add('is-valid');
-                    this.classList.remove('is-invalid');
-                } else {
-                    this.classList.add('is-invalid');
-                    this.classList.remove('is-valid');
-                }
-            } else {
-                this.classList.remove('is-valid', 'is-invalid');
-            }
-        });
-    });
-    
-    // Confirmar contraseña
-    const confirmFields = document.querySelectorAll('input[name="reg_confirm_password"]');
-    confirmFields.forEach(field => {
-        field.addEventListener('input', function() {
-            const password = this.form.querySelector('input[name="reg_password"]').value;
-            const confirm = this.value;
-            
-            if (confirm.length > 0) {
-                if (password === confirm) {
-                    this.classList.add('is-valid');
-                    this.classList.remove('is-invalid');
-                } else {
-                    this.classList.add('is-invalid');
-                    this.classList.remove('is-valid');
-                }
-            } else {
-                this.classList.remove('is-valid', 'is-invalid');
-            }
-        });
-    });
-});
+}
 
-// Utilidades para depuración
+// Global alert function for Google Sign-In
+function showAlert(message, type = 'danger') {
+    if (authSystem) {
+        authSystem.showAlert(message, type);
+    }
+}
+
+// Service Worker registration for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('SW registered'))
+            .catch(err => console.log('SW registration failed'));
+    });
+}
+
+// Debug info in development
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     console.log('🛡️ Einherjer Blitz 3.0 - Modo Desarrollo');
-    console.log('📱 Responsive:', window.innerWidth < 768 ? 'Móvil' : 'Desktop');
-    console.log('🎨 Tema:', 'Oscuro con acentos dorados');
+    console.log('📱 Viewport:', window.innerWidth + 'x' + window.innerHeight);
+    console.log('🎨 Tema: Oscuro con acentos dorados');
+    console.log('🔒 CSRF: Habilitado');
 }

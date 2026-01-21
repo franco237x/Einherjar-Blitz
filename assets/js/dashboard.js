@@ -1,536 +1,508 @@
 /**
  * Dashboard JavaScript - Einherjer Blitz 3.0
- * Sistema mejorado con Bootstrap y efectos visuales
+ * Mobile-First con navegación mejorada y efectos premium
  */
 
 class DashboardManager {
     constructor() {
+        this.isMobile = window.innerWidth < 768;
+        this.touchStartX = 0;
+        this.touchStartY = 0;
         this.init();
     }
 
     init() {
+        this.createParticles();
         this.setupAnimations();
         this.setupInteractions();
         this.setupProgressBar();
+        this.setupKeyboardShortcuts();
+        this.setupSwipeGestures();
         this.bindEvents();
+    }
+
+    // Crear partículas de fondo
+    createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        const count = this.isMobile ? 10 : 20;
+
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'dashboard-particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = (Math.random() * 4 + 2) + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (Math.random() * 20 + 20) + 's';
+            container.appendChild(particle);
+        }
     }
 
     // Configurar animaciones de entrada
     setupAnimations() {
-        // Animar las tarjetas de estadísticas con delay escalonado
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'all 0.6s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
+        // Las animaciones CSS se encargan del delay escalonado
+        // Solo verificar que existan los elementos
+        const elements = document.querySelectorAll('.stat-card, .nav-card');
+        elements.forEach(el => {
+            el.style.willChange = 'transform, opacity';
         });
 
-        // Animar tarjetas de navegación
+        // Limpiar will-change después de las animaciones
         setTimeout(() => {
-            const navCards = document.querySelectorAll('.nav-card');
-            navCards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 50);
+            elements.forEach(el => {
+                el.style.willChange = 'auto';
             });
-        }, 300);
+        }, 2000);
     }
 
     // Configurar barra de progreso
     setupProgressBar() {
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             const progressFill = document.querySelector('.progress-fill');
             if (progressFill) {
-                const targetWidth = progressFill.style.width;
+                const targetWidth = progressFill.style.width || '0%';
                 progressFill.style.width = '0%';
-                
+
                 setTimeout(() => {
-                    progressFill.style.transition = 'width 1.5s ease';
+                    progressFill.style.transition = 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
                     progressFill.style.width = targetWidth;
-                }, 100);
+                }, 500);
             }
-        }, 800);
+        });
     }
 
     // Configurar interacciones
     setupInteractions() {
-        // Efectos de hover mejorados para tarjetas
-        document.querySelectorAll('.stat-card, .nav-card:not(.disabled)').forEach(card => {
-            card.addEventListener('mouseenter', this.handleCardHover.bind(this));
-            card.addEventListener('mouseleave', this.handleCardLeave.bind(this));
-        });
+        // Solo hover effects en desktop
+        if (!this.isMobile) {
+            document.querySelectorAll('.stat-card, .nav-card:not(.disabled)').forEach(card => {
+                card.addEventListener('mouseenter', this.handleCardHover.bind(this));
+                card.addEventListener('mouseleave', this.handleCardLeave.bind(this));
+            });
+        }
 
-        // Efectos para botones de acción
-        document.querySelectorAll('.action-btn:not(.disabled)').forEach(btn => {
-            btn.addEventListener('mouseenter', this.handleButtonHover.bind(this));
-            btn.addEventListener('mouseleave', this.handleButtonLeave.bind(this));
-        });
+        // Touch feedback para móvil
+        if (this.isMobile) {
+            document.querySelectorAll('.stat-card, .nav-card, .action-btn, .bottom-nav-item').forEach(el => {
+                el.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+                el.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+            });
+        }
 
-        // Efecto de click para elementos interactivos
-        document.querySelectorAll('.stat-card, .nav-card:not(.disabled), .action-btn:not(.disabled)').forEach(element => {
-            element.addEventListener('click', this.handleElementClick.bind(this));
+        // Phrase input character counter
+        const phraseInput = document.getElementById('phraseInput');
+        if (phraseInput) {
+            phraseInput.addEventListener('input', () => {
+                updateCharCount();
+                const previewPhrase = document.getElementById('previewPhrase');
+                if (previewPhrase) {
+                    previewPhrase.textContent = phraseInput.value || 'Guerrero de Einherjer';
+                }
+            });
+        }
+    }
+
+    // Configurar atajos de teclado (solo desktop)
+    setupKeyboardShortcuts() {
+        if (this.isMobile) return;
+
+        document.addEventListener('keydown', (e) => {
+            // No ejecutar si hay un input activo
+            if (document.activeElement.tagName === 'INPUT' ||
+                document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const shortcuts = {
+                'j': 'seleccion.php',      // Jugar
+                't': 'tienda/tienda.php',  // Tienda
+                'g': 'gacha/index.php',    // Gacha/Cofres
+                'e': 'estadisticas.php',   // Estadísticas
+                'o': 'online/index.php',   // Online
+                'a': 'AR-12/index.php',    // AR-12 Chat
+                'p': () => openProfileModal() // Perfil
+            };
+
+            const action = shortcuts[e.key.toLowerCase()];
+            if (action) {
+                e.preventDefault();
+                if (typeof action === 'function') {
+                    action();
+                } else {
+                    navigateTo(action);
+                }
+            }
+
+            // ESC para cerrar modales
+            if (e.key === 'Escape') {
+                const openModal = document.querySelector('.modal.show');
+                if (openModal) {
+                    bootstrap.Modal.getInstance(openModal)?.hide();
+                }
+            }
         });
+    }
+
+    // Gestos swipe para móvil
+    setupSwipeGestures() {
+        if (!this.isMobile) return;
+
+        const main = document.querySelector('main');
+        if (!main) return;
+
+        main.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        main.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+
+            const deltaX = touchEndX - this.touchStartX;
+            const deltaY = touchEndY - this.touchStartY;
+
+            // Swipe horizontal significativo
+            if (Math.abs(deltaX) > 100 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 0) {
+                    // Swipe derecha - ir atrás
+                    history.back();
+                }
+            }
+        }, { passive: true });
     }
 
     // Eventos
     bindEvents() {
-        // Responsive behavior
-        window.addEventListener('resize', this.handleResize.bind(this));
-        
-        // Scroll effects
-        window.addEventListener('scroll', this.handleScroll.bind(this));
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', this.handleKeyNavigation.bind(this));
+        // Resize handler con debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.isMobile = window.innerWidth < 768;
+            }, 250);
+        });
+
+        // Visibility change - pausar/reanudar animaciones
+        document.addEventListener('visibilitychange', () => {
+            const particles = document.querySelectorAll('.dashboard-particle');
+            particles.forEach(p => {
+                p.style.animationPlayState = document.hidden ? 'paused' : 'running';
+            });
+        });
     }
 
     // Manejadores de eventos
     handleCardHover(event) {
         const card = event.currentTarget;
-        card.style.transform = 'translateY(-8px) scale(1.02)';
-        card.style.boxShadow = '0 20px 40px rgba(201, 170, 113, 0.3)';
-        
-        // Agregar brillo al icono
         const icon = card.querySelector('.stat-icon, .nav-icon');
+
+        card.style.transform = 'translateY(-8px) scale(1.02)';
+
         if (icon) {
-            icon.style.transform = 'scale(1.1)';
-            icon.style.filter = 'drop-shadow(0 0 10px var(--glow-gold))';
+            icon.style.transition = 'transform 0.3s ease';
+            icon.style.transform = 'scale(1.15)';
         }
     }
 
     handleCardLeave(event) {
         const card = event.currentTarget;
-        card.style.transform = 'translateY(0) scale(1)';
-        card.style.boxShadow = '';
-        
-        // Restaurar icono
         const icon = card.querySelector('.stat-icon, .nav-icon');
+
+        card.style.transform = '';
+
         if (icon) {
-            icon.style.transform = 'scale(1)';
-            icon.style.filter = '';
+            icon.style.transform = '';
         }
     }
 
-    handleButtonHover(event) {
-        const button = event.currentTarget;
-        button.style.transform = 'translateY(-3px) scale(1.05)';
-        
-        const icon = button.querySelector('i');
-        if (icon) {
-            icon.style.transform = 'scale(1.2) rotate(5deg)';
+    handleTouchStart(event) {
+        const el = event.currentTarget;
+        el.style.transform = 'scale(0.97)';
+        el.style.opacity = '0.9';
+
+        // Haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
         }
     }
 
-    handleButtonLeave(event) {
-        const button = event.currentTarget;
-        button.style.transform = 'translateY(0) scale(1)';
-        
-        const icon = button.querySelector('i');
-        if (icon) {
-            icon.style.transform = 'scale(1) rotate(0deg)';
-        }
+    handleTouchEnd(event) {
+        const el = event.currentTarget;
+        el.style.transform = '';
+        el.style.opacity = '';
     }
 
-    handleElementClick(event) {
-        const element = event.currentTarget;
-        
-        // Efecto de ripple
-        const ripple = document.createElement('div');
-        ripple.style.position = 'absolute';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(201, 170, 113, 0.4)';
-        ripple.style.transform = 'scale(0)';
-        ripple.style.animation = 'ripple 0.6s linear';
-        ripple.style.left = '50%';
-        ripple.style.top = '50%';
-        ripple.style.width = '20px';
-        ripple.style.height = '20px';
-        ripple.style.marginLeft = '-10px';
-        ripple.style.marginTop = '-10px';
-        ripple.style.pointerEvents = 'none';
-        
-        element.style.position = 'relative';
-        element.appendChild(ripple);
-        
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
-    }
-
-    handleResize() {
-        // Ajustar animaciones en móvil
-        if (window.innerWidth < 768) {
-            document.querySelectorAll('.stat-card, .nav-card').forEach(card => {
-                card.style.transform = 'none';
-            });
-        }
-    }
-
-    handleScroll() {
-        // Parallax effect suave para el header
-        const header = document.querySelector('.dashboard-header');
-        const scrolled = window.pageYOffset;
-        const rate = scrolled * -0.5;
-        
-        if (header && scrolled < 200) {
-            header.style.transform = `translate3d(0, ${rate}px, 0)`;
-        }
-    }
-
-    handleKeyNavigation(event) {
-        // Navegación con teclado
-        if (event.key === 'Tab') {
-            // Resaltar elemento enfocado
-            setTimeout(() => {
-                const focused = document.activeElement;
-                if (focused.classList.contains('nav-card') || 
-                    focused.classList.contains('action-btn')) {
-                    focused.style.outline = '2px solid var(--primary-gold)';
-                    focused.style.outlineOffset = '2px';
-                }
-            }, 10);
-        }
-    }
-
-    // Función de logout mejorada
-    async logout() {
-        // Mostrar confirmación con SweetAlert-style
-        const result = await this.showConfirmDialog(
-            '¿Cerrar Sesión?',
-            '¿Estás seguro de que quieres salir del juego?',
-            'warning'
-        );
-
-        if (result) {
-            // Mostrar loading
-            this.showLoadingToast('Cerrando sesión...');
-            
-            try {
-                const response = await fetch('logout.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                if (response.ok) {
-                    this.showSuccessToast('¡Hasta la próxima batalla!');
-                    setTimeout(() => {
-                        window.location.href = 'index.php';
-                    }, 1000);
-                } else {
-                    throw new Error('Error en el servidor');
-                }
-            } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-                this.showErrorToast('Error al cerrar sesión');
-                // Redirigir de todas formas por seguridad
-                setTimeout(() => {
-                    window.location.href = 'index.php';
-                }, 1500);
-            }
-        }
-    }
-
-    // Sistema de notificaciones tipo toast
+    // Sistema de toasts
     showToast(message, type = 'info', duration = 3000) {
+        // Remove existing toasts
+        document.querySelectorAll('.toast-notification').forEach(t => t.remove());
+
         const toast = document.createElement('div');
         toast.className = `toast-notification toast-${type}`;
+
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-triangle',
+            warning: 'exclamation-circle',
+            info: 'info-circle'
+        };
+
+        const colors = {
+            success: 'rgba(34, 197, 94, 0.95)',
+            error: 'rgba(239, 68, 68, 0.95)',
+            warning: 'rgba(245, 158, 11, 0.95)',
+            info: 'rgba(59, 130, 246, 0.95)'
+        };
+
         toast.innerHTML = `
-            <div class="toast-content">
-                <i class="fas fa-${this.getToastIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
+            <i class="fas fa-${icons[type] || icons.info}"></i>
+            <span>${message}</span>
         `;
-        
-        // Estilos del toast
+
         Object.assign(toast.style, {
             position: 'fixed',
-            top: '20px',
-            right: '20px',
-            background: type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 
-                       type === 'error' ? 'rgba(239, 68, 68, 0.9)' : 
-                       type === 'warning' ? 'rgba(245, 158, 11, 0.9)' :
-                       'rgba(59, 130, 246, 0.9)',
+            top: this.isMobile ? '10px' : '20px',
+            left: '50%',
+            transform: 'translateX(-50%) translateY(-100px)',
+            background: colors[type] || colors.info,
             color: 'white',
-            padding: '1rem 1.5rem',
-            borderRadius: '10px',
+            padding: '0.875rem 1.25rem',
+            borderRadius: '12px',
             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
             zIndex: '9999',
-            transform: 'translateX(100%)',
-            transition: 'transform 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.9rem',
+            fontWeight: '500',
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            maxWidth: '90vw'
         });
 
         document.body.appendChild(toast);
-        
-        // Animar entrada
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        });
+
+        // Auto-remove
         setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Auto-remover
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.remove();
-                }
-            }, 300);
+            toast.style.transform = 'translateX(-50%) translateY(-100px)';
+            setTimeout(() => toast.remove(), 300);
         }, duration);
     }
 
-    showSuccessToast(message) {
-        this.showToast(message, 'success');
-    }
+    showSuccessToast(message) { this.showToast(message, 'success'); }
+    showErrorToast(message) { this.showToast(message, 'error'); }
+    showWarningToast(message) { this.showToast(message, 'warning'); }
 
-    showErrorToast(message) {
-        this.showToast(message, 'error');
-    }
-
-    showLoadingToast(message) {
-        this.showToast(message, 'info', 5000);
-    }
-
-    getToastIcon(type) {
-        switch(type) {
-            case 'success': return 'check-circle';
-            case 'error': return 'exclamation-triangle';
-            case 'warning': return 'exclamation-circle';
-            default: return 'info-circle';
-        }
-    }
-
-    // Dialog de confirmación personalizado
-    async showConfirmDialog(title, message, type = 'info') {
+    // Dialog de confirmación
+    async showConfirmDialog(title, message, type = 'warning') {
         return new Promise((resolve) => {
-            const modal = document.createElement('div');
-            modal.className = 'custom-modal-overlay';
-            modal.innerHTML = `
-                <div class="custom-modal">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-${this.getToastIcon(type)}"></i> ${title}</h3>
+            const icons = {
+                warning: 'exclamation-triangle',
+                info: 'info-circle',
+                danger: 'exclamation-circle'
+            };
+
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-modal-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                backdrop-filter: blur(5px);
+                padding: 1rem;
+            `;
+
+            overlay.innerHTML = `
+                <div class="custom-modal" style="
+                    background: #151515;
+                    border: 1px solid rgba(201, 170, 113, 0.3);
+                    border-radius: 16px;
+                    max-width: 380px;
+                    width: 100%;
+                    overflow: hidden;
+                    animation: fadeInScale 0.3s ease;
+                ">
+                    <div class="modal-header" style="
+                        background: linear-gradient(135deg, #1a1a1a, #252525);
+                        padding: 1.25rem;
+                        border-bottom: 1px solid rgba(201, 170, 113, 0.3);
+                    ">
+                        <h3 style="
+                            margin: 0;
+                            color: #c9aa71;
+                            font-family: 'Cinzel', serif;
+                            font-size: 1.1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                        ">
+                            <i class="fas fa-${icons[type] || icons.warning}"></i>
+                            ${title}
+                        </h3>
                     </div>
-                    <div class="modal-body">
-                        <p>${message}</p>
+                    <div class="modal-body" style="padding: 1.5rem;">
+                        <p style="margin: 0; color: rgba(255,255,255,0.9); line-height: 1.5;">${message}</p>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary me-2" onclick="resolveModal(false)">Cancelar</button>
-                        <button class="btn btn-primary" onclick="resolveModal(true)">Confirmar</button>
+                    <div class="modal-footer" style="
+                        padding: 1rem 1.25rem;
+                        background: rgba(26, 26, 26, 0.5);
+                        display: flex;
+                        justify-content: flex-end;
+                        gap: 0.75rem;
+                    ">
+                        <button class="btn-cancel" style="
+                            padding: 0.625rem 1.25rem;
+                            border-radius: 8px;
+                            border: 1px solid rgba(201, 170, 113, 0.3);
+                            background: transparent;
+                            color: rgba(255,255,255,0.8);
+                            cursor: pointer;
+                            font-size: 0.9rem;
+                            transition: all 0.2s ease;
+                        ">Cancelar</button>
+                        <button class="btn-confirm" style="
+                            padding: 0.625rem 1.25rem;
+                            border-radius: 8px;
+                            border: none;
+                            background: linear-gradient(135deg, #c9aa71, #9e8b54);
+                            color: #0a0a0a;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                            transition: all 0.2s ease;
+                        ">Confirmar</button>
                     </div>
                 </div>
             `;
-            
-            // Estilos del modal
-            Object.assign(modal.style, {
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                background: 'rgba(0, 0, 0, 0.8)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: '10000',
-                backdropFilter: 'blur(5px)'
-            });
 
-            // Agregar función global temporal
-            window.resolveModal = (result) => {
-                modal.remove();
-                delete window.resolveModal;
+            const closeModal = (result) => {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.2s ease';
+                setTimeout(() => overlay.remove(), 200);
                 resolve(result);
             };
 
-            document.body.appendChild(modal);
+            overlay.querySelector('.btn-cancel').onclick = () => closeModal(false);
+            overlay.querySelector('.btn-confirm').onclick = () => closeModal(true);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal(false);
+            });
+
+            document.body.appendChild(overlay);
         });
     }
 
-    // Actualizar estadísticas en tiempo real
-    updateStatCard(cardSelector, newValue, animate = true) {
-        const card = document.querySelector(cardSelector);
-        if (!card) return;
+    // Logout
+    async logout() {
+        const confirmed = await this.showConfirmDialog(
+            '¿Cerrar Sesión?',
+            '¿Estás seguro de que quieres salir del reino?',
+            'warning'
+        );
 
-        const valueElement = card.querySelector('.stat-value');
-        if (!valueElement) return;
+        if (confirmed) {
+            this.showToast('Cerrando sesión...', 'info', 2000);
 
-        if (animate) {
-            // Animación de incremento
-            const currentValue = parseInt(valueElement.textContent.replace(/,/g, ''));
-            const targetValue = parseInt(newValue);
-            const duration = 1000;
-            const steps = 30;
-            const increment = (targetValue - currentValue) / steps;
-            
-            let current = currentValue;
-            let step = 0;
-            
-            const timer = setInterval(() => {
-                step++;
-                current += increment;
-                
-                if (step >= steps) {
-                    current = targetValue;
-                    clearInterval(timer);
+            try {
+                await fetch('logout.php', { method: 'POST' });
+
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 50, 50]);
                 }
-                
-                valueElement.textContent = Math.round(current).toLocaleString();
-            }, duration / steps);
-        } else {
-            valueElement.textContent = parseInt(newValue).toLocaleString();
-        }
-    }
 
-    // Actualizar barra de progreso
-    updateProgressBar(newProgress, animate = true) {
-        const progressFill = document.querySelector('.progress-fill');
-        if (!progressFill) return;
-
-        if (animate) {
-            progressFill.style.transition = 'width 1.5s ease';
-        }
-        
-        progressFill.style.width = newProgress + '%';
-    }
-}
-
-// Función global para mantener compatibilidad
-async function logout() {
-    if (window.dashboardManager) {
-        await window.dashboardManager.logout();
-    }
-}
-
-// Inicializar dashboard cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
-    // Crear instancia global del dashboard
-    window.dashboardManager = new DashboardManager();
-    
-    // Agregar estilos CSS para las animaciones
-    const styles = document.createElement('style');
-    styles.textContent = `
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
+                setTimeout(() => {
+                    window.location.href = 'index.php';
+                }, 800);
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = 'index.php';
             }
         }
-        
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .custom-modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border-gold);
-            border-radius: 15px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            color: var(--text-primary);
-        }
-        
-        .custom-modal .modal-header h3 {
-            color: var(--primary-gold);
-            margin: 0;
-            font-family: 'Cinzel', serif;
-        }
-        
-        .custom-modal .modal-body {
-            margin: 1.5rem 0;
-        }
-        
-        .custom-modal .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-        
-        .btn-secondary {
-            background: rgba(108, 117, 125, 0.2) !important;
-            border: 1px solid rgba(108, 117, 125, 0.5) !important;
-            color: var(--text-secondary) !important;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(108, 117, 125, 0.3) !important;
-            color: var(--text-primary) !important;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, var(--primary-gold), var(--dark-gold)) !important;
-            border: none !important;
-            color: var(--bg-dark) !important;
-        }
-    `;
-    document.head.appendChild(styles);
-    
-    console.log('🎮 Dashboard Einherjer Blitz 3.0 iniciado');
-    console.log('📊 Sistema de estadísticas activo');
-    console.log('🎨 Efectos visuales mejorados');
+    }
+}
+
+// ========================================
+// FUNCIONES GLOBALES
+// ========================================
+
+let dashboardManager;
+let profileModal = null;
+let selectedAvatar = null;
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', function () {
+    dashboardManager = new DashboardManager();
+    window.dashboardManager = dashboardManager;
+
+    // Inicializar selección de avatar
+    selectedAvatar = window.userData?.avatar || 'default.jpg';
+
+    console.log('🎮 Dashboard Einherjer Blitz 3.0');
+    console.log('📱 Mobile:', window.innerWidth < 768 ? 'Sí' : 'No');
 });
 
-// ========================================
-// PROFILE EDIT MODAL SYSTEM
-// ========================================
+// Logout global
+async function logout() {
+    if (dashboardManager) {
+        await dashboardManager.logout();
+    }
+}
 
-let selectedAvatar = null;
-let profileModal = null;
+// Navegación
+function navigateTo(url) {
+    // Haptic feedback en móvil
+    if (navigator.vibrate) {
+        navigator.vibrate(15);
+    }
+    window.location.href = url;
+}
+
+// Notificaciones (placeholder)
+function showNotifications() {
+    if (dashboardManager) {
+        dashboardManager.showToast('No hay notificaciones nuevas', 'info');
+    }
+}
 
 // Abrir modal de perfil
 function openProfileModal() {
     profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
     profileModal.show();
-    
-    // Inicializar selección de avatar
-    initAvatarSelection();
     updateCharCount();
 }
 
-// Inicializar sistema de selección de avatares
-function initAvatarSelection() {
-    const avatarOptions = document.querySelectorAll('.avatar-option');
+// Seleccionar avatar
+function selectAvatar(element) {
+    document.querySelectorAll('.avatar-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+
+    element.classList.add('active');
+    selectedAvatar = element.dataset.avatar;
+
+    // Actualizar preview
     const previewAvatar = document.getElementById('previewAvatar');
-    const phraseInput = document.getElementById('phraseInput');
-    const previewPhrase = document.getElementById('previewPhrase');
-    
-    // Obtener avatar actual
-    selectedAvatar = document.querySelector('.avatar-option.active')?.dataset.avatar;
-    
-    // Click en avatar
-    avatarOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            // Remover activo de todos
-            avatarOptions.forEach(opt => opt.classList.remove('active'));
-            
-            // Activar seleccionado
-            this.classList.add('active');
-            selectedAvatar = this.dataset.avatar;
-            
-            // Actualizar preview
-            previewAvatar.src = 'images/' + selectedAvatar;
-        });
-    });
-    
-    // Actualizar preview de frase en tiempo real
-    phraseInput.addEventListener('input', function() {
-        previewPhrase.textContent = this.value || 'Guerrero de Einherjer';
-        updateCharCount();
-    });
+    if (previewAvatar) {
+        previewAvatar.src = 'images/' + selectedAvatar;
+    }
+
+    // Haptic feedback
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
+    }
 }
 
 // Actualizar contador de caracteres
@@ -542,73 +514,124 @@ function updateCharCount() {
     }
 }
 
-// Guardar cambios de perfil
+// Guardar perfil
 async function saveProfile() {
     const phraseInput = document.getElementById('phraseInput');
-    const phrase = phraseInput.value.trim();
-    
+    const phrase = phraseInput?.value.trim() || '';
+    const saveBtn = document.getElementById('saveProfileBtn');
+
     if (!selectedAvatar) {
-        showNotification('Selecciona un avatar', 'error');
+        dashboardManager?.showToast('Selecciona un avatar', 'warning');
         return;
     }
-    
+
+    // Loading state
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+    }
+
     try {
         const response = await fetch('api/update_profile.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'update_profile',
                 avatar: selectedAvatar,
                 phrase: phrase
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
-            showNotification('Perfil actualizado correctamente', 'success');
-            
-            // Actualizar UI
-            document.querySelector('.user-avatar').src = 'images/' + data.avatar;
-            document.querySelector('.welcome-subtitle').textContent = data.phrase;
-            
-            // Cerrar modal
+            dashboardManager?.showSuccessToast('¡Perfil actualizado!');
+
+            // Update UI immediately
+            const headerAvatar = document.getElementById('headerAvatar');
+            const welcomeSubtitle = document.querySelector('.welcome-subtitle');
+
+            if (headerAvatar) headerAvatar.src = 'images/' + selectedAvatar;
+            if (welcomeSubtitle) welcomeSubtitle.textContent = phrase || 'Guerrero de Einherjer';
+
+            // Close modal
             if (profileModal) {
                 profileModal.hide();
             }
-            
-            // Recargar después de 1 segundo
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
+
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 100, 50]);
+            }
         } else {
-            showNotification(data.message || 'Error al actualizar perfil', 'error');
+            dashboardManager?.showErrorToast(data.message || 'Error al guardar');
         }
     } catch (error) {
         console.error('Error:', error);
-        showNotification('Error de conexión', 'error');
+        dashboardManager?.showErrorToast('Error de conexión');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar';
+        }
     }
 }
 
-// Sistema de notificaciones
+// Notificación global (compatibilidad)
 function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} position-fixed top-0 start-50 translate-middle-x mt-3`;
-    notification.style.zIndex = '9999';
-    notification.style.minWidth = '300px';
-    notification.style.textAlign = 'center';
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-        ${message}
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transition = 'opacity 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    if (dashboardManager) {
+        dashboardManager.showToast(message, type);
+    }
 }
+
+// CSS adicional para animaciones
+const additionalStyles = document.createElement('style');
+additionalStyles.textContent = `
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .toast-notification {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(201, 170, 113, 0.3);
+    }
+    
+    /* Stat card click effect */
+    .stat-card[onclick] {
+        cursor: pointer;
+    }
+    
+    /* Bottom nav active state */
+    .bottom-nav-item:active {
+        transform: scale(0.95);
+    }
+    
+    /* Smooth scroll for the whole page */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Better focus states */
+    .nav-card:focus-visible,
+    .action-btn:focus-visible,
+    .bottom-nav-item:focus-visible {
+        outline: 2px solid #c9aa71;
+        outline-offset: 2px;
+    }
+`;
+document.head.appendChild(additionalStyles);
