@@ -1,410 +1,381 @@
-/* ====================================
-   SISTEMA GACHA - FUNCIONALIDAD
-   Einherjer Blitz 3.0 - Integrado con Backend
-   ==================================== */
+/**
+ * GACHA SYSTEM - Einherjer Blitz 3.0
+ * CS2 Roulette Style Animation
+ */
+
+// Mapeo de imágenes de recompensas
+const REWARD_IMAGES = {
+    // Elden Souls
+    'Invocación: Godrick': 'assets/images/rewards/elden_souls/godrick.jpg',
+    'Invocación: Radahn': 'assets/images/rewards/elden_souls/radahn.jpg',
+    'Invocación: Radagon': 'assets/images/rewards/elden_souls/radagon.jpg',
+    'Invocación: Maliketh': 'assets/images/rewards/elden_souls/maliketh.jpg',
+    'Invocación: Malenia': 'assets/images/rewards/elden_souls/malenia.jpg',
+    'Arma: Cetro del Devorador': 'assets/images/rewards/elden_souls/cetro_devorador.jpeg',
+    'Arma: Espada magna de la hoja injertada': 'assets/images/rewards/elden_souls/espada_injertada.jpeg',
+    'Arma: Espada Magna de la Orden Dorada': 'assets/images/rewards/elden_souls/orden_dorada.jpg',
+    'Invocación: Ornstein y Smough': 'assets/images/rewards/elden_souls/ornstein_smough.jpg',
+    'Invocación: Gwyn': 'assets/images/rewards/elden_souls/gwyn.jpeg',
+    'Invocación: Artorias': 'assets/images/rewards/elden_souls/artorias.jpg',
+    'Invocación: Rey sin Nombre': 'assets/images/rewards/elden_souls/rey_sin_nombre.jpg',
+    'Invocación: Alma de Cenizas': 'assets/images/rewards/elden_souls/alma_cenizas.jpg',
+    'Arma: Espadón de Artorias': 'assets/images/rewards/elden_souls/espadon_artorias.jpeg',
+    'Arma: Arco Luna Oscura': 'assets/images/rewards/elden_souls/arco_luna_oscura.jpg',
+    'Poder: Primera Llama': 'assets/images/rewards/elden_souls/primera_llama.jpg',
+
+    // Terrains
+    'Hipódromo Valhalla (Uma Musume)': 'assets/images/rewards/terrains/hipodromo_valhalla.jpg',
+    'Krypton (DC Comics)': 'assets/images/rewards/terrains/krypton.jpg',
+    'Chaldea (Fate)': 'assets/images/rewards/terrains/chaldea.jpg',
+    'Skypeia (One Piece)': 'assets/images/rewards/terrains/skypeia.jpg',
+    'Academia de Héroes (Boku No Hero)': 'assets/images/rewards/terrains/academia_heroes.jpg',
+    'Negocio Devil May Cry (DMC)': 'assets/images/rewards/terrains/negocio_dmc.jpg',
+    'Atlantis (DC Comics)': 'assets/images/rewards/terrains/atlantis.jpg',
+    'Torre de los Vengadores (Marvel)': 'assets/images/rewards/terrains/torre_vengadores.jpg',
+    'Fundación SCP': 'assets/images/rewards/terrains/fundacion_scp.jpg',
+    'Extensión de Terreno': 'assets/images/rewards/terrains/extension_terreno.jpg',
+    'Dad Key': 'assets/images/rewards/terrains/dad_key.jpg',
+    'Hallownest (Hollow Knight)': 'assets/images/rewards/terrains/hallownest.jpg',
+    'Apokolips (DC Comics)': 'assets/images/rewards/terrains/apokolips.jpg'
+};
+
+// Lista de items para la ruleta por tipo de cofre
+const CHEST_ITEMS = {
+    elden_souls: [
+        'Invocación: Godrick', 'Invocación: Radahn', 'Invocación: Radagon',
+        'Invocación: Maliketh', 'Invocación: Malenia', 'Arma: Cetro del Devorador',
+        'Arma: Espada magna de la hoja injertada', 'Arma: Espada Magna de la Orden Dorada',
+        'Invocación: Ornstein y Smough', 'Invocación: Gwyn', 'Invocación: Artorias',
+        'Invocación: Rey sin Nombre', 'Invocación: Alma de Cenizas',
+        'Arma: Espadón de Artorias', 'Arma: Arco Luna Oscura', 'Poder: Primera Llama'
+    ],
+    terrains: [
+        'Hipódromo Valhalla (Uma Musume)', 'Krypton (DC Comics)', 'Chaldea (Fate)',
+        'Skypeia (One Piece)', 'Academia de Héroes (Boku No Hero)', 'Negocio Devil May Cry (DMC)',
+        'Atlantis (DC Comics)', 'Torre de los Vengadores (Marvel)', 'Fundación SCP',
+        'Extensión de Terreno', 'Dad Key', 'Hallownest (Hollow Knight)', 'Apokolips (DC Comics)'
+    ]
+};
 
 class GachaSystem {
     constructor() {
+        this.overlay = null;
+        this.container = null;
         this.isOpening = false;
-        this.userKeys = 0;
+        this.history = [];
         this.init();
     }
 
     init() {
-        this.bindEvents();
-        this.loadUserData();
-        this.loadRecentHistory(); // Cargar historial al inicializar
-    }
+        this.overlay = document.getElementById('gachaOverlay');
+        this.container = document.getElementById('animationContainer');
 
-    bindEvents() {
-        // Botones de apertura de cofres
-        document.querySelectorAll('.open-chest-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const chestType = e.target.dataset.chest;
-                const keyCost = parseInt(e.target.dataset.cost);
-                this.openChest(chestType, keyCost);
-            });
-        });
-    }
-
-    async loadUserData() {
-        try {
-            // Obtener llaves actuales del usuario
-            this.updateKeyDisplay();
-        } catch (error) {
-            console.error('Error loading user data:', error);
+        // Load history from DB (passed via window.userData)
+        if (window.userData && Array.isArray(window.userData.history)) {
+            // Map DB format to UI format
+            this.history = window.userData.history.map(item => ({
+                name: item.recompensa_obtenida,
+                type: item.tipo_recompensa,
+                rarity: 'common',
+                image: this.getRewardImage(item.recompensa_obtenida),
+                chest: 'unknown',
+                time: item.fecha_obtencion ? new Date(item.fecha_obtencion).toLocaleString() : ''
+            }));
+        } else {
+            this.history = [];
         }
+
+        this.renderHistory();
     }
 
-    updateKeyDisplay() {
-        // Las llaves se actualizarán después de cada apertura de cofre
-        // Por ahora mantenemos la visualización existente del header
+    getRewardImage(name) {
+        return REWARD_IMAGES[name] || 'assets/images/rewards/default.jpg';
     }
 
-    async openChest(chestType, keyCost) {
-        if (this.isOpening) {
-            console.log('Ya hay un cofre abriéndose, ignorando clic');
+    async openChest(type, cost) {
+        if (this.isOpening) return;
+
+        if (window.userData.keys < cost) {
+            this.showErrorModal('Llaves Insuficientes', `Necesitas ${cost} llaves para abrir este cofre.<br>Actualmente tienes <strong>${window.userData.keys}</strong> llaves.`);
             return;
         }
 
-        console.log(`Abriendo cofre: ${chestType}, costo: ${keyCost}`);
         this.isOpening = true;
 
         try {
-            // Mostrar animación de apertura inmediata
-            this.playOpenAnimation(chestType);
-
-            // Realizar petición al servidor
-            console.log('Enviando petición al servidor...');
             const response = await fetch('process_gacha.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chest_type: chestType
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chest_type: type })
             });
 
-            console.log('Respuesta del servidor recibida, status:', response.status);
+            const data = await response.json();
 
-            // Verificar si la respuesta es JSON válida
-            const responseText = await response.text();
-            console.log('Respuesta raw:', responseText);
+            if (data.success) {
+                window.userData.keys = data.remaining_keys;
+                this.updateKeysDisplay();
 
-            let result;
-            try {
-                result = JSON.parse(responseText);
-                console.log('Resultado parseado:', result);
-            } catch (parseError) {
-                console.error('Error parsing JSON:', parseError);
-                console.error('Response text:', responseText);
-                throw new Error('El servidor devolvió una respuesta inválida');
-            }
-
-            if (result.success) {
-                // Agregar al historial
-                this.addToHistory(chestType, result.reward);
-
-                // Redirigir a la página de recompensa con los datos
-                setTimeout(() => {
-                    const rewardData = encodeURIComponent(JSON.stringify(result.reward));
-                    window.location.href = `csgo-reward.php?chest=${chestType}&reward=${rewardData}`;
-                }, 1500); // Esperar a que termine la animación
+                // Start CS2 roulette animation
+                this.showRouletteAnimation(type, data.reward);
+                this.addToHistory(data.reward, type);
             } else {
-                console.error('Error del servidor:', result.message);
-                this.showError(result.message);
-                this.restoreButton(chestType);
-                this.isOpening = false;
+                alert('Error: ' + (data.message || 'Error al abrir el cofre'));
             }
-
         } catch (error) {
-            console.error('Error opening chest:', error);
-            this.showError('Error del servidor. Inténtalo de nuevo.');
-            this.restoreButton(chestType);
-            this.isOpening = false;
+            console.error('Gacha error:', error);
+            alert('Error de Conexión: No se pudo conectar con el servidor');
         }
+
+        this.isOpening = false;
     }
 
-    playOpenAnimation(chestType) {
-        // Convertir guiones bajos a guiones para el selector
-        const selectorType = chestType.replace(/_/g, '-');
+    showRouletteAnimation(chestType, winnerReward) {
+        const items = CHEST_ITEMS[chestType] || CHEST_ITEMS.elden_souls;
 
-        // Buscar la tarjeta de cofre usando el data-chest-type
-        const card = document.querySelector(`[data-chest-type="${selectorType}"]`);
-
-        if (!card) {
-            console.warn(`No se encontró la tarjeta del cofre: ${chestType} (selector: ${selectorType})`);
-            return;
+        // Build roulette strip (repeat items many times)
+        let stripItems = [];
+        for (let i = 0; i < 8; i++) {
+            stripItems = stripItems.concat(this.shuffleArray([...items]));
         }
 
-        // Efecto visual de apertura
-        card.style.transform = 'scale(1.05)';
-        card.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.8)';
-        card.style.transition = 'all 0.3s ease';
+        // Insert winner at position (will be scrolled to)
+        const winnerPosition = Math.floor(stripItems.length * 0.7);
+        stripItems[winnerPosition] = winnerReward.name;
 
-        // Añadir clase de cargando al botón
-        const btn = card.querySelector('.open-chest-btn, button[onclick*="openChest"]');
-        if (btn) {
-            btn.setAttribute('data-original-text', btn.innerHTML);
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Abriendo...';
-            btn.disabled = true;
-            btn.classList.add('loading');
-        }
-    }
-
-    restoreButton(chestType) {
-        // Convertir guiones bajos a guiones para el selector
-        const selectorType = chestType.replace(/_/g, '-');
-
-        // Buscar la tarjeta de cofre usando el data-chest-type
-        const card = document.querySelector(`[data-chest-type="${selectorType}"]`);
-
-        if (!card) {
-            console.warn(`No se encontró la tarjeta del cofre para restaurar: ${chestType} (selector: ${selectorType})`);
-            return;
-        }
-
-        // Restaurar efectos visuales
-        card.style.transform = '';
-        card.style.boxShadow = '';
-
-        const btn = card.querySelector('.open-chest-btn, button[onclick*="openChest"]');
-        if (btn) {
-            const originalText = btn.getAttribute('data-original-text');
-            if (originalText) {
-                btn.innerHTML = originalText;
-            }
-            btn.disabled = false;
-            btn.classList.remove('loading');
-        }
-    }
-
-    showError(message) {
-        // Determinar el tipo de error y configuración
-        const isKeyError = message.toLowerCase().includes('llave') || message.toLowerCase().includes('insuficient');
-        const isBlockedError = message.toLowerCase().includes('deshabilitado') || message.toLowerCase().includes('bloqueado');
-
-        let config = {
-            icon: 'fas fa-exclamation-triangle',
-            title: 'Error',
-            bgClass: 'bg-danger',
-            borderColor: '#dc3545'
-        };
-
-        if (isKeyError) {
-            config = {
-                icon: 'fas fa-lock',
-                title: '¡Cofre Sellado!',
-                bgClass: 'gacha-error-keys',
-                borderColor: '#ffd700'
-            };
-        } else if (isBlockedError) {
-            config = {
-                icon: 'fas fa-lock',
-                title: 'Cofre Bloqueado',
-                bgClass: 'gacha-error-blocked',
-                borderColor: '#6c757d'
-            };
-        }
-
-        // Crear toast personalizado para el juego
-        const toast = document.createElement('div');
-        toast.className = 'gacha-error-toast position-fixed';
-        toast.style.cssText = `
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            min-width: 350px;
-            max-width: 400px;
-        `;
-
-        toast.innerHTML = `
-            <div class="gacha-toast-card">
-                <div class="gacha-toast-header ${config.bgClass}">
-                    <div class="toast-icon">
-                        <i class="${config.icon}"></i>
+        // Create HTML
+        this.container.innerHTML = `
+            <div class="roulette-container">
+                <h2 class="roulette-title">
+                    <i class="fas fa-dice me-2"></i>
+                    Abriendo Cofre...
+                </h2>
+                
+                <div class="roulette-wrapper">
+                    <div class="roulette-pointer"></div>
+                    <div class="roulette-strip" id="rouletteStrip">
+                        ${stripItems.map((item, index) => `
+                            <div class="roulette-item" data-index="${index}" data-name="${item}">
+                                <img src="${this.getRewardImage(item)}" alt="${item}" onerror="this.src='assets/images/rewards/default.jpg'">
+                                <span class="item-name">${item.split(':').pop().trim()}</span>
+                            </div>
+                        `).join('')}
                     </div>
-                    <div class="toast-title">
-                        <strong>${config.title}</strong>
-                    </div>
-                    <button type="button" class="gacha-toast-close" onclick="this.closest('.gacha-error-toast').remove()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="gacha-toast-body">
-                    <p class="error-message">${message}</p>
-                    ${isKeyError ? `
-                        <div class="key-suggestion">
-                            <i class="fas fa-scroll"></i>
-                            <small>Consigue llaves mágicas en el rol o comerciando con otros Einherjar</small>
-                        </div>
-                    ` : ''}
                 </div>
             </div>
         `;
 
-        document.body.appendChild(toast);
+        this.overlay.classList.add('active');
 
-        // Animación de entrada
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-            toast.style.opacity = '1';
-        }, 10);
+        // Start animation
+        const strip = document.getElementById('rouletteStrip');
 
-        // Auto-dismiss
-        setTimeout(() => {
-            if (toast.parentElement) {
-                toast.style.transform = 'translateX(100%)';
-                toast.style.opacity = '0';
-                setTimeout(() => {
-                    if (toast.parentElement) {
-                        toast.remove();
-                    }
-                }, 300);
+        // Get actual item width from the first item rendered
+        // This handles both desktop (200px) and mobile (140px) automatically
+        const firstItem = strip.querySelector('.roulette-item');
+        const itemWidth = firstItem ? firstItem.offsetWidth : 200;
+
+        // Calculate dynamic center based on actual container width
+        const containerWidth = document.querySelector('.roulette-wrapper').clientWidth;
+        const containerCenter = containerWidth / 2;
+
+        // Calculate target offset to center the winner item
+        // Position of winner center = (winnerIndex * itemWidth) + (itemWidth / 2)
+        // We want that position to be at containerCenter
+        // transformX = -(ItemCenterPosition - ContainerCenter)
+        const itemCenterPos = (winnerPosition * itemWidth) + (itemWidth / 2);
+        const targetOffset = itemCenterPos - containerCenter;
+
+        // GSAP animation with easing slowdown
+        gsap.fromTo(strip,
+            { x: 0 },
+            {
+                x: -targetOffset,
+                duration: 5,
+                ease: "power2.out",
+                onComplete: () => {
+                    // Mark winner
+                    const winnerEl = strip.querySelector(`[data-index="${winnerPosition}"]`);
+                    if (winnerEl) winnerEl.classList.add('winner');
+
+                    // Show reward after delay
+                    setTimeout(() => {
+                        this.showRewardResult(winnerReward);
+                    }, 1000);
+                }
             }
-        }, 5000);
+        );
+
+        // Play tick sound simulation with color flash
+        let currentPos = 0;
+        const tickInterval = setInterval(() => {
+            currentPos += 10;
+            if (currentPos >= targetOffset) {
+                clearInterval(tickInterval);
+            }
+        }, 50);
     }
 
-    // Método para formatear números
-    formatNumber(num) {
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M';
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
-        }
-        return num.toString();
+    showRewardResult(reward) {
+        const name = reward?.name || 'Recompensa';
+        const type = reward?.type || 'item';
+        const value = reward?.value || 1;
+        const rarity = reward?.rarity || 'common';
+        const imageUrl = this.getRewardImage(name);
+
+        const rarityClass = this.getRarityClass(rarity);
+        const rarityLabel = this.getRarityLabel(rarity);
+
+        this.container.innerHTML = `
+            <div class="reward-display ${rarityClass}">
+                <img src="${imageUrl}" alt="${name}" class="reward-image" onerror="this.src='assets/images/rewards/default.jpg'">
+                <h2 class="reward-title">¡Felicidades!</h2>
+                <p class="reward-name">${name}</p>
+                <p class="reward-type">${type} x${value}</p>
+                <span class="rarity-badge">${rarityLabel}</span>
+                <div>
+                    <button class="btn-continue" onclick="gacha.hideOverlay()">
+                        <i class="fas fa-check me-2"></i>Continuar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // GSAP reveal
+        gsap.from('.reward-display > *', {
+            opacity: 0,
+            y: 30,
+            stagger: 0.1,
+            duration: 0.5,
+            ease: 'power2.out'
+        });
     }
 
-    // Método para cargar historial reciente
-    loadRecentHistory() {
-        console.log('Loading recent history...');
-        const historyList = document.getElementById('historyList');
+    showErrorModal(title, message) {
+        this.container.innerHTML = `
+            <div class="reward-display">
+                <div class="reward-icon-wrap" style="color: #ef4444; font-size: 4rem; margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h2 class="reward-title" style="color: #ef4444;">${title}</h2>
+                <p class="reward-type" style="color: #ccc; font-size: 1.1rem;">${message}</p>
+                <div>
+                    <button class="btn-continue" onclick="gacha.hideOverlay()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); margin-top: 1rem;">
+                        <i class="fas fa-times me-2"></i>Cerrar
+                    </button>
+                </div>
+            </div>
+        `;
 
-        if (!historyList) {
-            console.warn('History list element not found');
-            return;
+        this.overlay.classList.add('active');
+
+        gsap.from('.reward-display > *', {
+            opacity: 0,
+            y: 20,
+            stagger: 0.1,
+            duration: 0.4,
+            ease: 'power2.out'
+        });
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
+        return array;
+    }
 
-        // Obtener historial del localStorage
-        const history = this.getStoredHistory();
+    hideOverlay() {
+        gsap.to(this.overlay, {
+            opacity: 0,
+            duration: 0.3,
+            onComplete: () => {
+                this.overlay.classList.remove('active');
+                gsap.set(this.overlay, { opacity: 1 });
+            }
+        });
+    }
 
-        if (history.length === 0) {
-            historyList.innerHTML = `
+    getRarityClass(rarity) {
+        const map = {
+            'common': 'rarity-common',
+            'rare': 'rarity-rare',
+            'epic': 'rarity-epic',
+            'legendary': 'rarity-legendary',
+            'mythical': 'rarity-mythical'
+        };
+        return map[rarity] || 'rarity-common';
+    }
+
+    getRarityLabel(rarity) {
+        const map = {
+            'common': 'Común',
+            'rare': 'Raro',
+            'epic': 'Épico',
+            'legendary': 'Legendario',
+            'mythical': 'Mítico'
+        };
+        return map[rarity] || 'Común';
+    }
+
+    updateKeysDisplay() {
+        const keysEl = document.getElementById('keysCount');
+        if (keysEl) {
+            gsap.to(keysEl, {
+                innerText: window.userData.keys,
+                duration: 0.5,
+                snap: { innerText: 1 }
+            });
+        }
+    }
+
+    addToHistory(reward, chestType) {
+        const item = {
+            name: reward?.name || 'Recompensa',
+            type: reward?.type || 'item',
+            rarity: reward?.rarity || 'common',
+            image: this.getRewardImage(reward?.name),
+            chest: chestType,
+            time: new Date().toLocaleTimeString()
+        };
+
+        this.history.unshift(item);
+        if (this.history.length > 5) this.history.pop();
+        this.renderHistory();
+    }
+
+    renderHistory() {
+        const container = document.getElementById('historyList');
+        if (!container) return;
+
+        if (this.history.length === 0) {
+            container.innerHTML = `
                 <div class="history-empty">
                     <i class="fas fa-box-open"></i>
-                    <p>No hay aperturas recientes</p>
+                    <p>No has abierto cofres recientemente</p>
                 </div>
             `;
             return;
         }
 
-        // Mostrar los últimos 5 elementos
-        const recentHistory = history.slice(-5).reverse();
-
-        historyList.innerHTML = recentHistory.map(item => `
+        container.innerHTML = this.history.map(item => `
             <div class="history-item">
-                <div class="history-icon">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <div class="history-info">
-                    <div class="history-reward">${item.reward}</div>
-                    <div class="history-chest">${item.chestName}</div>
-                    <div class="history-time">${this.formatTime(item.timestamp)}</div>
-                </div>
-                <div class="history-rarity rarity-${item.rarity}">
-                    ${item.rarity}
+                <img src="${item.image || 'assets/images/rewards/default.jpg'}" alt="${item.name}" onerror="this.src='assets/images/rewards/default.jpg'">
+                <div class="info">
+                    <div class="name">${item.name || 'Recompensa'}</div>
+                    <div class="time">${item.time || ''}</div>
                 </div>
             </div>
         `).join('');
     }
-
-    // Obtener historial almacenado
-    getStoredHistory() {
-        try {
-            const stored = localStorage.getItem('gacha_history');
-            return stored ? JSON.parse(stored) : [];
-        } catch (error) {
-            console.error('Error loading history:', error);
-            return [];
-        }
-    }
-
-    // Agregar elemento al historial
-    addToHistory(chestType, reward) {
-        const history = this.getStoredHistory();
-
-        const chestNames = {
-            'terrains': 'Cofre de Terrenos',
-            'elden_souls': 'Cofre Elden Ring/Dark Souls'
-        };
-
-        const historyItem = {
-            timestamp: Date.now(),
-            chestType: chestType,
-            chestName: chestNames[chestType] || 'Cofre Desconocido',
-            reward: reward.name,
-            rarity: reward.rarity
-        };
-
-        history.push(historyItem);
-
-        // Mantener solo los últimos 20 elementos
-        if (history.length > 20) {
-            history.splice(0, history.length - 20);
-        }
-
-        try {
-            localStorage.setItem('gacha_history', JSON.stringify(history));
-            this.loadRecentHistory(); // Refrescar la vista
-        } catch (error) {
-            console.error('Error saving history:', error);
-        }
-    }
-
-    // Formatear tiempo relativo
-    formatTime(timestamp) {
-        const now = Date.now();
-        const diff = now - timestamp;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-
-        if (days > 0) return `Hace ${days} d`;
-        if (hours > 0) return `Hace ${hours} h`;
-        if (minutes > 0) return `Hace ${minutes} m`;
-        return 'Hace un momento';
-    }
 }
 
-// Función global para mantener compatibilidad con onclick - ESTA ES LA IMPORTANTE
-function openChest(chestType, cost) {
-    console.log('openChest called with:', chestType, cost);
-
-    if (window.gachaSystem) {
-        window.gachaSystem.openChest(chestType, cost);
-    } else {
-        console.error('GachaSystem not initialized');
-        // Intentar inicializar si no existe
-        setTimeout(() => {
-            if (window.gachaSystem) {
-                window.gachaSystem.openChest(chestType, cost);
-            } else {
-                alert('Sistema de cofres no disponible. Recarga la página.');
-            }
-        }, 100);
-    }
-}
-
-// Función para refrescar el historial
-function refreshHistory() {
-    console.log('Refreshing history...');
-    if (window.gachaSystem) {
-        window.gachaSystem.loadRecentHistory();
-    } else {
-        console.warn('GachaSystem not available for history refresh');
-    }
-}
-
-// Hacer las funciones disponibles inmediatamente
-window.openChest = openChest;
-window.refreshHistory = refreshHistory;
-
-// Inicializar sistema cuando se carga la página
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('Initializing Gacha System...');
-    window.gachaSystem = new GachaSystem();
-
-    // Precargar recursos para las animaciones
-    const preloadImages = [
-        'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%23ffd700" stroke-width="4"/></svg>'
-    ];
-
-    preloadImages.forEach(src => {
-        const img = new Image();
-        img.src = src;
-    });
-
-    console.log('Gacha System initialized successfully');
+// Initialize
+let gacha;
+document.addEventListener('DOMContentLoaded', () => {
+    gacha = new GachaSystem();
 });
+
+function openChest(type, cost) {
+    gacha.openChest(type, cost);
+}
