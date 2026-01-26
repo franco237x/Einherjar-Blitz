@@ -64,6 +64,9 @@ $conn = $database->getConnection();
                     <div class="resource">
                         <i class="fas fa-key"></i>
                         <span id="keysCount"><?php echo number_format($userData['llaves']); ?></span>
+                        <a href="comprar-llaves.php" class="get-keys-btn" title="Obtener Llaves">
+                            <i class="fas fa-plus"></i>
+                        </a>
                     </div>
                     <div class="resource">
                         <i class="fas fa-globe"></i>

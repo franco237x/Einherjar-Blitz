@@ -102,6 +102,33 @@
     font-weight: 600;
 }
 
+/* Get Keys Button */
+.get-keys-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, #00d464, #00a850);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.7rem;
+    text-decoration: none;
+    margin-left: 0.4rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 212, 100, 0.3);
+}
+
+.get-keys-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 15px rgba(0, 212, 100, 0.5);
+    color: #fff;
+}
+
+.get-keys-btn:active {
+    transform: scale(0.95);
+}
+
 /* Main */
 .gacha-main {
     position: relative;

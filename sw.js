@@ -55,6 +55,15 @@ self.addEventListener('fetch', (event) => {
     // Solo manejar requests GET
     if (event.request.method !== 'GET') return;
 
+    // Ignorar requests de redes publicitarias externas
+    const url = event.request.url;
+    if (url.includes('quge5.com') ||
+        url.includes('yohle.com') ||
+        url.includes('monetag') ||
+        url.includes('tag.min.js')) {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
@@ -76,11 +85,11 @@ self.addEventListener('fetch', (event) => {
                         const responseToCache = response.clone();
 
                         // Añadir a cache solo recursos del juego
-                        if (event.request.url.includes('/game/') || 
+                        if (event.request.url.includes('/game/') ||
                             event.request.url.includes('/assets/') ||
                             event.request.url.includes('/characters/') ||
                             event.request.url.includes('/images/')) {
-                            
+
                             caches.open(CACHE_NAME)
                                 .then((cache) => {
                                     cache.put(event.request, responseToCache);
@@ -163,14 +172,14 @@ async function syncGameData() {
     try {
         // Implementar sincronización de estadísticas, progreso, etc.
         console.log('[SW] Syncing game data...');
-        
+
         // Ejemplo: enviar estadísticas pendientes
         const pendingStats = await getStoredStats();
         if (pendingStats.length > 0) {
             await sendStatsToServer(pendingStats);
             await clearStoredStats();
         }
-        
+
         return Promise.resolve();
     } catch (error) {
         console.log('[SW] Sync failed:', error);
