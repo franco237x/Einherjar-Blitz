@@ -581,44 +581,388 @@
     font-size: 0.85rem;
 }
 
-/* Responsive */
+/* ==========================================
+   MOBILE RESPONSIVE - GACHA INDEX
+   ========================================== */
 @media (max-width: 768px) {
+    .gacha-header {
+        padding: 0.75rem 0;
+    }
+
+    .gacha-header .container {
+        padding: 0 1rem;
+        gap: 0.75rem;
+    }
+
     .page-title {
         font-size: 1rem;
     }
 
+    .page-title i {
+        display: none;
+    }
+
+    .user-resources {
+        padding: 0.4rem 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .resource {
+        font-size: 0.9rem;
+    }
+
+    .get-keys-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.65rem;
+    }
+
+    .header-actions .btn {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.8rem;
+    }
+
+    .header-actions .btn span {
+        display: none;
+    }
+
+    .gacha-main {
+        padding: 1rem 0;
+    }
+
     .chest-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
+        padding: 0 1rem;
+    }
+
+    .chest-card {
+        height: 300px;
+        border-radius: 12px;
+    }
+
+    .chest-badge {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .chest-cost {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .chest-icon-float {
+        font-size: 3rem;
+    }
+
+    .chest-info {
+        padding: 1rem;
+    }
+
+    .chest-name {
+        font-size: 1.1rem;
+    }
+
+    .chest-desc {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .btn-open {
+        padding: 0.7rem;
+        font-size: 0.85rem;
+        border-radius: 10px;
+    }
+
+    /* History mobile */
+    .history-section {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .history-section h3 {
+        font-size: 1rem;
+    }
+
+    .history-item {
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+    }
+
+    .history-item img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .history-item .name {
+        font-size: 0.85rem;
     }
 
     /* Mobile Roulette */
+    .roulette-container {
+        padding: 1rem;
+    }
+
+    .roulette-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
     .roulette-wrapper {
-        height: 180px;
+        height: 160px;
+        border-radius: 10px;
+        margin-bottom: 1rem;
     }
 
     .roulette-item {
-        width: 140px;
+        width: 120px;
+        padding: 8px;
     }
 
     .roulette-item img {
-        width: 100px;
-        height: 100px;
-        margin-bottom: 8px;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 6px;
+        border-radius: 6px;
+    }
+
+    .roulette-item .item-name {
+        font-size: 0.6rem;
+        max-width: 100px;
+    }
+
+    .roulette-pointer::before,
+    .roulette-pointer::after {
+        border-left-width: 8px;
+        border-right-width: 8px;
+    }
+
+    .roulette-pointer::before {
+        border-top-width: 12px;
+    }
+
+    .roulette-pointer::after {
+        border-bottom-width: 12px;
+    }
+
+    /* Reward display mobile */
+    .reward-display {
+        padding: 1rem;
     }
 
     .reward-image {
-        width: 150px;
-        height: 150px;
+        width: 140px;
+        height: 140px;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .reward-title {
+        font-size: 1.3rem;
+    }
+
+    .reward-name {
+        font-size: 1rem;
+    }
+
+    .reward-type {
+        font-size: 0.85rem;
+    }
+
+    .rarity-badge {
+        padding: 0.4rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-continue {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
     }
 
     .opening-chest {
         font-size: 5rem;
     }
 
-    .reward-title {
-        font-size: 1.5rem;
+    .gacha-footer {
+        padding: 0.75rem 0;
+        font-size: 0.75rem;
     }
+}
+
+@media (max-width: 380px) {
+    .chest-card {
+        height: 260px;
+    }
+
+    .chest-icon-float {
+        font-size: 2.5rem;
+    }
+
+    .roulette-wrapper {
+        height: 140px;
+    }
+
+    .roulette-item {
+        width: 100px;
+    }
+
+    .roulette-item img {
+        width: 65px;
+        height: 65px;
+    }
+
+    .reward-image {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+/* ==========================================
+   RARITY PARTICLES SYSTEM
+   ========================================== */
+.rarity-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    overflow: hidden;
+}
+
+.rarity-particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particle-float 3s ease-out forwards;
+}
+
+/* Common - Gray subtle particles */
+.rarity-common .rarity-particle {
+    background: radial-gradient(circle, #9ca3af, transparent);
+    box-shadow: 0 0 6px #9ca3af;
+}
+
+/* Rare - Blue particles */
+.rarity-rare .rarity-particle {
+    background: radial-gradient(circle, #3b82f6, transparent);
+    box-shadow: 0 0 10px #3b82f6;
+}
+
+/* Epic - Purple particles with trail */
+.rarity-epic .rarity-particle {
+    background: radial-gradient(circle, #a855f7, #7c3aed, transparent);
+    box-shadow: 0 0 15px #a855f7, 0 0 30px rgba(168, 85, 247, 0.5);
+}
+
+/* Legendary - Golden confetti */
+.rarity-legendary .rarity-particle {
+    background: radial-gradient(circle, #fbbf24, #f59e0b, transparent);
+    box-shadow: 0 0 20px #fbbf24, 0 0 40px rgba(251, 191, 36, 0.6);
+}
+
+/* Mythical - Red fire particles */
+.rarity-mythical .rarity-particle {
+    background: radial-gradient(circle, #ef4444, #dc2626, transparent);
+    box-shadow: 0 0 25px #ef4444, 0 0 50px rgba(239, 68, 68, 0.7);
+    animation: particle-fire 2s ease-out forwards;
+}
+
+@keyframes particle-float {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(0.5);
+    }
+}
+
+@keyframes particle-fire {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: translateY(-50px) scale(1.2) rotate(180deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-150px) scale(0.3) rotate(360deg);
+    }
+}
+
+/* Legendary confetti shapes */
+.rarity-legendary .rarity-particle.confetti {
+    border-radius: 0;
+    width: 10px !important;
+    height: 10px !important;
+    animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        opacity: 1;
+        transform: translateY(-20px) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(720deg);
+    }
+}
+
+/* Glow aura around reward for high rarity */
+.reward-display.rarity-epic::before,
+.reward-display.rarity-legendary::before,
+.reward-display.rarity-mythical::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    z-index: -1;
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.reward-display.rarity-epic::before {
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent 70%);
+}
+
+.reward-display.rarity-legendary::before {
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.4), transparent 70%);
+}
+
+.reward-display.rarity-mythical::before {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.4), transparent 70%);
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Make reward display position relative for pseudo-element */
+.reward-display {
+    position: relative;
 }
 
 /* ==========================================

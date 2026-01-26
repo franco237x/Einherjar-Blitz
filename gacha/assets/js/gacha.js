@@ -63,12 +63,16 @@ class GachaSystem {
         this.container = null;
         this.isOpening = false;
         this.history = [];
+        this.preloadedImages = new Set();
         this.init();
     }
 
     init() {
         this.overlay = document.getElementById('gachaOverlay');
         this.container = document.getElementById('animationContainer');
+
+        // Preload reward images
+        this.preloadImages();
 
         // Load history from DB (passed via window.userData)
         if (window.userData && Array.isArray(window.userData.history)) {
@@ -86,6 +90,17 @@ class GachaSystem {
         }
 
         this.renderHistory();
+    }
+
+    // Preload all reward images for smooth roulette
+    preloadImages() {
+        Object.values(REWARD_IMAGES).forEach(src => {
+            if (!this.preloadedImages.has(src)) {
+                const img = new Image();
+                img.src = src;
+                this.preloadedImages.add(src);
+            }
+        });
     }
 
     getRewardImage(name) {
@@ -119,11 +134,11 @@ class GachaSystem {
                 this.showRouletteAnimation(type, data.reward);
                 this.addToHistory(data.reward, type);
             } else {
-                alert('Error: ' + (data.message || 'Error al abrir el cofre'));
+                this.showErrorModal('Error', data.message || 'Error al abrir el cofre');
             }
         } catch (error) {
             console.error('Gacha error:', error);
-            alert('Error de Conexión: No se pudo conectar con el servidor');
+            this.showErrorModal('Error de Conexión', 'No se pudo conectar con el servidor. Intenta nuevamente.');
         }
 
         this.isOpening = false;
@@ -240,6 +255,9 @@ class GachaSystem {
             </div>
         `;
 
+        // Spawn rarity particles
+        this.spawnRarityParticles(rarity);
+
         // GSAP reveal
         gsap.from('.reward-display > *', {
             opacity: 0,
@@ -248,6 +266,60 @@ class GachaSystem {
             duration: 0.5,
             ease: 'power2.out'
         });
+    }
+
+    // Spawn particles based on rarity
+    spawnRarityParticles(rarity) {
+        const particleContainer = document.createElement('div');
+        particleContainer.className = `rarity-particles ${this.getRarityClass(rarity)}`;
+        document.body.appendChild(particleContainer);
+
+        const particleCounts = {
+            common: 15,
+            rare: 25,
+            epic: 40,
+            legendary: 60,
+            mythical: 80
+        };
+
+        const count = particleCounts[rarity] || 15;
+
+        for (let i = 0; i < count; i++) {
+            setTimeout(() => {
+                const particle = document.createElement('div');
+                particle.className = 'rarity-particle';
+
+                // Random position
+                const x = Math.random() * window.innerWidth;
+                const y = (window.innerHeight / 2) + (Math.random() * 200 - 100);
+
+                // Random size based on rarity
+                const baseSize = rarity === 'mythical' ? 12 : rarity === 'legendary' ? 10 : 6;
+                const size = baseSize + Math.random() * baseSize;
+
+                particle.style.cssText = `
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    animation-delay: ${Math.random() * 0.5}s;
+                `;
+
+                // Add confetti class for legendary
+                if (rarity === 'legendary' && Math.random() > 0.5) {
+                    particle.classList.add('confetti');
+                    particle.style.background = `hsl(${Math.random() * 60 + 30}, 100%, 60%)`;
+                }
+
+                particleContainer.appendChild(particle);
+
+                // Remove particle after animation
+                setTimeout(() => particle.remove(), 3000);
+            }, i * 30);
+        }
+
+        // Clean up container after all particles done
+        setTimeout(() => particleContainer.remove(), 5000);
     }
 
     showErrorModal(title, message) {
