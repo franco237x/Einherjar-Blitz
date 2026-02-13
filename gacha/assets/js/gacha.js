@@ -36,7 +36,38 @@ const REWARD_IMAGES = {
     'Extensión de Terreno': 'assets/images/rewards/terrains/extension_terreno.jpg',
     'Dad Key': 'assets/images/rewards/terrains/dad_key.jpg',
     'Hallownest (Hollow Knight)': 'assets/images/rewards/terrains/hallownest.jpg',
-    'Apokolips (DC Comics)': 'assets/images/rewards/terrains/apokolips.jpg'
+    'Apokolips (DC Comics)': 'assets/images/rewards/terrains/apokolips.jpg',
+
+    // Dragon Ball
+    'Invocación: Bills': 'assets/images/rewards/dragon_ball/bills.jpg',
+    'Invocación: Whis': 'assets/images/rewards/dragon_ball/whis.jpg',
+    'Invocación: Goku': 'assets/images/rewards/dragon_ball/goku.jpg',
+    'Invocación: Vegeta': 'assets/images/rewards/dragon_ball/vegeta.jpg',
+    'Poder: Ultra Instinto': 'assets/images/rewards/dragon_ball/ultra_instinto.jpg',
+    'Poder: Ultra Ego': 'assets/images/rewards/dragon_ball/ultra_ego.jpg',
+    'Objeto: Zarcillos Pothara': 'assets/images/rewards/dragon_ball/pothara.jpg',
+    'Invocación: Zamas': 'assets/images/rewards/dragon_ball/zamas.jpg',
+    'Invocación: Black Goku': 'assets/images/rewards/dragon_ball/black_goku.jpg',
+    'Invocación: Gamma 1': 'assets/images/rewards/dragon_ball/gamma_1.jpg',
+    'Invocación: Gamma 2': 'assets/images/rewards/dragon_ball/gamma_2.jpg',
+    'Invocación: Cell Max': 'assets/images/rewards/dragon_ball/cell_max.jpg',
+    'Invocación: Freezer': 'assets/images/rewards/dragon_ball/freezer.jpg',
+    'Objeto: Esferas del Dragón': 'assets/images/rewards/dragon_ball/esferas_del_dragon.jpg',
+    'Objeto: Super Esferas del Dragón': 'assets/images/rewards/dragon_ball/super_esferas_del_dragon.jpg',
+    'Objeto: Esferas del Planeta Cereal': 'assets/images/rewards/dragon_ball/esferas_del_dragon_cereal.jpg',
+    'Libro: Son Goku': 'assets/images/rewards/dragon_ball/libro_goku.jpg',
+    'Libro: Vegeta': 'assets/images/rewards/dragon_ball/libro_vegeta.jpg',
+    'ADN Namekiano': 'assets/images/rewards/dragon_ball/adn_namekiano.jpg',
+    'Invocación: Jiren': 'assets/images/rewards/dragon_ball/jiren.jpg',
+    'Invocación: Caulifla': 'assets/images/rewards/dragon_ball/caulifla.jpg',
+    'Invocación: Majin Buu': 'assets/images/rewards/dragon_ball/majin_buu.jpg',
+    'Invocación: Mister Satan': 'assets/images/rewards/dragon_ball/mister_satan.jpg',
+    'Arma: Espada Z': 'assets/images/rewards/dragon_ball/espada_z.jpg',
+    'ADN Saiyajin': 'assets/images/rewards/dragon_ball/adn_saiyajin.jpg',
+    'Invocación: Granola': 'assets/images/rewards/dragon_ball/granola.jpg',
+    'Invocación: Gas': 'assets/images/rewards/dragon_ball/gas.jpg',
+
+
 };
 
 // Lista de items para la ruleta por tipo de cofre
@@ -54,6 +85,17 @@ const CHEST_ITEMS = {
         'Skypeia (One Piece)', 'Academia de Héroes (Boku No Hero)', 'Negocio Devil May Cry (DMC)',
         'Atlantis (DC Comics)', 'Torre de los Vengadores (Marvel)', 'Fundación SCP',
         'Extensión de Terreno', 'Dad Key', 'Hallownest (Hollow Knight)', 'Apokolips (DC Comics)'
+    ],
+    dragon_ball: [
+        'Invocación: Bills', 'Invocación: Whis', 'Invocación: Goku', 'Invocación: Vegeta',
+        'Poder: Ultra Instinto', 'Poder: Ultra Ego', 'Objeto: Zarcillos Pothara',
+        'Invocación: Zamas', 'Invocación: Black Goku', 'Invocación: Gamma 1',
+        'Invocación: Gamma 2', 'Invocación: Cell Max', 'Invocación: Freezer',
+        'Objeto: Esferas del Dragón', 'Objeto: Super Esferas del Dragón',
+        'Objeto: Esferas del Planeta Cereal', 'Libro: Son Goku', 'Libro: Vegeta',
+        'ADN Namekiano', 'Invocación: Jiren', 'Invocación: Caulifla',
+        'Invocación: Majin Buu', 'Invocación: Mister Satan', 'Arma: Espada Z',
+        'ADN Saiyajin', 'Invocación: Granola', 'Invocación: Gas'
     ]
 };
 

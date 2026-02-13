@@ -103,6 +103,44 @@ try {
                 ['Poder: Primera Llama', 'special', 1, 1]
             ]
         ],
+        'dragon_ball' => [
+            'name' => 'Cofre Dragon Ball Legends',
+            'cost' => 5,
+            'rewards' => [
+                // Dragon Ball - Invocaciones Raras (Estrellas)
+                ['Invocación: Bills', 'invocation', 1, 5],
+                ['Invocación: Whis', 'invocation', 1, 5],
+                ['Invocación: Goku', 'invocation', 1, 8],
+                ['Invocación: Vegeta', 'invocation', 1, 8],
+                ['Poder: Ultra Instinto', 'special', 1, 2],
+                ['Poder: Ultra Ego', 'special', 1, 2],
+                ['Objeto: Zarcillos Pothara', 'special', 1, 4],
+                ['Invocación: Zamas', 'invocation', 1, 6],
+                ['Invocación: Black Goku', 'invocation', 1, 6],
+                ['Invocación: Gamma 1', 'invocation', 1, 7],
+                ['Invocación: Gamma 2', 'invocation', 1, 7],
+                ['Invocación: Cell Max', 'invocation', 1, 5],
+                ['Invocación: Freezer', 'invocation', 1, 5],
+
+                // Dragon Ball - Esferas (Muy Raras)
+                ['Objeto: Esferas del Dragón', 'special', 1, 3],
+                ['Objeto: Super Esferas del Dragón', 'special', 1, 1],
+                ['Objeto: Esferas del Planeta Cereal', 'special', 1, 2],
+
+                // Dragon Ball - Comunes/No Estrelladas
+                ['Libro: Son Goku', 'resource', 1, 15],
+                ['Libro: Vegeta', 'resource', 1, 15],
+                ['ADN Namekiano', 'resource', 1, 20],
+                ['Invocación: Jiren', 'invocation', 1, 10],
+                ['Invocación: Caulifla', 'invocation', 1, 12],
+                ['Invocación: Majin Buu', 'invocation', 1, 10],
+                ['Invocación: Mister Satan', 'invocation', 1, 15],
+                ['Arma: Espada Z', 'weapon', 1, 12],
+                ['ADN Saiyajin', 'resource', 1, 20],
+                ['Invocación: Granola', 'invocation', 1, 8],
+                ['Invocación: Gas', 'invocation', 1, 8],
+            ]
+        ],
 
     ];
 

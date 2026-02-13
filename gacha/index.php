@@ -153,6 +153,34 @@ $conn = $database->getConnection();
                     </div>
                 </div>
 
+                <!-- Dragon Ball Legends Chest -->
+                <div class="chest-card dragon-ball" onclick="openChest('dragon_ball', 5)">
+                    <img src="assets/images/banners/dragon-ball-banner.jpg" alt="Dragon Ball Banner"
+                        class="chest-banner-img">
+                    <div class="chest-overlay"></div>
+
+                    <div class="chest-badge">
+                        <i class="fas fa-dragon"></i>
+                        <span>DB Legends</span>
+                    </div>          
+                    <div class="chest-cost">
+                        <i class="fas fa-key"></i>
+                        <span>5</span>
+                    </div>
+
+                    <div class="chest-icon-float">
+                        <i class="fas fa-khanda"></i>
+                    </div>
+
+                    <div class="chest-info">
+                        <h3 class="chest-name">Cofre Dragon Ball Legends</h3>
+                        <p class="chest-desc">¡Poderes y guerreros legendarios!</p>
+                        <button class="btn-open">
+                            <i class="fas fa-unlock-alt me-2"></i>Abrir Cofre
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             <!-- History Section -->
