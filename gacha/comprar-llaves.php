@@ -416,7 +416,7 @@ $purchaseHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </div>
 
-            <!-- Free Alternative -->
+            <!-- Free Alternative
             <div class="alt-method">
                 <h4><i class="fas fa-tv me-2"></i>¿Sin dinero? ¡Obtén llaves gratis!</h4>
                 <p>Ve anuncios y gana llaves. Cada 4 anuncios = 1 llave gratuita.</p>
@@ -424,7 +424,7 @@ $purchaseHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <i class="fas fa-play-circle"></i>
                     Ver Anuncios
                 </a>
-            </div>
+            </div> -->
 
             <!-- Purchase History -->
             <?php if (!empty($purchaseHistory)): ?>
