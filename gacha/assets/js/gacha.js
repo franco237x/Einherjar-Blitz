@@ -67,8 +67,29 @@ const REWARD_IMAGES = {
     'Invocación: Granola': 'assets/images/rewards/dragon_ball/granola.jpg',
     'Invocación: Gas': 'assets/images/rewards/dragon_ball/gas.jpg',
 
-
+    // 100 Einherjer Dicen
+    'Save Point': 'assets/images/rewards/einherjer_dicen/save_point.jpg',
+    'Ecuación Antivida': 'assets/images/rewards/einherjer_dicen/ecuacion_antivida.jpg',
+    'The Crown of Light (Isaac)': 'assets/images/rewards/einherjer_dicen/crown_of_light.jpg',
+    'Lirio de Araña Azul': 'assets/images/rewards/einherjer_dicen/lirio_araña_azul.jpg',
+    '150 Esencias Azules': 'assets/images/rewards/einherjer_dicen/esencias_azules.jpg',
+    'Infinity (Marvel)': 'assets/images/rewards/einherjer_dicen/infinity.jpg',
+    'The End (Medaka)': 'assets/images/rewards/einherjer_dicen/the_end.jpg',
+    'Flecha de Stands Novela Ligera': 'assets/images/rewards/einherjer_dicen/flecha_stands.jpg',
+    'Stand Tusk': 'assets/images/rewards/einherjer_dicen/tusk.jpg',
+    'Fruta del Diablo: Nidhogg': 'assets/images/rewards/einherjer_dicen/fruta.jpg',
+    'Armadura Hellbat': 'assets/images/rewards/einherjer_dicen/armadura_hellbat.jpg',
+    'Red Servant Beast': 'assets/images/rewards/einherjer_dicen/red_servant_beast.jpg',
+    'Rey Escarlata (SCP)': 'assets/images/rewards/einherjer_dicen/rey_escarlata.jpg',
+    'Starkiller (Star Wars)': 'assets/images/rewards/einherjer_dicen/starkiller.jpg',
+    'Extensión de Terreno': 'assets/images/rewards/einherjer_dicen/extension_terreno.jpg',
+    'Imu sama': 'assets/images/rewards/einherjer_dicen/imu_sama.jpg',
+    'Llave del Subsuelo': 'assets/images/rewards/einherjer_dicen/llave_subsuelo.jpg',
+    'Eon Trazacaminos': 'assets/images/rewards/einherjer_dicen/eon_trazacaminos.jpg',
 };
+
+// Video path for Hoyoverse chest
+const HOYOVERSE_VIDEO = 'assets/videos/hoyoverse-opening.mp4';
 
 // Lista de items para la ruleta por tipo de cofre
 const CHEST_ITEMS = {
@@ -96,6 +117,14 @@ const CHEST_ITEMS = {
         'ADN Namekiano', 'Invocación: Jiren', 'Invocación: Caulifla',
         'Invocación: Majin Buu', 'Invocación: Mister Satan', 'Arma: Espada Z',
         'ADN Saiyajin', 'Invocación: Granola', 'Invocación: Gas'
+    ],
+    hoyoverse: [
+        'Save Point', 'Ecuación Antivida', 'The Crown of Light (Isaac)',
+        'Lirio de Araña Azul', '150 Esencias Azules', 'Infinity (Marvel)',
+        'The End (Medaka)', 'Flecha de Stands Novela Ligera', 'Stand Tusk',
+        'Fruta del Diablo: Nidhogg', 'Armadura Hellbat', 'Red Servant Beast',
+        'Rey Escarlata (SCP)', 'Starkiller (Star Wars)', 'Extensión de Terreno',
+        'Imu sama', 'Llave del Subsuelo', 'Eon Trazacaminos'
     ]
 };
 
@@ -172,8 +201,12 @@ class GachaSystem {
                 window.userData.keys = data.remaining_keys;
                 this.updateKeysDisplay();
 
-                // Start CS2 roulette animation
-                this.showRouletteAnimation(type, data.reward);
+                // Hoyoverse uses cinematic video, others use roulette
+                if (type === 'hoyoverse') {
+                    this.showVideoAnimation(data.reward);
+                } else {
+                    this.showRouletteAnimation(type, data.reward);
+                }
                 this.addToHistory(data.reward, type);
             } else {
                 this.showErrorModal('Error', data.message || 'Error al abrir el cofre');
@@ -270,6 +303,69 @@ class GachaSystem {
                 clearInterval(tickInterval);
             }
         }, 50);
+    }
+
+    // ★ HOYOVERSE — Cinematic Video Opening ★
+    showVideoAnimation(winnerReward) {
+        // Build fullscreen video overlay
+        this.container.innerHTML = `
+            <div class="hoyoverse-cinema">
+                <video class="hoyoverse-cinema-video" id="hoyoverseVideo" playsinline>
+                    <source src="${HOYOVERSE_VIDEO}" type="video/mp4">
+                </video>
+                <div class="hoyoverse-cinema-vignette"></div>
+                <button class="hoyoverse-skip-btn" id="skipVideoBtn">
+                    <i class="fas fa-forward me-1"></i>Saltar
+                </button>
+            </div>
+        `;
+
+        this.overlay.classList.add('active');
+
+        const video = document.getElementById('hoyoverseVideo');
+        const skipBtn = document.getElementById('skipVideoBtn');
+
+        // Fade in
+        gsap.fromTo(this.overlay, { opacity: 0 }, { opacity: 1, duration: 0.8 });
+
+        // Play video
+        video.currentTime = 0;
+        video.volume = 0.3;
+        video.play().catch(() => {
+            // Autoplay blocked — go straight to reveal
+            this.transitionToReward(winnerReward);
+        });
+
+        // On video end → transition to reward
+        video.addEventListener('ended', () => {
+            this.transitionToReward(winnerReward);
+        });
+
+        // Skip button
+        skipBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            video.pause();
+            this.transitionToReward(winnerReward);
+        });
+    }
+
+    transitionToReward(reward) {
+        const video = document.getElementById('hoyoverseVideo');
+        if (video) {
+            gsap.to(video, {
+                opacity: 0,
+                duration: 1.2,
+                ease: 'power2.in',
+                onComplete: () => {
+                    this.showRewardResult(reward);
+                    // Extra particles for premium
+                    this.spawnRarityParticles('legendary');
+                    setTimeout(() => this.spawnRarityParticles('mythical'), 300);
+                }
+            });
+        } else {
+            this.showRewardResult(reward);
+        }
     }
 
     showRewardResult(reward) {

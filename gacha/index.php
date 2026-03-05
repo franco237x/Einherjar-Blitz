@@ -95,6 +95,40 @@ $conn = $database->getConnection();
     <main class="gacha-main">
         <div class="container">
 
+            <!-- ★ HOYOVERSE — HERO CARD ★ -->
+            <div class="hoyoverse-hero" onclick="openChest('hoyoverse', 3)">
+                <video class="hoyoverse-video-bg" autoplay muted loop playsinline>
+                    <source src="assets/videos/hoyoverse-opening.mp4" type="video/mp4">
+                </video>
+                <div class="hoyoverse-overlay"></div>
+
+                <div class="hoyoverse-glow"></div>
+
+                <div class="hoyoverse-content">
+                    <div class="hoyoverse-badge">
+                        <i class="fas fa-star"></i>
+                        <span>PREMIUM</span>
+                    </div>
+
+                    <div class="hoyoverse-info">
+                        <h2 class="hoyoverse-title">100 Einherjer Dicen</h2>
+                        <p class="hoyoverse-subtitle">Cofre Gacha Exclusivo</p>
+                        <p class="hoyoverse-desc">Una experiencia cinemática única. Abre el cofre y vive la invocación.
+                        </p>
+                    </div>
+
+                    <div class="hoyoverse-actions">
+                        <div class="hoyoverse-cost">
+                            <i class="fas fa-key"></i>
+                            <span>5</span>
+                        </div>
+                        <button class="hoyoverse-btn-open">
+                            <i class="fas fa-play me-2"></i>Invocar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Chest Grid -->
             <div class="chest-grid">
 
@@ -162,7 +196,7 @@ $conn = $database->getConnection();
                     <div class="chest-badge">
                         <i class="fas fa-dragon"></i>
                         <span>DB Legends</span>
-                    </div>          
+                    </div>
                     <div class="chest-cost">
                         <i class="fas fa-key"></i>
                         <span>5</span>

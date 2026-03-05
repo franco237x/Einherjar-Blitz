@@ -141,6 +141,30 @@ try {
                 ['Invocación: Gas', 'invocation', 1, 8],
             ]
         ],
+        'hoyoverse' => [
+            'name' => '100 Einherjer Dicen',
+            'cost' => 5,
+            'rewards' => [
+                ['Save Point', 'special', 1, 5],
+                ['Ecuación Antivida', 'special', 1, 5],
+                ['The Crown of Light (Isaac)', 'special', 1, 10],
+                ['Lirio de Araña Azul', 'resource', 1, 12],
+                ['150 Esencias Azules', 'resource', 1, 15],
+                ['Infinity (Marvel)', 'special', 1, 3],
+                ['The End (Medaka)', 'special', 1, 3],
+                ['Flecha de Stands Novela Ligera', 'weapon', 1, 8],
+                ['Stand Tusk', 'invocation', 1, 8],
+                ['Fruta del Diablo: Nidhogg', 'special', 1, 8],
+                ['Armadura Hellbat', 'weapon', 1, 6],
+                ['Red Servant Beast', 'invocation', 1, 5],
+                ['Rey Escarlata (SCP)', 'invocation', 1, 1],
+                ['Starkiller (Star Wars)', 'invocation', 1, 6],
+                ['Extensión de Terreno', 'terrain', 1, 5],
+                ['Imu sama', 'invocation', 1, 3],
+                ['Llave del Subsuelo', 'special', 1, 8],
+                ['Eon Trazacaminos', 'invocation', 1, 4],
+            ]
+        ],
 
     ];
 
