@@ -43,17 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
             throw new Exception('No puedes transferir llaves a ti mismo');
         }
         
-        if (empty($password)) {
-            throw new Exception('Debes confirmar tu contraseña');
-        }
-        
-        // Verificar contraseña del usuario actual
-        $stmt = $db->prepare("SELECT password_hash FROM usuarios WHERE id = ?");
-        $stmt->execute([$userData['id']]);
-        $userAuth = $stmt->fetch();
-        
-        if (!$userAuth || !password_verify($password, $userAuth['password_hash'])) {
-            throw new Exception('Contraseña incorrecta');
+        // Solo verificar contraseña para transferencias mayores a 10 llaves
+        if ($amount > 10) {
+            if (empty($password)) {
+                throw new Exception('Debes confirmar tu contraseña');
+            }
+            
+            // Verificar contraseña del usuario actual
+            $stmt = $db->prepare("SELECT password_hash FROM usuarios WHERE id = ?");
+            $stmt->execute([$userData['id']]);
+            $userAuth = $stmt->fetch();
+            
+            if (!$userAuth || !password_verify($password, $userAuth['password_hash'])) {
+                throw new Exception('Contraseña incorrecta');
+            }
         }
         
         // Verificar que el usuario destinatario existe
@@ -151,6 +154,9 @@ try {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -161,6 +167,7 @@ try {
         .transfer-form {
             max-width: 600px;
             margin: 0 auto;
+            width: 90%;
         }
         
         .balance-display {
@@ -191,10 +198,12 @@ try {
             color: var(--text-primary) !important;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            font-size: 1rem; /* Ensure readable size on mobile */
         }
         
         .form-text {
             color: rgba(255, 255, 255, 0.6) !important;
+            font-size: 0.875rem;
         }
         
         .form-control {
@@ -202,7 +211,9 @@ try {
             border: 1px solid var(--border-gold);
             color: var(--text-primary) !important;
             border-radius: 8px;
-            padding: 0.75rem 1rem;
+            padding: 1rem; /* Increased for better touch target */
+            font-size: 1rem; /* Ensure readable text */
+            min-height: 44px; /* Minimum touch target height */
         }
         
         .form-control:focus {
@@ -221,9 +232,14 @@ try {
             border: none;
             color: var(--bg-dark);
             font-weight: 600;
-            padding: 0.75rem 2rem;
+            padding: 1rem 2rem; /* Increased for better touch */
             border-radius: 8px;
             transition: all 0.3s ease;
+            font-size: 1rem;
+            min-height: 44px; /* Minimum touch target */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .btn-transfer:hover {
@@ -236,10 +252,15 @@ try {
             background: transparent;
             border: 1px solid var(--border-gold);
             color: var(--text-primary);
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem; /* Increased for better touch */
             border-radius: 8px;
             text-decoration: none;
             transition: all 0.3s ease;
+            font-size: 1rem;
+            min-height: 44px; /* Minimum touch target */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .btn-back:hover {
@@ -267,9 +288,137 @@ try {
             border-left: 4px solid #dc3545;
         }
         
+        /* Custom Breadcrumb */
+        .custom-breadcrumb {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(201, 170, 113, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-breadcrumb .breadcrumb {
+            margin-bottom: 0;
+            padding: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        
+        .custom-breadcrumb .breadcrumb-item {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .custom-breadcrumb .breadcrumb-item a {
+            color: var(--primary-gold);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-breadcrumb .breadcrumb-item a:hover {
+            color: var(--light-gold);
+            text-shadow: 0 0 8px rgba(201, 170, 113, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .custom-breadcrumb .breadcrumb-item.active {
+            color: var(--text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+            color: rgba(255, 255, 255, 0.3);
+            content: "\f105"; /* FontAwesome angle-right */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin: 0 1rem;
+        }
+        
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup {
+            background: linear-gradient(135deg, #1c1f2e, #11131c) !important;
+            border: 1px solid var(--border-gold) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        .swal2-title {
+            color: var(--primary-gold) !important;
+            font-family: 'Cinzel', serif;
+            font-weight: 700 !important;
+        }
+        
+        .swal2-html-container {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem !important;
+        }
+        
+        .swal2-confirm {
+            background: linear-gradient(135deg, var(--primary-gold), var(--dark-gold)) !important;
+            color: var(--bg-dark) !important;
+            border: none !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 2rem !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 15px rgba(201, 170, 113, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(201, 170, 113, 0.4) !important;
+        }
+        
+        .swal2-cancel {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid var(--border-gold) !important;
+            color: var(--text-primary) !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 2rem !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-cancel:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: var(--light-gold) !important;
+        }
+        
+        .swal2-icon.swal2-warning {
+            border-color: var(--primary-gold) !important;
+            color: var(--primary-gold) !important;
+        }
+        
+        .swal2-icon.swal2-success {
+            border-color: #28a745 !important;
+            color: #28a745 !important;
+        }
+        
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #28a745 !important;
+        }
+        
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: rgba(40, 167, 69, 0.3) !important;
+        }
+        
         .history-section {
             max-width: 800px;
             margin: 2rem auto 0;
+            width: 90%;
         }
         
         .history-item {
@@ -307,11 +456,16 @@ try {
             background: rgba(201, 170, 113, 0.2);
             border: 1px solid var(--border-gold);
             color: var(--text-primary) !important;
-            padding: 0.25rem 0.75rem;
+            padding: 0.5rem 1rem; /* Increased for better touch */
             border-radius: 20px;
             font-size: 0.875rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 44px; /* Minimum touch target width */
+            min-height: 44px; /* Minimum touch target height */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .quick-amount-btn:hover {
@@ -376,6 +530,7 @@ try {
             align-items: center;
             gap: 0.75rem;
             border-bottom: 1px solid rgba(201, 170, 113, 0.1);
+            min-height: 44px; /* Minimum touch target */
         }
         
         .autocomplete-item:hover,
@@ -416,6 +571,58 @@ try {
             color: var(--text-secondary);
             font-style: italic;
         }
+        
+        /* Mobile-specific optimizations */
+        @media (max-width: 576px) {
+            .transfer-form {
+                width: 95%;
+                margin: 0 auto;
+            }
+            
+            .transfer-card {
+                padding: 1.5rem;
+            }
+            
+            .balance-display {
+                padding: 1rem;
+            }
+            
+            .balance-amount {
+                font-size: 1.75rem;
+            }
+            
+            .form-label {
+                font-size: 1.1rem;
+            }
+            
+            .form-control {
+                padding: 1.25rem;
+                font-size: 1.1rem;
+            }
+            
+            .btn-transfer {
+                padding: 1.25rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            .btn-back {
+                padding: 1rem 1.75rem;
+                font-size: 1.1rem;
+            }
+            
+            .quick-amount-btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            h3 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="d-flex flex-column h-100">
@@ -452,10 +659,16 @@ try {
         <div class="container-fluid py-4">
             
             <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb">
+            <nav aria-label="breadcrumb" class="custom-breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php" class="text-gold">Dashboard</a></li>
-                    <li class="breadcrumb-item active text-light" aria-current="page">Transferir Llaves</li>
+                    <li class="breadcrumb-item">
+                        <a href="dashboard.php">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-exchange-alt"></i> Transferir Llaves
+                    </li>
                 </ol>
             </nav>
 
@@ -470,10 +683,21 @@ try {
 
             <!-- Mostrar mensajes -->
             <?php if (!empty($message)): ?>
-                <div class="alert alert-custom alert-<?php echo $messageType; ?>">
-                    <i class="fas fa-<?php echo $messageType === 'success' ? 'check-circle' : 'exclamation-triangle'; ?> me-2"></i>
-                    <?php echo htmlspecialchars($message); ?>
-                </div>
+                <!-- Script para mostrar alerta SweetAlert en carga si hay mensaje -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const isSuccess = '<?php echo $messageType; ?>' === 'success';
+                        setTimeout(() => {
+                            Swal.fire({
+                                icon: isSuccess ? 'success' : 'error',
+                                title: isSuccess ? '¡Transferencia Exitosa!' : 'Error',
+                                text: '<?php echo htmlspecialchars($message); ?>',
+                                confirmButtonText: 'Entendido',
+                                allowOutsideClick: false
+                            });
+                        }, 100);
+                    });
+                </script>
             <?php endif; ?>
 
             <!-- Balance actual -->
@@ -512,44 +736,45 @@ try {
                             <div class="form-text text-muted">Escribe al menos 2 caracteres para buscar usuarios</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="amount" class="form-label">
-                                <i class="fas fa-coins me-2"></i>
-                                Cantidad de Llaves
-                            </label>
-                            <div class="amount-input-group">
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="amount" 
-                                       name="amount" 
-                                       placeholder="Cantidad a transferir"
-                                       min="1" 
-                                       max="<?php echo $userData['llaves']; ?>"
-                                       required>
-                                <div class="quick-amounts">
-                                    <span class="quick-amount-btn" onclick="setAmount(10)">10</span>
-                                    <span class="quick-amount-btn" onclick="setAmount(50)">50</span>
-                                    <span class="quick-amount-btn" onclick="setAmount(100)">100</span>
-                                    <span class="quick-amount-btn" onclick="setAmount(500)">500</span>
-                                    <span class="quick-amount-btn" onclick="setAmount(<?php echo $userData['llaves']; ?>)">Todo</span>
-                                </div>
-                            </div>
-                            <div class="form-text text-muted">Máximo: <?php echo number_format($userData['llaves']); ?> llaves</div>
-                        </div>
+                         <div class="mb-3">
+                             <label for="amount" class="form-label">
+                                 <i class="fas fa-coins me-2"></i>
+                                 Cantidad de Llaves
+                             </label>
+                             <div class="amount-input-group">
+                                 <input type="number" 
+                                        class="form-control" 
+                                        id="amount" 
+                                        name="amount" 
+                                        placeholder="Cantidad a transferir"
+                                        min="1" 
+                                        max="<?php echo $userData['llaves']; ?>"
+                                        required
+                                        oninput="togglePasswordField()">
+                                 <div class="quick-amounts">
+                                     <span class="quick-amount-btn" onclick="setAmount(10)">10</span>
+                                     <span class="quick-amount-btn" onclick="setAmount(25)">25</span>
+                                     <span class="quick-amount-btn" onclick="setAmount(50)">50</span>
+                                     <span class="quick-amount-btn" onclick="setAmount(100)">100</span>
+                                     <span class="quick-amount-btn" onclick="setAmount(<?php echo $userData['llaves']; ?>)">Todo</span>
+                                 </div>
+                             </div>
+                             <div class="form-text text-muted">Máximo: <?php echo number_format($userData['llaves']); ?> llaves</div>
+                         </div>
 
-                        <div class="mb-4">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock me-2"></i>
-                                Confirmar Contraseña
-                            </label>
-                            <input type="password" 
-                                   class="form-control" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="Tu contraseña actual"
-                                   required>
-                            <div class="form-text text-muted">Por seguridad, confirma tu contraseña</div>
-                        </div>
+                         <div class="mb-4" id="passwordFieldContainer">
+                             <label for="password" class="form-label">
+                                 <i class="fas fa-lock me-2"></i>
+                                 Confirmar Contraseña
+                             </label>
+                             <input type="password" 
+                                    class="form-control" 
+                                    id="password" 
+                                    name="password" 
+                                    placeholder="Tu contraseña actual"
+                                    required>
+                             <div class="form-text text-muted">Por seguridad, confirma tu contraseña</div>
+                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                             <a href="dashboard.php" class="btn btn-back me-md-2">
@@ -646,6 +871,9 @@ try {
         </div>
     </footer>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -658,12 +886,29 @@ try {
         let selectedIndex = -1;
         let currentResults = [];
         
-        // Función para establecer cantidad rápida
-        function setAmount(amount) {
-            const maxAmount = <?php echo $userData['llaves']; ?>;
-            const finalAmount = Math.min(amount, maxAmount);
-            document.getElementById('amount').value = finalAmount;
-        }
+         // Función para establecer cantidad rápida
+         function setAmount(amount) {
+             const maxAmount = <?php echo $userData['llaves']; ?>;
+             const finalAmount = Math.min(amount, maxAmount);
+             document.getElementById('amount').value = finalAmount;
+             togglePasswordField();
+         }
+         
+         // Función para mostrar/ocultar el campo de contraseña basado en el monto
+         function togglePasswordField() {
+             const amount = parseInt(document.getElementById('amount').value) || 0;
+             const passwordContainer = document.getElementById('passwordFieldContainer');
+             const passwordInput = document.getElementById('password');
+             
+             // Si el monto es 10 o menos, ocultar el campo de contraseña y hacerlo no requerido
+             if (amount <= 10) {
+                 passwordContainer.style.display = 'none';
+                 passwordInput.required = false;
+             } else {
+                 passwordContainer.style.display = 'block';
+                 passwordInput.required = true;
+             }
+         }
         
         // Sistema de autocompletado
         function initAutocomplete() {
@@ -788,33 +1033,73 @@ try {
         
         // Validación del formulario
         document.getElementById('transferForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevenir el envío por defecto para usar SweetAlert
+            
+            const form = this;
             const amount = parseInt(document.getElementById('amount').value);
             const maxAmount = <?php echo $userData['llaves']; ?>;
             const recipientUsername = document.getElementById('recipient_username').value.trim();
             const currentUsername = "<?php echo addslashes($userData['username']); ?>";
             
             if (amount > maxAmount) {
-                e.preventDefault();
-                alert('No puedes transferir más llaves de las que tienes disponibles.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cantidad Inválida',
+                    text: 'No puedes transferir más llaves de las que tienes disponibles.',
+                    confirmButtonText: 'Entendido'
+                });
                 return;
             }
             
             if (recipientUsername.toLowerCase() === currentUsername.toLowerCase()) {
-                e.preventDefault();
-                alert('No puedes transferir llaves a ti mismo.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Operación Inválida',
+                    text: 'No puedes transferir llaves a ti mismo.',
+                    confirmButtonText: 'Entendido'
+                });
                 return;
             }
             
-            if (!confirm(`¿Estás seguro de que quieres transferir ${amount} llaves a ${recipientUsername}?`)) {
-                e.preventDefault();
-                return;
-            }
+            // Modal de confirmación personalizado
+            Swal.fire({
+                title: '¿Confirmar transferencia?',
+                html: `<div class="mb-3">Estás a punto de enviar <b>${amount} llaves</b> a <b>${recipientUsername}</b>.</div>
+                       <small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i> Esta acción no se puede deshacer.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-paper-plane me-2"></i>Sí, transferir',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar indicador de carga
+                    Swal.fire({
+                        title: 'Procesando...',
+                        html: 'Estamos procesando la transferencia',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Asegurarse que el botón de submit sea enviado (algunos backend lo validan)
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'transfer';
+                    hiddenInput.value = '1';
+                    form.appendChild(hiddenInput);
+                    
+                    form.submit();
+                }
+            });
         });
         
-        // Inicializar cuando se cargue la página
-        document.addEventListener('DOMContentLoaded', function() {
-            initAutocomplete();
-        });
+         // Inicializar cuando se cargue la página
+         document.addEventListener('DOMContentLoaded', function() {
+             initAutocomplete();
+             togglePasswordField(); // Inicializar el estado del campo de contraseña
+         });
     </script>
 </body>
 </html>
