@@ -39,6 +39,7 @@ try {
             'Dad Key',
             'Hallownest (Hollow Knight)',
             'Apokolips (DC Comics)',
+            'Casa de Crazy Dave (Plantas vs Zombies)',
         ];
 
         // Obtener terrenos ya reclamados
