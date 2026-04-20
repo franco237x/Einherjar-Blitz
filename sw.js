@@ -103,6 +103,7 @@ self.addEventListener('fetch', (event) => {
                         if (event.request.destination === 'document') {
                             return caches.match('/game/battle.php');
                         }
+                        return Response.error();
                     });
             })
     );

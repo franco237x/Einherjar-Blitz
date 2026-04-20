@@ -265,6 +265,14 @@ $notificationCount = 0; // Cambiar cuando implementes notificaciones reales
                     <div class="nav-title">AR-12 Chat</div>
                     <div class="nav-description">Asistente IA</div>
                 </a>
+
+                <a href="aquelarre/index.php" class="nav-card nav-card-cosmic">
+                    <div class="nav-icon">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <div class="nav-title">Aquelarre</div>
+                    <div class="nav-description">Evento</div>
+                </a>
             </section>
 
             <!-- Acciones rápidas -->
