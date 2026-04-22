@@ -158,7 +158,7 @@ try {
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stats-card">
-                        <h3><?php echo $tipos_count['resources'] ?? 0; ?></h3>
+                        <h3><?php echo ($tipos_count['resource'] ?? 0) + ($tipos_count['resources'] ?? 0); ?></h3>
                         <p class="mb-0">Recursos</p>
                     </div>
                 </div>
@@ -228,11 +228,15 @@ try {
                                                         case 'special':
                                                             $icon = 'fas fa-star';
                                                             break;
+                                                        case 'resource':
                                                         case 'resources':
                                                             $icon = 'fas fa-coins';
                                                             break;
                                                         case 'weapon':
                                                             $icon = 'fas fa-sword';
+                                                            break;
+                                                        case 'terrain':
+                                                            $icon = 'fas fa-mountain';
                                                             break;
                                                     }
                                                     ?>

@@ -18,6 +18,8 @@
 
     --color-terrains: #32cd32;
     --color-elden: #ff6b00;
+    --color-dragon-ball: #facc15;
+    --color-manwha: #6366f1;
     --color-common: #9ca3af;
     --color-rare: #3b82f6;
     --color-epic: #a855f7;
@@ -204,6 +206,14 @@
     color: var(--color-elden);
 }
 
+.chest-card.dragon-ball .chest-icon-float {
+    color: var(--color-dragon-ball);
+}
+
+.chest-card.manwha .chest-icon-float {
+    color: var(--color-manwha);
+}
+
 .chest-card:hover .chest-icon-float {
     transform: translate(-50%, -70%) scale(1.2);
     opacity: 1;
@@ -232,6 +242,14 @@
 
 .chest-card.elden-souls .chest-badge {
     color: var(--color-elden);
+}
+
+.chest-card.dragon-ball .chest-badge {
+    color: var(--color-dragon-ball);
+}
+
+.chest-card.manwha .chest-badge {
+    color: var(--color-manwha);
 }
 
 .chest-cost {
@@ -270,6 +288,14 @@
 
 .chest-card.elden-souls .chest-name {
     color: var(--color-elden);
+}
+
+.chest-card.dragon-ball .chest-name {
+    color: var(--color-dragon-ball);
+}
+
+.chest-card.manwha .chest-name {
+    color: var(--color-manwha);
 }
 
 .chest-desc {

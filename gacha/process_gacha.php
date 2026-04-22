@@ -166,6 +166,38 @@ try {
                 ['Eon Trazacaminos', 'invocation', 1, 4],
             ]
         ],
+        'manwha' => [
+            'name' => 'Pasión por el Manwha',
+            'cost' => 5,
+            'rewards' => [
+                // Invocaciones
+                ['Invocación: Sung Jin-Woo', 'invocation', 1, 10],
+                ['Invocación: Cha Hae-In', 'invocation', 1, 3],
+                ['Invocación: Twenty-Fifth Baam', 'invocation', 1, 2],
+                ['Invocación: Urek Mazino', 'invocation', 1, 4],
+                ['Invocación: Jin Mori', 'invocation', 1, 7],
+                ['Invocación: Han Daewi', 'invocation', 1, 9],
+                ['Invocación: Arthur Leywin', 'invocation', 1, 10],
+                ['Invocación: Kang Han Soo', 'invocation', 1, 5],
+                // Objetos
+                ['Objeto: El Sistema', 'special', 1, 1],
+                ['Objeto: Chaeryok: Hercules', 'special', 1, 7],
+                ['Objeto: Chaeryok: Belcebú', 'special', 1, 6],
+                ['Objeto: Chaeryok: Caronte', 'special', 1, 6],
+                ['Objeto: Llave de Mazmorra', 'special', 1, 10],
+                // Poderes
+                ['Poder: Mana Core', 'special', 1, 5],
+                ['Poder: Constelación', 'special', 1, 5],
+                // Armas
+                ['Arma: Kamish’s Wrath', 'weapon', 1, 8],
+                ['Arma: Green April', 'weapon', 1, 8],
+                ['Arma: Excalibur (TBATE)', 'weapon', 1, 5],
+                // Extra
+                ['Trono de Héroes', 'special', 1, 1],
+                ['Class Card', 'special', 1, 7],
+                ['150 Esencias Azules', 'resource', 1, 20]
+            ]
+        ],
 
     ];
 

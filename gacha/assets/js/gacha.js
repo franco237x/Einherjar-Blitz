@@ -86,6 +86,28 @@ const REWARD_IMAGES = {
     'Imu sama': 'assets/images/rewards/einherjer_dicen/imu_sama.jpg',
     'Llave del Subsuelo': 'assets/images/rewards/einherjer_dicen/llave_subsuelo.jpg',
     'Eon Trazacaminos': 'assets/images/rewards/einherjer_dicen/eon_trazacaminos.jpg',
+
+    // Pasión por el Manwha
+    'Invocación: Sung Jin-Woo': 'assets/images/rewards/manwha/sung_jin_woo.jpg',
+    'Invocación: Cha Hae-In': 'assets/images/rewards/manwha/cha_hae_in.png',
+    'Invocación: Twenty-Fifth Baam': 'assets/images/rewards/manwha/baam.jpg',
+    'Invocación: Urek Mazino': 'assets/images/rewards/manwha/urek_mazino.jpg',
+    'Invocación: Jin Mori': 'assets/images/rewards/manwha/jin_mori.jpg',
+    'Invocación: Han Daewi': 'assets/images/rewards/manwha/han_daewi.jpg',
+    'Invocación: Arthur Leywin': 'assets/images/rewards/manwha/arthur_leywin.jpg',
+    'Invocación: Kang Han Soo': 'assets/images/rewards/manwha/kang_han_soo.jpg',
+    'Objeto: El Sistema': 'assets/images/rewards/manwha/el_sistema.jpg',
+    'Objeto: Chaeryok: Hercules': 'assets/images/rewards/manwha/hercules.jpg',
+    'Objeto: Chaeryok: Belcebú': 'assets/images/rewards/manwha/beelcebu.png',
+    'Objeto: Chaeryok: Caronte': 'assets/images/rewards/manwha/caronte.jpg',
+    'Objeto: Llave de Mazmorra': 'assets/images/rewards/manwha/llave_mazmorra.jpg',
+    'Poder: Mana Core': 'assets/images/rewards/manwha/mana_core.jpg',
+    'Poder: Constelación': 'assets/images/rewards/manwha/constelacion.jpg',
+    'Arma: Kamish’s Wrath': 'assets/images/rewards/manwha/kamish_wrath.jpg',
+    'Arma: Green April': 'assets/images/rewards/manwha/green_april.jpg',
+    'Arma: Excalibur (TBATE)': 'assets/images/rewards/manwha/excalibur_tbate.jpg',
+    'Trono de Héroes': 'assets/images/rewards/manwha/trono_heroes.jpg',
+    'Class Card': 'assets/images/rewards/manwha/class_card.jpg',
 };
 
 // Video path for Hoyoverse chest
@@ -125,6 +147,15 @@ const CHEST_ITEMS = {
         'Fruta del Diablo: Nidhogg', 'Armadura Hellbat', 'Red Servant Beast',
         'Rey Escarlata (SCP)', 'Starkiller (Star Wars)', 'Extensión de Terreno',
         'Imu sama', 'Llave del Subsuelo', 'Eon Trazacaminos'
+    ],
+    manwha: [
+        'Invocación: Sung Jin-Woo', 'Invocación: Cha Hae-In', 'Invocación: Twenty-Fifth Baam',
+        'Invocación: Urek Mazino', 'Invocación: Jin Mori', 'Invocación: Han Daewi',
+        'Invocación: Arthur Leywin', 'Invocación: Kang Han Soo', 'Objeto: El Sistema',
+        'Objeto: Chaeryok: Hercules', 'Objeto: Chaeryok: Belcebú', 'Objeto: Chaeryok: Caronte',
+        'Objeto: Llave de Mazmorra', 'Poder: Mana Core', 'Poder: Constelación',
+        'Arma: Kamish’s Wrath', 'Arma: Green April', 'Arma: Excalibur (TBATE)',
+        'Trono de Héroes', 'Class Card', '150 Esencias Azules'
     ]
 };
 

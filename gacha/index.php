@@ -215,6 +215,33 @@ $conn = $database->getConnection();
                     </div>
                 </div>
 
+                <!-- Manwha Chest -->
+                <div class="chest-card manwha" onclick="openChest('manwha', 5)">
+                    <img src="assets/images/banners/manwha-banner.jpg" alt="Manwha Banner" class="chest-banner-img">
+                    <div class="chest-overlay"></div>
+
+                    <div class="chest-badge">
+                        <i class="fas fa-book-open"></i>
+                        <span>Manwha</span>
+                    </div>
+                    <div class="chest-cost">
+                        <i class="fas fa-key"></i>
+                        <span>5</span>
+                    </div>
+
+                    <div class="chest-icon-float">
+                        <i class="fas fa-magic"></i>
+                    </div>
+
+                    <div class="chest-info">
+                        <h3 class="chest-name">Pasión por el Manwha</h3>
+                        <p class="chest-desc">Invocaciones, poderes y armas legendarias de tus historias favoritas</p>
+                        <button class="btn-open">
+                            <i class="fas fa-unlock-alt me-2"></i>Abrir Cofre
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             <!-- History Section -->
