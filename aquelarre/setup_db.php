@@ -25,7 +25,7 @@ try {
     $db->exec($sql);
     echo "Tabla 'ai_chat_usage' creada o ya existente.<br>";
 
-    // Tracking the individual completed trials
+    // Tracking individual witch conversations (historical, no longer blocks access)
     $sqlTrials = "CREATE TABLE IF NOT EXISTS aquelarre_trials (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -37,6 +37,15 @@ try {
     
     $db->exec($sqlTrials);
     echo "Tabla 'aquelarre_trials' creada o ya existente.<br>";
+
+    // Add hot mode column to usuarios if it doesn't exist
+    $checkCol = $db->query("SHOW COLUMNS FROM usuarios LIKE 'aquelarre_hot'");
+    if ($checkCol->rowCount() === 0) {
+        $db->exec("ALTER TABLE usuarios ADD COLUMN aquelarre_hot TINYINT(1) NOT NULL DEFAULT 0");
+        echo "Columna 'aquelarre_hot' agregada a 'usuarios'.<br>";
+    } else {
+        echo "Columna 'aquelarre_hot' ya existe en 'usuarios'.<br>";
+    }
 
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
