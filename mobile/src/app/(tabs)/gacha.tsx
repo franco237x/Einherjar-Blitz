@@ -10,8 +10,8 @@ export default function GachaScreen() {
     <Background>
       <ParticlesBackground />
       <View style={styles.container}>
-        <Ionicons name="gift-outline" size={80} color={Colors.primaryGold} style={styles.icon} />
-        <Text style={styles.title}>SISTEMA DE COFRES</Text>
+        <Ionicons name="sparkles-outline" size={80} color={Colors.primaryGold} style={styles.icon} />
+        <Text style={styles.title}>SISTEMA GACHA</Text>
         <Text style={styles.subtitle}>PRÓXIMAMENTE</Text>
       </View>
     </Background>

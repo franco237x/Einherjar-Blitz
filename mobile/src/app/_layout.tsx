@@ -4,9 +4,14 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useFonts, Cinzel_400Regular, Cinzel_700Bold } from '@expo-google-fonts/cinzel';
 import { Barlow_400Regular, Barlow_500Medium, Barlow_700Bold } from '@expo-google-fonts/barlow';
+import * as SplashScreen from 'expo-splash-screen';
+import { Asset } from 'expo-asset';
 
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingScreen } from '@/components/LoadingScreen';
+
+// Prevent native splash screen from hiding until our heavy images are loaded
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -14,7 +19,8 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
 
-  // Artificial delay for testing LoadingScreen animations
+  // Preload state
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [testingDelay, setTestingDelay] = useState(true);
 
   const [fontsLoaded] = useFonts({
@@ -26,14 +32,37 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Minimum 2.5s delay to show the loading screen and preload things
+    async function loadResourcesAsync() {
+      try {
+        // Preload all the heavy background images used in the LoadingScreen
+        const imageAssets = [
+          require('../../assets/images/loading_screen/argos.jpg'),
+          require('../../assets/images/loading_screen/manhattan.jpg'),
+          require('../../assets/images/loading_screen/nathan.jpg'),
+          require('../../assets/images/loading_screen/orfevre.jpg'),
+          require('../../assets/images/logo.jpg'),
+        ];
+        
+        await Asset.loadAsync(imageAssets);
+      } catch (e) {
+        console.warn('Error preloading assets:', e);
+      } finally {
+        setAssetsLoaded(true);
+        // Hide the native splash screen ONLY when heavy assets are in memory
+        await SplashScreen.hideAsync();
+      }
+    }
+
+    loadResourcesAsync();
+
+    // Secondary artificial buffer for the Loading Screen animations
     const timer = setTimeout(() => {
       setTestingDelay(false);
     }, 2500);
     return () => clearTimeout(timer);
   }, []);
 
-  const isLoading = authLoading || !fontsLoaded || testingDelay;
+  const isLoading = authLoading || !fontsLoaded || !assetsLoaded || testingDelay;
 
   useEffect(() => {
     if (isLoading) return;

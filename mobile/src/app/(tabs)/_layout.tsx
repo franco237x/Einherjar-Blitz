@@ -35,7 +35,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
           let iconName: any = 'home';
           if (route.name === 'play') iconName = 'game-controller';
-          else if (route.name === 'gacha') iconName = 'gift';
+          else if (route.name === 'gacha') iconName = 'sparkles';
           else if (route.name === 'index') iconName = 'home';
           else if (route.name === 'store') iconName = 'cart';
           else if (route.name === 'profile') iconName = 'person';
@@ -80,7 +80,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="gacha"
-        options={{ title: 'Cofres' }}
+        options={{ title: 'Gacha' }}
       />
       <Tabs.Screen
         name="index"
