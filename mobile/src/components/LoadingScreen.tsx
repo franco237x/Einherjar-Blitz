@@ -12,7 +12,11 @@ const BG_IMAGES = [
   require('../../assets/images/loading_screen/orfevre.jpg'),
 ];
 
-export const LoadingScreen = () => {
+interface LoadingScreenProps {
+  message?: string;
+}
+
+export const LoadingScreen = ({ message = 'CARGANDO EL REINO...' }: LoadingScreenProps = {}) => {
   // Start with a random image so every app launch feels different
   const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * BG_IMAGES.length));
   const fadeAnim1 = useRef(new Animated.Value(1)).current;
@@ -122,7 +126,7 @@ export const LoadingScreen = () => {
         />
         
         <View style={styles.loaderContainer}>
-          <Text style={styles.loadingText}>CARGANDO EL REINO... {progressText}%</Text>
+          <Text style={styles.loadingText}>{message} {progressText}%</Text>
           <View style={styles.progressBarTrack}>
             <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
           </View>
