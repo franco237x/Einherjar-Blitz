@@ -1,9 +1,53 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+    // ─── Helpers ───────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
     }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Rarity & type whitelists for inventory items
+    function validRarity(r) {
+      return r is string && r in ['mythic', 'legendary', 'epic', 'rare', 'common'];
+    }
+    function validItemType(t) {
+      return t is string && t in ['persona', 'invocacion', 'otros'];
+    }
+
+    // ─── User profile ──────────────────────────────────────────────────
+    // Owner can read/write own profile.
+    // NOTE: economy fields (keys, spheres, nivel, copas, etc.) are writable
+    // from the client by design (no Cloud Functions). This is a known trade-off
+    // accepted for this phase. Tighten with Cloud Functions later if needed.
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // ─── Inventory (gacha rewards) ─────────────────────────────────────
+    // Each pull writes one doc. Schema is strictly validated on create.
+    // Owner can delete an item when claiming it via PDF (no updates allowed).
+    match /users/{userId}/inventory/{itemId} {
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 80
+        && validItemType(request.resource.data.type)
+        && validRarity(request.resource.data.rarity)
+        && request.resource.data.obtainedAt is timestamp
+        && (request.resource.data.bannerId is string
+            || !('bannerId' in request.resource.data));
+
+      allow delete: if isOwner(userId);
+      allow update: if false;
+    }
+
+    // ─── Default deny ──────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
     }

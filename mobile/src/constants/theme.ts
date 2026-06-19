@@ -3,6 +3,7 @@ export const Colors = {
   darkGold: '#9e8b54',
   lightGold: '#d4b885',
   bgDark: '#0a0a0a',
+  bgDarker: '#050505',
   bgSecondary: '#1a1a1a',
   bgCard: '#151515',
   textPrimary: 'rgba(255, 255, 255, 0.95)',
