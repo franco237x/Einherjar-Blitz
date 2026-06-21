@@ -47,6 +47,43 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ─── Store: Products ──────────────────────────────────────────────
+    // Products are managed from the dashboard (admin). Clients can only read.
+    // Stock updates happen via runTransaction from the client — the transaction
+    // reads the doc and writes a decremented stock. This is allowed because the
+    // user is signed in and we trust the transaction logic (no price/name changes).
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      // Allow stock decrement via transaction (only the stock field changes)
+      allow update: if isSignedIn()
+        && request.resource.data.name == resource.data.name
+        && request.resource.data.price == resource.data.price
+        && request.resource.data.imageUrl == resource.data.imageUrl
+        && request.resource.data.stock is int
+        && request.resource.data.stock >= 0
+        && request.resource.data.stock < resource.data.stock;
+      allow create, delete: if false;
+    }
+
+    // ─── Store: Purchase history ──────────────────────────────────────
+    // Each purchase writes one doc. Owner can read their own history.
+    // Owner can delete a purchase when claiming it via PDF (no updates allowed).
+    match /users/{userId}/purchases/{purchaseId} {
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId)
+        && request.resource.data.productId is string
+        && request.resource.data.productName is string
+        && request.resource.data.productName.size() > 0
+        && request.resource.data.productName.size() <= 80
+        && request.resource.data.price is int
+        && request.resource.data.price >= 0
+        && request.resource.data.purchasedAt is timestamp;
+
+      allow delete: if isOwner(userId);
+      allow update: if false;
+    }
+
     // ─── Default deny ──────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;

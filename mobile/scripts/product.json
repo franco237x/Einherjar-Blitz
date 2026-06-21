@@ -1,0 +1,11 @@
+{
+  "fields": {
+    "name": {"stringValue": "Cofre Gantz"},
+    "description": {"stringValue": "Descubre una recompensa aleatoria de la franquicia de Gantz"},
+    "price": {"integerValue": "100"},
+    "imageUrl": {"stringValue": "https://"},
+    "stock": {"integerValue": "25"},
+    "category": {"stringValue": "Cofres"},
+    "isExclusive": {"booleanValue": false}
+  }
+}

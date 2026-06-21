@@ -1,16 +1,15 @@
 /**
- * SummonAnimation — Full-screen cinematic gacha experience.
+ * SummonAnimation — Full-screen cinematic gacha experience (v2).
  *
- * Inspired by Genshin Impact / FGO summon animations:
+ * Reanimated 4 — runs on the UI thread for 60fps.
  *
- * Phase 1 — "Convergence": Energy lines converge toward the center.
- *           A glowing orb forms and grows. Multiple concentric rings
- *           spin and expand. Light intensity builds over 3 seconds.
+ * Phases:
+ *   1. Converge — rarity-specific coreography (1.5s common → 5s mythic)
+ *   2. Flash    — particle burst + color flash
+ *   3. Reveal   — 3D flip cards with star rays + glassmorphism
  *
- * Phase 2 — "Flash": The orb explodes into a white flash.
- *           The flash color is based on the best rarity pulled.
- *
- * Phase 3 — "Reveal": Results grid fades in with staggered cards.
+ * The best rarity pulled drives the entire visual identity (color, pacing,
+ * coreography, particle count).
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
@@ -21,18 +20,26 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Animated,
   Dimensions,
-  Easing,
-  Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSequence,
+  withDelay,
+  withRepeat,
+  Easing,
+  interpolate,
+  type SharedValue,
+} from 'react-native-reanimated';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, type RewardItem, type RarityKey } from '@/constants/gachaData';
-import { RewardCard } from './RewardCard';
+import { ConvergePhase, CONVERGE_DURATION } from './SummonConverge';
+import { BurstParticle, StarRays, FlipCard3D } from './SummonPrimitives';
 
-const { width, height } = Dimensions.get('window');
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
 interface SummonAnimationProps {
   visible: boolean;
@@ -49,165 +56,118 @@ function getBestRarity(items: RewardItem[]): RarityKey {
   return 'common';
 }
 
-// Number of orbiting energy particles
-const ORBIT_COUNT = 16;
-// Number of radial light rays
-const RAY_COUNT = 12;
+// Particle burst count per rarity
+const BURST_COUNT: Record<RarityKey, number> = {
+  mythic: 60,
+  legendary: 45,
+  epic: 30,
+  rare: 20,
+  common: 12,
+};
+
+type Phase = 'converge' | 'flash' | 'reveal';
 
 export const SummonAnimation = ({ visible, results, onClose }: SummonAnimationProps) => {
-  const [phase, setPhase] = useState<'converge' | 'flash' | 'reveal'>('converge');
+  const [phase, setPhase] = useState<Phase>('converge');
+  const phaseRef = useRef<Phase>('converge');
 
-  // Core animations
-  const masterProgress = useRef(new Animated.Value(0)).current;  // 0 → 1 over convergence
-  const spinSlow = useRef(new Animated.Value(0)).current;         // perpetual slow spin
-  const spinFast = useRef(new Animated.Value(0)).current;         // perpetual fast counter-spin
-  const flashOpacity = useRef(new Animated.Value(0)).current;
-  const revealOpacity = useRef(new Animated.Value(0)).current;
+  // Shared values (UI thread)
+  const progress = useSharedValue(0);
+  const flashOpacity = useSharedValue(0);
+  const burst = useSharedValue(0);
+  const revealOpacity = useSharedValue(0);
+  const textOpacity = useSharedValue(0);
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const bestRarity = getBestRarity(results);
   const bestConfig = RARITIES[bestRarity];
+  const convergeDuration = CONVERGE_DURATION[bestRarity];
+  const burstCount = BURST_COUNT[bestRarity];
 
-  // Rarity-based flash color
-  const flashColor = bestRarity === 'mythic'
-    ? '#ef4444'
-    : bestRarity === 'legendary'
-    ? Colors.primaryGold
-    : bestRarity === 'epic'
-    ? '#a855f7'
-    : '#ffffff';
+  // Flash color escalates with rarity
+  const flashColor =
+    bestRarity === 'mythic'
+      ? '#ef4444'
+      : bestRarity === 'legendary'
+        ? Colors.primaryGold
+        : bestRarity === 'epic'
+          ? '#a855f7'
+          : bestRarity === 'rare'
+            ? '#3b82f6'
+            : '#ffffff';
+
+  // ─── Phase orchestration ───────────────────────────────────────────
+  const goToFlash = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    // Guard via ref — no stale closure
+    if (phaseRef.current !== 'converge') return;
+    phaseRef.current = 'flash';
+    setPhase('flash');
+
+    // Trigger particle burst
+    burst.value = 0;
+    burst.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.cubic) });
+
+    // Flash in → out
+    flashOpacity.value = withSequence(
+      withTiming(1, { duration: 150, easing: Easing.out(Easing.cubic) }),
+      withDelay(150, withTiming(0, { duration: 350, easing: Easing.in(Easing.cubic) })),
+    );
+
+    // After flash, go to reveal
+    timeoutRef.current = setTimeout(() => {
+      phaseRef.current = 'reveal';
+      setPhase('reveal');
+      revealOpacity.value = withTiming(1, { duration: 400 });
+    }, 550);
+  }, []);
+
+  const startConvergence = useCallback(() => {
+    progress.value = 0;
+    textOpacity.value = withDelay(200, withTiming(1, { duration: 400 }));
+
+    progress.value = withTiming(1, {
+      duration: convergeDuration,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+
+    timeoutRef.current = setTimeout(() => goToFlash(), convergeDuration);
+  }, [convergeDuration, goToFlash]);
 
   useEffect(() => {
     if (visible) {
-      // Reset
+      // Reset everything — ref first so goToFlash guard works immediately
+      phaseRef.current = 'converge';
       setPhase('converge');
-      masterProgress.setValue(0);
-      spinSlow.setValue(0);
-      spinFast.setValue(0);
-      flashOpacity.setValue(0);
-      revealOpacity.setValue(0);
-      startConvergence();
+      progress.value = 0;
+      flashOpacity.value = 0;
+      burst.value = 0;
+      revealOpacity.value = 0;
+      textOpacity.value = 0;
+      // Start on next frame to ensure shared values are reset
+      requestAnimationFrame(() => startConvergence());
     }
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  const startConvergence = () => {
-    // Master progress: 0 → 1 over 3.5 seconds (controls orb growth, convergence, intensity)
-    Animated.timing(masterProgress, {
-      toValue: 1,
-      duration: 3500,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      useNativeDriver: true,
-    }).start();
+  // ─── Animated styles ───────────────────────────────────────────────
+  const flashStyle = useAnimatedStyle(() => ({
+    opacity: flashOpacity.value,
+  }));
 
-    // Slow clockwise spin (outer ring)
-    Animated.loop(
-      Animated.timing(spinSlow, {
-        toValue: 1,
-        duration: 6000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
+  const revealStyle = useAnimatedStyle(() => ({
+    opacity: revealOpacity.value,
+    transform: [{ scale: interpolate(revealOpacity.value, [0, 1], [0.95, 1]) }],
+  }));
 
-    // Fast counter-clockwise spin (inner ring)
-    Animated.loop(
-      Animated.timing(spinFast, {
-        toValue: 1,
-        duration: 3000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
-
-    // Auto-transition after convergence completes
-    timeoutRef.current = setTimeout(() => goToFlash(), 3500);
-  };
-
-  const goToFlash = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    spinSlow.stopAnimation();
-    spinFast.stopAnimation();
-    masterProgress.stopAnimation();
-    setPhase('flash');
-
-    // Flash in → out
-    Animated.sequence([
-      Animated.timing(flashOpacity, {
-        toValue: 1,
-        duration: 200,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.delay(300),
-      Animated.timing(flashOpacity, {
-        toValue: 0,
-        duration: 500,
-        easing: Easing.in(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setPhase('reveal');
-      Animated.timing(revealOpacity, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }).start();
-    });
-  }, []);
-
-  // Derived interpolations
-  const slowSpin = spinSlow.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-  const fastSpin = spinFast.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['360deg', '0deg'],
-  });
-
-  // Orb grows from tiny to full size
-  const orbScale = masterProgress.interpolate({
-    inputRange: [0, 0.6, 1],
-    outputRange: [0.1, 0.5, 1.2],
-  });
-  const orbOpacity = masterProgress.interpolate({
-    inputRange: [0, 0.3, 0.8, 1],
-    outputRange: [0.2, 0.5, 0.8, 1],
-  });
-
-  // Rings expand outward as energy builds
-  const ring1Scale = masterProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 1.1],
-  });
-  const ring2Scale = masterProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.5, 1.4],
-  });
-  const ring3Scale = masterProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.2, 1.8],
-  });
-
-  // Ring opacity pulses as they grow
-  const ringOpacity = masterProgress.interpolate({
-    inputRange: [0, 0.5, 0.8, 1],
-    outputRange: [0.1, 0.4, 0.7, 0.9],
-  });
-
-  // Light rays grow and brighten
-  const rayOpacity = masterProgress.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0.15, 0.5],
-  });
-  const rayScale = masterProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 1],
-  });
+  const textStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(textOpacity.value, [0, 1], [0, 0.7]),
+    transform: [{ scale: interpolate(textOpacity.value, [0, 1], [0.9, 1]) }],
+  }));
 
   if (!visible) return null;
 
@@ -218,158 +178,75 @@ export const SummonAnimation = ({ visible, results, onClose }: SummonAnimationPr
             PHASE: Convergence
          ═══════════════════════════════════════════════════════════ */}
         {phase === 'converge' && (
-          <View style={styles.convergenceWrap}>
+          <ConvergePhase rarity={bestRarity} progress={progress} />
+        )}
 
-            {/* ─── Radial Light Rays ─── */}
-            {Array.from({ length: RAY_COUNT }).map((_, i) => (
-              <Animated.View
-                key={`ray-${i}`}
-                style={[
-                  styles.ray,
-                  {
-                    backgroundColor: bestConfig.color,
-                    opacity: rayOpacity,
-                    transform: [
-                      { rotate: `${(i * 360) / RAY_COUNT}deg` },
-                      { scaleY: rayScale },
-                    ],
-                  },
-                ]}
-              />
-            ))}
+        {/* "Invocando..." text — visible during converge */}
+        {phase === 'converge' && (
+          <Animated.View style={[styles.textWrap, textStyle]} pointerEvents="none">
+            <Text style={styles.convergenceText}>INVOCANDO</Text>
+            <View style={[styles.convergenceDots, { borderColor: bestConfig.color }]}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <PulsingDot key={i} delay={i * 200} color={bestConfig.color} />
+              ))}
+            </View>
+          </Animated.View>
+        )}
 
-            {/* ─── Outer Ring (slow spin) ─── */}
-            <Animated.View
-              style={[
-                styles.ring,
-                styles.ringOuter,
-                {
-                  borderColor: bestConfig.color,
-                  opacity: ringOpacity,
-                  transform: [{ rotate: slowSpin }, { scale: ring3Scale }],
-                },
-              ]}
-            />
+        {/* Skip button */}
+        {phase === 'converge' && (
+          <TouchableOpacity style={styles.skipBtn} onPress={goToFlash} activeOpacity={0.6}>
+            <Ionicons name="play-forward" size={14} color="rgba(255,255,255,0.5)" />
+            <Text style={styles.skipText}>SALTAR</Text>
+          </TouchableOpacity>
+        )}
 
-            {/* ─── Middle Ring (fast counter-spin) ─── */}
-            <Animated.View
-              style={[
-                styles.ring,
-                styles.ringMiddle,
-                {
-                  borderColor: bestConfig.color,
-                  opacity: ringOpacity,
-                  transform: [{ rotate: fastSpin }, { scale: ring2Scale }],
-                },
-              ]}
-            />
-
-            {/* ─── Inner Ring (slow spin, dashed) ─── */}
-            <Animated.View
-              style={[
-                styles.ring,
-                styles.ringInner,
-                {
-                  borderColor: bestConfig.color,
-                  opacity: ringOpacity,
-                  transform: [{ rotate: slowSpin }, { scale: ring1Scale }],
-                },
-              ]}
-            />
-
-            {/* ─── Orbiting Energy Particles ─── */}
-            {Array.from({ length: ORBIT_COUNT }).map((_, i) => {
-              const angle = (i * 360) / ORBIT_COUNT;
-              // Particles converge toward center over time
-              const particleRadius = masterProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [180, 20],
-              });
-              return (
-                <Animated.View
-                  key={`orb-particle-${i}`}
-                  style={[
-                    styles.energyParticle,
-                    {
-                      backgroundColor: bestConfig.color,
-                      opacity: masterProgress.interpolate({
-                        inputRange: [0, 0.5, 1],
-                        outputRange: [0.3, 0.7, 1],
-                      }),
-                      transform: [
-                        { rotate: `${angle}deg` },
-                        { translateY: Animated.multiply(particleRadius, -1) },
-                        {
-                          scale: masterProgress.interpolate({
-                            inputRange: [0, 0.8, 1],
-                            outputRange: [0.5, 1, 1.5],
-                          }),
-                        },
-                      ],
-                    },
-                  ]}
+        {/* ═══════════════════════════════════════════════════════════
+            PHASE: Flash + Particle Burst
+         ═══════════════════════════════════════════════════════════ */}
+        {phase === 'flash' && (
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            {/* Particle burst from center */}
+            <View style={styles.burstCenter}>
+              {Array.from({ length: burstCount }).map((_, i) => (
+                <BurstParticle
+                  key={`burst-${i}`}
+                  trigger={burst}
+                  index={i}
+                  color={flashColor}
+                  maxSize={6}
                 />
-              );
-            })}
+              ))}
+            </View>
 
-            {/* ─── Central Orb (growing, glowing) ─── */}
+            {/* Color flash overlay */}
             <Animated.View
               style={[
-                styles.centralOrb,
-                {
-                  backgroundColor: bestConfig.color,
-                  opacity: orbOpacity,
-                  transform: [{ scale: orbScale }],
-                  shadowColor: bestConfig.color,
-                },
+                StyleSheet.absoluteFill,
+                { backgroundColor: flashColor },
+                flashStyle,
               ]}
             />
 
-            {/* ─── Center Icon ─── */}
-            <Animated.View style={{ opacity: orbOpacity }}>
-              <Ionicons name="diamond" size={36} color="#fff" />
-            </Animated.View>
-
-            {/* ─── "Invocando..." text ─── */}
-            <Animated.Text
-              style={[
-                styles.convergenceText,
-                {
-                  opacity: masterProgress.interpolate({
-                    inputRange: [0, 0.3],
-                    outputRange: [0, 1],
-                    extrapolate: 'clamp',
-                  }),
-                },
-              ]}
-            >
-              Invocando...
-            </Animated.Text>
-
-            {/* ─── Skip Button ─── */}
-            <TouchableOpacity style={styles.skipBtn} onPress={goToFlash}>
-              <Ionicons name="play-forward" size={14} color="rgba(255,255,255,0.5)" />
-              <Text style={styles.skipText}>SALTAR</Text>
-            </TouchableOpacity>
+            {/* Expanding shockwave ring */}
+            <Shockwave trigger={burst} color={flashColor} />
           </View>
         )}
 
         {/* ═══════════════════════════════════════════════════════════
-            PHASE: Flash
-         ═══════════════════════════════════════════════════════════ */}
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.flashOverlay, { backgroundColor: flashColor, opacity: flashOpacity }]}
-        />
-
-        {/* ═══════════════════════════════════════════════════════════
-            PHASE: Reveal
+            PHASE: Reveal — 3D flip cards
          ═══════════════════════════════════════════════════════════ */}
         {phase === 'reveal' && (
-          <Animated.View style={[styles.revealWrap, { opacity: revealOpacity }]}>
+          <Animated.View style={[styles.revealWrap, revealStyle]}>
+            {/* Star rays behind everything for high rarities */}
+            {bestRarity !== 'common' && (
+              <StarRays revealProgress={revealOpacity} color={bestConfig.color} />
+            )}
+
+            {/* Title */}
             <Text style={styles.revealTitle}>RESULTADOS</Text>
 
-            {/* Best rarity label */}
+            {/* Best rarity badge */}
             <View style={[styles.rarityBadge, { borderColor: bestConfig.color }]}>
               <Ionicons name="star" size={14} color={bestConfig.color} />
               <Text style={[styles.rarityLabel, { color: bestConfig.color }]}>
@@ -377,16 +254,24 @@ export const SummonAnimation = ({ visible, results, onClose }: SummonAnimationPr
               </Text>
             </View>
 
+            {/* Cards grid with 3D flip */}
             <ScrollView
               contentContainerStyle={styles.resultsGrid}
               showsVerticalScrollIndicator={false}
             >
               {results.map((item, i) => (
-                <RewardCard key={`${item.name}-${i}`} item={item} index={i} />
+                <FlipCard3D
+                  key={`${item.name}-${i}`}
+                  item={item}
+                  index={i}
+                  isBest={item.rarity === bestRarity}
+                  delayMs={150 + i * 60}
+                />
               ))}
             </ScrollView>
 
-            <View style={styles.actionButtonsRow}>
+            {/* Action button */}
+            <View style={styles.actionRow}>
               <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
                 <Text style={styles.closeBtnText}>LISTO</Text>
               </TouchableOpacity>
@@ -398,6 +283,61 @@ export const SummonAnimation = ({ visible, results, onClose }: SummonAnimationPr
   );
 };
 
+// ─── PulsingDot (for "INVOCANDO..." text) ─────────────────────────────
+const PulsingDot = ({ delay, color }: { delay: number; color: string }) => {
+  const opacity = useSharedValue(0.3);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withDelay(delay, withTiming(1, { duration: 400 })),
+        withTiming(0.3, { duration: 400 }),
+      ),
+      -1,
+      false,
+    );
+  }, [opacity, delay]);
+
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.View
+      style={[{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: color }, style]}
+    />
+  );
+};
+
+// ─── Shockwave (expanding ring during flash) ──────────────────────────
+const Shockwave = ({ trigger, color }: { trigger: SharedValue<number>; color: string }) => {
+  const style = useAnimatedStyle(() => {
+    const t = trigger.value;
+    return {
+      transform: [{ scale: interpolate(t, [0, 1], [0, 8]) }],
+      opacity: interpolate(t, [0, 0.2, 1], [0.8, 0.6, 0]),
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          width: 100,
+          height: 100,
+          borderRadius: 50,
+          borderWidth: 3,
+          borderColor: color,
+          top: SCREEN_H / 2 - 50,
+          left: SCREEN_W / 2 - 50,
+        },
+        style,
+      ]}
+      pointerEvents="none"
+    />
+  );
+};
+
+// ─── styles ───────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -406,77 +346,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  /* ─── Convergence Phase ─── */
-  convergenceWrap: {
-    flex: 1,
-    justifyContent: 'center',
+  /* ─── Convergence text ─── */
+  textWrap: {
+    position: 'absolute',
+    bottom: SCREEN_H * 0.18,
     alignItems: 'center',
-    width: '100%',
+    gap: 12,
   },
-
-  /* Light rays emanating from center */
-  ray: {
-    position: 'absolute',
-    width: 2,
-    height: height * 0.5,
-    bottom: '50%',
-    transformOrigin: 'bottom center',
-  },
-
-  /* Concentric rings */
-  ring: {
-    position: 'absolute',
-    borderWidth: 1,
-  },
-  ringOuter: {
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    borderStyle: 'dotted',
-  },
-  ringMiddle: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    borderWidth: 1.5,
-  },
-  ringInner: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderStyle: 'dashed',
-    borderWidth: 2,
-  },
-
-  /* Orbiting energy particles */
-  energyParticle: {
-    position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-
-  /* Central glowing orb */
-  centralOrb: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 30,
-    elevation: 20,
-  },
-
   convergenceText: {
-    position: 'absolute',
-    bottom: height * 0.2,
     color: 'rgba(255,255,255,0.7)',
     fontFamily: Fonts.title,
     fontSize: 18,
-    letterSpacing: 6,
+    letterSpacing: 8,
+  },
+  convergenceDots: {
+    flexDirection: 'row',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
 
+  /* ─── Skip ─── */
   skipBtn: {
     position: 'absolute',
     top: 60,
@@ -498,12 +391,16 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  /* ─── Flash ─── */
-  flashOverlay: {
-    ...StyleSheet.absoluteFillObject,
+  /* ─── Flash burst ─── */
+  burstCenter: {
+    position: 'absolute',
+    top: SCREEN_H / 2,
+    left: SCREEN_W / 2,
+    width: 0,
+    height: 0,
   },
 
-  /* ─── Reveal Phase ─── */
+  /* ─── Reveal ─── */
   revealWrap: {
     flex: 1,
     width: '100%',
@@ -519,22 +416,23 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     textShadowColor: Colors.glowGold,
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
+    textShadowRadius: 12,
   },
   rarityBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    borderWidth: 1,
-    borderRadius: Radius.full,
     paddingHorizontal: 14,
-    paddingVertical: 4,
+    paddingVertical: 6,
+    borderRadius: Radius.full,
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(0,0,0,0.5)',
     marginBottom: Spacing.lg,
   },
   rarityLabel: {
     fontFamily: Fonts.bodyBold,
     fontSize: 12,
-    letterSpacing: 2,
+    letterSpacing: 3,
   },
   resultsGrid: {
     flexDirection: 'row',
@@ -542,23 +440,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: 100,
   },
-  actionButtonsRow: {
+  actionRow: {
     position: 'absolute',
-    bottom: 40,
-    flexDirection: 'row',
-    gap: Spacing.lg,
+    bottom: 50,
+    left: 0,
+    right: 0,
     alignItems: 'center',
   },
   closeBtn: {
     backgroundColor: Colors.primaryGold,
-    paddingHorizontal: Spacing.xxl,
-    paddingVertical: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: 48,
     borderRadius: Radius.full,
+    shadowColor: Colors.glowGold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 8,
   },
   closeBtnText: {
-    color: Colors.bgDark,
+    color: '#0a0a0a',
     fontFamily: Fonts.bodyBold,
-    fontSize: 16,
-    letterSpacing: 3,
+    fontSize: 15,
+    letterSpacing: 4,
   },
 });

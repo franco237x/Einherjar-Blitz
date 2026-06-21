@@ -105,22 +105,22 @@ const BANNER_IMAGES = {
 // ═══════════════════════════════════════════════════════════════════════
 
 export const REWARDS_TABLE: RewardItem[] = [
-  // ── MÍTICO — 0.1 % ────────────────────────────────────────────────
+  // ── MÍTICO — 0.5 % ────────────────────────────────────────────────
   {
     name: 'Wild Card',
     type: 'otros',
     rarity: 'mythic',
-    weight: 1,
+    weight: 5,
     image: PERSONA_IMAGES.wildCard,
     fallbackIcon: 'flash',
   },
 
-  // ── LEGENDARIO — ~0.4 % ───────────────────────────────────────────
+  // ── LEGENDARIO — 2.5 % ───────────────────────────────────────────
   {
     name: 'Izanagi-no-Okami',
     type: 'persona',
     rarity: 'legendary',
-    weight: 2,
+    weight: 13,
     image: PERSONA_IMAGES.izanagi,
     fallbackIcon: 'sunny',
   },
@@ -128,17 +128,17 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Makoto Yuki',
     type: 'invocacion',
     rarity: 'legendary',
-    weight: 2,
+    weight: 12,
     image: PERSONA_IMAGES.makotoYuki,
     fallbackIcon: 'person',
   },
 
-  // ── ÉPICO — ~3 % ─────────────────────────────────────────────────
+  // ── ÉPICO — 10 % ─────────────────────────────────────────────────
   {
     name: 'Satanael',
     type: 'persona',
     rarity: 'epic',
-    weight: 5,
+    weight: 20,
     image: PERSONA_IMAGES.satanael,
     fallbackIcon: 'skull',
   },
@@ -146,7 +146,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Ren Amamiya',
     type: 'invocacion',
     rarity: 'epic',
-    weight: 5,
+    weight: 20,
     image: PERSONA_IMAGES.renAmamiya,
     fallbackIcon: 'person',
   },
@@ -154,7 +154,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Messiah',
     type: 'persona',
     rarity: 'epic',
-    weight: 10,
+    weight: 30,
     image: PERSONA_IMAGES.messiah,
     fallbackIcon: 'star',
   },
@@ -162,17 +162,17 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Yu Narukami',
     type: 'invocacion',
     rarity: 'epic',
-    weight: 10,
+    weight: 30,
     image: PERSONA_IMAGES.yuNarukami,
     fallbackIcon: 'person',
   },
 
-  // ── RARO — ~10 % ─────────────────────────────────────────────────
+  // ── RARO — 25 % ─────────────────────────────────────────────────
   {
     name: 'Orpheus Telos',
     type: 'persona',
     rarity: 'rare',
-    weight: 20,
+    weight: 60,
     image: PERSONA_IMAGES.orpheus,
     fallbackIcon: 'musical-notes',
   },
@@ -180,7 +180,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Tatsuya Suou',
     type: 'invocacion',
     rarity: 'rare',
-    weight: 20,
+    weight: 60,
     image: PERSONA_IMAGES.tatsuyaSuou,
     fallbackIcon: 'person',
   },
@@ -188,7 +188,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Yoshitsune',
     type: 'persona',
     rarity: 'rare',
-    weight: 30,
+    weight: 65,
     image: PERSONA_IMAGES.yoshitsune,
     fallbackIcon: 'shield',
   },
@@ -196,17 +196,17 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Maya Amano',
     type: 'invocacion',
     rarity: 'rare',
-    weight: 30,
+    weight: 65,
     image: PERSONA_IMAGES.mayaAmano,
     fallbackIcon: 'person',
   },
 
-  // ── COMÚN — ~50 % ─────────────────────────────────────────────────
+  // ── COMÚN — 62 % ─────────────────────────────────────────────────
   {
     name: 'Lucifer',
     type: 'persona',
     rarity: 'common',
-    weight: 50,
+    weight: 30,
     image: PERSONA_IMAGES.lucifer,
     fallbackIcon: 'flame',
   },
@@ -214,7 +214,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Aigis',
     type: 'invocacion',
     rarity: 'common',
-    weight: 50,
+    weight: 30,
     image: PERSONA_IMAGES.aigis,
     fallbackIcon: 'hardware-chip',
   },
@@ -222,7 +222,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Thanatos',
     type: 'persona',
     rarity: 'common',
-    weight: 80,
+    weight: 50,
     image: PERSONA_IMAGES.thanatos,
     fallbackIcon: 'skull',
   },
@@ -230,7 +230,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Kotone Shiomi',
     type: 'invocacion',
     rarity: 'common',
-    weight: 80,
+    weight: 50,
     image: PERSONA_IMAGES.kotoneShiomi,
     fallbackIcon: 'person',
   },
@@ -238,7 +238,7 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Jack Frost',
     type: 'persona',
     rarity: 'common',
-    weight: 120,
+    weight: 70,
     image: PERSONA_IMAGES.jackFrost,
     fallbackIcon: 'snow',
   },
@@ -246,17 +246,17 @@ export const REWARDS_TABLE: RewardItem[] = [
     name: 'Naoya Todo',
     type: 'invocacion',
     rarity: 'common',
-    weight: 120,
+    weight: 70,
     image: PERSONA_IMAGES.naoyaTodo,
     fallbackIcon: 'person',
   },
 
-  // ── RECURSO — base drop (~36 %) ───────────────────────────────────
+  // ── RECURSO — base drop (~32 %) ───────────────────────────────────
   {
     name: '150 Esencias Azules',
     type: 'otros',
     rarity: 'common',
-    weight: 365,
+    weight: 320,
     image: PERSONA_IMAGES.esencias,
     fallbackIcon: 'water',
   },

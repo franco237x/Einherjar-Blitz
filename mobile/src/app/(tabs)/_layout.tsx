@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { SyncIndicator } from '@/components/SyncIndicator';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   return (
@@ -68,12 +69,14 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
 export default function TabsLayout() {
   return (
-    <Tabs
-      tabBar={(props) => <CustomTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
+    <>
+      <SyncIndicator />
+      <Tabs
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
       <Tabs.Screen
         name="play"
         options={{ title: 'Jugar' }}
@@ -94,7 +97,8 @@ export default function TabsLayout() {
         name="profile"
         options={{ title: 'Perfil' }}
       />
-    </Tabs>
+      </Tabs>
+    </>
   );
 }
 
