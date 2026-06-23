@@ -232,19 +232,19 @@ export default function DashboardScreen() {
             </GlassCard>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navCard}>
+          <TouchableOpacity style={styles.navCard} onPress={() => router.push('/(tabs)/gacha')}>
             <GlassCard style={styles.navGlass}>
-              <Ionicons name="gift-outline" size={28} color={Colors.textPrimary} />
-              <Text style={styles.navTitle}>Cofres</Text>
-              <Text style={styles.navDesc}>(Próximamente)</Text>
+              <Ionicons name="sparkles-outline" size={28} color={Colors.primaryGold} />
+              <Text style={styles.navTitle}>Gacha</Text>
+              <Text style={styles.navDesc}>Invoca recompensas</Text>
             </GlassCard>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navCard}>
+          <TouchableOpacity style={styles.navCard} onPress={() => router.push('/(tabs)/store')}>
             <GlassCard style={styles.navGlass}>
-              <Ionicons name="cart-outline" size={28} color={Colors.textPrimary} />
+              <Ionicons name="cart-outline" size={28} color={Colors.primaryGold} />
               <Text style={styles.navTitle}>Tienda</Text>
-              <Text style={styles.navDesc}>(Próximamente)</Text>
+              <Text style={styles.navDesc}>Compra artículos</Text>
             </GlassCard>
           </TouchableOpacity>
 
