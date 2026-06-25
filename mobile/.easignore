@@ -1,0 +1,34 @@
+# EAS Build ignore — exclude everything not needed for the build
+
+# Scripts and temp files
+scripts/
+*.txt
+*.ps1
+*.log
+
+# Env files (credentials should not be uploaded)
+.env
+.env*.local
+
+# Firebase rules (not needed in the app bundle)
+firestore.rules
+firebase.json
+
+# Git
+.git/
+.gitignore
+
+# Docs
+AGENTS.md
+CLAUDE.md
+README.md
+
+# Generated build artifacts
+deploy_result.txt
+deploy_log.txt
+eas_*.txt
+firebase_out.txt
+npm_out.txt
+whoami.txt
+login.txt
+projects.txt
