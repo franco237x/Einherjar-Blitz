@@ -20,13 +20,14 @@ export const GoldButton = ({ title, loading, style, disabled, ...props }: GoldBu
         colors={[Colors.primaryGold, Colors.darkGold]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      {loading ? (
-        <ActivityIndicator color={Colors.bgDark} />
-      ) : (
-        <Text style={styles.text}>{title}</Text>
-      )}
+        style={styles.gradient}
+      >
+        {loading ? (
+          <ActivityIndicator color={Colors.bgDark} />
+        ) : (
+          <Text style={styles.text}>{title}</Text>
+        )}
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
@@ -35,15 +36,17 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: Radius.md,
     overflow: 'hidden',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
     elevation: 4, // Shadow for Android
     shadowColor: Colors.primaryGold, // Shadow for iOS
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
+  },
+  gradient: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   text: {
     color: Colors.bgDark,
