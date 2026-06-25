@@ -11,11 +11,19 @@ import {
   Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { auth, db } from '@/config/firebase';
+import { initializeApp, deleteApp } from 'firebase/app';
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithCredential,
+  signInWithPopup,
+  getAuth,
+  initializeAuth,
+  signOut,
+} from 'firebase/auth';
+import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { auth, db, firebaseConfig } from '@/config/firebase';
 
 import { Background } from '@/components/Background';
 import { GlassCard } from '@/components/GlassCard';
@@ -24,10 +32,11 @@ import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
-WebBrowser.maybeCompleteAuthSession();
-
 const GOOGLE_WEB_CLIENT_ID = '618656654443-37njkq2qia9a5qs7393dn4jhtjgihutr.apps.googleusercontent.com';
-const GOOGLE_ANDROID_CLIENT_ID = '618656654443-8jsukvvojneuo4pqi77j41vcn725pj2j.apps.googleusercontent.com';
+
+if (Platform.OS !== 'web') {
+  GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+}
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -46,12 +55,6 @@ export default function RegisterScreen() {
   const fadeAnimForm = useRef(new Animated.Value(0)).current;
   const slideAnimForm = useRef(new Animated.Value(50)).current;
 
-  // Google OAuth
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
-  });
-
   useEffect(() => {
     Animated.stagger(200, [
       Animated.parallel([
@@ -65,40 +68,6 @@ export default function RegisterScreen() {
     ]).start();
   }, []);
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      if (id_token) {
-        const credential = GoogleAuthProvider.credential(id_token);
-        setLoading(true);
-        signInWithCredential(auth, credential)
-          .then(async (userCredential) => {
-            const user = userCredential.user;
-            await setDoc(
-              doc(db, 'users', user.uid),
-              {
-                email: user.email,
-                username: user.displayName || 'Guerrero',
-                createdAt: new Date(),
-                keys: 0,
-                spheres: 0,
-                avatar: user.photoURL || null,
-              },
-              { merge: true }
-            );
-            router.replace('/(tabs)');
-          })
-          .catch((err) => {
-            console.log('Google credential error:', err);
-            setErrorMsg('Error al autenticar con Google.');
-          })
-          .finally(() => setLoading(false));
-      }
-    } else if (response?.type === 'error') {
-      setErrorMsg('Error al registrarse con Google.');
-    }
-  }, [response]);
-
   const handleRegister = async () => {
     setErrorMsg('');
     if (!email || !username || !password || !confirmPassword) {
@@ -110,10 +79,17 @@ export default function RegisterScreen() {
       return;
     }
     setLoading(true);
+    // Use a secondary Firebase app so creating the account does NOT sign the
+    // user into the main app (we want them to log in manually afterwards).
+    const secondaryApp = initializeApp(firebaseConfig, `Registration-${Date.now()}`);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const secondaryAuth =
+        Platform.OS === 'web' ? getAuth(secondaryApp) : initializeAuth(secondaryApp);
+      const secondaryDb = getFirestore(secondaryApp);
+
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
       const user = userCredential.user;
-      await setDoc(doc(db, 'users', user.uid), {
+      await setDoc(doc(secondaryDb, 'users', user.uid), {
         email: user.email,
         username: username,
         createdAt: new Date(),
@@ -121,7 +97,10 @@ export default function RegisterScreen() {
         spheres: 0,
         avatar: null,
       });
-      router.replace('/(tabs)');
+
+      await signOut(secondaryAuth).catch(() => {});
+      // Send them to login with a success flag — the main session stays logged out.
+      router.replace('/(auth)/login?registered=1');
     } catch (error: any) {
       let msg = 'Error al registrar usuario.';
       if (error.code === 'auth/email-already-in-use') msg = 'El correo ya está en uso.';
@@ -133,11 +112,13 @@ export default function RegisterScreen() {
       console.log('Register Error:', error);
       setErrorMsg(msg);
     } finally {
+      await deleteApp(secondaryApp).catch(() => {});
       setLoading(false);
     }
   };
 
   const handleGoogleRegister = async () => {
+    setErrorMsg('');
     if (Platform.OS === 'web') {
       try {
         setLoading(true);
@@ -162,8 +143,40 @@ export default function RegisterScreen() {
         setErrorMsg('Error al registrarse con Google.');
         setLoading(false);
       }
-    } else {
-      await promptAsync();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result: any = await GoogleSignin.signIn();
+      const idToken = result?.data?.idToken ?? result?.idToken;
+      if (!idToken) {
+        setLoading(false);
+        return;
+      }
+      const credential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await signInWithCredential(auth, credential);
+      const user = userCredential.user;
+      await setDoc(
+        doc(db, 'users', user.uid),
+        {
+          email: user.email,
+          username: user.displayName || 'Guerrero',
+          createdAt: new Date(),
+          keys: 0,
+          spheres: 0,
+          avatar: user.photoURL || null,
+        },
+        { merge: true }
+      );
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      console.log('Google Register Error:', error?.code, error?.message);
+      if (error?.code !== 'SIGN_IN_CANCELLED' && error?.code !== '-5') {
+        setErrorMsg('Error al registrarse con Google.');
+      }
+      setLoading(false);
     }
   };
 
@@ -250,7 +263,7 @@ export default function RegisterScreen() {
                 <TouchableOpacity
                   style={styles.googleBtn}
                   onPress={handleGoogleRegister}
-                  disabled={loading || (!request && Platform.OS !== 'web')}
+                  disabled={loading}
                 >
                   <Ionicons name="logo-google" size={20} color={Colors.textPrimary} style={styles.googleIcon} />
                   <Text style={styles.googleBtnText}>Continuar con Google</Text>

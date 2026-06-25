@@ -30,7 +30,10 @@ import { auth, db } from '@/config/firebase';
 import { addInventoryItems } from '@/services/inventory';
 
 export default function GachaScreen() {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  // Responsive banner height: ~50% of the screen, clamped so it never crowds
+  // out the probabilities panel on small phones nor stretches on tall ones.
+  const bannerAreaHeight = Math.round(Math.min(440, Math.max(300, height * 0.5)));
   const [activeBanner, setActiveBanner] = useState(0);
   // Measured height of the carousel area so each banner card fills it exactly.
   const [carouselHeight, setCarouselHeight] = useState(0);
@@ -160,9 +163,9 @@ export default function GachaScreen() {
         </View>
       </View>
 
-      {/* ─── Banner Carousel (fixed height, sits near the top) ─── */}
+      {/* ─── Banner Carousel (responsive height, sits near the top) ─── */}
       <View
-        style={styles.carousel}
+        style={[styles.carousel, { height: bannerAreaHeight }]}
         onLayout={(e) => setCarouselHeight(e.nativeEvent.layout.height)}
       >
         <ScrollView
@@ -274,10 +277,8 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.xs,
   },
 
-  /* Carousel — fixed height so the card sits near the top */
-  carousel: {
-    height: 440,
-  },
+  /* Carousel — responsive height (set inline from screen dimensions) */
+  carousel: {},
   bottomSpacer: {
     height: Spacing.lg,
   },

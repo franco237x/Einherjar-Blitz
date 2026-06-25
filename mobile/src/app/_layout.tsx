@@ -1,11 +1,13 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme, View } from 'react-native';
+import { useColorScheme, Platform } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useFonts, Cinzel_400Regular, Cinzel_700Bold } from '@expo-google-fonts/cinzel';
 import { Barlow_400Regular, Barlow_500Medium, Barlow_700Bold } from '@expo-google-fonts/barlow';
 import * as SplashScreen from 'expo-splash-screen';
 import { Asset } from 'expo-asset';
+import { StatusBar } from 'expo-status-bar';
+import { NavigationBar } from 'expo-navigation-bar';
 
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingScreen } from '@/components/LoadingScreen';
@@ -77,11 +79,19 @@ export default function RootLayout() {
   }, [user, isLoading, segments]);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <>
+        <StatusBar hidden />
+        {Platform.OS === 'android' && <NavigationBar hidden />}
+        <LoadingScreen />
+      </>
+    );
   }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <StatusBar hidden />
+      {Platform.OS === 'android' && <NavigationBar hidden />}
       <Slot />
     </ThemeProvider>
   );

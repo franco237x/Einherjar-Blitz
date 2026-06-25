@@ -263,22 +263,6 @@ export default function DashboardScreen() {
               <Text style={styles.navDesc}>(Próximamente)</Text>
             </GlassCard>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navCard}>
-            <GlassCard style={[styles.navGlass, { borderColor: Colors.secondaryPurple }]}>
-              <Ionicons name="hardware-chip-outline" size={28} color={Colors.secondaryPurple} />
-              <Text style={[styles.navTitle, { color: Colors.secondaryPurple }]}>AR-12 Chat</Text>
-              <Text style={styles.navDesc}>(Próximamente)</Text>
-            </GlassCard>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navCard}>
-            <GlassCard style={[styles.navGlass, { borderColor: Colors.secondaryPurple }]}>
-              <Ionicons name="moon-outline" size={28} color={Colors.secondaryPurple} />
-              <Text style={[styles.navTitle, { color: Colors.secondaryPurple }]}>Aquelarre</Text>
-              <Text style={styles.navDesc}>(Evento)</Text>
-            </GlassCard>
-          </TouchableOpacity>
         </View>
 
         {/* Quick Actions */}

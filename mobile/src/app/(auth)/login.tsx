@@ -10,11 +10,9 @@ import {
   Platform,
   Animated,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
-import * as WebBrowser from 'expo-web-browser';
-import * as AuthSession from 'expo-auth-session';
-import * as Google from 'expo-auth-session/providers/google';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { auth } from '@/config/firebase';
 
 import { Background } from '@/components/Background';
@@ -24,30 +22,29 @@ import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
-WebBrowser.maybeCompleteAuthSession();
-
 const GOOGLE_WEB_CLIENT_ID = '618656654443-37njkq2qia9a5qs7393dn4jhtjgihutr.apps.googleusercontent.com';
-const GOOGLE_ANDROID_CLIENT_ID = '618656654443-8jsukvvojneuo4pqi77j41vcn725pj2j.apps.googleusercontent.com';
+
+if (Platform.OS !== 'web') {
+  GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+}
 
 export default function LoginScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ registered?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState(
+    params?.registered === '1' ? '¡Registro exitoso! Inicia sesión con tus credenciales.' : ''
+  );
 
   // Animation values
   const fadeAnimHeader = useRef(new Animated.Value(0)).current;
   const slideAnimHeader = useRef(new Animated.Value(30)).current;
   const fadeAnimForm = useRef(new Animated.Value(0)).current;
   const slideAnimForm = useRef(new Animated.Value(50)).current;
-
-  // Google OAuth
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
-  });
 
   useEffect(() => {
     Animated.stagger(200, [
@@ -62,27 +59,9 @@ export default function LoginScreen() {
     ]).start();
   }, []);
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      if (id_token) {
-        const credential = GoogleAuthProvider.credential(id_token);
-        setLoading(true);
-        signInWithCredential(auth, credential)
-          .then(() => router.replace('/(tabs)'))
-          .catch((err) => {
-            console.log('Google credential error:', err);
-            setErrorMsg('Error al autenticar con Google.');
-          })
-          .finally(() => setLoading(false));
-      }
-    } else if (response?.type === 'error') {
-      setErrorMsg('Error al iniciar sesión con Google.');
-    }
-  }, [response]);
-
   const handleLogin = async () => {
     setErrorMsg('');
+    setSuccessMsg('');
     if (!email || !password) {
       setErrorMsg('Por favor, completa todos los campos.');
       return;
@@ -107,6 +86,8 @@ export default function LoginScreen() {
   };
 
   const handleGoogleLogin = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
     if (Platform.OS === 'web') {
       try {
         setLoading(true);
@@ -118,8 +99,29 @@ export default function LoginScreen() {
         setErrorMsg('Error al iniciar sesión con Google.');
         setLoading(false);
       }
-    } else {
-      await promptAsync();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result: any = await GoogleSignin.signIn();
+      // v13+ returns { type: 'success', data: { idToken, ... } }; older returns { idToken }
+      const idToken = result?.data?.idToken ?? result?.idToken;
+      if (!idToken) {
+        // user cancelled or no token
+        setLoading(false);
+        return;
+      }
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      console.log('Google Login Error:', error?.code, error?.message);
+      if (error?.code !== 'SIGN_IN_CANCELLED' && error?.code !== '-5') {
+        setErrorMsg('Error al iniciar sesión con Google.');
+      }
+      setLoading(false);
     }
   };
 
@@ -174,6 +176,7 @@ export default function LoginScreen() {
                   </TouchableOpacity>
                 </View>
 
+                {successMsg ? <Text style={styles.successText}>{successMsg}</Text> : null}
                 {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
                 <GoldButton
@@ -186,7 +189,7 @@ export default function LoginScreen() {
                 <TouchableOpacity
                   style={styles.googleBtn}
                   onPress={handleGoogleLogin}
-                  disabled={loading || (!request && Platform.OS !== 'web')}
+                  disabled={loading}
                 >
                   <Ionicons name="logo-google" size={20} color={Colors.textPrimary} style={styles.googleIcon} />
                   <Text style={styles.googleBtnText}>Continuar con Google</Text>
@@ -311,6 +314,12 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#ef4444',
     fontFamily: Fonts.body,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  successText: {
+    color: '#22c55e',
+    fontFamily: Fonts.bodyMedium,
     fontSize: 14,
     textAlign: 'center',
   },

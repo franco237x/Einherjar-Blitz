@@ -6,10 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.jpg",
-    "scheme": [
-      "einherjar",
-      "com.einherjar.blitz"
-    ],
+    "scheme": "einherjar",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/logo.jpg",
@@ -21,6 +18,7 @@
     },
     "android": {
       "package": "com.einherjar.blitz",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0A",
         "foregroundImage": "./assets/images/logo.jpg"
@@ -48,7 +46,8 @@
           }
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,

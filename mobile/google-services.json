@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "618656654443",
+    "firebase_url": "https://einherjer-blitz-7578c-default-rtdb.firebaseio.com",
+    "project_id": "einherjer-blitz-7578c",
+    "storage_bucket": "einherjer-blitz-7578c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618656654443:android:4215a23a138a5016f8bd2e",
+        "android_client_info": {
+          "package_name": "com.einherjar.blitz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "618656654443-8jsukvvojneuo4pqi77j41vcn725pj2j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.einherjar.blitz",
+            "certificate_hash": "5ff582ad06b08d87fb7e1efbd305362c98b24a65"
+          }
+        },
+        {
+          "client_id": "618656654443-37njkq2qia9a5qs7393dn4jhtjgihutr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUwtelREYaUpxHA_awKOfBdsGrDw2_08w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "618656654443-37njkq2qia9a5qs7393dn4jhtjgihutr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
