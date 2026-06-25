@@ -22,7 +22,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
@@ -260,38 +259,35 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
           })}
         </View>
 
-        {/* Content */}
-        {loading ? (
-          <View style={styles.center}>
-            <MiniLoader />
-          </View>
-        ) : filtered.length === 0 ? (
-          <View style={styles.center}>
-            <Ionicons name="cube-outline" size={72} color={Colors.textMuted} />
-            <Text style={styles.emptyTitle}>Inventario vacío</Text>
-            <Text style={styles.emptySubtitle}>
-              Invoca en el Altar para obtener tus primeras recompensas.
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            numColumns={NUM_COLUMNS}
-            contentContainerStyle={styles.list}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-
-        {/* Fade gradient + Reclaim all button (fixed above safe area bottom) */}
-        {count > 0 && (
-          <View style={[styles.bottomOverlay, { paddingBottom: insets.bottom + Spacing.lg }]} pointerEvents="box-none">
-            <LinearGradient
-              colors={['transparent', Colors.bgDark]}
-              style={styles.fadeGradient}
-              pointerEvents="none"
+        {/* Content — flex:1 so the footer stays pinned below */}
+        <View style={styles.contentArea}>
+          {loading ? (
+            <View style={styles.center}>
+              <MiniLoader />
+            </View>
+          ) : filtered.length === 0 ? (
+            <View style={styles.center}>
+              <Ionicons name="cube-outline" size={72} color={Colors.textMuted} />
+              <Text style={styles.emptyTitle}>Inventario vacío</Text>
+              <Text style={styles.emptySubtitle}>
+                Invoca en el Altar para obtener tus primeras recompensas.
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filtered}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              numColumns={NUM_COLUMNS}
+              contentContainerStyle={styles.list}
+              showsVerticalScrollIndicator={false}
             />
+          )}
+        </View>
+
+        {/* Footer with Reclaim button — normal flow, always visible */}
+        {count > 0 && (
+          <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) + Spacing.sm }]}>
             <TouchableOpacity
               style={[styles.claimAllBtn, claiming && styles.claimAllBtnDisabled]}
               onPress={handleClaimAll}
@@ -395,7 +391,17 @@ const styles = StyleSheet.create({
     color: Colors.bgDarker,
   },
   list: {
-    paddingBottom: 180,
+    paddingBottom: Spacing.lg,
+  },
+  contentArea: {
+    flex: 1,
+  },
+  footer: {
+    paddingTop: Spacing.md,
+    paddingHorizontal: 0,
+    backgroundColor: Colors.bgDark,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.06)',
   },
   center: {
     flex: 1,
@@ -469,23 +475,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodyBold,
     fontSize: 13,
     lineHeight: 16,
-  },
-  bottomOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.xl,
-    backgroundColor: 'transparent',
-  },
-  fadeGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 120,
   },
   claimAllBtn: {
     flexDirection: 'row',

@@ -156,10 +156,6 @@ export default function GachaScreen() {
               <Ionicons name="key" size={17} color={Colors.primaryGold} />
               <Text style={styles.balanceVal}>{balances.keys}</Text>
             </View>
-            <View style={styles.balancePill}>
-              <Ionicons name="planet" size={17} color="#8b5cf6" />
-              <Text style={styles.balanceVal}>{balances.spheres.toLocaleString()}</Text>
-            </View>
             <TouchableOpacity
               style={styles.inventoryBtn}
               onPress={() => setShowInventory(true)}
@@ -236,16 +232,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.lg,
+    paddingBottom: Spacing.md,
+    gap: Spacing.sm,
   },
   headerTitle: {
     color: Colors.textPrimary,
     fontFamily: Fonts.title,
-    fontSize: 24,
+    fontSize: 22,
     letterSpacing: 1,
     textShadowColor: Colors.glowGold,
     textShadowOffset: { width: 0, height: 0 },
