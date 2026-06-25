@@ -18,6 +18,7 @@ import {
   useWindowDimensions,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Background } from '@/components/Background';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
@@ -31,9 +32,10 @@ import { addInventoryItems } from '@/services/inventory';
 
 export default function GachaScreen() {
   const { width, height } = useWindowDimensions();
-  // Responsive banner height: ~50% of the screen, clamped so it never crowds
+  const insets = useSafeAreaInsets();
+  // Responsive banner height: ~45% of the screen, clamped so it never crowds
   // out the probabilities panel on small phones nor stretches on tall ones.
-  const bannerAreaHeight = Math.round(Math.min(440, Math.max(300, height * 0.5)));
+  const bannerAreaHeight = Math.round(Math.min(420, Math.max(260, height * 0.45)));
   const [activeBanner, setActiveBanner] = useState(0);
   // Measured height of the carousel area so each banner card fills it exactly.
   const [carouselHeight, setCarouselHeight] = useState(0);
@@ -141,74 +143,77 @@ export default function GachaScreen() {
     <Background>
       <ParticlesBackground />
 
-      {/* ─── Top Bar ─── */}
-      <View style={styles.topBar}>
-        <Text style={styles.headerTitle}>Gacha Einherjer</Text>
-        <View style={styles.balances}>
-          <View style={styles.balancePill}>
-            <Ionicons name="key" size={17} color={Colors.primaryGold} />
-            <Text style={styles.balanceVal}>{balances.keys}</Text>
-          </View>
-          <View style={styles.balancePill}>
-            <Ionicons name="planet" size={17} color="#8b5cf6" />
-            <Text style={styles.balanceVal}>{balances.spheres.toLocaleString()}</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.inventoryBtn}
-            onPress={() => setShowInventory(true)}
-            accessibilityLabel="Abrir inventario"
-          >
-            <Ionicons name="briefcase-outline" size={22} color={Colors.primaryGold} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* ─── Banner Carousel (responsive height, sits near the top) ─── */}
-      <View
-        style={[styles.carousel, { height: bannerAreaHeight }]}
-        onLayout={(e) => setCarouselHeight(e.nativeEvent.layout.height)}
+      <ScrollView
+        style={styles.flex}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.lg }}
       >
-        <ScrollView
-          ref={scrollRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-        >
-          {BANNERS.map((banner) => (
-            <BannerCard
-              key={banner.id}
-              banner={banner}
-              cardHeight={carouselHeight}
-              onSummon={handleSummon}
-            />
-          ))}
-        </ScrollView>
-      </View>
+        {/* ─── Top Bar ─── */}
+        <View style={[styles.topBar, { paddingTop: insets.top + Spacing.md }]}>
+          <Text style={styles.headerTitle}>Gacha Einherjer</Text>
+          <View style={styles.balances}>
+            <View style={styles.balancePill}>
+              <Ionicons name="key" size={17} color={Colors.primaryGold} />
+              <Text style={styles.balanceVal}>{balances.keys}</Text>
+            </View>
+            <View style={styles.balancePill}>
+              <Ionicons name="planet" size={17} color="#8b5cf6" />
+              <Text style={styles.balanceVal}>{balances.spheres.toLocaleString()}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.inventoryBtn}
+              onPress={() => setShowInventory(true)}
+              accessibilityLabel="Abrir inventario"
+            >
+              <Ionicons name="briefcase-outline" size={22} color={Colors.primaryGold} />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      {/* ─── Pagination indicator (pill) — only shown with multiple banners ─── */}
-      {BANNERS.length > 1 && (
-        <View style={styles.paginationWrap}>
-          <View style={styles.paginationPill}>
-            {BANNERS.map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.dot,
-                  activeBanner === i && [styles.dotActive, { backgroundColor: BANNERS[i].accentColor }],
-                ]}
+        {/* ─── Banner Carousel (responsive height, sits near the top) ─── */}
+        <View
+          style={[styles.carousel, { height: bannerAreaHeight }]}
+          onLayout={(e) => setCarouselHeight(e.nativeEvent.layout.height)}
+        >
+          <ScrollView
+            ref={scrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          >
+            {BANNERS.map((banner) => (
+              <BannerCard
+                key={banner.id}
+                banner={banner}
+                cardHeight={carouselHeight}
+                onSummon={handleSummon}
               />
             ))}
-          </View>
+          </ScrollView>
         </View>
-      )}
 
-      {/* ─── Drop-rate breakdown (fills bottom space) ─── */}
-      <ProbabilitiesPanel rewards={BANNERS[activeBanner].rewards} />
+        {/* ─── Pagination indicator (pill) — only shown with multiple banners ─── */}
+        {BANNERS.length > 1 && (
+          <View style={styles.paginationWrap}>
+            <View style={styles.paginationPill}>
+              {BANNERS.map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.dot,
+                    activeBanner === i && [styles.dotActive, { backgroundColor: BANNERS[i].accentColor }],
+                  ]}
+                />
+              ))}
+            </View>
+          </View>
+        )}
 
-      {/* Bottom spacer above the tab bar */}
-      <View style={styles.bottomSpacer} />
+        {/* ─── Drop-rate breakdown (fills bottom space) ─── */}
+        <ProbabilitiesPanel rewards={BANNERS[activeBanner].rewards} />
+      </ScrollView>
 
       {/* ─── Summon Animation (Full-Screen Modal) ─── */}
       <SummonAnimation
@@ -227,12 +232,14 @@ export default function GachaScreen() {
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
-    paddingTop: 56,
     paddingBottom: Spacing.lg,
   },
   headerTitle: {
@@ -279,9 +286,6 @@ const styles = StyleSheet.create({
 
   /* Carousel — responsive height (set inline from screen dimensions) */
   carousel: {},
-  bottomSpacer: {
-    height: Spacing.lg,
-  },
 
   /* Pagination — contained pill indicator above the tab bar */
   paginationWrap: {

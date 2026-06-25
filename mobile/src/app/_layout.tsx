@@ -8,6 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { Asset } from 'expo-asset';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationBar } from 'expo-navigation-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingScreen } from '@/components/LoadingScreen';
@@ -80,19 +81,21 @@ export default function RootLayout() {
 
   if (isLoading) {
     return (
-      <>
+      <SafeAreaProvider>
         <StatusBar hidden />
         {Platform.OS === 'android' && <NavigationBar hidden />}
         <LoadingScreen />
-      </>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <StatusBar hidden />
-      {Platform.OS === 'android' && <NavigationBar hidden />}
-      <Slot />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <StatusBar hidden />
+        {Platform.OS === 'android' && <NavigationBar hidden />}
+        <Slot />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

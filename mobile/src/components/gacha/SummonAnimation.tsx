@@ -38,6 +38,7 @@ import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, type RewardItem, type RarityKey } from '@/constants/gachaData';
 import { ConvergePhase, CONVERGE_DURATION } from './SummonConverge';
 import { BurstParticle, StarRays, FlipCard3D } from './SummonPrimitives';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -68,6 +69,7 @@ const BURST_COUNT: Record<RarityKey, number> = {
 type Phase = 'converge' | 'flash' | 'reveal';
 
 export const SummonAnimation = ({ visible, results, onClose }: SummonAnimationProps) => {
+  const insets = useSafeAreaInsets();
   const [phase, setPhase] = useState<Phase>('converge');
   const phaseRef = useRef<Phase>('converge');
 
@@ -173,7 +175,7 @@ export const SummonAnimation = ({ visible, results, onClose }: SummonAnimationPr
 
   return (
     <Modal visible={visible} transparent animationType="fade" statusBarTranslucent>
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         {/* ═══════════════════════════════════════════════════════════
             PHASE: Convergence
          ═══════════════════════════════════════════════════════════ */}
@@ -372,8 +374,8 @@ const styles = StyleSheet.create({
   /* ─── Skip ─── */
   skipBtn: {
     position: 'absolute',
-    top: 60,
-    right: 20,
+    top: Spacing.lg,
+    right: Spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -405,7 +407,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     paddingHorizontal: Spacing.xl,
-    paddingTop: 70,
+    paddingTop: Spacing.xl,
     alignItems: 'center',
   },
   revealTitle: {
@@ -438,11 +440,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   actionRow: {
     position: 'absolute',
-    bottom: 50,
+    bottom: Spacing.xl,
     left: 0,
     right: 0,
     alignItems: 'center',

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '@/config/firebase';
@@ -14,6 +15,7 @@ import { LoadingScreen } from '@/components/LoadingScreen';
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -113,7 +115,10 @@ export default function DashboardScreen() {
       <ParticlesBackground />
       <Animated.ScrollView 
         style={[styles.container, { opacity: fadeAnim }]}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + 80 }
+        ]}
         showsVerticalScrollIndicator={false}
       >
         
@@ -309,8 +314,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 100, // Extra padding for Bottom Nav
   },
   
   /* Header */

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Platform, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Background } from '@/components/Background';
 import { GlassCard } from '@/components/GlassCard';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
@@ -29,6 +30,8 @@ const CustomSwitch = ({ value, onValueChange }: { value: boolean, onValueChange:
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -99,8 +102,13 @@ export default function ProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
         style={{ flex: 1 }}
       >
-        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-          
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + 80 }
+          ]}
+        >
           <Text style={styles.pageTitle}>Mi Perfil</Text>
 
           {/* Centered Profile Header */}
@@ -207,8 +215,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 100, // Extra padding for Bottom Nav
   },
   pageTitle: {
     color: Colors.textPrimary,

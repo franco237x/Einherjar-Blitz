@@ -39,7 +39,7 @@ export const BannerCard = ({ banner, onSummon, cardHeight }: BannerCardProps) =>
   // comfortable max height and centered, so it never looks gigantic on tall
   // phones while still filling smaller screens.
   const viewport = cardHeight && cardHeight > 0 ? cardHeight : screenHeight * 0.6;
-  const MAX_CARD_HEIGHT = 560;
+  const MAX_CARD_HEIGHT = Math.round(screenHeight * 0.65);
   const innerHeight = Math.min(viewport, MAX_CARD_HEIGHT);
 
   return (

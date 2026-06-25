@@ -1,16 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Background } from '@/components/Background';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function PlayScreen() {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const iconSize = Math.min(80, width * 0.22);
+
   return (
     <Background>
       <ParticlesBackground />
-      <View style={styles.container}>
-        <Ionicons name="game-controller-outline" size={80} color={Colors.primaryGold} style={styles.icon} />
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <Ionicons name="game-controller-outline" size={iconSize} color={Colors.primaryGold} style={styles.icon} />
         <Text style={styles.title}>MÓDULO DE JUEGO</Text>
         <Text style={styles.subtitle}>PRÓXIMAMENTE</Text>
       </View>

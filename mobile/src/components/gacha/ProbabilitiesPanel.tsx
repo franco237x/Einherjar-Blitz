@@ -107,7 +107,8 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   rowLeft: {
-    width: 110,
+    width: '28%',
+    minWidth: 90,
   },
   stars: {
     flexDirection: 'row',
@@ -131,7 +132,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   percent: {
-    width: 52,
+    width: '14%',
+    minWidth: 44,
     textAlign: 'right',
     color: Colors.textPrimary,
     fontFamily: Fonts.bodyBold,

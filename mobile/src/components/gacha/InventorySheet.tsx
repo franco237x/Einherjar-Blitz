@@ -16,10 +16,11 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
-  Dimensions,
+  useWindowDimensions,
   Platform,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
@@ -31,11 +32,8 @@ import { deleteInventoryItem } from '@/services/inventory';
 import { auth } from '@/config/firebase';
 import { MiniLoader } from '@/components/MiniLoader';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const NUM_COLUMNS = 2;
 const CARD_GAP = Spacing.md;
-const CARD_WIDTH =
-  (SCREEN_WIDTH - Spacing.lg * 2 - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
 // Build a name → reward lookup so we can resolve the local image & fallback icon.
 const REWARD_BY_NAME = new Map<string, (typeof REWARDS_TABLE)[number]>();
@@ -51,6 +49,11 @@ interface InventorySheetProps {
 }
 
 export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const cardWidth =
+    (screenWidth - Spacing.lg * 2 - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
+
   const { items, grouped, loading, count } = useInventory();
   const [filter, setFilter] = useState<RarityKey | 'all'>('all');
   const [claiming, setClaiming] = useState(false);
@@ -176,7 +179,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       <View
         style={[
           styles.card,
-          { borderColor: rarity.color, marginLeft: index % NUM_COLUMNS === 0 ? 0 : CARD_GAP },
+          { borderColor: rarity.color, marginLeft: index % NUM_COLUMNS === 0 ? 0 : CARD_GAP, width: cardWidth },
         ]}
       >
         <View style={styles.imageWrap}>
@@ -221,7 +224,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       transparent={false}
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top + Spacing.md }]}>
         {/* Header */}
         <View style={styles.header}>
           <View>
@@ -281,9 +284,9 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
           />
         )}
 
-        {/* Fade gradient + Reclaim all button (absolute, overlays scroll) */}
+        {/* Fade gradient + Reclaim all button (fixed above safe area bottom) */}
         {count > 0 && (
-          <View style={styles.bottomOverlay} pointerEvents="box-none">
+          <View style={[styles.bottomOverlay, { paddingBottom: insets.bottom + Spacing.lg }]} pointerEvents="box-none">
             <LinearGradient
               colors={['transparent', Colors.bgDark]}
               style={styles.fadeGradient}
@@ -335,7 +338,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgDark,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: Spacing.lg,
   },
   header: {
@@ -393,7 +395,7 @@ const styles = StyleSheet.create({
     color: Colors.bgDarker,
   },
   list: {
-    paddingBottom: 140,
+    paddingBottom: 180,
   },
   center: {
     flex: 1,
@@ -415,7 +417,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   card: {
-    width: CARD_WIDTH,
+    flex: 1,
     backgroundColor: Colors.bgCard,
     borderRadius: Radius.md,
     borderWidth: 1,
@@ -474,8 +476,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.lg,
     paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xl,
+    backgroundColor: 'transparent',
   },
   fadeGradient: {
     position: 'absolute',

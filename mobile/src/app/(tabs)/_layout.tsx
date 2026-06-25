@@ -5,11 +5,13 @@ import { BlurView } from 'expo-blur';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SyncIndicator } from '@/components/SyncIndicator';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.tabBarContainer}>
+    <View style={[styles.tabBarContainer, { paddingBottom: insets.bottom }]}>
       <BlurView intensity={Platform.OS === 'ios' ? 30 : 60} tint="dark" style={styles.blurView}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -114,8 +116,7 @@ const styles = StyleSheet.create({
   },
   blurView: {
     flexDirection: 'row',
-    height: Platform.OS === 'ios' ? 85 : 65,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+    height: Platform.OS === 'ios' ? 64 : 58,
   },
   tabItem: {
     flex: 1,

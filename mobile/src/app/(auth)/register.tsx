@@ -23,6 +23,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getFirestore } from 'firebase/firestore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { auth, db, firebaseConfig } from '@/config/firebase';
 
 import { Background } from '@/components/Background';
@@ -40,6 +41,7 @@ if (Platform.OS !== 'web') {
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -188,7 +190,10 @@ export default function RegisterScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={[
+            styles.container,
+            { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.lg }
+          ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -291,8 +296,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: Spacing.lg,
-    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
   },
   header: {
     marginBottom: Spacing.xl,

@@ -16,14 +16,11 @@ import {
   StyleSheet,
   Image,
   Animated,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, type RewardItem } from '@/constants/gachaData';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = (SCREEN_WIDTH - Spacing.xl * 2 - Spacing.md) / 2; // 2 columns
 
 interface RewardCardProps {
   item: RewardItem;
@@ -31,6 +28,8 @@ interface RewardCardProps {
 }
 
 export const RewardCard = ({ item, index }: RewardCardProps) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = (screenWidth - Spacing.xl * 2 - Spacing.md) / 2; // 2 columns
   const [imageError, setImageError] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.6)).current;
@@ -68,6 +67,7 @@ export const RewardCard = ({ item, index }: RewardCardProps) => {
       style={[
         styles.card,
         {
+          width: cardWidth,
           borderColor: rarity.color,
           opacity: fadeAnim,
           transform: [{ scale: scaleAnim }],
@@ -124,7 +124,6 @@ export const RewardCard = ({ item, index }: RewardCardProps) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: CARD_WIDTH,
     backgroundColor: 'rgba(10,10,10,0.85)',
     borderRadius: Radius.md,
     borderWidth: 1,
@@ -133,7 +132,7 @@ const styles = StyleSheet.create({
   },
   imageWrap: {
     width: '100%',
-    height: CARD_WIDTH * 1.1,
+    aspectRatio: 1,
     position: 'relative',
   },
   image: {

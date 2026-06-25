@@ -23,6 +23,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAuth } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/config/firebase';
@@ -37,6 +38,7 @@ import { claimPurchasePDF, claimAllPurchasesPDF } from '@/services/purchaseClaim
 import { useSyncStatus } from '@/hooks/useSyncStatus';
 
 export default function StoreScreen() {
+  const insets = useSafeAreaInsets();
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [spheres, setSpheres] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -214,11 +216,14 @@ export default function StoreScreen() {
       <ParticlesBackground />
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: insets.bottom + 80 }
+        ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primaryGold} />}
       >
         {/* ═══ Header ═══ */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
           <View style={styles.headerLeft}>
             <Text style={styles.storeTitle}>Tienda Oficial</Text>
             <Text style={styles.storeSubtitle}>Artículos exclusivos para tu inventario</Text>
@@ -331,7 +336,7 @@ export default function StoreScreen() {
           </View>
         )}
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 40 }} />
       </ScrollView>
 
       {/* ═══ Purchase Result Modal ═══ */}
@@ -454,7 +459,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: Spacing.lg,
-    paddingTop: 60,
     paddingBottom: Spacing.md,
     gap: Spacing.md,
   },
