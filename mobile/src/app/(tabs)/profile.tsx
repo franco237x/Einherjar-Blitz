@@ -6,13 +6,13 @@ import { GlassCard } from '@/components/GlassCard';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { auth, db, storage } from '@/config/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '@/config/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { MiniLoader } from '@/components/MiniLoader';
+import { useUserData } from '@/hooks/useUserData';
 
 const CustomSwitch = ({ value, onValueChange }: { value: boolean, onValueChange: (v: boolean) => void }) => {
   return (
@@ -34,10 +34,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
-  const [loading, setLoading] = useState(true);
+  const { userData, loading } = useUserData();
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   
   // Forms
   const [username, setUsername] = useState('');
@@ -47,27 +46,13 @@ export default function ProfileScreen() {
   const [music, setMusic] = useState(true);
   const [sfx, setSfx] = useState(true);
 
+  // Sync form state when userData loads/changes
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (auth.currentUser) {
-        try {
-          const docRef = doc(db, 'users', auth.currentUser.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setUserData(data);
-            setUsername(data.username || '');
-            setFrase(data.frase || '');
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchUserData();
-  }, []);
+    if (userData) {
+      setUsername(userData.username || '');
+      setFrase(userData.frase || '');
+    }
+  }, [userData]);
 
   const handleSave = async () => {
     if (!auth.currentUser) return;
@@ -96,21 +81,23 @@ export default function ProfileScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.7,
+      quality: 0.5,
+      base64: true,
     });
     if (result.canceled || !result.assets || result.assets.length === 0) return;
 
-    const uri = result.assets[0].uri;
+    const base64 = result.assets[0].base64;
+    if (!base64) {
+      console.warn('No base64 data returned from image picker');
+      return;
+    }
+
+    const dataUri = `data:image/jpeg;base64,${base64}`;
     setUploadingAvatar(true);
     try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const storageRef = ref(storage, `avatars/${auth.currentUser.uid}/profile.jpg`);
-      await uploadBytes(storageRef, blob);
-      const downloadUrl = await getDownloadURL(storageRef);
       const docRef = doc(db, 'users', auth.currentUser.uid);
-      await updateDoc(docRef, { avatar: downloadUrl });
-      setUserData((prev: any) => ({ ...prev, avatar: downloadUrl }));
+      await updateDoc(docRef, { avatar: dataUri });
+      // onSnapshot in useUserData will auto-refresh the avatar
     } catch (error) {
       console.error('Error uploading avatar:', error);
     } finally {

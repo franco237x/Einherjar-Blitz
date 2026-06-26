@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.einherjar.blitz",
       "infoPlist": {
         "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para funcionalidades de AR.",
-        "NSPhotoLibraryUsageDescription": "Esta app necesita acceso a la galería para guardar certificados."
+        "NSPhotoLibraryUsageDescription": "Esta app necesita acceso a la galería para guardar certificados.",
+        "NSPhotoLibraryAddUsageDescription": "Esta app necesita acceso para guardar certificados en tu dispositivo."
       }
     },
     "android": {
@@ -47,6 +48,14 @@
         }
       ],
       "expo-sharing",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Esta app necesita acceso a tu galería para guardar certificados.",
+          "savePhotosPermission": "Esta app necesita acceso para guardar certificados en tu dispositivo.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
       "@react-native-google-signin/google-signin"
     ],
     "experiments": {

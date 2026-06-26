@@ -8,7 +8,7 @@
  *   system, and triggers the cinematic summon animation.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -26,9 +26,10 @@ import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { BANNERS, pullMultiple, type RewardItem } from '@/constants/gachaData';
 import { BannerCard, SummonAnimation, ProbabilitiesPanel } from '@/components/gacha';
 import { InventorySheet } from '@/components/gacha/InventorySheet';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import { addInventoryItems } from '@/services/inventory';
+import { useUserData } from '@/hooks/useUserData';
 
 export default function GachaScreen() {
   const { width, height } = useWindowDimensions();
@@ -47,27 +48,8 @@ export default function GachaScreen() {
   // Inventory sheet visibility
   const [showInventory, setShowInventory] = useState(false);
 
-  // Balances (synced from Firestore)
-  const [balances, setBalances] = useState({
-    keys: 0,
-    spheres: 0,
-  });
-
-  // Listen to Firestore for real-time balance updates
-  useEffect(() => {
-    if (!auth.currentUser) return;
-    const docRef = doc(db, 'users', auth.currentUser.uid);
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setBalances({
-          keys: data.keys || 0,
-          spheres: data.spheres || 0,
-        });
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  // Balances (synced from Firestore via shared hook)
+  const { userData } = useUserData();
 
   const scrollRef = useRef<ScrollView>(null);
 
@@ -84,7 +66,7 @@ export default function GachaScreen() {
     const costKey = banner.costType;
     const totalCost = banner.costAmount * amount;
 
-    if (balances[costKey] < totalCost) {
+    if ((userData?.[costKey] || 0) < totalCost) {
       Alert.alert(
         'Saldo Insuficiente',
         `No tienes suficientes ${costKey === 'keys' ? 'Llaves' : 'Esferas'} para esta invocación.`
@@ -105,7 +87,7 @@ export default function GachaScreen() {
       // Deduct balance from Firestore
       const docRef = doc(db, 'users', auth.currentUser.uid);
       await updateDoc(docRef, {
-        [costKey]: balances[costKey] - totalCost,
+        [costKey]: (userData?.[costKey] || 0) - totalCost,
       });
 
       // Persist pulled rewards to inventory (append-only).
@@ -154,7 +136,7 @@ export default function GachaScreen() {
           <View style={styles.balances}>
             <View style={styles.balancePill}>
               <Ionicons name="key" size={17} color={Colors.primaryGold} />
-              <Text style={styles.balanceVal}>{balances.keys}</Text>
+              <Text style={styles.balanceVal}>{userData?.keys || 0}</Text>
             </View>
             <TouchableOpacity
               style={styles.inventoryBtn}

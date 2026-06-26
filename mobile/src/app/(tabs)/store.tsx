@@ -25,7 +25,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAuth } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Background } from '@/components/Background';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
@@ -36,11 +35,11 @@ import type { StoreProduct, PurchaseRecord } from '@/constants/storeData';
 import { fetchProducts, purchaseProduct, streamPurchases, deletePurchase, deleteAllPurchases } from '@/services/store';
 import { claimPurchasePDF, claimAllPurchasesPDF } from '@/services/purchaseClaim';
 import { useSyncStatus } from '@/hooks/useSyncStatus';
+import { useUserData } from '@/hooks/useUserData';
 
 export default function StoreScreen() {
   const insets = useSafeAreaInsets();
   const [products, setProducts] = useState<StoreProduct[]>([]);
-  const [spheres, setSpheres] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -59,6 +58,10 @@ export default function StoreScreen() {
 
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
+
+  // Real-time user data (spheres balance) via shared hook
+  const { userData } = useUserData();
+  const spheres = userData?.spheres || 0;
 
   // Global sync — reload products when the sync indicator is tapped
   const { refreshTick } = useSyncStatus();
@@ -86,17 +89,6 @@ export default function StoreScreen() {
       loadProducts();
     }
   }, [refreshTick, loadProducts]);
-
-  // ─── Real-time spheres balance ──────────────────────────────────────
-  useEffect(() => {
-    if (!uid) return;
-    const unsub = onSnapshot(doc(db, 'users', uid), (snap) => {
-      if (snap.exists()) {
-        setSpheres(snap.data().spheres || 0);
-      }
-    });
-    return () => unsub();
-  }, [uid]);
 
   // ─── Real-time purchase history ─────────────────────────────────────
   useEffect(() => {

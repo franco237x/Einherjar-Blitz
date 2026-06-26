@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { doc, getDoc, setDoc, runTransaction, collection, where, getDocs, increment, query } from 'firebase/firestore';
+import { doc, runTransaction, collection, where, getDocs, increment, query } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '@/config/firebase';
 import { useRouter } from 'expo-router';
@@ -12,12 +12,12 @@ import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { useUserData } from '@/hooks/useUserData';
 
 export default function DashboardScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [userData, setUserData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { userData, loading } = useUserData();
 
   // Modal states
   const [showTransferModal, setShowTransferModal] = useState(false);
@@ -37,59 +37,16 @@ export default function DashboardScreen() {
   // Animaciones
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Trigger fade-in animation once data finishes loading
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (auth.currentUser) {
-        try {
-          const docRef = doc(db, 'users', auth.currentUser.uid);
-          const docSnap = await getDoc(docRef);
-          
-          let data;
-          if (docSnap.exists()) {
-            data = docSnap.data();
-            if (!data.avatar && auth.currentUser.photoURL) {
-              data.avatar = auth.currentUser.photoURL;
-              await setDoc(docRef, { avatar: data.avatar }, { merge: true });
-            }
-          } else {
-            data = {
-              email: auth.currentUser.email,
-              username: auth.currentUser.displayName || 'Guerrero',
-              createdAt: new Date(),
-              keys: 0,
-              spheres: 0,
-              avatar: auth.currentUser.photoURL || null,
-              nivel: 1,
-              experiencia: 0,
-              copas: 0,
-              victorias: 0,
-              derrotas: 0,
-              rango: 'Iniciado',
-              horas_jugadas: 0,
-              frase: 'Forjando mi destino...'
-            };
-            await setDoc(docRef, data);
-          }
-          
-          setUserData(data);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          // Delay to ensure the loading screen animation completes (2.5s) and prevents stuttering on low-end devices
-          setTimeout(() => {
-            setLoading(false);
-            Animated.timing(fadeAnim, {
-              toValue: 1,
-              duration: 800,
-              useNativeDriver: true,
-            }).start();
-          }, 2500);
-        }
-      }
-    };
-
-    fetchUserData();
-  }, []);
+    if (!loading) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [loading, fadeAnim]);
 
   const handleLogout = async () => {
     try {
@@ -116,20 +73,6 @@ export default function DashboardScreen() {
       next: 1000,
       remaining: 1000 - current
     };
-  };
-
-  const refreshUserData = async () => {
-    if (auth.currentUser) {
-      try {
-        const docRef = doc(db, 'users', auth.currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        }
-      } catch (error) {
-        console.error('Error refreshing user data:', error);
-      }
-    }
   };
 
   const handleTransfer = async () => {
@@ -195,7 +138,7 @@ export default function DashboardScreen() {
       setTransferMsg({ type: 'success', text: `¡Transferiste ${amount} llaves a ${email}!` });
       setTransferEmail('');
       setTransferAmount('');
-      await refreshUserData();
+      // onSnapshot in useUserData will auto-refresh balances
     } catch (error: any) {
       console.error('Transfer error:', error);
       setTransferMsg({ type: 'error', text: error?.message || 'Error al transferir llaves.' });
@@ -238,7 +181,7 @@ export default function DashboardScreen() {
 
       setConvertMsg({ type: 'success', text: `¡Convertiste ${amount} llaves en ${amount * 50} esferas!` });
       setConvertAmount('1');
-      await refreshUserData();
+      // onSnapshot in useUserData will auto-refresh balances
     } catch (error: any) {
       console.error('Convert error:', error);
       setConvertMsg({ type: 'error', text: error?.message || 'Error al convertir llaves.' });

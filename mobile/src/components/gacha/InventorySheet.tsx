@@ -25,6 +25,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { File, Paths } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
@@ -58,6 +59,14 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
   const [filter, setFilter] = useState<RarityKey | 'all'>('all');
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+
+  // Success state after saving file to device
+  const [saveResult, setSaveResult] = useState<{
+    uri: string;
+    fileType: 'pdf' | 'txt';
+    savedToMediaLibrary: boolean;
+  } | null>(null);
+  const [sharing, setSharing] = useState(false);
 
   const filtered = useMemo(() => {
     const list = [...grouped].sort((a, b) => {
@@ -110,7 +119,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
     await Promise.all(items.map((item) => deleteInventoryItem(uid, item.id)));
   };
 
-  // ─── Option 1: existing PDF flow (kept as-is) ──────────────────────────
+  // ─── Option 1: PDF flow — generate, SAVE to device, then offer share ────
   const runClaimPdf = async () => {
     if (items.length === 0) return;
     setClaiming(true);
@@ -180,16 +189,38 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
 
       if (Platform.OS === 'web') {
         await Print.printAsync({ html });
-      } else {
-        const { uri } = await Print.printToFileAsync({ html });
-        const isSharingAvailable = await Sharing.isAvailableAsync();
-        if (isSharingAvailable) {
-          await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-        }
+        // On web, no file to save — just clear inventory
+        await clearInventory();
+        return;
       }
 
-      // Delete all items from Firestore
+      // 1. Generate the PDF to a temp cache location
+      const { uri: tempUri } = await Print.printToFileAsync({ html });
+
+      // 2. Save to device — copy to persistent document directory first
+      const timestamp = Date.now();
+      const persistentFile = new File(Paths.document, `einherjar-certificado-${timestamp}.pdf`);
+      const tempFile = new File(tempUri);
+      tempFile.copy(persistentFile, { overwrite: true });
+
+      let savedToMediaLibrary = false;
+
+      // 3. Attempt to save to media library (Downloads on Android)
+      try {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status === 'granted') {
+          await MediaLibrary.Asset.create(persistentFile.uri);
+          savedToMediaLibrary = true;
+        }
+      } catch (mediaError) {
+        console.warn('No se pudo guardar en la galería/downloads:', mediaError);
+      }
+
+      // 4. Delete inventory items from Firestore — file is safely saved
       await clearInventory();
+
+      // 5. Show success state with option to share
+      setSaveResult({ uri: persistentFile.uri, fileType: 'pdf', savedToMediaLibrary });
     } catch (error) {
       console.error('Error al reclamar todo (PDF):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
@@ -198,7 +229,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
     }
   };
 
-  // ─── Option 2: plain-text certificate shared as a .txt file ────────────
+  // ─── Option 2: plain-text certificate — generate, SAVE, then offer share ─
   const runClaimText = async () => {
     if (items.length === 0) return;
     setClaiming(true);
@@ -242,38 +273,62 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
         '',
       ].join('\n');
 
-      // Write the text to a temp file in the cache directory, then share it.
-      const file = new File(Paths.cache, 'einherjar-recompensas.txt');
-      // overwrite: true so repeated claims don't throw on an existing file.
-      if (file.exists) {
-        file.delete();
+      // 1. Write the text to a PERSISTENT file in the document directory
+      const timestamp = Date.now();
+      const persistentFile = new File(Paths.document, `einherjar-recompensas-${timestamp}.txt`);
+      if (persistentFile.exists) {
+        persistentFile.delete();
       }
-      file.create();
-      file.write(text);
+      persistentFile.create();
+      persistentFile.write(text);
 
-      const isSharingAvailable = await Sharing.isAvailableAsync();
-      if (isSharingAvailable) {
-        await Sharing.shareAsync(file.uri, {
-          UTI: '.txt',
-          mimeType: 'text/plain',
-          dialogTitle: 'Certificado de Recompensas',
-        });
-      } else {
-        Alert.alert(
-          'No se puede compartir',
-          'Tu dispositivo no permite compartir archivos. Intenta la opción Descargar PDF.',
-        );
-        return; // don't delete items — nothing was handed out
-      }
-
-      // Delete all items from Firestore
+      // 2. Delete inventory items from Firestore — file is safely saved
       await clearInventory();
+
+      // 3. Show success state with option to share
+      setSaveResult({ uri: persistentFile.uri, fileType: 'txt', savedToMediaLibrary: false });
     } catch (error) {
       console.error('Error al reclamar todo (texto):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
     } finally {
       setClaiming(false);
     }
+  };
+
+  // ─── Share the already-saved file (optional, after saving) ─────────────
+  const handleShareSavedFile = async () => {
+    if (!saveResult) return;
+    setSharing(true);
+    try {
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      if (!isSharingAvailable) {
+        Alert.alert(
+          'No se puede compartir',
+          'Tu dispositivo no permite compartir archivos, pero el archivo ya está guardado en tu dispositivo.',
+        );
+        return;
+      }
+
+      const mimeType = saveResult.fileType === 'pdf' ? 'application/pdf' : 'text/plain';
+      const UTI = saveResult.fileType === 'pdf' ? '.pdf' : '.txt';
+      const dialogTitle = 'Certificado de Recompensas';
+
+      await Sharing.shareAsync(saveResult.uri, { UTI, mimeType, dialogTitle });
+    } catch (error) {
+      console.error('Error al compartir:', error);
+      // File is already saved — just inform the user
+      Alert.alert(
+        'Archivo guardado',
+        'No se pudo abrir el menú de compartir, pero tu archivo ya está guardado en el dispositivo.',
+      );
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  // ─── Close the success modal ───────────────────────────────────────────
+  const handleCloseSuccess = () => {
+    setSaveResult(null);
   };
 
   const renderItem = ({ item, index }: { item: typeof grouped[number]; index: number }) => {
@@ -478,6 +533,60 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
               activeOpacity={0.7}
             >
               <Text style={styles.choiceCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* ─── Success modal: file saved, optional share ─── */}
+      <Modal
+        visible={saveResult !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseSuccess}
+      >
+        <TouchableOpacity
+          style={styles.choiceOverlay}
+          activeOpacity={1}
+          onPress={handleCloseSuccess}
+        >
+          <TouchableOpacity
+            style={styles.choiceCard}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={styles.successIconWrap}>
+              <Ionicons name="checkmark-circle" size={56} color={Colors.primaryGold} />
+            </View>
+
+            <Text style={styles.choiceTitle}>¡Archivo guardado!</Text>
+            <Text style={styles.choiceSubtitle}>
+              {saveResult?.savedToMediaLibrary
+                ? 'Tu certificado se guardó en tu dispositivo (Descargas).'
+                : 'Tu certificado se guardó en el almacenamiento de la app.'}
+            </Text>
+            <Text style={styles.successFileType}>
+              {saveResult?.fileType === 'pdf' ? 'Documento PDF' : 'Archivo de texto (.txt)'}
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.claimAllBtn, sharing && styles.claimAllBtnDisabled, styles.successShareBtn]}
+              onPress={handleShareSavedFile}
+              disabled={sharing}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="share-outline" size={18} color={Colors.bgDarker} />
+              <Text style={styles.claimAllBtnText}>
+                {sharing ? 'COMPARTIENDO...' : 'COMPARTIR'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.choiceCancelBtn}
+              onPress={handleCloseSuccess}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.choiceCancelText}>Listo</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -751,5 +860,22 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodyBold,
     fontSize: 14,
     letterSpacing: 1,
+  },
+  // ─── Success modal ───
+  successIconWrap: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  successFileType: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    letterSpacing: 0.5,
+  },
+  successShareBtn: {
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
 });
