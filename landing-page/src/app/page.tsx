@@ -237,7 +237,7 @@ export default function Home() {
             </motion.a>
 
             <p className="text-xs text-muted-foreground mt-3">
-              v1.1.2 • Android 8.0+
+              v1.1.3 • Android 8.0+
             </p>
           </motion.div>
 
