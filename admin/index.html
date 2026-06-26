@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Einherjar Blitz</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* ─── Login ─── */
+    #loginScreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .login-card {
+      background: rgba(20,20,30,0.95);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 16px;
+      padding: 40px;
+      width: 360px;
+      text-align: center;
+    }
+    .login-card h1 {
+      color: #d4af37;
+      font-size: 22px;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .login-card p {
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .login-card input {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+    .login-card input:focus { border-color: #d4af37; }
+    .login-card button {
+      width: 100%;
+      padding: 12px;
+      background: #d4af37;
+      border: none;
+      border-radius: 8px;
+      color: #0a0a0f;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .login-card button:hover { background: #c9a930; }
+    .login-card button:disabled { opacity: 0.5; cursor: default; }
+    #loginError {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ─── Dashboard ─── */
+    #dashboard { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .header h1 {
+      color: #d4af37;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header .user-info span { color: #888; font-size: 13px; }
+    .btn-logout {
+      padding: 8px 16px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px;
+      color: #ef4444;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-logout:hover { background: rgba(239,68,68,0.25); }
+
+    /* ─── Stats ─── */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      flex: 1;
+      background: rgba(20,20,30,0.8);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-card .label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-card .value { color: #d4af37; font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+    /* ─── Search ─── */
+    .search-bar {
+      margin-bottom: 20px;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .search-bar input:focus { border-color: #d4af37; }
+
+    /* ─── Users table ─── */
+    .table-wrap {
+      background: rgba(20,20,30,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      color: #888;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.2);
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 14px;
+    }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    .user-email { color: #ccc; }
+    .user-uid { color: #555; font-size: 11px; font-family: monospace; }
+
+    /* ─── Editable fields ─── */
+    .edit-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .edit-cell input {
+      width: 70px;
+      padding: 6px 10px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #d4af37;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+    }
+    .edit-cell input:focus { border-color: #d4af37; }
+    .btn-save {
+      padding: 6px 12px;
+      background: rgba(34,197,94,0.15);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 6px;
+      color: #22c55e;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-save:hover { background: rgba(34,197,94,0.25); }
+    .btn-save:disabled { opacity: 0.4; }
+
+    /* ─── Add buttons ─── */
+    .btn-add {
+      padding: 4px 10px;
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 6px;
+      color: #d4af37;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-add:hover { background: rgba(212,175,55,0.2); }
+
+    /* ─── Loading ─── */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #888;
+    }
+    .spinner {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(212,175,55,0.2);
+      border-top-color: #d4af37;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Toast ─── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: rgba(34,197,94,0.9); color: #fff; }
+    #toast.error { background: rgba(239,68,68,0.9); color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Login Screen ─── -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <h1>EINHERJAR BLITZ</h1>
+      <p>Panel de Administración</p>
+      <input type="email" id="adminEmail" placeholder="admin@einherjarblitz.com" autocomplete="email">
+      <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="current-password">
+      <button id="btnLogin" onclick="handleLogin()">ACCEDER</button>
+      <div id="loginError">Credenciales incorrectas o cuenta sin permisos.</div>
+    </div>
+  </div>
+
+  <!-- ─── Dashboard ─── -->
+  <div id="dashboard">
+    <div class="header">
+      <h1>Panel Admin — Einherjar Blitz</h1>
+      <div class="user-info">
+        <span id="adminEmailDisplay"></span>
+        <button class="btn-logout" onclick="handleLogout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">Usuarios</div>
+        <div class="value" id="statUsers">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Llaves totales</div>
+        <div class="value" id="statKeys">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Esferas totales</div>
+        <div class="value" id="statSpheres">—</div>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Buscar por email o nombre de usuario..." oninput="filterUsers()">
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Llaves</th>
+            <th>Esferas</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- Firebase SDK (v10 compat for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ─── Firebase config (same as mobile app) ───
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmGqQpW7omn9C_3Ar2BD-wSuZ7GcniJmM",
+      authDomain: "einherjer-blitz-7578c.firebaseapp.com",
+      projectId: "einherjer-blitz-7578c",
+      storageBucket: "einherjer-blitz-7578c.firebasestorage.app",
+      messagingSenderId: "618656654443",
+      appId: "1:618656654443:web:28c22d53770def13f8bd2e",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const ADMIN_EMAIL = 'admin@einherjarblitz.com';
+    let allUsers = [];
+    let unsubscribe = null;
+
+    // ─── Auth state ───
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        if (user.email === ADMIN_EMAIL) {
+          showDashboard(user);
+        } else {
+          // Not admin — sign out
+          auth.signOut();
+          showError('Esta cuenta no tiene permisos de administrador.');
+        }
+      } else {
+        showLogin();
+      }
+    });
+
+    // ─── Login ───
+    function handleLogin() {
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const btn = document.getElementById('btnLogin');
+      const err = document.getElementById('loginError');
+
+      if (!email || !password) return;
+
+      btn.disabled = true;
+      btn.textContent = 'ACCEDIENDO...';
+      err.style.display = 'none';
+
+      auth.signInWithEmailAndPassword(email, password)
+        .catch((e) => {
+          err.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'ACCEDER';
+        });
+    }
+
+    function handleLogout() {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      auth.signOut();
+    }
+
+    function showLogin() {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+      const btn = document.getElementById('btnLogin');
+      btn.disabled = false;
+      btn.textContent = 'ACCEDER';
+    }
+
+    function showError(msg) {
+      const err = document.getElementById('loginError');
+      err.textContent = msg;
+      err.style.display = 'block';
+    }
+
+    function showDashboard(user) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('adminEmailDisplay').textContent = user.email;
+      loadUsers();
+    }
+
+    // ─── Load users from Firestore ───
+    function loadUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '<tr><td colspan="5"><div class="loading"><div class="spinner"></div><p style="margin-top:12px">Cargando usuarios...</p></div></td></tr>';
+
+      unsubscribe = db.collection('users').onSnapshot((snapshot) => {
+        allUsers = [];
+        let totalKeys = 0;
+        let totalSpheres = 0;
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          allUsers.push({
+            uid: doc.id,
+            username: data.username || 'Sin nombre',
+            email: data.email || '—',
+            keys: data.keys || 0,
+            spheres: data.spheres || 0,
+            nivel: data.nivel || 1,
+            copas: data.copas || 0,
+          });
+          totalKeys += data.keys || 0;
+          totalSpheres += data.spheres || 0;
+        });
+
+        // Sort by username
+        allUsers.sort((a, b) => (a.username || '').localeCompare(b.username || ''));
+
+        document.getElementById('statUsers').textContent = allUsers.length;
+        document.getElementById('statKeys').textContent = totalKeys.toLocaleString();
+        document.getElementById('statSpheres').textContent = totalSpheres.toLocaleString();
+
+        renderUsers(allUsers);
+      }, (err) => {
+        console.error('Error loading users:', err);
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:#ef4444">Error al cargar usuarios. Verifica los permisos.</td></tr>';
+      });
+    }
+
+    // ─── Render user rows ───
+    function renderUsers(users) {
+      const tbody = document.getElementById('usersTableBody');
+
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:#888">No se encontraron usuarios.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = users.map((u) => `
+        <tr data-uid="${u.uid}">
+          <td>
+            <div style="color:#e0e0e0;font-weight:600">${escapeHtml(u.username)}</div>
+            <div class="user-uid">${u.uid}</div>
+          </td>
+          <td class="user-email">${escapeHtml(u.email)}</td>
+          <td>
+            <div class="edit-cell">
+              <input type="number" id="keys-${u.uid}" value="${u.keys}" min="0">
+              <button class="btn-add" onclick="adjustField('${u.uid}', 'keys', 10)">+10</button>
+              <button class="btn-add" onclick="adjustField('${u.uid}', 'keys', 100)">+100</button>
+            </div>
+          </td>
+          <td>
+            <div class="edit-cell">
+              <input type="number" id="spheres-${u.uid}" value="${u.spheres}" min="0">
+              <button class="btn-add" onclick="adjustField('${u.uid}', 'spheres', 100)">+100</button>
+              <button class="btn-add" onclick="adjustField('${u.uid}', 'spheres', 1000)">+1K</button>
+            </div>
+          </td>
+          <td>
+            <button class="btn-save" onclick="saveUser('${u.uid}')">Guardar</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ─── Filter users ───
+    function filterUsers() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      if (!query) {
+        renderUsers(allUsers);
+        return;
+      }
+      const filtered = allUsers.filter((u) =>
+        (u.email || '').toLowerCase().includes(query) ||
+        (u.username || '').toLowerCase().includes(query) ||
+        (u.uid || '').toLowerCase().includes(query)
+      );
+      renderUsers(filtered);
+    }
+
+    // ─── Adjust field (add to current value) ───
+    function adjustField(uid, field, amount) {
+      const input = document.getElementById(`${field}-${uid}`);
+      const current = parseInt(input.value) || 0;
+      input.value = current + amount;
+    }
+
+    // ─── Save user ───
+    async function saveUser(uid) {
+      const keys = parseInt(document.getElementById(`keys-${uid}`).value) || 0;
+      const spheres = parseInt(document.getElementById(`spheres-${uid}`).value) || 0;
+
+      if (keys < 0 || spheres < 0) {
+        showToast('Los valores no pueden ser negativos.', 'error');
+        return;
+      }
+
+      try {
+        await db.collection('users').doc(uid).update({
+          keys: keys,
+          spheres: spheres,
+        });
+        showToast(`Usuario actualizado: ${keys} llaves, ${spheres} esferas.`, 'success');
+      } catch (err) {
+        console.error('Save error:', err);
+        showToast('Error al guardar: ' + err.message, 'error');
+      }
+    }
+
+    // ─── Toast ───
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ─── Utils ───
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Enter key triggers login
+    document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+    document.getElementById('adminEmail').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('adminPassword').focus();
+    });
+  </script>
+</body>
+</html>

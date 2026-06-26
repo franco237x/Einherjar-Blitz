@@ -9,6 +9,11 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+    // Admin account can read/write any user document
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email == 'admin@einherjarblitz.com';
+    }
 
     // Rarity & type whitelists for inventory items
     function validRarity(r) {
@@ -24,7 +29,7 @@ service cloud.firestore {
     // from the client by design (no Cloud Functions). This is a known trade-off
     // accepted for this phase. Tighten with Cloud Functions later if needed.
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isOwner(userId) || isAdmin();
     }
 
     // ─── Inventory (gacha rewards) ─────────────────────────────────────
