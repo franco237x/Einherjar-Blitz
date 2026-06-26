@@ -8,6 +8,22 @@ export default function Noticias() {
   const news = [
     {
       id: 1,
+      title: "Actualización v1.1.3 - Foto de Perfil, Transferencias y Conversión",
+      date: "26 de Junio, 2026",
+      type: "Parche",
+      content: "Gran actualización de funcionalidades. Ahora puedes personalizar tu foto de perfil subiendo una imagen desde tu galería. Implementamos el sistema de transferencia de llaves entre jugadores por email. Agregamos la conversión de llaves a esferas (1 llave = 50 esferas). También mejoramos el sistema de reclamo de recompensas: los archivos PDF y TXT ahora se guardan directamente en tu dispositivo, y sincronizamos en tiempo real las llaves y esferas entre todas las pestañas de la app.",
+      icon: <GitCommit className="w-5 h-5" />,
+    },
+    {
+      id: 2,
+      title: "Panel de Administración Remota",
+      date: "26 de Junio, 2026",
+      type: "Anuncio",
+      content: "Hemos implementado un panel web de administración que nos permite gestionar las llaves y esferas de los jugadores de forma remota. Esto nos ayuda a dar soporte rápido a la comunidad y realizar ajustes de balance sin necesidad de actualizar la app.",
+      icon: <Calendar className="w-5 h-5" />,
+    },
+    {
+      id: 3,
       title: "¡Lanzamiento Oficial de Einherjar Blitz!",
       date: "25 de Junio, 2026",
       type: "Anuncio",
@@ -15,7 +31,7 @@ export default function Noticias() {
       icon: <Calendar className="w-5 h-5" />,
     },
     {
-      id: 2,
+      id: 4,
       title: "Actualización v1.1.2 - Mejoras en Interfaz y Recompensas",
       date: "25 de Junio, 2026",
       type: "Parche",
@@ -23,7 +39,7 @@ export default function Noticias() {
       icon: <GitCommit className="w-5 h-5" />,
     },
     {
-      id: 3,
+      id: 5,
       title: "Actualización v1.1.0 - Autenticación Nativa con Google",
       date: "Reciente",
       type: "Parche",
