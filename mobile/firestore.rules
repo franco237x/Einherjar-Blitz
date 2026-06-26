@@ -30,6 +30,15 @@ service cloud.firestore {
     // accepted for this phase. Tighten with Cloud Functions later if needed.
     match /users/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
+
+      // Allow any signed-in user to INCREMENT the keys field on another user's
+      // document (for receiving key transfers). Only the keys field may change
+      // and it must be an increase (recipient gains keys).
+      allow update: if isSignedIn()
+        && !isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys() == ['keys']
+        && request.resource.data.keys is int
+        && request.resource.data.keys > resource.data.keys;
     }
 
     // ─── Inventory (gacha rewards) ─────────────────────────────────────

@@ -24,6 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { File, Paths } from 'expo-file-system';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
@@ -56,6 +57,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
   const { items, grouped, loading, count } = useInventory();
   const [filter, setFilter] = useState<RarityKey | 'all'>('all');
   const [claiming, setClaiming] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
 
   const filtered = useMemo(() => {
     const list = [...grouped].sort((a, b) => {
@@ -76,7 +78,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
     return map;
   }, [grouped]);
 
-  // ─── Claim all: generate PDF with everything → delete all from Firestore ─
+  // ─── Claim all: open a choice modal so the user picks PDF or plain text ──
   const handleClaimAll = async () => {
     const uid = auth.currentUser?.uid;
     if (!uid) {
@@ -85,7 +87,34 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
     }
     if (items.length === 0) return;
 
+    // On web there's no file-system/sharing, so go straight to the PDF flow.
+    if (Platform.OS === 'web') {
+      await runClaimPdf();
+      return;
+    }
+
+    const isSharingAvailable = await Sharing.isAvailableAsync();
+    if (!isSharingAvailable) {
+      // No sharing at all → fall back to the only option that works (PDF).
+      await runClaimPdf();
+      return;
+    }
+
+    setShowClaimModal(true);
+  };
+
+  // Delete every item from Firestore once the reward has been handed out.
+  const clearInventory = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    await Promise.all(items.map((item) => deleteInventoryItem(uid, item.id)));
+  };
+
+  // ─── Option 1: existing PDF flow (kept as-is) ──────────────────────────
+  const runClaimPdf = async () => {
+    if (items.length === 0) return;
     setClaiming(true);
+    setShowClaimModal(false);
     try {
       const dateStr = new Date().toLocaleString('es-ES', {
         day: '2-digit',
@@ -160,9 +189,87 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       }
 
       // Delete all items from Firestore
-      await Promise.all(items.map((item) => deleteInventoryItem(uid, item.id)));
+      await clearInventory();
     } catch (error) {
-      console.error('Error al reclamar todo:', error);
+      console.error('Error al reclamar todo (PDF):', error);
+      Alert.alert('Error', 'No se pudo completar la reclamación.');
+    } finally {
+      setClaiming(false);
+    }
+  };
+
+  // ─── Option 2: plain-text certificate shared as a .txt file ────────────
+  const runClaimText = async () => {
+    if (items.length === 0) return;
+    setClaiming(true);
+    setShowClaimModal(false);
+    try {
+      const dateStr = new Date().toLocaleString('es-ES', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      const line = '═'.repeat(31);
+      const divider = '─'.repeat(31);
+
+      const itemLines = items.map((item, idx) => {
+        const rarity = RARITIES[item.rarity];
+        const stars = '★'.repeat(rarity.stars);
+        const obtained = item.obtainedAt
+          ? item.obtainedAt.toLocaleDateString('es-ES')
+          : 'N/A';
+        return `${idx + 1}. ${item.name} — ${item.type} — ${rarity.label} ${stars}\n   Obtenido: ${obtained}`;
+      }).join('\n\n');
+
+      const text = [
+        line,
+        '   EINHERJAR BLITZ',
+        '   Certificado de Recompensas',
+        line,
+        '',
+        `Reclamado el: ${dateStr}`,
+        `Total de objetos: ${items.length}`,
+        '',
+        divider,
+        itemLines,
+        divider,
+        '',
+        'Este certificado confirma la reclamación',
+        'de todas las recompensas en Einherjar Blitz.',
+        '',
+      ].join('\n');
+
+      // Write the text to a temp file in the cache directory, then share it.
+      const file = new File(Paths.cache, 'einherjar-recompensas.txt');
+      // overwrite: true so repeated claims don't throw on an existing file.
+      if (file.exists) {
+        file.delete();
+      }
+      file.create();
+      file.write(text);
+
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      if (isSharingAvailable) {
+        await Sharing.shareAsync(file.uri, {
+          UTI: '.txt',
+          mimeType: 'text/plain',
+          dialogTitle: 'Certificado de Recompensas',
+        });
+      } else {
+        Alert.alert(
+          'No se puede compartir',
+          'Tu dispositivo no permite compartir archivos. Intenta la opción Descargar PDF.',
+        );
+        return; // don't delete items — nothing was handed out
+      }
+
+      // Delete all items from Firestore
+      await clearInventory();
+    } catch (error) {
+      console.error('Error al reclamar todo (texto):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
     } finally {
       setClaiming(false);
@@ -306,6 +413,75 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
           </View>
         )}
       </View>
+
+      {/* ─── Claim choice modal: PDF or plain text ─── */}
+      <Modal
+        visible={showClaimModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowClaimModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.choiceOverlay}
+          activeOpacity={1}
+          onPress={() => setShowClaimModal(false)}
+        >
+          <TouchableOpacity
+            style={styles.choiceCard}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text style={styles.choiceTitle}>Reclamar recompensas</Text>
+            <Text style={styles.choiceSubtitle}>
+              Elige cómo quieres recibir tu certificado
+            </Text>
+
+            <TouchableOpacity
+              style={styles.choiceOption}
+              onPress={runClaimPdf}
+              activeOpacity={0.7}
+            >
+              <View style={styles.choiceIconWrap}>
+                <Ionicons name="document-text-outline" size={24} color={Colors.primaryGold} />
+              </View>
+              <View style={styles.choiceTextWrap}>
+                <Text style={styles.choiceOptionTitle}>Descargar PDF</Text>
+                <Text style={styles.choiceOptionDesc}>
+                  Documento con tabla de recompensas
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+            </TouchableOpacity>
+
+            <View style={styles.choiceDivider} />
+
+            <TouchableOpacity
+              style={styles.choiceOption}
+              onPress={runClaimText}
+              activeOpacity={0.7}
+            >
+              <View style={styles.choiceIconWrap}>
+                <Ionicons name="share-outline" size={24} color={Colors.primaryGold} />
+              </View>
+              <View style={styles.choiceTextWrap}>
+                <Text style={styles.choiceOptionTitle}>Compartir texto</Text>
+                <Text style={styles.choiceOptionDesc}>
+                  Resumen en texto plano, compatible con cualquier dispositivo
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.choiceCancelBtn}
+              onPress={() => setShowClaimModal(false)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.choiceCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </Modal>
   );
 };
@@ -494,5 +670,86 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodyBold,
     fontSize: 15,
     letterSpacing: 2,
+  },
+  // ─── Claim choice modal ───
+  choiceOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    justifyContent: 'flex-end',
+  },
+  choiceCard: {
+    backgroundColor: Colors.bgCard,
+    borderTopLeftRadius: Radius.md,
+    borderTopRightRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    borderBottomWidth: 0,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xl,
+  },
+  choiceTitle: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.title,
+    fontSize: 20,
+    letterSpacing: 1,
+    textAlign: 'center',
+  },
+  choiceSubtitle: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: Spacing.lg,
+  },
+  choiceOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+  },
+  choiceIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(201,170,113,0.12)',
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  choiceTextWrap: {
+    flex: 1,
+  },
+  choiceOptionTitle: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+  },
+  choiceOptionDesc: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  choiceDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    marginVertical: Spacing.xs,
+  },
+  choiceCancelBtn: {
+    marginTop: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+  },
+  choiceCancelText: {
+    color: Colors.textSecondary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 14,
+    letterSpacing: 1,
   },
 });

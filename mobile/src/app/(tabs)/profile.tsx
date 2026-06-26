@@ -6,9 +6,11 @@ import { GlassCard } from '@/components/GlassCard';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { auth, db } from '@/config/firebase';
+import { auth, db, storage } from '@/config/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { MiniLoader } from '@/components/MiniLoader';
 
@@ -34,6 +36,7 @@ export default function ProfileScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   
   // Forms
@@ -82,6 +85,39 @@ export default function ProfileScreen() {
     }
   };
 
+  const handlePickAvatar = async () => {
+    if (!auth.currentUser) return;
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      console.warn('Gallery permission not granted');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (result.canceled || !result.assets || result.assets.length === 0) return;
+
+    const uri = result.assets[0].uri;
+    setUploadingAvatar(true);
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `avatars/${auth.currentUser.uid}/profile.jpg`);
+      await uploadBytes(storageRef, blob);
+      const downloadUrl = await getDownloadURL(storageRef);
+      const docRef = doc(db, 'users', auth.currentUser.uid);
+      await updateDoc(docRef, { avatar: downloadUrl });
+      setUserData((prev: any) => ({ ...prev, avatar: downloadUrl }));
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -115,13 +151,25 @@ export default function ProfileScreen() {
           <GlassCard style={styles.headerCard}>
             <View style={styles.headerContent}>
               <View style={styles.avatarWrapper}>
-                {userData?.avatar ? (
+                {uploadingAvatar ? (
+                  <View style={styles.avatar}>
+                    <MiniLoader />
+                  </View>
+                ) : userData?.avatar ? (
                   <Image source={{ uri: userData.avatar }} style={styles.avatar} />
                 ) : (
                   <View style={styles.avatarPlaceholder}>
                     <Ionicons name="person" size={50} color={Colors.primaryGold} />
                   </View>
                 )}
+                <TouchableOpacity
+                  style={styles.cameraBtn}
+                  onPress={handlePickAvatar}
+                  disabled={uploadingAvatar}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="camera" size={16} color={Colors.bgDarker} />
+                </TouchableOpacity>
                 <View style={styles.levelBadge}>
                   <Text style={styles.levelBadgeText}>{userData?.nivel || 1}</Text>
                 </View>
@@ -265,8 +313,8 @@ const styles = StyleSheet.create({
   },
   levelBadge: {
     position: 'absolute',
-    bottom: 0,
-    right: -5,
+    top: -2,
+    left: -5,
     backgroundColor: Colors.primaryGold,
     borderWidth: 2,
     borderColor: Colors.bgDarker,
@@ -285,6 +333,25 @@ const styles = StyleSheet.create({
     color: Colors.bgDarker,
     fontFamily: Fonts.bodyBold,
     fontSize: 14,
+  },
+  cameraBtn: {
+    position: 'absolute',
+    bottom: 2,
+    right: -2,
+    backgroundColor: Colors.primaryGold,
+    borderWidth: 2,
+    borderColor: Colors.bgDarker,
+    borderRadius: 18,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: Colors.glowGold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 5,
+    elevation: 4,
+    zIndex: 3,
   },
   headerName: {
     color: Colors.textPrimary,
