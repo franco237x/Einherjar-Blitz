@@ -229,8 +229,7 @@ export default function Home() {
             <motion.a
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              href="/einherjar-blitz-latest.apk"
-              download="Einherjar_Blitz_Latest.apk"
+              href="https://github.com/franco237x/Einherjar-Blitz/releases/latest/download/Einherjar_Blitz_Latest.apk"
               className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-7 py-3.5 rounded-full font-bold text-base shadow-[0_0_24px_rgba(201,170,113,0.45)] hover:shadow-[0_0_32px_rgba(201,170,113,0.65)] transition-all"
             >
               <Download className="w-5 h-5" />
@@ -425,8 +424,7 @@ export default function Home() {
             <motion.a
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              href="/einherjar-blitz-latest.apk"
-              download="Einherjar_Blitz_Latest.apk"
+              href="https://github.com/franco237x/Einherjar-Blitz/releases/latest/download/Einherjar_Blitz_Latest.apk"
               className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_30px_rgba(201,170,113,0.5)] hover:shadow-[0_0_40px_rgba(201,170,113,0.7)] transition-all"
             >
               <Download className="w-6 h-6" />
