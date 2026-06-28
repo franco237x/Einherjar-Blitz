@@ -7,28 +7,20 @@
  * records, ensuring the user never loses their certificate.
  */
 
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { File, Paths } from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import type { PurchaseRecord } from '@/constants/storeData';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-/** Save a file URI to the device's Downloads / media library (Android). */
-async function saveToDownloads(fileUri: string): Promise<boolean> {
-  try {
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status === 'granted') {
-      await MediaLibrary.Asset.create(fileUri);
-      return true;
-    }
-    return false;
-  } catch (e) {
-    console.warn('saveToDownloads failed:', e);
-    return false;
-  }
+/**
+ * MediaLibrary doesn't work for PDF/TXT documents (it's designed for
+ * photos/videos). The share sheet is now the primary delivery method.
+ */
+async function saveToDownloads(_fileUri: string): Promise<boolean> {
+  return false;
 }
 
 /** Offer the native share sheet for an already-saved file. */
@@ -137,20 +129,22 @@ export async function claimPurchasePDF(
     // 1. Generate PDF to temp cache
     const { uri: tempUri } = await Print.printToFileAsync({ html });
 
-    // 2. Copy to persistent app document directory
+    // 2. Copy to persistent app document directory (backup)
     const timestamp = Date.now();
     const persistentFile = new File(Paths.document, `einherjar-compra-${timestamp}.pdf`);
     const tempFile = new File(tempUri);
     tempFile.copy(persistentFile, { overwrite: true });
 
-    // 3. Save to Downloads (Android) — direct, no folder picker
-    const savedToDownloads = await saveToDownloads(persistentFile.uri);
-
-    // 4. Offer share sheet (optional — file is already saved)
+    // 3. Offer share sheet — this is the primary delivery method.
+    //    The user can save to Downloads/Files, send via WhatsApp, etc.
     await offerShare(
       persistentFile.uri,
       `Certificado de compra: ${purchase.productName}`
     );
+
+    // saveToDownloads is a no-op now (MediaLibrary doesn't work for PDFs);
+    // the share sheet above is how the user saves the file.
+    const savedToDownloads = await saveToDownloads(persistentFile.uri);
 
     return { uri: persistentFile.uri, savedToDownloads };
   } catch (error) {
@@ -247,20 +241,22 @@ export async function claimAllPurchasesPDF(
     // 1. Generate PDF to temp cache
     const { uri: tempUri } = await Print.printToFileAsync({ html });
 
-    // 2. Copy to persistent app document directory
+    // 2. Copy to persistent app document directory (backup)
     const timestamp = Date.now();
     const persistentFile = new File(Paths.document, `einherjar-compras-${timestamp}.pdf`);
     const tempFile = new File(tempUri);
     tempFile.copy(persistentFile, { overwrite: true });
 
-    // 3. Save to Downloads (Android)
-    const savedToDownloads = await saveToDownloads(persistentFile.uri);
-
-    // 4. Offer share sheet
+    // 3. Offer share sheet — this is the primary delivery method.
+    //    The user can save to Downloads/Files, send via WhatsApp, etc.
     await offerShare(
       persistentFile.uri,
       `Certificado de compras (${purchases.length} productos)`
     );
+
+    // saveToDownloads is a no-op now (MediaLibrary doesn't work for PDFs);
+    // the share sheet above is how the user saves the file.
+    const savedToDownloads = await saveToDownloads(persistentFile.uri);
 
     return { uri: persistentFile.uri, savedToDownloads };
   } catch (error) {
