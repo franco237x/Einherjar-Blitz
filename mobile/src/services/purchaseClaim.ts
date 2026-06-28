@@ -1,23 +1,61 @@
 /**
- * PurchaseClaim — Generates a PDF certificate for a store purchase
- * and shares it natively (iOS/Android share sheet).
+ * PurchaseClaim — Generates a PDF certificate for a store purchase,
+ * SAVES it to the device (Downloads on Android, app documents on iOS),
+ * and then offers the native share sheet.
  *
- * Uses expo-print to render HTML → PDF, expo-sharing to present the
- * native share sheet (WhatsApp, email, save to files, etc.).
- *
- * On web, falls back to opening the print dialog.
+ * The file is always saved locally BEFORE the caller deletes Firestore
+ * records, ensuring the user never loses their certificate.
  */
 
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { File, Paths } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import type { PurchaseRecord } from '@/constants/storeData';
 
+// ─── Helpers ──────────────────────────────────────────────────────────────
+
+/** Save a file URI to the device's Downloads / media library (Android). */
+async function saveToDownloads(fileUri: string): Promise<boolean> {
+  try {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status === 'granted') {
+      await MediaLibrary.Asset.create(fileUri);
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.warn('saveToDownloads failed:', e);
+    return false;
+  }
+}
+
+/** Offer the native share sheet for an already-saved file. */
+async function offerShare(uri: string, dialogTitle: string): Promise<void> {
+  try {
+    const canShare = await Sharing.isAvailableAsync();
+    if (canShare) {
+      await Sharing.shareAsync(uri, {
+        UTI: '.pdf',
+        mimeType: 'application/pdf',
+        dialogTitle,
+      });
+    }
+  } catch {
+    // User cancelled or share failed — file is already saved, no problem.
+  }
+}
+
+// ─── Single purchase certificate ──────────────────────────────────────────
+
 /**
- * Generate a PDF certificate for a single purchase and open the share sheet.
- * Returns true if the share was successful.
+ * Generate a PDF certificate for a single purchase.
+ * Returns an object with the saved file URI and whether it was saved to Downloads.
  */
-export async function claimPurchasePDF(purchase: PurchaseRecord): Promise<boolean> {
+export async function claimPurchasePDF(
+  purchase: PurchaseRecord
+): Promise<{ uri: string; savedToDownloads: boolean }> {
   const dateStr = new Date().toLocaleString('es-ES', {
     day: '2-digit',
     month: 'long',
@@ -93,35 +131,44 @@ export async function claimPurchasePDF(purchase: PurchaseRecord): Promise<boolea
   try {
     if (Platform.OS === 'web') {
       await Print.printAsync({ html });
-      return true;
+      return { uri: '', savedToDownloads: false };
     }
 
-    const { uri } = await Print.printToFileAsync({ html });
-    const isSharingAvailable = await Sharing.isAvailableAsync();
-    if (isSharingAvailable) {
-      await Sharing.shareAsync(uri, {
-        UTI: '.pdf',
-        mimeType: 'application/pdf',
-        dialogTitle: `Certificado de compra: ${purchase.productName}`,
-      });
-      return true;
-    }
-    // Fallback: print dialog
-    await Print.printAsync({ html });
-    return true;
+    // 1. Generate PDF to temp cache
+    const { uri: tempUri } = await Print.printToFileAsync({ html });
+
+    // 2. Copy to persistent app document directory
+    const timestamp = Date.now();
+    const persistentFile = new File(Paths.document, `einherjar-compra-${timestamp}.pdf`);
+    const tempFile = new File(tempUri);
+    tempFile.copy(persistentFile, { overwrite: true });
+
+    // 3. Save to Downloads (Android) — direct, no folder picker
+    const savedToDownloads = await saveToDownloads(persistentFile.uri);
+
+    // 4. Offer share sheet (optional — file is already saved)
+    await offerShare(
+      persistentFile.uri,
+      `Certificado de compra: ${purchase.productName}`
+    );
+
+    return { uri: persistentFile.uri, savedToDownloads };
   } catch (error) {
     console.error('Error generating purchase PDF:', error);
     throw error;
   }
 }
 
+// ─── Bulk purchase certificate ────────────────────────────────────────────
+
 /**
  * Generate a single PDF with ALL purchases (bulk claim certificate).
+ * Returns an object with the saved file URI and whether it was saved to Downloads.
  */
 export async function claimAllPurchasesPDF(
   purchases: PurchaseRecord[]
-): Promise<boolean> {
-  if (purchases.length === 0) return false;
+): Promise<{ uri: string; savedToDownloads: boolean }> {
+  if (purchases.length === 0) return { uri: '', savedToDownloads: false };
 
   const dateStr = new Date().toLocaleString('es-ES', {
     day: '2-digit',
@@ -131,11 +178,12 @@ export async function claimAllPurchasesPDF(
     minute: '2-digit',
   });
 
-  const rowsHtml = purchases.map((p, i) => {
-    const purchaseDate = p.purchasedAt
-      ? p.purchasedAt.toLocaleDateString('es-ES')
-      : 'N/A';
-    return `
+  const rowsHtml = purchases
+    .map((p, i) => {
+      const purchaseDate = p.purchasedAt
+        ? p.purchasedAt.toLocaleDateString('es-ES')
+        : 'N/A';
+      return `
       <tr>
         <td>${i + 1}</td>
         <td>${p.productName}</td>
@@ -143,7 +191,8 @@ export async function claimAllPurchasesPDF(
         <td>${purchaseDate}</td>
       </tr>
     `;
-  }).join('');
+    })
+    .join('');
 
   const totalEsferas = purchases.reduce((sum, p) => sum + p.price, 0);
 
@@ -192,21 +241,28 @@ export async function claimAllPurchasesPDF(
   try {
     if (Platform.OS === 'web') {
       await Print.printAsync({ html });
-      return true;
+      return { uri: '', savedToDownloads: false };
     }
 
-    const { uri } = await Print.printToFileAsync({ html });
-    const isSharingAvailable = await Sharing.isAvailableAsync();
-    if (isSharingAvailable) {
-      await Sharing.shareAsync(uri, {
-        UTI: '.pdf',
-        mimeType: 'application/pdf',
-        dialogTitle: `Certificado de compras (${purchases.length} productos)`,
-      });
-      return true;
-    }
-    await Print.printAsync({ html });
-    return true;
+    // 1. Generate PDF to temp cache
+    const { uri: tempUri } = await Print.printToFileAsync({ html });
+
+    // 2. Copy to persistent app document directory
+    const timestamp = Date.now();
+    const persistentFile = new File(Paths.document, `einherjar-compras-${timestamp}.pdf`);
+    const tempFile = new File(tempUri);
+    tempFile.copy(persistentFile, { overwrite: true });
+
+    // 3. Save to Downloads (Android)
+    const savedToDownloads = await saveToDownloads(persistentFile.uri);
+
+    // 4. Offer share sheet
+    await offerShare(
+      persistentFile.uri,
+      `Certificado de compras (${purchases.length} productos)`
+    );
+
+    return { uri: persistentFile.uri, savedToDownloads };
   } catch (error) {
     console.error('Error generating bulk purchase PDF:', error);
     throw error;

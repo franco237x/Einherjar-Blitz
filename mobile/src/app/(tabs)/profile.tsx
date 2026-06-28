@@ -10,6 +10,7 @@ import { auth, db } from '@/config/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 import { MiniLoader } from '@/components/MiniLoader';
 import { useUserData } from '@/hooks/useUserData';
@@ -82,19 +83,27 @@ export default function ProfileScreen() {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.5,
-      base64: true,
     });
     if (result.canceled || !result.assets || result.assets.length === 0) return;
 
-    const base64 = result.assets[0].base64;
-    if (!base64) {
-      console.warn('No base64 data returned from image picker');
-      return;
-    }
+    const pickedUri = result.assets[0].uri;
 
-    const dataUri = `data:image/jpeg;base64,${base64}`;
     setUploadingAvatar(true);
     try {
+      // Resize to 256x256 and compress to keep base64 small (~10-20KB)
+      // This prevents exceeding Firestore's 1MB document limit.
+      const manipulated = await ImageManipulator.manipulateAsync(
+        pickedUri,
+        [{ resize: { width: 256, height: 256 } }],
+        { compress: 0.3, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+      );
+
+      if (!manipulated.base64) {
+        console.warn('No base64 data returned after manipulation');
+        return;
+      }
+
+      const dataUri = `data:image/jpeg;base64,${manipulated.base64}`;
       const docRef = doc(db, 'users', auth.currentUser.uid);
       await updateDoc(docRef, { avatar: dataUri });
       // onSnapshot in useUserData will auto-refresh the avatar

@@ -13,6 +13,7 @@ import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useUserData } from '@/hooks/useUserData';
+import { TransferModal } from '@/components/TransferModal';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -22,12 +23,6 @@ export default function DashboardScreen() {
   // Modal states
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
-
-  // Transfer states
-  const [transferEmail, setTransferEmail] = useState('');
-  const [transferAmount, setTransferAmount] = useState('');
-  const [transferBusy, setTransferBusy] = useState(false);
-  const [transferMsg, setTransferMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Convert states
   const [convertAmount, setConvertAmount] = useState('1');
@@ -75,78 +70,6 @@ export default function DashboardScreen() {
     };
   };
 
-  const handleTransfer = async () => {
-    setTransferMsg(null);
-    const email = transferEmail.trim().toLowerCase();
-    const amount = parseInt(transferAmount, 10);
-
-    if (!email) {
-      setTransferMsg({ type: 'error', text: 'Ingresa el email del destinatario.' });
-      return;
-    }
-    if (!amount || amount <= 0) {
-      setTransferMsg({ type: 'error', text: 'Ingresa una cantidad válida de llaves.' });
-      return;
-    }
-    const myKeys = userData?.keys || 0;
-    if (amount > myKeys) {
-      setTransferMsg({ type: 'error', text: `No tienes suficientes llaves. Tienes ${myKeys}.` });
-      return;
-    }
-
-    setTransferBusy(true);
-    try {
-      // Look up recipient by email
-      const q = query(collection(db, 'users'), where('email', '==', email));
-      const querySnap = await getDocs(q);
-
-      if (querySnap.empty) {
-        setTransferMsg({ type: 'error', text: 'No se encontró ningún usuario con ese email.' });
-        setTransferBusy(false);
-        return;
-      }
-
-      const recipientDoc = querySnap.docs[0];
-      const recipientId = recipientDoc.id;
-
-      if (recipientId === auth.currentUser?.uid) {
-        setTransferMsg({ type: 'error', text: 'No puedes transferirte llaves a ti mismo.' });
-        setTransferBusy(false);
-        return;
-      }
-
-      const senderRef = doc(db, 'users', auth.currentUser!.uid);
-      const recipientRef = doc(db, 'users', recipientId);
-
-      await runTransaction(db, async (transaction) => {
-        const senderSnap = await transaction.get(senderRef);
-        const recipientSnap = await transaction.get(recipientRef);
-
-        if (!senderSnap.exists() || !recipientSnap.exists()) {
-          throw new Error('Usuario no encontrado.');
-        }
-
-        const senderKeys = senderSnap.data().keys || 0;
-        if (senderKeys < amount) {
-          throw new Error('Saldo insuficiente en el momento de la transacción.');
-        }
-
-        transaction.update(senderRef, { keys: senderKeys - amount });
-        transaction.update(recipientRef, { keys: (recipientSnap.data().keys || 0) + amount });
-      });
-
-      setTransferMsg({ type: 'success', text: `¡Transferiste ${amount} llaves a ${email}!` });
-      setTransferEmail('');
-      setTransferAmount('');
-      // onSnapshot in useUserData will auto-refresh balances
-    } catch (error: any) {
-      console.error('Transfer error:', error);
-      setTransferMsg({ type: 'error', text: error?.message || 'Error al transferir llaves.' });
-    } finally {
-      setTransferBusy(false);
-    }
-  };
-
   const handleConvert = async () => {
     setConvertMsg(null);
     const amount = parseInt(convertAmount, 10);
@@ -192,9 +115,6 @@ export default function DashboardScreen() {
 
   const closeTransferModal = () => {
     setShowTransferModal(false);
-    setTransferEmail('');
-    setTransferAmount('');
-    setTransferMsg(null);
   };
 
   const closeConvertModal = () => {
@@ -394,71 +314,11 @@ export default function DashboardScreen() {
       </Animated.ScrollView>
 
       {/* Transfer Keys Modal */}
-      <Modal
+      <TransferModal
         visible={showTransferModal}
-        transparent
-        animationType="fade"
-        onRequestClose={closeTransferModal}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.modalOverlay}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Transferir Llaves</Text>
-              <TouchableOpacity onPress={closeTransferModal} style={styles.modalCloseBtn}>
-                <Ionicons name="close" size={22} color={Colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalBalanceRow}>
-              <Ionicons name="key-outline" size={18} color={Colors.primaryGold} />
-              <Text style={styles.modalBalanceText}>Tienes {userData?.keys || 0} llaves</Text>
-            </View>
-
-            <Text style={styles.inputLabel}>Email del destinatario</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="guerrero@ejemplo.com"
-              placeholderTextColor={Colors.textMuted}
-              value={transferEmail}
-              onChangeText={setTransferEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            <Text style={styles.inputLabel}>Cantidad de llaves</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="0"
-              placeholderTextColor={Colors.textMuted}
-              value={transferAmount}
-              onChangeText={setTransferAmount}
-              keyboardType="number-pad"
-            />
-
-            {transferMsg && (
-              <Text style={[styles.modalMsg, transferMsg.type === 'error' ? styles.modalMsgError : styles.modalMsgSuccess]}>
-                {transferMsg.text}
-              </Text>
-            )}
-
-            <TouchableOpacity
-              style={[styles.modalBtn, transferBusy && styles.modalBtnDisabled]}
-              onPress={handleTransfer}
-              disabled={transferBusy}
-            >
-              {transferBusy ? (
-                <ActivityIndicator color={Colors.bgDarker} />
-              ) : (
-                <Text style={styles.modalBtnText}>TRANSFERIR</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+        onClose={closeTransferModal}
+        myKeys={userData?.keys || 0}
+      />
 
       {/* Convert Keys to Spheres Modal */}
       <Modal

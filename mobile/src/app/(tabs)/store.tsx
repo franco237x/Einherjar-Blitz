@@ -156,14 +156,20 @@ export default function StoreScreen() {
     setPurchaseInfo({});
   }, []);
 
-  // ─── Claim single purchase as PDF, then delete from Firestore ───────
+  // ─── Claim single purchase as PDF, save to device, then delete from Firestore ──
   const handleClaimOne = useCallback(async (purchase: PurchaseRecord) => {
     if (!uid) return;
     setClaimingId(purchase.id);
     try {
-      await claimPurchasePDF(purchase);
-      // PDF generated & shared successfully → delete from Firestore
+      const result = await claimPurchasePDF(purchase);
+      // PDF saved to device → safe to delete from Firestore
       await deletePurchase(uid, purchase.id);
+      Alert.alert(
+        '¡Certificado guardado!',
+        result.savedToDownloads
+          ? 'Tu certificado se guardó en Descargas.'
+          : 'Tu certificado se guardó en el almacenamiento de la app.'
+      );
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'No se pudo generar el certificado.');
     } finally {
@@ -171,14 +177,20 @@ export default function StoreScreen() {
     }
   }, [uid]);
 
-  // ─── Claim all purchases as PDF, then delete all from Firestore ─────
+  // ─── Claim all purchases as PDF, save to device, then delete all from Firestore ─
   const handleClaimAll = useCallback(async () => {
     if (!uid || purchases.length === 0) return;
     setClaimingAll(true);
     try {
-      await claimAllPurchasesPDF(purchases);
-      // PDF generated & shared successfully → delete all from Firestore
+      const result = await claimAllPurchasesPDF(purchases);
+      // PDF saved to device → safe to delete from Firestore
       await deleteAllPurchases(uid, purchases.map((p) => p.id));
+      Alert.alert(
+        '¡Certificado guardado!',
+        result.savedToDownloads
+          ? `Certificado de ${purchases.length} compras guardado en Descargas.`
+          : `Certificado de ${purchases.length} compras guardado en el almacenamiento de la app.`
+      );
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'No se pudo generar el certificado.');
     } finally {
