@@ -1,7 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, initializeAuth } from 'firebase/auth';
+// getReactNativePersistence is exported from the React Native bundle entry of
+// @firebase/auth (resolved by Metro at runtime), but not from the browser
+// typings that TypeScript sees. Suppress the missing-export type error.
+// @ts-ignore
+import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "API_KEY",
@@ -19,8 +25,10 @@ let auth: any;
 if (Platform.OS === 'web') {
   auth = getAuth(app);
 } else {
-  // Use standard initializeAuth to avoid the getReactNativePersistence crash on this Firebase version
-  auth = initializeAuth(app);
+  // Persist the auth session in AsyncStorage so users stay logged in across app restarts.
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
 }
 
 const db = getFirestore(app);
