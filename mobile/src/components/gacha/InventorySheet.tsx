@@ -24,7 +24,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { File, Paths } from 'expo-file-system';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
@@ -32,6 +31,7 @@ import { deleteInventoryItem } from '@/services/inventory';
 import { auth } from '@/config/firebase';
 import { MiniLoader } from '@/components/MiniLoader';
 import { EmptyState } from '@/components/EmptyState';
+import { savePdfFile, saveTextFile } from '@/services/saveToDownloads';
 
 const NUM_COLUMNS = 2;
 const CARD_GAP = Spacing.md;
@@ -196,17 +196,16 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       // 1. Generate the PDF to a temp cache location
       const { uri: tempUri } = await Print.printToFileAsync({ html });
 
-      // 2. Save to device — copy to persistent document directory first
+      // 2. Save to Downloads (visible to user) via SAF, with share-sheet fallback
       const timestamp = Date.now();
-      const persistentFile = new File(Paths.document, `einherjar-certificado-${timestamp}.pdf`);
-      const tempFile = new File(tempUri);
-      tempFile.copy(persistentFile, { overwrite: true });
+      const fileName = `einherjar-certificado-${timestamp}.pdf`;
+      const result = await savePdfFile(tempUri, fileName);
 
-      // 3. Delete inventory items from Firestore — file is safely saved
+      // 3. Delete inventory items from Firestore — file is handled
       await clearInventory();
 
-      // 4. Show success state with option to share / save to Downloads
-      setSaveResult({ uri: persistentFile.uri, fileType: 'pdf' });
+      // 4. Show success state
+      setSaveResult({ uri: result.uri || tempUri, fileType: 'pdf' });
     } catch (error) {
       console.error('Error al reclamar todo (PDF):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
@@ -259,20 +258,16 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
         '',
       ].join('\n');
 
-      // 1. Write the text to a PERSISTENT file in the document directory
+      // 1. Save to Downloads (visible to user) via SAF, with share-sheet fallback
       const timestamp = Date.now();
-      const persistentFile = new File(Paths.document, `einherjar-recompensas-${timestamp}.txt`);
-      if (persistentFile.exists) {
-        persistentFile.delete();
-      }
-      persistentFile.create();
-      persistentFile.write(text);
+      const fileName = `einherjar-recompensas-${timestamp}.txt`;
+      const result = await saveTextFile(fileName, text);
 
-      // 2. Delete inventory items from Firestore — file is safely saved
+      // 2. Delete inventory items from Firestore — file is handled
       await clearInventory();
 
-      // 3. Show success state with option to share
-      setSaveResult({ uri: persistentFile.uri, fileType: 'txt' });
+      // 3. Show success state
+      setSaveResult({ uri: result.uri || '', fileType: 'txt' });
     } catch (error) {
       console.error('Error al reclamar todo (texto):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
@@ -545,10 +540,11 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
               <Ionicons name="checkmark-circle" size={56} color={Colors.primaryGold} />
             </View>
 
-            <Text style={styles.choiceTitle}>¡Certificado generado!</Text>
+            <Text style={styles.choiceTitle}>¡Certificado guardado!</Text>
             <Text style={styles.choiceSubtitle}>
-              Tu certificado se guardó en la app. Usa Compartir para guardarlo
-              en Descargas, Drive o enviarlo donde quieras.
+              Tu certificado se guardó en la carpeta Descargas de tu dispositivo.
+              Puedes encontrarlo con tu administrador de archivos o usar Compartir
+              para enviarlo.
             </Text>
             <Text style={styles.successFileType}>
               {saveResult?.fileType === 'pdf' ? 'Documento PDF' : 'Archivo de texto (.txt)'}

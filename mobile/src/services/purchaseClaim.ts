@@ -1,43 +1,19 @@
 /**
  * PurchaseClaim — Generates a PDF certificate for a store purchase,
- * saves it to the app's document storage and opens the native share
- * sheet so the user can store it in Files / Downloads / Drive.
+ * saves it to the Downloads directory (Android) or share sheet (iOS).
  *
- * The file is always saved locally BEFORE the caller deletes Firestore
+ * The file is always saved BEFORE the caller deletes Firestore
  * records, ensuring the user never loses their certificate.
  */
 
 import { Platform } from 'react-native';
 import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
-import { File, Paths } from 'expo-file-system';
 import type { PurchaseRecord } from '@/constants/storeData';
+import { savePdfFile } from '@/services/saveToDownloads';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-/**
- * Offer the native share sheet for an already-saved file.
- * Returns true if the share sheet could be opened.
- */
-async function offerShare(uri: string, dialogTitle: string): Promise<boolean> {
-  try {
-    const canShare = await Sharing.isAvailableAsync();
-    if (canShare) {
-      await Sharing.shareAsync(uri, {
-        UTI: 'com.adobe.pdf',
-        mimeType: 'application/pdf',
-        dialogTitle,
-      });
-      return true;
-    }
-    return false;
-  } catch {
-    // User cancelled or share failed — file is already saved, no problem.
-    return false;
-  }
-}
-
-/** Generate the PDF, persist it to the app documents dir and share it. */
+/** Generate the PDF and save it to Downloads (Android) or share sheet (iOS). */
 async function generateAndShare(
   html: string,
   fileName: string,
@@ -51,16 +27,10 @@ async function generateAndShare(
   // 1. Generate PDF to temp cache
   const { uri: tempUri } = await Print.printToFileAsync({ html });
 
-  // 2. Copy to persistent app document directory
-  const persistentFile = new File(Paths.document, fileName);
-  const tempFile = new File(tempUri);
-  tempFile.copy(persistentFile, { overwrite: true });
+  // 2. Save to Downloads via SAF (Android) or share sheet (iOS)
+  const result = await savePdfFile(tempUri, fileName);
 
-  // 3. Open the native share sheet so the user can save it to
-  //    Files / Downloads / Drive or send it anywhere.
-  const shared = await offerShare(persistentFile.uri, dialogTitle);
-
-  return { uri: persistentFile.uri, shared };
+  return { uri: result.uri || tempUri, shared: result.saved };
 }
 
 // ─── Single purchase certificate ──────────────────────────────────────────
