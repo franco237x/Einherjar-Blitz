@@ -31,6 +31,7 @@ import { useInventory } from '@/hooks/useInventory';
 import { deleteInventoryItem } from '@/services/inventory';
 import { auth } from '@/config/firebase';
 import { MiniLoader } from '@/components/MiniLoader';
+import { EmptyState } from '@/components/EmptyState';
 
 const NUM_COLUMNS = 2;
 const CARD_GAP = Spacing.md;
@@ -414,11 +415,11 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
             </View>
           ) : filtered.length === 0 ? (
             <View style={styles.center}>
-              <Ionicons name="cube-outline" size={72} color={Colors.textMuted} />
-              <Text style={styles.emptyTitle}>Inventario vacío</Text>
-              <Text style={styles.emptySubtitle}>
-                Invoca en el Altar para obtener tus primeras recompensas.
-              </Text>
+              <EmptyState
+                icon="cube-outline"
+                title="Inventario vacío"
+                description="Invoca en el Altar para obtener tus primeras recompensas."
+              />
             </View>
           ) : (
             <FlatList
@@ -677,19 +678,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
-  },
-  emptyTitle: {
-    color: Colors.textSecondary,
-    fontFamily: Fonts.title,
-    fontSize: 20,
-    marginTop: Spacing.md,
-  },
-  emptySubtitle: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: Spacing.xs,
   },
   card: {
     flex: 1,
