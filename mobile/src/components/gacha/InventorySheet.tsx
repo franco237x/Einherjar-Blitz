@@ -25,7 +25,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { File, Paths } from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
@@ -64,7 +63,6 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
   const [saveResult, setSaveResult] = useState<{
     uri: string;
     fileType: 'pdf' | 'txt';
-    savedToMediaLibrary: boolean;
   } | null>(null);
   const [sharing, setSharing] = useState(false);
 
@@ -203,24 +201,11 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       const tempFile = new File(tempUri);
       tempFile.copy(persistentFile, { overwrite: true });
 
-      let savedToMediaLibrary = false;
-
-      // 3. Attempt to save to media library (Downloads on Android)
-      try {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === 'granted') {
-          await MediaLibrary.Asset.create(persistentFile.uri);
-          savedToMediaLibrary = true;
-        }
-      } catch (mediaError) {
-        console.warn('No se pudo guardar en la galería/downloads:', mediaError);
-      }
-
-      // 4. Delete inventory items from Firestore — file is safely saved
+      // 3. Delete inventory items from Firestore — file is safely saved
       await clearInventory();
 
-      // 5. Show success state with option to share
-      setSaveResult({ uri: persistentFile.uri, fileType: 'pdf', savedToMediaLibrary });
+      // 4. Show success state with option to share / save to Downloads
+      setSaveResult({ uri: persistentFile.uri, fileType: 'pdf' });
     } catch (error) {
       console.error('Error al reclamar todo (PDF):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
@@ -286,7 +271,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       await clearInventory();
 
       // 3. Show success state with option to share
-      setSaveResult({ uri: persistentFile.uri, fileType: 'txt', savedToMediaLibrary: false });
+      setSaveResult({ uri: persistentFile.uri, fileType: 'txt' });
     } catch (error) {
       console.error('Error al reclamar todo (texto):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
@@ -310,7 +295,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       }
 
       const mimeType = saveResult.fileType === 'pdf' ? 'application/pdf' : 'text/plain';
-      const UTI = saveResult.fileType === 'pdf' ? '.pdf' : '.txt';
+      const UTI = saveResult.fileType === 'pdf' ? 'com.adobe.pdf' : 'public.plain-text';
       const dialogTitle = 'Certificado de Recompensas';
 
       await Sharing.shareAsync(saveResult.uri, { UTI, mimeType, dialogTitle });
@@ -559,11 +544,10 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
               <Ionicons name="checkmark-circle" size={56} color={Colors.primaryGold} />
             </View>
 
-            <Text style={styles.choiceTitle}>¡Archivo guardado!</Text>
+            <Text style={styles.choiceTitle}>¡Certificado generado!</Text>
             <Text style={styles.choiceSubtitle}>
-              {saveResult?.savedToMediaLibrary
-                ? 'Tu certificado se guardó en tu dispositivo (Descargas).'
-                : 'Tu certificado se guardó en el almacenamiento de la app.'}
+              Tu certificado se guardó en la app. Usa Compartir para guardarlo
+              en Descargas, Drive o enviarlo donde quieras.
             </Text>
             <Text style={styles.successFileType}>
               {saveResult?.fileType === 'pdf' ? 'Documento PDF' : 'Archivo de texto (.txt)'}
@@ -577,7 +561,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
             >
               <Ionicons name="share-outline" size={18} color={Colors.bgDarker} />
               <Text style={styles.claimAllBtnText}>
-                {sharing ? 'COMPARTIENDO...' : 'COMPARTIR'}
+                {sharing ? 'ABRIENDO...' : 'COMPARTIR / GUARDAR'}
               </Text>
             </TouchableOpacity>
 

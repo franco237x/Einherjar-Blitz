@@ -1,61 +1,77 @@
 /**
  * PurchaseClaim — Generates a PDF certificate for a store purchase,
- * SAVES it to the device (Downloads on Android, app documents on iOS),
- * and then offers the native share sheet.
+ * saves it to the app's document storage and opens the native share
+ * sheet so the user can store it in Files / Downloads / Drive.
  *
  * The file is always saved locally BEFORE the caller deletes Firestore
  * records, ensuring the user never loses their certificate.
  */
 
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { File, Paths } from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import type { PurchaseRecord } from '@/constants/storeData';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-/** Save a file URI to the device's Downloads / media library (Android). */
-async function saveToDownloads(fileUri: string): Promise<boolean> {
-  try {
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status === 'granted') {
-      await MediaLibrary.Asset.create(fileUri);
-      return true;
-    }
-    return false;
-  } catch (e) {
-    console.warn('saveToDownloads failed:', e);
-    return false;
-  }
-}
-
-/** Offer the native share sheet for an already-saved file. */
-async function offerShare(uri: string, dialogTitle: string): Promise<void> {
+/**
+ * Offer the native share sheet for an already-saved file.
+ * Returns true if the share sheet could be opened.
+ */
+async function offerShare(uri: string, dialogTitle: string): Promise<boolean> {
   try {
     const canShare = await Sharing.isAvailableAsync();
     if (canShare) {
       await Sharing.shareAsync(uri, {
-        UTI: '.pdf',
+        UTI: 'com.adobe.pdf',
         mimeType: 'application/pdf',
         dialogTitle,
       });
+      return true;
     }
+    return false;
   } catch {
     // User cancelled or share failed — file is already saved, no problem.
+    return false;
   }
+}
+
+/** Generate the PDF, persist it to the app documents dir and share it. */
+async function generateAndShare(
+  html: string,
+  fileName: string,
+  dialogTitle: string
+): Promise<{ uri: string; shared: boolean }> {
+  if (Platform.OS === 'web') {
+    await Print.printAsync({ html });
+    return { uri: '', shared: false };
+  }
+
+  // 1. Generate PDF to temp cache
+  const { uri: tempUri } = await Print.printToFileAsync({ html });
+
+  // 2. Copy to persistent app document directory
+  const persistentFile = new File(Paths.document, fileName);
+  const tempFile = new File(tempUri);
+  tempFile.copy(persistentFile, { overwrite: true });
+
+  // 3. Open the native share sheet so the user can save it to
+  //    Files / Downloads / Drive or send it anywhere.
+  const shared = await offerShare(persistentFile.uri, dialogTitle);
+
+  return { uri: persistentFile.uri, shared };
 }
 
 // ─── Single purchase certificate ──────────────────────────────────────────
 
 /**
  * Generate a PDF certificate for a single purchase.
- * Returns an object with the saved file URI and whether it was saved to Downloads.
+ * Returns the saved file URI and whether the share sheet was opened.
  */
 export async function claimPurchasePDF(
   purchase: PurchaseRecord
-): Promise<{ uri: string; savedToDownloads: boolean }> {
+): Promise<{ uri: string; shared: boolean }> {
   const dateStr = new Date().toLocaleString('es-ES', {
     day: '2-digit',
     month: 'long',
@@ -129,30 +145,11 @@ export async function claimPurchasePDF(
   `;
 
   try {
-    if (Platform.OS === 'web') {
-      await Print.printAsync({ html });
-      return { uri: '', savedToDownloads: false };
-    }
-
-    // 1. Generate PDF to temp cache
-    const { uri: tempUri } = await Print.printToFileAsync({ html });
-
-    // 2. Copy to persistent app document directory
-    const timestamp = Date.now();
-    const persistentFile = new File(Paths.document, `einherjar-compra-${timestamp}.pdf`);
-    const tempFile = new File(tempUri);
-    tempFile.copy(persistentFile, { overwrite: true });
-
-    // 3. Save to Downloads (Android) — direct, no folder picker
-    const savedToDownloads = await saveToDownloads(persistentFile.uri);
-
-    // 4. Offer share sheet (optional — file is already saved)
-    await offerShare(
-      persistentFile.uri,
+    return await generateAndShare(
+      html,
+      `einherjar-compra-${Date.now()}.pdf`,
       `Certificado de compra: ${purchase.productName}`
     );
-
-    return { uri: persistentFile.uri, savedToDownloads };
   } catch (error) {
     console.error('Error generating purchase PDF:', error);
     throw error;
@@ -163,12 +160,12 @@ export async function claimPurchasePDF(
 
 /**
  * Generate a single PDF with ALL purchases (bulk claim certificate).
- * Returns an object with the saved file URI and whether it was saved to Downloads.
+ * Returns the saved file URI and whether the share sheet was opened.
  */
 export async function claimAllPurchasesPDF(
   purchases: PurchaseRecord[]
-): Promise<{ uri: string; savedToDownloads: boolean }> {
-  if (purchases.length === 0) return { uri: '', savedToDownloads: false };
+): Promise<{ uri: string; shared: boolean }> {
+  if (purchases.length === 0) return { uri: '', shared: false };
 
   const dateStr = new Date().toLocaleString('es-ES', {
     day: '2-digit',
@@ -239,30 +236,11 @@ export async function claimAllPurchasesPDF(
   `;
 
   try {
-    if (Platform.OS === 'web') {
-      await Print.printAsync({ html });
-      return { uri: '', savedToDownloads: false };
-    }
-
-    // 1. Generate PDF to temp cache
-    const { uri: tempUri } = await Print.printToFileAsync({ html });
-
-    // 2. Copy to persistent app document directory
-    const timestamp = Date.now();
-    const persistentFile = new File(Paths.document, `einherjar-compras-${timestamp}.pdf`);
-    const tempFile = new File(tempUri);
-    tempFile.copy(persistentFile, { overwrite: true });
-
-    // 3. Save to Downloads (Android)
-    const savedToDownloads = await saveToDownloads(persistentFile.uri);
-
-    // 4. Offer share sheet
-    await offerShare(
-      persistentFile.uri,
+    return await generateAndShare(
+      html,
+      `einherjar-compras-${Date.now()}.pdf`,
       `Certificado de compras (${purchases.length} productos)`
     );
-
-    return { uri: persistentFile.uri, savedToDownloads };
   } catch (error) {
     console.error('Error generating bulk purchase PDF:', error);
     throw error;

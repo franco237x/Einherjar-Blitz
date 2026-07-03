@@ -1,14 +1,15 @@
 /**
- * TransferModal — Modal for transferring keys to another user.
+ * TransferModal — Stepped modal for transferring keys to another user.
  *
- * Features:
- * - Search users by username prefix (case-sensitive, fires at 2+ chars)
- * - Shows matching users with avatar + name
- * - Lets the user select a recipient, enter amount, and confirm
- * - Uses Firestore transactions for atomic balance updates
+ * Flow: 1) Search & pick recipient → 2) Choose amount → 3) Confirm → Result.
+ * - Search users by username prefix (fires at 2+ chars, debounced)
+ * - Amount step with stepper, quick chips and live validation
+ * - Confirmation summary before executing the Firestore transaction
+ * - Dedicated success / error result screen inside the modal
+ * - State fully resets when the modal closes
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,7 +22,6 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -46,15 +46,21 @@ interface UserResult {
   email: string;
 }
 
+type Step = 'recipient' | 'amount' | 'confirm' | 'result';
+
 interface TransferModalProps {
   visible: boolean;
   onClose: () => void;
   myKeys: number;
 }
 
+const QUICK_AMOUNTS = [1, 5, 10];
+
 // ─── Component ────────────────────────────────────────────────────────────
 
 export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) => {
+  const [step, setStep] = useState<Step>('recipient');
+
   // Search state
   const [searchText, setSearchText] = useState('');
   const [results, setResults] = useState<UserResult[]>([]);
@@ -67,13 +73,28 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
   // Transfer state
   const [amount, setAmount] = useState('');
   const [transferring, setTransferring] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [result, setResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const amountNum = useMemo(() => {
+    const n = parseInt(amount, 10);
+    return Number.isFinite(n) ? n : 0;
+  }, [amount]);
+
+  const amountError = useMemo(() => {
+    if (amount === '') return null;
+    if (amountNum <= 0) return 'Ingresa una cantidad válida.';
+    if (amountNum > myKeys) return `Solo tienes ${myKeys} llaves disponibles.`;
+    return null;
+  }, [amount, amountNum, myKeys]);
+
+  const amountValid = amountNum > 0 && amountNum <= myKeys;
 
   // Reset everything when modal closes
   useEffect(() => {
     if (!visible) {
+      setStep('recipient');
       setSearchText('');
       setResults([]);
       setSearching(false);
@@ -81,11 +102,11 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
       setSelected(null);
       setAmount('');
       setTransferring(false);
-      setMessage(null);
+      setResult(null);
     }
   }, [visible]);
 
-  // ─── Search users by username prefix (case-sensitive) ──────────────
+  // ─── Search users by username prefix ────────────────────────────────
 
   const searchUsers = useCallback(async (text: string) => {
     if (text.length < 2) {
@@ -134,7 +155,6 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
   const handleSearchChange = (text: string) => {
     setSearchText(text);
     setSelected(null);
-    setMessage(null);
 
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
@@ -151,34 +171,33 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
     }, 350);
   };
 
-  // ─── Select a user ────────────────────────────────────────────────
+  // ─── Step navigation ─────────────────────────────────────────────────
 
   const handleSelect = (user: UserResult) => {
     setSelected(user);
-    setSearchText(user.username);
-    setResults([]); // Hide the dropdown
-    setMessage(null);
+  };
+
+  const goToAmount = () => {
+    if (selected) setStep('amount');
+  };
+
+  const goToConfirm = () => {
+    if (amountValid) setStep('confirm');
+  };
+
+  const changeAmount = (delta: number) => {
+    const next = Math.min(Math.max(amountNum + delta, 0), myKeys);
+    setAmount(next > 0 ? String(next) : '');
+  };
+
+  const setQuickAmount = (value: number) => {
+    setAmount(String(Math.min(value, myKeys)));
   };
 
   // ─── Transfer ─────────────────────────────────────────────────────
 
   const handleTransfer = async () => {
-    setMessage(null);
-
-    if (!selected) {
-      setMessage({ type: 'error', text: 'Selecciona un usuario de la lista.' });
-      return;
-    }
-
-    const amountNum = parseInt(amount, 10);
-    if (!amountNum || amountNum <= 0) {
-      setMessage({ type: 'error', text: 'Ingresa una cantidad válida de llaves.' });
-      return;
-    }
-    if (amountNum > myKeys) {
-      setMessage({ type: 'error', text: `No tienes suficientes llaves. Tienes ${myKeys}.` });
-      return;
-    }
+    if (!selected || !amountValid || transferring) return;
 
     setTransferring(true);
     try {
@@ -204,161 +223,386 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
         });
       });
 
-      setMessage({
+      setResult({
         type: 'success',
-        text: `¡Transferiste ${amountNum} llaves a ${selected.username}!`,
+        text: `Transferiste ${amountNum} ${amountNum === 1 ? 'llave' : 'llaves'} a ${selected.username}.`,
       });
-      setAmount('');
-      setSelected(null);
-      setSearchText('');
     } catch (error: any) {
       console.error('Transfer error:', error);
-      setMessage({ type: 'error', text: error?.message || 'Error al transferir llaves.' });
+      setResult({ type: 'error', text: error?.message || 'Error al transferir llaves.' });
     } finally {
       setTransferring(false);
+      setStep('result');
     }
   };
+
+  const handleRetry = () => {
+    setResult(null);
+    setStep('confirm');
+  };
+
+  // ─── Render helpers ───────────────────────────────────────────────
+
+  const renderStepIndicator = () => {
+    const steps: Step[] = ['recipient', 'amount', 'confirm'];
+    const currentIdx = step === 'result' ? 2 : steps.indexOf(step);
+    return (
+      <View style={styles.stepRow}>
+        {steps.map((s, i) => (
+          <View key={s} style={styles.stepItem}>
+            <View
+              style={[
+                styles.stepDot,
+                i <= currentIdx && styles.stepDotActive,
+              ]}
+            >
+              {i < currentIdx ? (
+                <Ionicons name="checkmark" size={12} color={Colors.bgDarker} />
+              ) : (
+                <Text style={[styles.stepDotText, i <= currentIdx && styles.stepDotTextActive]}>
+                  {i + 1}
+                </Text>
+              )}
+            </View>
+            {i < steps.length - 1 && (
+              <View style={[styles.stepLine, i < currentIdx && styles.stepLineActive]} />
+            )}
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  const renderAvatar = (user: UserResult, size: number) => {
+    const radius = size / 2;
+    if (user.avatar) {
+      return (
+        <Image
+          source={{ uri: user.avatar }}
+          style={{ width: size, height: size, borderRadius: radius, borderWidth: 1, borderColor: Colors.primaryGold }}
+        />
+      );
+    }
+    return (
+      <View
+        style={[
+          styles.avatarPlaceholder,
+          { width: size, height: size, borderRadius: radius },
+        ]}
+      >
+        <Ionicons name="person" size={size * 0.45} color={Colors.primaryGold} />
+      </View>
+    );
+  };
+
+  // ─── Step 1: recipient ────────────────────────────────────────────
+
+  const renderRecipientStep = () => (
+    <>
+      <Text style={styles.stepTitle}>¿A quién le envías llaves?</Text>
+
+      <View style={styles.searchWrap}>
+        <Ionicons name="search-outline" size={16} color={Colors.textMuted} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar por nombre de usuario..."
+          placeholderTextColor={Colors.textMuted}
+          value={searchText}
+          onChangeText={handleSearchChange}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {searching && <ActivityIndicator size="small" color={Colors.primaryGold} />}
+      </View>
+
+      <View style={styles.resultsArea}>
+        {searchText.length < 2 ? (
+          <View style={styles.hintWrap}>
+            <Ionicons name="people-outline" size={36} color={Colors.textMuted} />
+            <Text style={styles.hintText}>
+              Escribe al menos 2 letras para buscar usuarios.
+            </Text>
+          </View>
+        ) : searching && results.length === 0 ? (
+          <View style={styles.hintWrap}>
+            <ActivityIndicator size="small" color={Colors.primaryGold} />
+            <Text style={styles.hintText}>Buscando usuarios...</Text>
+          </View>
+        ) : hasSearched && results.length === 0 ? (
+          <View style={styles.hintWrap}>
+            <Ionicons name="alert-circle-outline" size={36} color={Colors.textMuted} />
+            <Text style={styles.hintText}>No se encontraron usuarios con ese nombre.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={results}
+            keyExtractor={(item) => item.uid}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({ item }) => {
+              const isSelected = selected?.uid === item.uid;
+              return (
+                <TouchableOpacity
+                  style={[styles.resultItem, isSelected && styles.resultItemSelected]}
+                  onPress={() => handleSelect(item)}
+                  activeOpacity={0.7}
+                >
+                  {renderAvatar(item, 36)}
+                  <View style={styles.resultInfo}>
+                    <Text style={styles.resultName}>{item.username}</Text>
+                    {item.email ? (
+                      <Text style={styles.resultEmail} numberOfLines={1}>
+                        {item.email}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Ionicons
+                    name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={20}
+                    color={isSelected ? Colors.primaryGold : Colors.textMuted}
+                  />
+                </TouchableOpacity>
+              );
+            }}
+          />
+        )}
+      </View>
+
+      <TouchableOpacity
+        style={[styles.primaryBtn, !selected && styles.primaryBtnDisabled]}
+        onPress={goToAmount}
+        disabled={!selected}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.primaryBtnText}>CONTINUAR</Text>
+        <Ionicons name="arrow-forward" size={16} color={Colors.bgDarker} />
+      </TouchableOpacity>
+    </>
+  );
+
+  // ─── Step 2: amount ───────────────────────────────────────────────
+
+  const renderAmountStep = () => (
+    <>
+      <Text style={styles.stepTitle}>¿Cuántas llaves envías?</Text>
+
+      {selected && (
+        <View style={styles.recipientChip}>
+          {renderAvatar(selected, 24)}
+          <Text style={styles.recipientChipText}>{selected.username}</Text>
+        </View>
+      )}
+
+      <View style={styles.stepperRow}>
+        <TouchableOpacity
+          style={[styles.stepperBtn, amountNum <= 0 && styles.stepperBtnDisabled]}
+          onPress={() => changeAmount(-1)}
+          disabled={amountNum <= 0}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="remove" size={22} color={Colors.textPrimary} />
+        </TouchableOpacity>
+
+        <TextInput
+          style={styles.amountInput}
+          placeholder="0"
+          placeholderTextColor={Colors.textMuted}
+          value={amount}
+          onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
+          keyboardType="number-pad"
+          maxLength={6}
+          textAlign="center"
+        />
+
+        <TouchableOpacity
+          style={[styles.stepperBtn, amountNum >= myKeys && styles.stepperBtnDisabled]}
+          onPress={() => changeAmount(1)}
+          disabled={amountNum >= myKeys}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="add" size={22} color={Colors.textPrimary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.quickRow}>
+        {QUICK_AMOUNTS.filter((v) => v <= myKeys).map((v) => (
+          <TouchableOpacity
+            key={v}
+            style={[styles.quickChip, amountNum === v && styles.quickChipActive]}
+            onPress={() => setQuickAmount(v)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.quickChipText, amountNum === v && styles.quickChipTextActive]}>
+              {v}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        {myKeys > 0 && (
+          <TouchableOpacity
+            style={[styles.quickChip, amountNum === myKeys && styles.quickChipActive]}
+            onPress={() => setQuickAmount(myKeys)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.quickChipText, amountNum === myKeys && styles.quickChipTextActive]}>
+              Max ({myKeys})
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {amountError ? (
+        <Text style={styles.amountErrorText}>{amountError}</Text>
+      ) : (
+        <Text style={styles.amountHelpText}>
+          Saldo disponible: {myKeys} {myKeys === 1 ? 'llave' : 'llaves'}
+        </Text>
+      )}
+
+      <View style={styles.btnRow}>
+        <TouchableOpacity style={styles.secondaryBtn} onPress={() => setStep('recipient')} activeOpacity={0.7}>
+          <Ionicons name="arrow-back" size={16} color={Colors.textPrimary} />
+          <Text style={styles.secondaryBtnText}>ATRÁS</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.primaryBtn, styles.primaryBtnFlex, !amountValid && styles.primaryBtnDisabled]}
+          onPress={goToConfirm}
+          disabled={!amountValid}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.primaryBtnText}>CONTINUAR</Text>
+          <Ionicons name="arrow-forward" size={16} color={Colors.bgDarker} />
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  // ─── Step 3: confirm ──────────────────────────────────────────────
+
+  const renderConfirmStep = () => (
+    <>
+      <Text style={styles.stepTitle}>Confirma la transferencia</Text>
+
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Destinatario</Text>
+          <View style={styles.summaryRecipient}>
+            {selected && renderAvatar(selected, 22)}
+            <Text style={styles.summaryValue}>{selected?.username}</Text>
+          </View>
+        </View>
+        <View style={styles.summaryDivider} />
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Cantidad</Text>
+          <View style={styles.summaryRecipient}>
+            <Ionicons name="key-outline" size={16} color={Colors.primaryGold} />
+            <Text style={styles.summaryValueGold}>
+              {amountNum} {amountNum === 1 ? 'llave' : 'llaves'}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.summaryDivider} />
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Saldo restante</Text>
+          <Text style={styles.summaryValue}>{myKeys - amountNum}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.confirmNote}>
+        Esta acción no se puede deshacer.
+      </Text>
+
+      <View style={styles.btnRow}>
+        <TouchableOpacity
+          style={styles.secondaryBtn}
+          onPress={() => setStep('amount')}
+          disabled={transferring}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={16} color={Colors.textPrimary} />
+          <Text style={styles.secondaryBtnText}>ATRÁS</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.primaryBtn, styles.primaryBtnFlex, transferring && styles.primaryBtnDisabled]}
+          onPress={handleTransfer}
+          disabled={transferring}
+          activeOpacity={0.8}
+        >
+          {transferring ? (
+            <ActivityIndicator size="small" color={Colors.bgDarker} />
+          ) : (
+            <>
+              <Ionicons name="paper-plane-outline" size={16} color={Colors.bgDarker} />
+              <Text style={styles.primaryBtnText}>TRANSFERIR</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  // ─── Result ───────────────────────────────────────────────────────
+
+  const renderResultStep = () => (
+    <View style={styles.resultWrap}>
+      <Ionicons
+        name={result?.type === 'success' ? 'checkmark-circle' : 'close-circle'}
+        size={64}
+        color={result?.type === 'success' ? '#22c55e' : '#ef4444'}
+      />
+      <Text style={styles.resultTitle}>
+        {result?.type === 'success' ? '¡Transferencia exitosa!' : 'Transferencia fallida'}
+      </Text>
+      <Text style={styles.resultText}>{result?.text}</Text>
+
+      {result?.type === 'error' && (
+        <TouchableOpacity style={[styles.primaryBtn, styles.resultBtn]} onPress={handleRetry} activeOpacity={0.8}>
+          <Ionicons name="refresh" size={16} color={Colors.bgDarker} />
+          <Text style={styles.primaryBtnText}>REINTENTAR</Text>
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity
+        style={result?.type === 'success' ? [styles.primaryBtn, styles.resultBtn] : styles.resultCloseBtn}
+        onPress={onClose}
+        activeOpacity={0.8}
+      >
+        <Text
+          style={result?.type === 'success' ? styles.primaryBtnText : styles.resultCloseText}
+        >
+          CERRAR
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   // ─── Render ───────────────────────────────────────────────────────
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.overlay}
       >
         <View style={styles.card}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Transferir Llaves</Text>
+            <View style={styles.headerLeft}>
+              <Text style={styles.title}>Transferir Llaves</Text>
+              <View style={styles.balancePill}>
+                <Ionicons name="key-outline" size={12} color={Colors.primaryGold} />
+                <Text style={styles.balancePillText}>{myKeys}</Text>
+              </View>
+            </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <Ionicons name="close" size={22} color={Colors.textPrimary} />
             </TouchableOpacity>
           </View>
 
-          {/* Balance */}
-          <View style={styles.balanceRow}>
-            <Ionicons name="key-outline" size={18} color={Colors.primaryGold} />
-            <Text style={styles.balanceText}>Tienes {myKeys} llaves</Text>
-          </View>
+          {step !== 'result' && renderStepIndicator()}
 
-          {/* Search input */}
-          <Text style={styles.inputLabel}>Buscar usuario</Text>
-          <View style={styles.searchWrap}>
-            <Ionicons name="search-outline" size={16} color={Colors.textMuted} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Escribe al menos 2 letras..."
-              placeholderTextColor={Colors.textMuted}
-              value={searchText}
-              onChangeText={handleSearchChange}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {searching && (
-              <ActivityIndicator size="small" color={Colors.primaryGold} />
-            )}
-          </View>
-
-          {/* Search results dropdown */}
-          {results.length > 0 && (
-            <View style={styles.resultsContainer}>
-              <FlatList
-                data={results}
-                keyExtractor={(item) => item.uid}
-                keyboardShouldPersistTaps="handled"
-                style={styles.resultsList}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.resultItem}
-                    onPress={() => handleSelect(item)}
-                    activeOpacity={0.7}
-                  >
-                    {item.avatar ? (
-                      <Image source={{ uri: item.avatar }} style={styles.resultAvatar} />
-                    ) : (
-                      <View style={styles.resultAvatarPlaceholder}>
-                        <Ionicons name="person" size={16} color={Colors.primaryGold} />
-                      </View>
-                    )}
-                    <View style={styles.resultInfo}>
-                      <Text style={styles.resultName}>{item.username}</Text>
-                      <Text style={styles.resultEmail} numberOfLines={1}>
-                        {item.email}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
-
-          {/* No results message */}
-          {hasSearched && !searching && results.length === 0 && searchText.length >= 2 && !selected && (
-            <Text style={styles.noResults}>No se encontraron usuarios con ese nombre.</Text>
-          )}
-
-          {/* Selected user badge */}
-          {selected && (
-            <View style={styles.selectedBadge}>
-              {selected.avatar ? (
-                <Image source={{ uri: selected.avatar }} style={styles.selectedAvatar} />
-              ) : (
-                <View style={styles.selectedAvatarPlaceholder}>
-                  <Ionicons name="person" size={14} color={Colors.primaryGold} />
-                </View>
-              )}
-              <Text style={styles.selectedName}>{selected.username}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelected(null);
-                  setSearchText('');
-                  setMessage(null);
-                }}
-              >
-                <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Amount input */}
-          <Text style={styles.inputLabel}>Cantidad de llaves</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0"
-            placeholderTextColor={Colors.textMuted}
-            value={amount}
-            onChangeText={(t) => {
-              setAmount(t);
-              setMessage(null);
-            }}
-            keyboardType="number-pad"
-          />
-
-          {/* Messages */}
-          {message && (
-            <Text
-              style={[
-                styles.message,
-                message.type === 'error' ? styles.messageError : styles.messageSuccess,
-              ]}
-            >
-              {message.text}
-            </Text>
-          )}
-
-          {/* Transfer button */}
-          <TouchableOpacity
-            style={[styles.transferBtn, transferring && styles.transferBtnDisabled]}
-            onPress={handleTransfer}
-            disabled={transferring}
-          >
-            {transferring ? (
-              <ActivityIndicator color={Colors.bgDarker} />
-            ) : (
-              <Text style={styles.transferBtnText}>TRANSFERIR</Text>
-            )}
-          </TouchableOpacity>
+          {step === 'recipient' && renderRecipientStep()}
+          {step === 'amount' && renderAmountStep()}
+          {step === 'confirm' && renderConfirmStep()}
+          {step === 'result' && renderResultStep()}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -384,17 +628,41 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderGold,
     padding: Spacing.lg,
   },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    flex: 1,
+  },
   title: {
     color: Colors.primaryGold,
     fontFamily: Fonts.title,
-    fontSize: 20,
-    letterSpacing: 2,
+    fontSize: 18,
+    letterSpacing: 1.5,
+  },
+  balancePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: 'rgba(201,170,113,0.1)',
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(201,170,113,0.25)',
+  },
+  balancePillText: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 12,
   },
   closeBtn: {
     width: 36,
@@ -406,38 +674,66 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
-  balanceRow: {
+
+  /* Step indicator */
+  stepRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
     marginBottom: Spacing.lg,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: 'rgba(201,170,113,0.08)',
-    borderRadius: Radius.sm,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stepDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(201,170,113,0.15)',
+    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  balanceText: {
-    color: Colors.primaryGold,
+  stepDotActive: {
+    backgroundColor: Colors.primaryGold,
+    borderColor: Colors.primaryGold,
+  },
+  stepDotText: {
+    color: Colors.textMuted,
     fontFamily: Fonts.bodyBold,
-    fontSize: 14,
+    fontSize: 11,
   },
-  inputLabel: {
-    color: Colors.primaryGold,
+  stepDotTextActive: {
+    color: Colors.bgDarker,
+  },
+  stepLine: {
+    width: 32,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    marginHorizontal: 4,
+  },
+  stepLineActive: {
+    backgroundColor: Colors.primaryGold,
+  },
+
+  /* Shared step title */
+  stepTitle: {
+    color: Colors.textPrimary,
     fontFamily: Fonts.bodyBold,
-    fontSize: 10,
-    letterSpacing: 2,
-    marginBottom: Spacing.xs,
-    marginTop: Spacing.sm,
-    textTransform: 'uppercase',
+    fontSize: 15,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
   },
+
+  /* Step 1: search */
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     backgroundColor: 'rgba(255,255,255,0.04)',
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: 'rgba(212,175,55,0.3)',
     paddingHorizontal: Spacing.md,
     paddingVertical: Platform.OS === 'ios' ? 12 : 4,
@@ -449,17 +745,27 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.body,
     fontSize: 15,
   },
-  resultsContainer: {
-    maxHeight: 180,
+  resultsArea: {
+    height: 200,
+    marginTop: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.borderGold,
+    borderColor: 'rgba(255,255,255,0.08)',
     borderRadius: Radius.sm,
-    marginTop: Spacing.xs,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     overflow: 'hidden',
   },
-  resultsList: {
+  hintWrap: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    padding: Spacing.lg,
+  },
+  hintText: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    textAlign: 'center',
   },
   resultItem: {
     flexDirection: 'row',
@@ -470,22 +776,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.06)',
   },
-  resultAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: Colors.primaryGold,
-  },
-  resultAvatarPlaceholder: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: Colors.primaryGold,
-    backgroundColor: 'rgba(212,175,55,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  resultItemSelected: {
+    backgroundColor: 'rgba(201,170,113,0.1)',
   },
   resultInfo: {
     flex: 1,
@@ -501,91 +793,236 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 1,
   },
-  noResults: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 12,
-    textAlign: 'center',
-    paddingVertical: Spacing.md,
-  },
-  selectedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: Spacing.sm,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: 'rgba(201,170,113,0.12)',
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: Colors.primaryGold,
-    alignSelf: 'flex-start',
-  },
-  selectedAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.primaryGold,
-  },
-  selectedAvatarPlaceholder: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  avatarPlaceholder: {
     borderWidth: 1,
     borderColor: Colors.primaryGold,
     backgroundColor: 'rgba(212,175,55,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  selectedName: {
+
+  /* Step 2: amount */
+  recipientChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(201,170,113,0.1)',
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(201,170,113,0.25)',
+    marginBottom: Spacing.lg,
+  },
+  recipientChipText: {
     color: Colors.primaryGold,
     fontFamily: Fonts.bodyBold,
     fontSize: 13,
-    letterSpacing: 0.5,
   },
-  input: {
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderBottomWidth: 1,
-    borderColor: 'rgba(212,175,55,0.3)',
-    padding: Spacing.md,
-    paddingHorizontal: Spacing.lg,
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.md,
+  },
+  stepperBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepperBtnDisabled: {
+    opacity: 0.35,
+  },
+  amountInput: {
+    minWidth: 110,
     color: Colors.textPrimary,
-    fontFamily: Fonts.body,
-    fontSize: 16,
-    borderRadius: Radius.sm,
+    fontFamily: Fonts.title,
+    fontSize: 36,
+    paddingVertical: 4,
+    borderBottomWidth: 2,
+    borderColor: 'rgba(212,175,55,0.4)',
   },
-  message: {
+  quickRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: Spacing.lg,
+  },
+  quickChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  quickChipActive: {
+    borderColor: Colors.primaryGold,
+    backgroundColor: 'rgba(201,170,113,0.15)',
+  },
+  quickChipText: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 13,
+  },
+  quickChipTextActive: {
+    color: Colors.primaryGold,
+  },
+  amountErrorText: {
+    color: '#ef4444',
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: Spacing.md,
+  },
+  amountHelpText: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: Spacing.md,
+  },
+
+  /* Step 3: confirm */
+  summaryCard: {
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(201,170,113,0.2)',
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+  },
+  summaryLabel: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  summaryRecipient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  summaryValue: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 14,
+  },
+  summaryValueGold: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 14,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  confirmNote: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: Spacing.md,
+  },
+
+  /* Buttons */
+  btnRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.lg,
+  },
+  primaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: Colors.primaryGold,
+    paddingVertical: 13,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.full,
+    marginTop: Spacing.lg,
+  },
+  primaryBtnFlex: {
+    flex: 1,
+    marginTop: 0,
+  },
+  primaryBtnDisabled: {
+    opacity: 0.45,
+  },
+  primaryBtnText: {
+    color: Colors.bgDarker,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 13,
+    letterSpacing: 2,
+  },
+  secondaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 13,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  secondaryBtnText: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 13,
+    letterSpacing: 2,
+  },
+
+  /* Result */
+  resultWrap: {
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  resultTitle: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.title,
+    fontSize: 18,
+    letterSpacing: 1,
+    textAlign: 'center',
+  },
+  resultText: {
+    color: Colors.textMuted,
     fontFamily: Fonts.body,
     fontSize: 13,
     textAlign: 'center',
+    lineHeight: 20,
+  },
+  resultBtn: {
+    alignSelf: 'stretch',
     marginTop: Spacing.md,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: Radius.sm,
   },
-  messageError: {
-    color: '#ef4444',
-    backgroundColor: 'rgba(239,68,68,0.1)',
-  },
-  messageSuccess: {
-    color: '#22c55e',
-    backgroundColor: 'rgba(34,197,94,0.1)',
-  },
-  transferBtn: {
-    backgroundColor: Colors.primaryGold,
-    padding: Spacing.md,
-    borderRadius: Radius.full,
+  resultCloseBtn: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+    paddingVertical: 13,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    marginTop: Spacing.sm,
   },
-  transferBtnDisabled: {
-    opacity: 0.6,
-  },
-  transferBtnText: {
-    color: Colors.bgDarker,
+  resultCloseText: {
+    color: Colors.textPrimary,
     fontFamily: Fonts.bodyBold,
-    fontSize: 15,
+    fontSize: 13,
     letterSpacing: 2,
   },
 });

@@ -165,10 +165,10 @@ export default function StoreScreen() {
       // PDF saved to device → safe to delete from Firestore
       await deletePurchase(uid, purchase.id);
       Alert.alert(
-        '¡Certificado guardado!',
-        result.savedToDownloads
-          ? 'Tu certificado se guardó en Descargas.'
-          : 'Tu certificado se guardó en el almacenamiento de la app.'
+        '¡Certificado generado!',
+        result.shared
+          ? 'Tu certificado PDF está listo. Desde el menú de compartir puedes guardarlo en Descargas, Drive o donde prefieras.'
+          : 'Tu certificado PDF se guardó en el almacenamiento de la app.'
       );
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'No se pudo generar el certificado.');
@@ -186,9 +186,9 @@ export default function StoreScreen() {
       // PDF saved to device → safe to delete from Firestore
       await deleteAllPurchases(uid, purchases.map((p) => p.id));
       Alert.alert(
-        '¡Certificado guardado!',
-        result.savedToDownloads
-          ? `Certificado de ${purchases.length} compras guardado en Descargas.`
+        '¡Certificado generado!',
+        result.shared
+          ? `Certificado de ${purchases.length} compras listo. Desde el menú de compartir puedes guardarlo en Descargas o Drive.`
           : `Certificado de ${purchases.length} compras guardado en el almacenamiento de la app.`
       );
     } catch (err: any) {
