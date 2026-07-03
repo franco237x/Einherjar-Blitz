@@ -424,7 +424,7 @@ export default function Home() {
             <motion.a
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              href="https://github.com/franco237x/Einherjar-Blitz/releases/latest/download/Einherjar_Blitz_Latest.apk"
+              href="https://github.com/franco237x/Einherjar-Blitz/releases/download/v1/Einherjar_Blitz_Latest.apk"
               className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_30px_rgba(201,170,113,0.5)] hover:shadow-[0_0_40px_rgba(201,170,113,0.7)] transition-all"
             >
               <Download className="w-6 h-6" />
