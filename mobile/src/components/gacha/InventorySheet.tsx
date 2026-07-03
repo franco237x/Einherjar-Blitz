@@ -31,6 +31,7 @@ import { useInventory } from '@/hooks/useInventory';
 import { deleteInventoryItem } from '@/services/inventory';
 import { auth } from '@/config/firebase';
 import { MiniLoader } from '@/components/MiniLoader';
+import { EmptyState } from '@/components/EmptyState';
 
 const NUM_COLUMNS = 2;
 const CARD_GAP = Spacing.md;
@@ -58,6 +59,13 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
   const [filter, setFilter] = useState<RarityKey | 'all'>('all');
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+
+  // Success state after saving file to device
+  const [saveResult, setSaveResult] = useState<{
+    uri: string;
+    fileType: 'pdf' | 'txt';
+  } | null>(null);
+  const [sharing, setSharing] = useState(false);
 
   const filtered = useMemo(() => {
     const list = [...grouped].sort((a, b) => {
@@ -188,33 +196,17 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       // 1. Generate the PDF to a temp cache location
       const { uri: tempUri } = await Print.printToFileAsync({ html });
 
-      // 2. Copy to persistent app document directory (backup)
+      // 2. Save to device — copy to persistent document directory first
       const timestamp = Date.now();
       const persistentFile = new File(Paths.document, `einherjar-certificado-${timestamp}.pdf`);
       const tempFile = new File(tempUri);
       tempFile.copy(persistentFile, { overwrite: true });
 
-      // 3. Open the share sheet — this is the primary delivery method.
-      //    The user can save to Downloads/Files, send via WhatsApp, etc.
-      const isSharingAvailable = await Sharing.isAvailableAsync();
-      if (isSharingAvailable) {
-        await Sharing.shareAsync(persistentFile.uri, {
-          UTI: '.pdf',
-          mimeType: 'application/pdf',
-          dialogTitle: 'Certificado de Recompensas',
-        });
-      }
-
-      // 4. Delete inventory items from Firestore — share sheet dismissed
+      // 3. Delete inventory items from Firestore — file is safely saved
       await clearInventory();
 
-      // 5. Show a simple confirmation alert
-      Alert.alert(
-        '¡Reclamado!',
-        isSharingAvailable
-          ? 'Tu certificado PDF ha sido entregado y tus recompensas reclamadas.'
-          : 'Tu certificado PDF se guardó en el dispositivo y tus recompensas fueron reclamadas.',
-      );
+      // 4. Show success state with option to share / save to Downloads
+      setSaveResult({ uri: persistentFile.uri, fileType: 'pdf' });
     } catch (error) {
       console.error('Error al reclamar todo (PDF):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
@@ -267,7 +259,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
         '',
       ].join('\n');
 
-      // 1. Write the text to a PERSISTENT file in the document directory (backup)
+      // 1. Write the text to a PERSISTENT file in the document directory
       const timestamp = Date.now();
       const persistentFile = new File(Paths.document, `einherjar-recompensas-${timestamp}.txt`);
       if (persistentFile.exists) {
@@ -276,33 +268,53 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       persistentFile.create();
       persistentFile.write(text);
 
-      // 2. Open the share sheet — this is the primary delivery method.
-      //    The user can save to Downloads/Files, send via WhatsApp, etc.
-      const isSharingAvailable = await Sharing.isAvailableAsync();
-      if (isSharingAvailable) {
-        await Sharing.shareAsync(persistentFile.uri, {
-          UTI: '.txt',
-          mimeType: 'text/plain',
-          dialogTitle: 'Certificado de Recompensas',
-        });
-      }
-
-      // 3. Delete inventory items from Firestore — share sheet dismissed
+      // 2. Delete inventory items from Firestore — file is safely saved
       await clearInventory();
 
-      // 4. Show a simple confirmation alert
-      Alert.alert(
-        '¡Reclamado!',
-        isSharingAvailable
-          ? 'Tu certificado de texto ha sido entregado y tus recompensas reclamadas.'
-          : 'Tu certificado de texto se guardó en el dispositivo y tus recompensas fueron reclamadas.',
-      );
+      // 3. Show success state with option to share
+      setSaveResult({ uri: persistentFile.uri, fileType: 'txt' });
     } catch (error) {
       console.error('Error al reclamar todo (texto):', error);
       Alert.alert('Error', 'No se pudo completar la reclamación.');
     } finally {
       setClaiming(false);
     }
+  };
+
+  // ─── Share the already-saved file (optional, after saving) ─────────────
+  const handleShareSavedFile = async () => {
+    if (!saveResult) return;
+    setSharing(true);
+    try {
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      if (!isSharingAvailable) {
+        Alert.alert(
+          'No se puede compartir',
+          'Tu dispositivo no permite compartir archivos, pero el archivo ya está guardado en tu dispositivo.',
+        );
+        return;
+      }
+
+      const mimeType = saveResult.fileType === 'pdf' ? 'application/pdf' : 'text/plain';
+      const UTI = saveResult.fileType === 'pdf' ? 'com.adobe.pdf' : 'public.plain-text';
+      const dialogTitle = 'Certificado de Recompensas';
+
+      await Sharing.shareAsync(saveResult.uri, { UTI, mimeType, dialogTitle });
+    } catch (error) {
+      console.error('Error al compartir:', error);
+      // File is already saved — just inform the user
+      Alert.alert(
+        'Archivo guardado',
+        'No se pudo abrir el menú de compartir, pero tu archivo ya está guardado en el dispositivo.',
+      );
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  // ─── Close the success modal ───────────────────────────────────────────
+  const handleCloseSuccess = () => {
+    setSaveResult(null);
   };
 
   const renderItem = ({ item, index }: { item: typeof grouped[number]; index: number }) => {
@@ -403,11 +415,11 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
             </View>
           ) : filtered.length === 0 ? (
             <View style={styles.center}>
-              <Ionicons name="cube-outline" size={72} color={Colors.textMuted} />
-              <Text style={styles.emptyTitle}>Inventario vacío</Text>
-              <Text style={styles.emptySubtitle}>
-                Invoca en el Altar para obtener tus primeras recompensas.
-              </Text>
+              <EmptyState
+                icon="cube-outline"
+                title="Inventario vacío"
+                description="Invoca en el Altar para obtener tus primeras recompensas."
+              />
             </View>
           ) : (
             <FlatList
@@ -507,6 +519,59 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
               activeOpacity={0.7}
             >
               <Text style={styles.choiceCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* ─── Success modal: file saved, optional share ─── */}
+      <Modal
+        visible={saveResult !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseSuccess}
+      >
+        <TouchableOpacity
+          style={styles.choiceOverlay}
+          activeOpacity={1}
+          onPress={handleCloseSuccess}
+        >
+          <TouchableOpacity
+            style={styles.choiceCard}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={styles.successIconWrap}>
+              <Ionicons name="checkmark-circle" size={56} color={Colors.primaryGold} />
+            </View>
+
+            <Text style={styles.choiceTitle}>¡Certificado generado!</Text>
+            <Text style={styles.choiceSubtitle}>
+              Tu certificado se guardó en la app. Usa Compartir para guardarlo
+              en Descargas, Drive o enviarlo donde quieras.
+            </Text>
+            <Text style={styles.successFileType}>
+              {saveResult?.fileType === 'pdf' ? 'Documento PDF' : 'Archivo de texto (.txt)'}
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.claimAllBtn, sharing && styles.claimAllBtnDisabled, styles.successShareBtn]}
+              onPress={handleShareSavedFile}
+              disabled={sharing}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="share-outline" size={18} color={Colors.bgDarker} />
+              <Text style={styles.claimAllBtnText}>
+                {sharing ? 'ABRIENDO...' : 'COMPARTIR / GUARDAR'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.choiceCancelBtn}
+              onPress={handleCloseSuccess}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.choiceCancelText}>Listo</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -613,19 +678,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
-  },
-  emptyTitle: {
-    color: Colors.textSecondary,
-    fontFamily: Fonts.title,
-    fontSize: 20,
-    marginTop: Spacing.md,
-  },
-  emptySubtitle: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: Spacing.xs,
   },
   card: {
     flex: 1,
@@ -780,5 +832,22 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodyBold,
     fontSize: 14,
     letterSpacing: 1,
+  },
+  // ─── Success modal ───
+  successIconWrap: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  successFileType: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    letterSpacing: 0.5,
+  },
+  successShareBtn: {
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
 });

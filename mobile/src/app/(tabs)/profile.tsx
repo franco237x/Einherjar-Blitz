@@ -14,6 +14,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { SaveFormat } from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 import { MiniLoader } from '@/components/MiniLoader';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { useUserData } from '@/hooks/useUserData';
 
 const CustomSwitch = ({ value, onValueChange }: { value: boolean, onValueChange: (v: boolean) => void }) => {
@@ -94,7 +95,7 @@ export default function ProfileScreen() {
       // Resize to 256x256 and compress to keep base64 small (~10-20KB)
       // This prevents exceeding Firestore's 1MB document limit.
       // Uses the new SDK 56 ImageManipulator API (non-deprecated).
-      const context = ImageManipulator.manipulate(pickedUri);
+      const context = ImageManipulator.ImageManipulator.manipulate(pickedUri);
       context.resize({ width: 256, height: 256 });
       const renderedImage = await context.renderAsync();
       const result = await renderedImage.saveAsync({
@@ -143,10 +144,14 @@ export default function ProfileScreen() {
           style={styles.container}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + 80 }
+            { paddingBottom: insets.bottom + 80 }
           ]}
         >
-          <Text style={styles.pageTitle}>Mi Perfil</Text>
+          {/* ScreenHeader handles the top safe-area inset and its own
+              horizontal padding, so it sits outside the padded content. */}
+          <View style={styles.headerWrap}>
+            <ScreenHeader title="Mi Perfil" />
+          </View>
 
           {/* Centered Profile Header */}
           <GlassCard style={styles.headerCard}>
@@ -263,18 +268,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
   },
-  pageTitle: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 32,
-    marginBottom: Spacing.xl,
-    letterSpacing: 2,
-    textAlign: 'center',
-    textShadowColor: Colors.glowGold,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+  headerWrap: {
+    // Cancels scrollContent's horizontal padding — ScreenHeader applies its own.
+    marginHorizontal: -Spacing.lg,
+    marginBottom: Spacing.sm,
   },
   
   /* Centered Header Card */

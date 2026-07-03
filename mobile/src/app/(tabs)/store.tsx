@@ -29,6 +29,8 @@ import { db } from '@/config/firebase';
 import { Background } from '@/components/Background';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { StoreCard } from '@/components/store/StoreCard';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { EmptyState } from '@/components/EmptyState';
 import { PurchaseModal, type PurchaseState } from '@/components/store/PurchaseModal';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import type { StoreProduct, PurchaseRecord } from '@/constants/storeData';
@@ -165,10 +167,10 @@ export default function StoreScreen() {
       // PDF saved to device → safe to delete from Firestore
       await deletePurchase(uid, purchase.id);
       Alert.alert(
-        '¡Certificado guardado!',
-        result.savedToDownloads
-          ? 'Tu certificado se guardó en Descargas.'
-          : 'Tu certificado se guardó en el almacenamiento de la app.'
+        '¡Certificado generado!',
+        result.shared
+          ? 'Tu certificado PDF está listo. Desde el menú de compartir puedes guardarlo en Descargas, Drive o donde prefieras.'
+          : 'Tu certificado PDF se guardó en el almacenamiento de la app.'
       );
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'No se pudo generar el certificado.');
@@ -186,9 +188,9 @@ export default function StoreScreen() {
       // PDF saved to device → safe to delete from Firestore
       await deleteAllPurchases(uid, purchases.map((p) => p.id));
       Alert.alert(
-        '¡Certificado guardado!',
-        result.savedToDownloads
-          ? `Certificado de ${purchases.length} compras guardado en Descargas.`
+        '¡Certificado generado!',
+        result.shared
+          ? `Certificado de ${purchases.length} compras listo. Desde el menú de compartir puedes guardarlo en Descargas o Drive.`
           : `Certificado de ${purchases.length} compras guardado en el almacenamiento de la app.`
       );
     } catch (err: any) {
@@ -227,19 +229,11 @@ export default function StoreScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primaryGold} />}
       >
         {/* ═══ Header ═══ */}
-        <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.storeTitle}>Tienda Oficial</Text>
-            <Text style={styles.storeSubtitle}>Artículos exclusivos para tu inventario</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <View style={styles.currencyBadge}>
-              <Ionicons name="planet" size={20} color={Colors.primaryGold} />
-              <View>
-                <Text style={styles.currencyLabel}>Esferas</Text>
-                <Text style={styles.currencyValue}>{spheres.toLocaleString()}</Text>
-              </View>
-            </View>
+        <ScreenHeader
+          title="Tienda Oficial"
+          subtitle="Artículos exclusivos para tu inventario"
+          badges={[{ icon: 'planet', label: 'Esferas', value: spheres.toLocaleString() }]}
+          action={
             <TouchableOpacity
               style={styles.historyBtn}
               onPress={() => setShowHistory(true)}
@@ -247,8 +241,8 @@ export default function StoreScreen() {
               <Ionicons name="receipt" size={16} color={Colors.textPrimary} />
               <Text style={styles.historyBtnText}>Historial</Text>
             </TouchableOpacity>
-          </View>
-        </View>
+          }
+        />
 
         {/* ═══ Toolbar: stats + filter ═══ */}
         <View style={styles.toolbar}>
@@ -331,13 +325,11 @@ export default function StoreScreen() {
 
         {/* ═══ Empty state ═══ */}
         {products.length === 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons name="storefront" size={64} color="rgba(201,170,113,0.35)" />
-            <Text style={styles.emptyTitle}>La tienda está en mantenimiento</Text>
-            <Text style={styles.emptyText}>
-              Pronto llegarán nuevos artículos. Mientras tanto, sigue acumulando Esferas.
-            </Text>
-          </View>
+          <EmptyState
+            icon="storefront"
+            title="La tienda está en mantenimiento"
+            description="Pronto llegarán nuevos artículos. Mientras tanto, sigue acumulando Esferas."
+          />
         )}
 
         <View style={{ height: 40 }} />
@@ -388,10 +380,11 @@ export default function StoreScreen() {
               contentContainerStyle={styles.modalList}
               ItemSeparatorComponent={() => <View style={{ height: Spacing.sm }} />}
               ListEmptyComponent={
-                <View style={styles.emptyHistory}>
-                  <Ionicons name="receipt-outline" size={40} color={Colors.textMuted} />
-                  <Text style={styles.emptyHistoryText}>Aún no has comprado nada.</Text>
-                </View>
+                <EmptyState
+                  icon="receipt-outline"
+                  title="Aún no has comprado nada."
+                  compact
+                />
               }
               renderItem={({ item }) => (
                 <View style={styles.historyItem}>
@@ -458,59 +451,6 @@ const styles = StyleSheet.create({
   },
 
   /* Header */
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
-    gap: Spacing.md,
-  },
-  headerLeft: {
-    flex: 1,
-    gap: 4,
-  },
-  storeTitle: {
-    color: Colors.primaryGold,
-    fontFamily: Fonts.title,
-    fontSize: 24,
-    letterSpacing: 2,
-    textShadowColor: Colors.glowGold,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-  },
-  storeSubtitle: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 13,
-  },
-  headerRight: {
-    alignItems: 'flex-end',
-    gap: Spacing.sm,
-  },
-  currencyBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-  },
-  currencyLabel: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  currencyValue: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 16,
-  },
   historyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -614,27 +554,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
-  /* Empty state */
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 80,
-    paddingHorizontal: Spacing.xl,
-    gap: Spacing.md,
-  },
-  emptyTitle: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  emptyText: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-
   /* History modal */
   modalOverlay: {
     flex: 1,
@@ -713,16 +632,6 @@ const styles = StyleSheet.create({
   },
   modalList: {
     padding: Spacing.md,
-  },
-  emptyHistory: {
-    alignItems: 'center',
-    paddingVertical: 60,
-    gap: Spacing.md,
-  },
-  emptyHistoryText: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 14,
   },
   historyItem: {
     flexDirection: 'row',

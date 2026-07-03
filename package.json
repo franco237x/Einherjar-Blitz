@@ -1,7 +1,8 @@
 {
   "name": "einherjer-blitz-3.0",
   "version": "3.0.0",
-  "description": "Portal del Guerrero - Sistema de autenticación moderno",  "scripts": {
+  "description": "Portal del Guerrero - Sistema de autenticación moderno",
+  "scripts": {
     "build-css": "sass assets/scss/style.scss assets/css/main.css",
     "build-dashboard": "sass assets/scss/dashboard.scss assets/css/dashboard.css",
     "watch-css": "sass --watch assets/scss/style.scss:assets/css/main.css",
@@ -13,7 +14,24 @@
   "devDependencies": {
     "sass": "^1.69.5"
   },
-  "keywords": ["einherjer", "blitz", "game", "authentication", "bootstrap", "scss"],
+  "keywords": [
+    "einherjer",
+    "blitz",
+    "game",
+    "authentication",
+    "bootstrap",
+    "scss"
+  ],
   "author": "Einherjer Blitz Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
+    "expo-file-system": "^57.0.0",
+    "expo-print": "^57.0.0",
+    "expo-sharing": "^57.0.1",
+    "firebase": "^12.15.0",
+    "react": "^19.2.7",
+    "react-native": "^0.86.0",
+    "react-native-safe-area-context": "^5.8.0"
+  }
 }

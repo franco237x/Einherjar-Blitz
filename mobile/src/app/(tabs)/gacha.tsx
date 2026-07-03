@@ -11,7 +11,6 @@
 import React, { useState, useRef } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -22,10 +21,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Background } from '@/components/Background';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
-import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { Colors, Spacing, Radius } from '@/constants/theme';
 import { BANNERS, pullMultiple, type RewardItem } from '@/constants/gachaData';
 import { BannerCard, SummonAnimation, ProbabilitiesPanel } from '@/components/gacha';
 import { InventorySheet } from '@/components/gacha/InventorySheet';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import { addInventoryItems } from '@/services/inventory';
@@ -130,14 +130,11 @@ export default function GachaScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.lg }}
       >
-        {/* ─── Top Bar ─── */}
-        <View style={[styles.topBar, { paddingTop: insets.top + Spacing.md }]}>
-          <Text style={styles.headerTitle}>Gacha Einherjer</Text>
-          <View style={styles.balances}>
-            <View style={styles.balancePill}>
-              <Ionicons name="key" size={17} color={Colors.primaryGold} />
-              <Text style={styles.balanceVal}>{userData?.keys || 0}</Text>
-            </View>
+        {/* ─── Header ─── */}
+        <ScreenHeader
+          title="Gacha Einherjer"
+          badges={[{ icon: 'key', label: 'Llaves', value: userData?.keys || 0 }]}
+          action={
             <TouchableOpacity
               style={styles.inventoryBtn}
               onPress={() => setShowInventory(true)}
@@ -145,8 +142,8 @@ export default function GachaScreen() {
             >
               <Ionicons name="briefcase-outline" size={22} color={Colors.primaryGold} />
             </TouchableOpacity>
-          </View>
-        </View>
+          }
+        />
 
         {/* ─── Banner Carousel (responsive height, sits near the top) ─── */}
         <View
@@ -212,42 +209,6 @@ export default function GachaScreen() {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-  },
-  topBar: {
-    flexDirection: 'column',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
-    gap: Spacing.sm,
-  },
-  headerTitle: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 22,
-    letterSpacing: 1,
-    textShadowColor: Colors.glowGold,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 14,
-  },
-  balances: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    alignItems: 'center',
-  },
-  balancePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    gap: 6,
-  },
-  balanceVal: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.bodyBold,
-    fontSize: 15,
   },
   inventoryBtn: {
     width: 42,
