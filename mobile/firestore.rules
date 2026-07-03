@@ -39,7 +39,7 @@ service cloud.firestore {
       // and it must be an increase (recipient gains keys).
       allow update: if isSignedIn()
         && !isOwner(userId)
-        && request.resource.data.diff(resource.data).affectedKeys() == ['keys']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['keys'])
         && request.resource.data.keys is int
         && request.resource.data.keys > resource.data.keys;
     }
