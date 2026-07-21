@@ -101,18 +101,6 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // ─── RPG Game State ───────────────────────────────────────────────
-    // Single doc per user tracking dungeon progress, level, items, etc.
-    match /users/{userId}/gameState/{stateId} {
-      allow read, write: if isOwner(userId);
-    }
-
-    // ─── RPG Game Characters ──────────────────────────────────────────
-    // One doc per unlocked character (level, XP, current HP/MP).
-    match /users/{userId}/gameCharacters/{charId} {
-      allow read, write: if isOwner(userId);
-    }
-
     // ─── Default deny ──────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
