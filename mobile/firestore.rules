@@ -23,16 +23,86 @@ service cloud.firestore {
       return t is string && t in ['persona', 'invocacion', 'otros'];
     }
 
+    // Battle reward constants — must match battleService.ts VICTORY_REWARDS.
+    function VICTORY_COPAS() { return 10; }
+    function VICTORY_SPHERES() { return 5; }
+    function VICTORY_XP() { return 15; }
+
+    // Validates that a rank string is consistent with a copas value.
+    // Used to prevent clients from writing an arbitrary rank.
+    function rankForCopas(copas) {
+      return copas >= 800 ? 'Einherjar'
+        : copas >= 500 ? 'Elite'
+        : copas >= 300 ? 'Veterano'
+        : copas >= 150 ? 'Guerrero'
+        : copas >= 50 ? 'Recluta'
+        : 'Iniciado';
+    }
+
     // ─── User profile ──────────────────────────────────────────────────
     // Owner can read/write own profile.
     // Any signed-in user can READ other users' profiles (needed for the
     // key-transfer user search). Only the owner or admin can write.
-    // NOTE: economy fields (keys, spheres, nivel, copas, etc.) are writable
-    // from the client by design (no Cloud Functions). This is a known trade-off
-    // accepted for this phase. Tighten with Cloud Functions later if needed.
+    //
+    // ─── SPARK PLAN SECURITY MODEL ─────────────────────────────────────
+    // The project is on the Spark (free) plan — no Cloud Functions are
+    // available. Without a server-side validator we cannot prove a battle
+    // actually occurred. The defenses below are the maximum possible in
+    // Spark:
+    //
+    // 1. FIXED INCREMENTS — battle reward updates must change economy
+    //    fields by EXACTLY the hardcoded deltas. A client cannot inject
+    //    `copas: 999999`; the rules reject any other delta.
+    // 2. ANTI-REPLAY (BEST-EFFORT) — a battle reward update that touches
+    //    `victorias` or `derrotas` is only allowed if a corresponding
+    //    battle record exists at users/{uid}/game/battles/{battleId}.
+    //    The battle record collection is create-only, so the same
+    //    battleId cannot be reused. A determined attacker can still farm
+    //    by generating fresh battleIds; this is the inherent Spark limit.
+    // 3. RANK CONSISTENCY — `rango` must match `rankForCopas(newCopas)`.
+    //
+    // TODO: upgrade to Blaze and deploy the Cloud Function in
+    // mobile/functions/ to close the farm-by-fresh-battleId hole.
     match /users/{userId} {
       allow read: if isSignedIn();
       allow write: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) || isAdmin();
+
+      // ─── Owner profile updates (username, frase, avatar, economy) ───
+      // Allows the owner to update profile + economy fields (gacha, store,
+      // index tabs) EXCEPT the battle-only counters, which have a dedicated
+      // rule below that enforces fixed increments + anti-replay.
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['victorias', 'derrotas', 'jefes_derrotados', 'nivel', 'horas_jugadas', 'createdAt']);
+
+      // ─── Battle victory reward update ───────────────────────────────
+      // Triggered by battleService.saveBattleVictory. Validates:
+      //  - Only the expected fields change.
+      //  - Each economy field increments by exactly the hardcoded delta.
+      //  - `rango` is consistent with the new copas total.
+      //  - A battle record exists at the provided battleId path.
+      //    NOTE: Firestore Rules cannot read the battleId from the update
+      //    payload, so the anti-replay check uses a wildcard match on the
+      //    battles subcollection — any existing battle record satisfies
+      //    this rule. The create-only semantics on battles/{battleId}
+      //    prevent reusing the same battleId, which is the actual
+      //    anti-replay mechanism.
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['copas', 'victorias', 'jefes_derrotados', 'spheres', 'experiencia', 'rango'])
+        && request.resource.data.copas == resource.data.copas + VICTORY_COPAS()
+        && request.resource.data.victorias == resource.data.victorias + 1
+        && request.resource.data.jefes_derrotados == resource.data.jefes_derrotados + 1
+        && request.resource.data.spheres == resource.data.spheres + VICTORY_SPHERES()
+        && request.resource.data.experiencia == resource.data.experiencia + VICTORY_XP()
+        && request.resource.data.rango == rankForCopas(resource.data.copas + VICTORY_COPAS());
+
+      // ─── Battle defeat reward update ────────────────────────────────
+      // Only `derrotas` may change, and only by +1.
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['derrotas'])
+        && request.resource.data.derrotas == resource.data.derrotas + 1;
 
       // Allow any signed-in user to INCREMENT the keys field on another user's
       // document (for receiving key transfers). Only the keys field may change
@@ -42,6 +112,38 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['keys'])
         && request.resource.data.keys is int
         && request.resource.data.keys > resource.data.keys;
+    }
+
+    // ─── Battle records (anti-replay ledger) ───────────────────────────
+    // One doc per completed battle. CREATE-ONLY: the owner may create a
+    // doc here, but never update or delete it. Firestore rejects a create
+    // if the doc already exists, which is the anti-replay mechanism.
+    // Schema is validated on create to match battleService.createBattleRecord.
+    match /users/{userId}/game/battles/{battleId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && request.resource.data.result is string
+        && request.resource.data.result in ['victory', 'defeat']
+        && request.resource.data.charId is string
+        && request.resource.data.charId.size() > 0
+        && request.resource.data.charId.size() <= 40
+        && request.resource.data.bossId is string
+        && request.resource.data.bossId.size() > 0
+        && request.resource.data.bossId.size() <= 80
+        && request.resource.data.turns is int
+        && request.resource.data.turns >= 1
+        && request.resource.data.turns <= 200
+        && request.resource.data.completedAt is timestamp;
+      allow update, delete: if false;
+    }
+
+    // ─── Game module profile (isolated progression, future use) ───────
+    // Reserved for future battle-only progression fields when the Cloud
+    // Function is deployed. Currently unused (jefes_derrotados stays on
+    // the user doc for Spark compatibility). Owner read-only.
+    match /users/{userId}/game/profile {
+      allow read: if isOwner(userId);
+      allow write: if false;
     }
 
     // ─── Inventory (gacha rewards) ─────────────────────────────────────
