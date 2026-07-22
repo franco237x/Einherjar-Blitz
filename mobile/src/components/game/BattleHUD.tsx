@@ -1,145 +1,31 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { PlayerCombatantState, BossCombatantState } from '@/services/battleEngine';
-import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { StyleSheet, Text, View } from 'react-native';
+import type { BattleState, BossCombatantState, PlayerCombatantState } from '@/services/battleEngine';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 
-interface BattleHUDProps {
-  player: PlayerCombatantState;
-  boss: BossCombatantState;
-  turnCount: number;
-}
+interface BattleHUDProps { player: PlayerCombatantState; boss: BossCombatantState; turnCount: number; turnPhase: BattleState['turnPhase']; isProcessing: boolean; }
 
-export const BattleHUD: React.FC<BattleHUDProps> = ({
-  player,
-  boss,
-  turnCount,
-}) => {
-  const playerHPPercent = Math.max(0, (player.currentHealth / player.maxHealth) * 100);
-  const bossHPPercent = Math.max(0, (boss.currentHealth / boss.maxHealth) * 100);
-
-  return (
-    <View style={styles.headerRow}>
-      {/* Player HP */}
-      <View style={[styles.combatantHeader, { borderColor: player.def.accentColor }]}>
-        <View style={styles.nameRow}>
-          <Text style={[styles.combatantName, { color: player.def.accentColor }]}>
-            {player.def.name}
-          </Text>
-          <Text style={styles.hpText}>
-            {player.currentHealth} / {player.maxHealth}
-          </Text>
-        </View>
-        <View style={styles.healthTrack}>
-          <View
-            style={[
-              styles.healthFill,
-              {
-                width: `${playerHPPercent}%`,
-                backgroundColor:
-                  playerHPPercent > 50
-                    ? '#10b981'
-                    : playerHPPercent > 25
-                    ? '#f59e0b'
-                    : '#ef4444',
-              },
-            ]}
-          />
-        </View>
-      </View>
-
-      {/* Turn Badge */}
-      <View style={styles.turnBadge}>
-        <Text style={styles.turnText}>T{turnCount}</Text>
-      </View>
-
-      {/* Boss HP */}
-      <View style={[styles.combatantHeader, { borderColor: boss.isPhase2 ? '#ef4444' : '#7f1d1d' }]}>
-        <View style={styles.nameRow}>
-          <Text style={styles.hpText}>
-            {boss.currentHealth} / {boss.maxHealth}
-          </Text>
-          <Text style={[styles.combatantName, { color: boss.isPhase2 ? '#ef4444' : '#dc2626' }]}>
-            {boss.isPhase2 ? `${boss.def.name} (Trono)` : boss.def.name}
-          </Text>
-        </View>
-        <View style={styles.healthTrack}>
-          <View
-            style={[
-              styles.healthFill,
-              {
-                width: `${bossHPPercent}%`,
-                backgroundColor: boss.isPhase2 ? '#ef4444' : '#991b1b',
-              },
-            ]}
-          />
-        </View>
-      </View>
-    </View>
-  );
+export const BattleHUD = ({ player, boss, turnCount, turnPhase, isProcessing }: BattleHUDProps) => {
+  const playerPercent = Math.max(0, player.currentHealth / player.maxHealth * 100);
+  const bossPercent = Math.max(0, boss.currentHealth / boss.maxHealth * 100);
+  const phaseLabel = turnPhase === 'player_turn' && !isProcessing ? 'TU TURNO' : turnPhase === 'boss_turn' || isProcessing ? 'TURNO ENEMIGO' : turnPhase === 'victory' ? 'VICTORIA' : 'DERROTA';
+  return <View style={styles.row}>
+    <HealthPanel name={player.def.name} hp={player.currentHealth} max={player.maxHealth} percent={playerPercent} align="left" />
+    <View style={styles.turn}><Text style={styles.turnLabel}>{phaseLabel}</Text><Text style={styles.turnCount}>RONDA {turnCount}</Text></View>
+    <HealthPanel name={boss.isPhase2 ? 'REY ESCARLATA · TRONO' : boss.def.name} hp={boss.currentHealth} max={boss.maxHealth} percent={bossPercent} align="right" danger />
+  </View>;
 };
 
+function HealthPanel({ name, hp, max, percent, align, danger = false }: { name: string; hp: number; max: number; percent: number; align: 'left' | 'right'; danger?: boolean }) {
+  return <View style={styles.panel}>
+    <View style={[styles.nameRow, align === 'right' && styles.reverse]}><Text style={styles.name} numberOfLines={1}>{name}</Text><Text style={styles.hp}>{hp} / {max}</Text></View>
+    <View style={styles.track}><View style={[styles.fill, { width: `${percent}%`, backgroundColor: danger ? Colors.strengthWeak : percent <= 25 ? Colors.strengthWeak : Colors.primaryGold, alignSelf: align === 'right' ? 'flex-end' : 'flex-start' }]} /></View>
+  </View>;
+}
+
 const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.sm,
-  },
-  combatantHeader: {
-    flex: 1,
-    backgroundColor: 'rgba(8, 8, 8, 0.9)',
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.borderGold,
-    shadowColor: Colors.primaryGold,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  combatantName: {
-    fontFamily: Fonts.title,
-    fontSize: 15,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
-  },
-  hpText: {
-    fontFamily: Fonts.bodyMedium,
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  healthTrack: {
-    height: 14,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 7,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  healthFill: {
-    height: '100%',
-    borderRadius: 7,
-  },
-  turnBadge: {
-    backgroundColor: 'rgba(201, 170, 113, 0.12)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.sm,
-    borderWidth: 1.5,
-    borderColor: Colors.primaryGold,
-  },
-  turnText: {
-    fontFamily: Fonts.title,
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: Colors.primaryGold,
-  },
+  row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }, panel: { flex: 1, minWidth: 0, backgroundColor: Colors.bgCard, borderWidth: 1, borderColor: Colors.glassBorder, borderRadius: Radius.md, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm },
+  nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.sm }, reverse: { flexDirection: 'row-reverse' }, name: { flex: 1, fontFamily: Fonts.title, color: Colors.textPrimary, fontSize: 13 }, hp: { fontFamily: Fonts.bodyBold, color: Colors.textSecondary, fontSize: 12 },
+  track: { height: 8, backgroundColor: Colors.bgDarker, borderRadius: Radius.full, overflow: 'hidden', marginTop: 6 }, fill: { height: '100%', borderRadius: Radius.full },
+  turn: { minWidth: 112, alignItems: 'center' }, turnLabel: { fontFamily: Fonts.bodyBold, color: Colors.primaryGold, fontSize: 11, letterSpacing: 1.2 }, turnCount: { fontFamily: Fonts.body, color: Colors.textMuted, fontSize: 10, marginTop: 2 },
 });
