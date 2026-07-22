@@ -1,133 +1,31 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Swords, Shield, HeartPulse, Sparkles, LogOut } from 'lucide-react-native';
-import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { HeartPulse, LogOut, Shield, Sparkles, Swords } from 'lucide-react-native';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 
-interface BattleControlsProps {
-  isProcessing: boolean;
-  isPlayerTurn: boolean;
-  canUseSpecial: boolean;
-  onAttack: () => void;
-  onDefend: () => void;
-  onRegen: () => void;
-  onSpecial: () => void;
-  onExit: () => void;
-}
+interface Props { isProcessing: boolean; isPlayerTurn: boolean; canUseSpecial: boolean; specialUsed: boolean; canRegen: boolean; attackRange: string; regenAmount: number; defenseAmount: number; onAttack: () => void; onDefend: () => void; onRegen: () => void; onSpecial: () => void; onExit: () => void; }
 
-export const BattleControls: React.FC<BattleControlsProps> = ({
-  isProcessing,
-  isPlayerTurn,
-  canUseSpecial,
-  onAttack,
-  onDefend,
-  onRegen,
-  onSpecial,
-  onExit,
-}) => {
-  const disabled = isProcessing || !isPlayerTurn;
-
-  return (
-    <View style={styles.commandBar}>
-      <TouchableOpacity
-        style={[styles.cmdButton, styles.attackBtn, disabled && styles.cmdDisabled]}
-        disabled={disabled}
-        activeOpacity={0.7}
-        onPress={onAttack}
-      >
-        <Swords size={20} color="#fff" />
-        <Text style={styles.cmdText}>ATACAR</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.cmdButton, styles.defendBtn, disabled && styles.cmdDisabled]}
-        disabled={disabled}
-        activeOpacity={0.7}
-        onPress={onDefend}
-      >
-        <Shield size={20} color="#fff" />
-        <Text style={styles.cmdText}>DEFENDER</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.cmdButton, styles.regenBtn, disabled && styles.cmdDisabled]}
-        disabled={disabled}
-        activeOpacity={0.7}
-        onPress={onRegen}
-      >
-        <HeartPulse size={20} color="#fff" />
-        <Text style={styles.cmdText}>CURAR</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.cmdButton, styles.specialBtn, (!canUseSpecial || disabled) && styles.cmdDisabled]}
-        disabled={!canUseSpecial || disabled}
-        activeOpacity={0.7}
-        onPress={onSpecial}
-      >
-        <Sparkles size={20} color="#fff" />
-        <Text style={styles.cmdText}>ESPECIAL</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.exitBtn} activeOpacity={0.7} onPress={onExit}>
-        <LogOut size={18} color={Colors.primaryGold} />
-      </TouchableOpacity>
-    </View>
-  );
+export const BattleControls = ({ isProcessing, isPlayerTurn, canUseSpecial, specialUsed, canRegen, attackRange, regenAmount, defenseAmount, onAttack, onDefend, onRegen, onSpecial, onExit }: Props) => {
+  const waiting = isProcessing || !isPlayerTurn;
+  const specialHint = specialUsed ? 'Ya utilizada' : canUseSpecial ? 'Lista' : 'Requiere ≤ 50% HP';
+  return <View style={styles.bar}>
+    <Command icon={<Swords size={20} color={Colors.primaryGold} />} label="ATACAR" hint={`${attackRange} daño`} disabled={waiting} onPress={onAttack} />
+    <Command icon={<Shield size={20} color={Colors.primaryGold} />} label="DEFENDER" hint={`Reduce ${defenseAmount}`} disabled={waiting} onPress={onDefend} />
+    <Command icon={<HeartPulse size={20} color={Colors.primaryGold} />} label="CURAR" hint={`+${regenAmount} HP`} disabled={waiting || !canRegen} reason={!canRegen ? 'Vida completa' : undefined} onPress={onRegen} />
+    <Command icon={<Sparkles size={20} color={Colors.primaryGold} />} label="ESPECIAL" hint={specialHint} disabled={waiting || !canUseSpecial} onPress={onSpecial} />
+    <TouchableOpacity style={styles.exit} onPress={onExit} accessibilityRole="button" accessibilityLabel="Abandonar combate"><LogOut size={18} color={Colors.textSecondary} /><Text style={styles.exitText}>SALIR</Text></TouchableOpacity>
+  </View>;
 };
 
+function Command({ icon, label, hint, disabled, reason, onPress }: { icon: React.ReactNode; label: string; hint: string; disabled: boolean; reason?: string; onPress: () => void }) {
+  const detail = reason ?? hint;
+  return <TouchableOpacity style={[styles.command, disabled && styles.disabled]} disabled={disabled} onPress={onPress} activeOpacity={0.78} accessibilityRole="button" accessibilityLabel={`${label}. ${detail}`} accessibilityState={{ disabled }}>
+    {icon}<View style={styles.copy}><Text style={styles.label}>{label}</Text><Text style={styles.hint} numberOfLines={1}>{detail}</Text></View>
+  </TouchableOpacity>;
+}
+
 const styles = StyleSheet.create({
-  commandBar: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    alignItems: 'center',
-    backgroundColor: 'rgba(5, 5, 5, 0.85)',
-    borderRadius: Radius.lg,
-    borderWidth: 1.5,
-    borderColor: 'rgba(201, 170, 113, 0.25)',
-    padding: Spacing.sm,
-  },
-  cmdButton: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-  },
-  attackBtn: {
-    backgroundColor: 'rgba(220, 38, 38, 0.2)',
-    borderColor: 'rgba(220, 38, 38, 0.6)',
-  },
-  defendBtn: {
-    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-    borderColor: 'rgba(37, 99, 235, 0.6)',
-  },
-  regenBtn: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderColor: 'rgba(16, 185, 129, 0.6)',
-  },
-  specialBtn: {
-    backgroundColor: 'rgba(168, 85, 247, 0.2)',
-    borderColor: 'rgba(168, 85, 247, 0.6)',
-  },
-  cmdDisabled: {
-    opacity: 0.3,
-  },
-  cmdText: {
-    fontFamily: Fonts.title,
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 0.5,
-  },
-  exitBtn: {
-    backgroundColor: 'rgba(10, 10, 10, 0.9)',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.primaryGold,
-  },
+  bar: { minHeight: 66, flexDirection: 'row', alignItems: 'stretch', gap: Spacing.sm, backgroundColor: Colors.bgDark, borderWidth: 1, borderColor: Colors.borderGold, borderRadius: Radius.lg, padding: Spacing.sm },
+  command: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderGold, backgroundColor: Colors.bgCard, paddingHorizontal: Spacing.sm }, disabled: { opacity: 0.38 }, copy: { minWidth: 0 }, label: { fontFamily: Fonts.title, color: Colors.textPrimary, fontSize: 11, letterSpacing: 0.5 }, hint: { fontFamily: Fonts.body, color: Colors.textMuted, fontSize: 10, marginTop: 2 },
+  exit: { minWidth: 68, alignItems: 'center', justifyContent: 'center', gap: 3, borderLeftWidth: 1, borderLeftColor: Colors.glassBorder }, exitText: { fontFamily: Fonts.bodyBold, color: Colors.textSecondary, fontSize: 10, letterSpacing: 1 },
 });
