@@ -1,11 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, GitCommit } from "lucide-react";
 
 export default function Noticias() {
   const news = [
+    {
+      id: 0,
+      title: "Actualización v1.1.7 - Una nueva base para Einherjar Blitz",
+      date: "24 de Julio, 2026",
+      type: "Actualización",
+      content: "Renovamos la experiencia visual de la aplicación, desde el acceso y la navegación hasta el perfil, la tienda y el sistema de invocaciones. El gacha ahora cuenta con una ceremonia más cuidada, resultados claros, probabilidades e inventario integrado. También reforzamos la economía, las compras, las recompensas, las transferencias y la búsqueda de jugadores para lograr una sincronización más confiable. El modo combate permanece temporalmente cerrado mientras completamos la arena, las animaciones y el balance del primer enfrentamiento.",
+      icon: <GitCommit className="w-5 h-5" />,
+    },
     {
       id: 1,
       title: "Actualización v1.1.3 - Foto de Perfil, Transferencias y Conversión",
@@ -69,10 +78,10 @@ export default function Noticias() {
             </span>
           </div>
           <nav className="flex gap-6">
-            <a href="/" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/" className="flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
               <ArrowLeft className="w-4 h-4" />
               Volver al Inicio
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
@@ -101,7 +110,7 @@ export default function Noticias() {
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
                 
                 <div className="flex items-center gap-3 mb-4">
-                  <div className={`p-2 rounded-full ${item.type === 'Anuncio' ? 'bg-primary/20 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>
+                  <div className={`p-2 rounded-full ${item.type === 'Anuncio' || item.type === 'Actualización' ? 'bg-primary/20 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>
                     {item.icon}
                   </div>
                   <div>

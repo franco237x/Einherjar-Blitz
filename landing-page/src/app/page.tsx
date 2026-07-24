@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Download,
@@ -23,9 +24,37 @@ import { useState, useEffect, useCallback } from "react";
    ───────────────────────────────────────────── */
 const SECTIONS = [
   { id: "hero", label: "Inicio" },
+  { id: "release", label: "Novedades" },
   { id: "features", label: "Características" },
   { id: "requirements", label: "Requisitos" },
   { id: "download", label: "Descargar" },
+] as const;
+
+const RELEASE_NOTES = [
+  {
+    icon: Star,
+    title: "Interfaz renovada",
+    description:
+      "Rediseñamos el acceso, la navegación, el perfil, la tienda y las pantallas principales para ofrecer una experiencia más clara y consistente.",
+  },
+  {
+    icon: Newspaper,
+    title: "Invocación reforjada",
+    description:
+      "El gacha estrena ceremonia, presentación de resultados, probabilidades e inventario con un flujo visual completamente renovado.",
+  },
+  {
+    icon: Shield,
+    title: "Economía más sólida",
+    description:
+      "Mejoramos la sincronización de recursos, las compras, las recompensas y la búsqueda de jugadores para reducir estados inconsistentes.",
+  },
+  {
+    icon: Swords,
+    title: "Combate en preparación",
+    description:
+      "La pestaña de juego permanecerá cerrada mientras terminamos la arena, los sprites y el balance del primer enfrentamiento.",
+  },
 ] as const;
 
 /* ─────────────────────────────────────────────
@@ -109,12 +138,12 @@ export default function Home() {
                 {label}
               </button>
             ))}
-            <a
+            <Link
               href="/noticias"
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               Noticias
-            </a>
+            </Link>
           </nav>
 
           {/* Hamburger */}
@@ -155,14 +184,14 @@ export default function Home() {
                     {label}
                   </button>
                 ))}
-                <a
+                <Link
                   href="/noticias"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-foreground hover:bg-primary/5 transition-all"
                 >
                   <Newspaper className="w-4 h-4 text-primary" />
                   Noticias
-                </a>
+                </Link>
               </div>
             </motion.div>
           )}
@@ -237,7 +266,7 @@ export default function Home() {
             </motion.a>
 
             <p className="text-xs text-muted-foreground mt-3">
-              v1.1.3 • Android 8.0+
+              v1.1.7 • Android 8.0+
             </p>
           </motion.div>
 
@@ -248,6 +277,78 @@ export default function Home() {
             className="mt-12 text-muted-foreground/40"
           >
             <ChevronDown className="w-6 h-6" />
+          </motion.div>
+        </section>
+
+        {/* ── Release notes ── */}
+        <section
+          id="release"
+          aria-labelledby="release-title"
+          className="w-full max-w-5xl px-5 py-20"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            className="relative overflow-hidden rounded-3xl border border-primary/25 bg-card/40 p-6 min-[480px]:p-10"
+          >
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-[90px]"
+            />
+
+            <div className="relative">
+              <div className="mb-4 inline-flex min-h-6 items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                Versión 1.1.7 · 24 Jul 2026
+              </div>
+              <h2
+                id="release-title"
+                className="max-w-3xl text-3xl font-bold leading-tight text-foreground min-[480px]:text-4xl font-[Cinzel]"
+              >
+                Una experiencia más sólida, clara y{" "}
+                <span className="text-primary">lista para crecer</span>
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground min-[480px]:text-base">
+                Esta versión renueva el corazón visual de Einherjar Blitz y
+                refuerza sus sistemas principales antes de abrir el primer
+                combate al público.
+              </p>
+
+              <div className="mt-9 grid gap-4 md:grid-cols-2">
+                {RELEASE_NOTES.map(({ icon: Icon, title, description }, index) => (
+                  <motion.article
+                    key={title}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.08 }}
+                    className="rounded-2xl border border-border/50 bg-black/20 p-5"
+                  >
+                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <h3 className="font-[Cinzel] text-lg font-bold text-foreground">
+                      {title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {description}
+                    </p>
+                  </motion.article>
+                ))}
+              </div>
+
+              <Link
+                href="/noticias"
+                className="mt-8 inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/30 px-5 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                <Newspaper className="h-4 w-4" aria-hidden="true" />
+                Ver notas completas
+              </Link>
+            </div>
           </motion.div>
         </section>
 
@@ -279,8 +380,8 @@ export default function Home() {
               },
               {
                 icon: <Swords className="w-5 h-5" />,
-                title: "Combate Táctico",
-                desc: "No basta con fuerza bruta. Forma el equipo perfecto, domina sinergias y derrota enemigos con pura estrategia.",
+                title: "Combate Táctico · Próximamente",
+                desc: "Estamos preparando la arena, los combatientes animados y el balance del primer enfrentamiento antes de abrir este modo.",
                 delay: 0.2,
               },
               {
@@ -424,7 +525,7 @@ export default function Home() {
             <motion.a
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              href="https://github.com/franco237x/Einherjar-Blitz/releases/download/v1/Einherjar_Blitz_Latest.apk"
+              href="https://github.com/franco237x/Einherjar-Blitz/releases/latest/download/Einherjar_Blitz_Latest.apk"
               className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_30px_rgba(201,170,113,0.5)] hover:shadow-[0_0_40px_rgba(201,170,113,0.7)] transition-all"
             >
               <Download className="w-6 h-6" />
@@ -432,7 +533,7 @@ export default function Home() {
             </motion.a>
 
             <p className="text-xs text-muted-foreground mt-4">
-              v1.1.2 • ~115 MB • Android 8.0 (Oreo) o superior
+              v1.1.7 • Android 8.0 (Oreo) o superior
             </p>
           </motion.div>
         </section>
