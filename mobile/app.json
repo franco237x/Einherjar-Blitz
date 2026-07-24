@@ -5,16 +5,14 @@
     "slug": "einherjar-blitz",
     "version": "1.1.7",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.jpg",
+    "icon": "./assets/images/logo.png",
     "scheme": "einherjar",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/logo.jpg",
+      "icon": "./assets/images/logo.png",
       "bundleIdentifier": "com.einherjar.blitz",
       "infoPlist": {
-        "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para funcionalidades de AR.",
-        "NSPhotoLibraryUsageDescription": "Esta app necesita acceso a la galería para guardar certificados.",
-        "NSPhotoLibraryAddUsageDescription": "Esta app necesita acceso para guardar certificados en tu dispositivo."
+        "NSPhotoLibraryUsageDescription": "Selecciona una imagen de tu galería para usarla como avatar."
       }
     },
     "android": {
@@ -22,18 +20,14 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0A",
-        "foregroundImage": "./assets/images/logo.jpg"
+        "foregroundImage": "./assets/images/logo.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+      "permissions": []
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/logo.jpg"
+      "favicon": "./assets/images/logo.png"
     },
     "plugins": [
       "expo-router",
@@ -42,21 +36,23 @@
         {
           "backgroundColor": "#0A0A0A",
           "android": {
-            "image": "./assets/images/logo.jpg",
+            "image": "./assets/images/logo.png",
             "imageWidth": 200
           }
         }
       ],
       "expo-sharing",
       [
-        "expo-media-library",
+        "expo-image-picker",
         {
-          "photosPermission": "Esta app necesita acceso a tu galería para guardar certificados.",
-          "savePhotosPermission": "Esta app necesita acceso para guardar certificados en tu dispositivo.",
-          "isAccessMediaLocationEnabled": true
+          "photosPermission": "Selecciona una imagen de tu galería para usarla como avatar.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ],
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      "expo-video",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

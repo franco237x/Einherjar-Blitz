@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { initializeApp, deleteApp } from 'firebase/app';
@@ -20,17 +21,20 @@ import {
   getAuth,
   initializeAuth,
   signOut,
+  deleteUser,
+  sendEmailVerification,
+  type User,
 } from 'firebase/auth';
-import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { doc, setDoc, getFirestore, serverTimestamp } from 'firebase/firestore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { auth, db, firebaseConfig } from '@/config/firebase';
+import { auth, firebaseConfig } from '@/config/firebase';
 
 import { Background } from '@/components/Background';
 import { GlassCard } from '@/components/GlassCard';
 import { GoldButton } from '@/components/GoldButton';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Layout, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 const GOOGLE_WEB_CLIENT_ID = '618656654443-37njkq2qia9a5qs7393dn4jhtjgihutr.apps.googleusercontent.com';
@@ -42,6 +46,9 @@ if (Platform.OS !== 'web') {
 export default function RegisterScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  const compact = width < 360;
+  const short = height < 760;
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -72,7 +79,9 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     setErrorMsg('');
-    if (!email || !username || !password || !confirmPassword) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedUsername = username.trim();
+    if (!normalizedEmail || !normalizedUsername || !password || !confirmPassword) {
       setErrorMsg('Por favor, completa todos los campos.');
       return;
     }
@@ -80,30 +89,57 @@ export default function RegisterScreen() {
       setErrorMsg('Las contraseñas no coinciden.');
       return;
     }
+    if (password.length < 8) {
+      setErrorMsg('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
     setLoading(true);
     // Use a secondary Firebase app so creating the account does NOT sign the
     // user into the main app (we want them to log in manually afterwards).
     const secondaryApp = initializeApp(firebaseConfig, `Registration-${Date.now()}`);
+    let createdUser: User | null = null;
+    let profileCreated = false;
     try {
       const secondaryAuth =
         Platform.OS === 'web' ? getAuth(secondaryApp) : initializeAuth(secondaryApp);
       const secondaryDb = getFirestore(secondaryApp);
 
-      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        secondaryAuth,
+        normalizedEmail,
+        password
+      );
       const user = userCredential.user;
+      createdUser = user;
       await setDoc(doc(secondaryDb, 'users', user.uid), {
-        email: user.email,
-        username: username,
-        createdAt: new Date(),
+        email: user.email ?? normalizedEmail,
+        username: normalizedUsername,
+        createdAt: serverTimestamp(),
         keys: 0,
         spheres: 0,
         avatar: null,
+        nivel: 1,
+        experiencia: 0,
+        copas: 0,
+        victorias: 0,
+        derrotas: 0,
+        rango: 'Iniciado',
+        horas_jugadas: 0,
+        frase: 'Forjando mi destino...',
       });
+      profileCreated = true;
 
+      await sendEmailVerification(user).catch((cause) => {
+        if (__DEV__) {
+          console.warn('Verification email warning:', (cause as Error)?.message);
+        }
+      });
       await signOut(secondaryAuth).catch(() => {});
-      // Send them to login with a success flag — the main session stays logged out.
-      router.replace('/(auth)/login?registered=1');
+      router.replace('/(auth)/login?registered=verify');
     } catch (error: any) {
+      if (createdUser && !profileCreated) {
+        await deleteUser(createdUser).catch(() => {});
+      }
       let msg = 'Error al registrar usuario.';
       if (error.code === 'auth/email-already-in-use') msg = 'El correo ya está en uso.';
       if (error.code === 'auth/invalid-email') msg = 'El correo no es válido.';
@@ -111,7 +147,7 @@ export default function RegisterScreen() {
       if (error.code === 'auth/operation-not-allowed') msg = 'El registro no está habilitado.';
       if (error.message?.includes('EMAIL_EXISTS')) msg = 'El correo ya está en uso.';
       if (error.code === 'permission-denied') msg = 'Error de permisos en Firestore.';
-      console.log('Register Error:', error);
+      if (__DEV__) console.log('Register Error:', error?.code);
       setErrorMsg(msg);
     } finally {
       await deleteApp(secondaryApp).catch(() => {});
@@ -125,24 +161,12 @@ export default function RegisterScreen() {
       try {
         setLoading(true);
         const provider = new GoogleAuthProvider();
-        const userCredential = await signInWithPopup(auth, provider);
-        const user = userCredential.user;
-        await setDoc(
-          doc(db, 'users', user.uid),
-          {
-            email: user.email,
-            username: user.displayName || 'Guerrero',
-            createdAt: new Date(),
-            keys: 0,
-            spheres: 0,
-            avatar: user.photoURL || null,
-          },
-          { merge: true }
-        );
+        await signInWithPopup(auth, provider);
         router.replace('/(tabs)');
       } catch (error: any) {
-        console.log('Google Register Error:', error);
+        if (__DEV__) console.log('Google Register Error:', error?.code);
         setErrorMsg('Error al registrarse con Google.');
+      } finally {
         setLoading(false);
       }
       return;
@@ -158,26 +182,14 @@ export default function RegisterScreen() {
         return;
       }
       const credential = GoogleAuthProvider.credential(idToken);
-      const userCredential = await signInWithCredential(auth, credential);
-      const user = userCredential.user;
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          email: user.email,
-          username: user.displayName || 'Guerrero',
-          createdAt: new Date(),
-          keys: 0,
-          spheres: 0,
-          avatar: user.photoURL || null,
-        },
-        { merge: true }
-      );
+      await signInWithCredential(auth, credential);
       router.replace('/(tabs)');
     } catch (error: any) {
-      console.log('Google Register Error:', error?.code, error?.message);
+      if (__DEV__) console.log('Google Register Error:', error?.code);
       if (error?.code !== 'SIGN_IN_CANCELLED' && error?.code !== '-5') {
         setErrorMsg('Error al registrarse con Google.');
       }
+    } finally {
       setLoading(false);
     }
   };
@@ -192,17 +204,32 @@ export default function RegisterScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.container,
+            compact && styles.containerCompact,
+            short && styles.containerShort,
             { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.lg }
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View style={[styles.header, { opacity: fadeAnimHeader, transform: [{ translateY: slideAnimHeader }] }]}>
-            <Text style={styles.title}>UNIRSE</Text>
-            <Text style={styles.subtitle}>CREA TU CUENTA</Text>
+          <Animated.View
+            style={[
+              styles.header,
+              short && styles.headerShort,
+              { opacity: fadeAnimHeader, transform: [{ translateY: slideAnimHeader }] },
+            ]}
+          >
+            <Text style={[styles.title, compact && styles.titleCompact]}>UNIRSE</Text>
+            <Text style={[styles.subtitle, compact && styles.subtitleCompact]}>
+              CREA TU CUENTA
+            </Text>
           </Animated.View>
 
-          <Animated.View style={{ opacity: fadeAnimForm, transform: [{ translateY: slideAnimForm }] }}>
+          <Animated.View
+            style={[
+              styles.formShell,
+              { opacity: fadeAnimForm, transform: [{ translateY: slideAnimForm }] },
+            ]}
+          >
             <GlassCard style={styles.card}>
               <View style={styles.form}>
                 <TextInput
@@ -212,6 +239,11 @@ export default function RegisterScreen() {
                   value={username}
                   onChangeText={setUsername}
                   autoCapitalize="none"
+                  autoComplete="username-new"
+                  textContentType="username"
+                  returnKeyType="next"
+                  maxLength={20}
+                  accessibilityLabel="Nombre de usuario"
                 />
                 <TextInput
                   style={styles.input}
@@ -221,6 +253,10 @@ export default function RegisterScreen() {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  returnKeyType="next"
+                  accessibilityLabel="Correo electrónico"
                 />
                 <View style={styles.passwordContainer}>
                   <TextInput
@@ -230,10 +266,16 @@ export default function RegisterScreen() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    returnKeyType="next"
+                    accessibilityLabel="Contraseña"
                   />
                   <TouchableOpacity
                     style={styles.eyeIcon}
                     onPress={() => setShowPassword(!showPassword)}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color={Colors.textMuted} />
                   </TouchableOpacity>
@@ -247,16 +289,31 @@ export default function RegisterScreen() {
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry={!showConfirmPassword}
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    returnKeyType="done"
+                    onSubmitEditing={handleRegister}
+                    accessibilityLabel="Confirmar contraseña"
                   />
                   <TouchableOpacity
                     style={styles.eyeIcon}
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      showConfirmPassword
+                        ? 'Ocultar confirmación de contraseña'
+                        : 'Mostrar confirmación de contraseña'
+                    }
                   >
                     <Ionicons name={showConfirmPassword ? 'eye-off' : 'eye'} size={24} color={Colors.textMuted} />
                   </TouchableOpacity>
                 </View>
 
-                {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+                {errorMsg ? (
+                  <Text style={styles.errorText} accessibilityRole="alert">
+                    {errorMsg}
+                  </Text>
+                ) : null}
 
                 <GoldButton
                   title="REGISTRARSE"
@@ -269,6 +326,9 @@ export default function RegisterScreen() {
                   style={styles.googleBtn}
                   onPress={handleGoogleRegister}
                   disabled={loading}
+                  accessibilityRole="button"
+                  accessibilityLabel="Continuar con Google"
+                  accessibilityState={{ disabled: loading }}
                 >
                   <Ionicons name="logo-google" size={20} color={Colors.textPrimary} style={styles.googleIcon} />
                   <Text style={styles.googleBtnText}>Continuar con Google</Text>
@@ -276,7 +336,11 @@ export default function RegisterScreen() {
 
                 <View style={styles.footer}>
                   <Text style={styles.footerText}>¿Ya tienes cuenta? </Text>
-                  <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+                  <TouchableOpacity
+                    onPress={() => router.push('/(auth)/login')}
+                    accessibilityRole="link"
+                    accessibilityLabel="Iniciar sesión"
+                  >
                     <Text style={styles.linkText}>Inicia sesión</Text>
                   </TouchableOpacity>
                 </View>
@@ -298,9 +362,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: Spacing.lg,
   },
+  containerCompact: {
+    paddingHorizontal: Spacing.md,
+  },
+  containerShort: {
+    justifyContent: 'flex-start',
+  },
   header: {
     marginBottom: Spacing.xl,
     alignItems: 'center',
+  },
+  headerShort: {
+    marginBottom: Spacing.lg,
   },
   title: {
     fontFamily: Fonts.title,
@@ -309,6 +382,11 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     lineHeight: 46,
   },
+  titleCompact: {
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: 3,
+  },
   subtitle: {
     fontFamily: Fonts.bodyMedium,
     fontSize: 14,
@@ -316,8 +394,17 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
     marginTop: Spacing.sm,
   },
+  subtitleCompact: {
+    fontSize: 12,
+    letterSpacing: 2,
+  },
+  formShell: {
+    width: '100%',
+    maxWidth: Layout.authMaxWidth,
+    alignSelf: 'center',
+  },
   card: {
-    marginHorizontal: Spacing.sm,
+    width: '100%',
   },
   form: {
     gap: Spacing.md,
@@ -384,6 +471,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: Spacing.sm,
+    minHeight: Layout.touchTarget,
   },
   footerText: {
     color: Colors.textSecondary,

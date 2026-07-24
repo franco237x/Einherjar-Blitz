@@ -43,6 +43,7 @@ export interface LogEntry {
 
 export interface PlayerCombatantState {
   def: CharacterDef;
+  animationCharacterId: string;
   currentHealth: number;
   maxHealth: number;
   currentMinDamage: number;
@@ -88,6 +89,7 @@ export function initBattle(charId: string): BattleState {
   return {
     player: {
       def: { ...charDef },
+      animationCharacterId: charDef.id,
       currentHealth: charDef.maxHealth,
       maxHealth: charDef.maxHealth,
       currentMinDamage: charDef.attack.minDamage,
@@ -151,6 +153,7 @@ export function executePlayerAttack(
       ...state,
       player: {
         ...player,
+        animationCharacterId: player.def.id,
         isDefending: false,
         spriteState: 'attack',
       },
@@ -177,6 +180,7 @@ export function executePlayerDefend(state: BattleState): BattleState {
     ...state,
     player: {
       ...player,
+      animationCharacterId: player.def.id,
       isDefending: true,
       spriteState: 'defend',
     },
@@ -201,6 +205,7 @@ export function executePlayerRegen(state: BattleState): {
       ...state,
       player: {
         ...player,
+        animationCharacterId: player.def.id,
         currentHealth: newHP,
         isDefending: false,
         spriteState: 'regen',
@@ -244,6 +249,9 @@ export function executePlayerSpecial(state: BattleState): BattleState {
     ...state,
     player: {
       ...player,
+      // The clip belongs to the character that initiated the transformation.
+      // The transformed definition is already active for the following turn.
+      animationCharacterId: player.def.id,
       def: result.newDef,
       currentHealth: result.currentHealth,
       currentMinDamage: result.minDamage,
@@ -310,6 +318,7 @@ export function executeBossTurn(
         turnCount: state.turnCount + 1,
         player: {
           ...player,
+          animationCharacterId: player.def.id,
           currentHealth: playerHealthAfterRadiationHeal,
           isDefending: false,
           spriteState: 'victory',
@@ -377,6 +386,7 @@ export function executeBossTurn(
       turnCount: state.turnCount + 1,
       player: {
         ...player,
+        animationCharacterId: player.def.id,
         currentHealth: newPlayerHealth,
         isDefending: false,
         spriteState: isDefeat ? 'defeat' : 'hit',
@@ -386,7 +396,7 @@ export function executeBossTurn(
         ...boss,
         currentHealth: bossHealthAfterRadiation,
         isPhase2: isPhase2Triggered,
-        spriteState: 'attack',
+        spriteState: phase2JustTriggered ? 'special' : 'attack',
       },
       turnPhase: isDefeat ? 'defeat' : 'player_turn',
       log: logs,

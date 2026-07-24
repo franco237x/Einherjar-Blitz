@@ -14,6 +14,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  cancelAnimation,
   withTiming,
   withDelay,
   withRepeat,
@@ -379,18 +380,36 @@ interface FlipCard3DProps {
   index: number;
   isBest: boolean;
   delayMs: number;
+  cardWidth: number;
+  cardHeight: number;
+  reduceMotion?: boolean;
 }
 
-export const FlipCard3D = ({ item, index, isBest, delayMs }: FlipCard3DProps) => {
+export const FlipCard3D = ({
+  item,
+  index,
+  isBest,
+  delayMs,
+  cardWidth,
+  cardHeight,
+  reduceMotion = false,
+}: FlipCard3DProps) => {
   const flip = useSharedValue(0);
   const rarity = RARITIES[item.rarity];
+  const compact = cardWidth < 155;
+  const imageHeight = Math.round(cardHeight * (compact ? 0.57 : 0.62));
 
   React.useEffect(() => {
-    flip.value = withDelay(
-      delayMs,
-      withSpring(1, { damping: 14, stiffness: 120, mass: 0.6 }),
-    );
-  }, [flip, delayMs]);
+    flip.value = 0;
+    flip.value = reduceMotion
+      ? withTiming(1, { duration: 80 })
+      : withDelay(
+          delayMs,
+          withSpring(1, { damping: 14, stiffness: 120, mass: 0.6 }),
+        );
+
+    return () => cancelAnimation(flip);
+  }, [delayMs, flip, reduceMotion]);
 
   const frontStyle = useAnimatedStyle(() => {
     const rotateY = interpolate(flip.value, [0, 1], [180, 0]);
@@ -412,24 +431,64 @@ export const FlipCard3D = ({ item, index, isBest, delayMs }: FlipCard3DProps) =>
     item.type === 'persona' ? 'Persona' : item.type === 'invocacion' ? 'Invocación' : 'Recurso';
 
   return (
-    <View style={styles3d.cardWrap} pointerEvents="none">
+    <View
+      style={[
+        styles3d.cardWrap,
+        {
+          width: cardWidth,
+          height: cardHeight,
+        },
+      ]}
+      accessible
+      accessibilityLabel={`Recompensa ${index + 1}: ${item.name}, ${rarity.label}`}
+      pointerEvents="none"
+    >
       {/* Back face (card back) */}
       <Animated.View style={[styles3d.face, styles3d.back, backStyle]}>
-        <View style={[styles3d.backPattern, { borderColor: rarity.color }]}>
-          <Ionicons name="diamond" size={32} color={rarity.color} />
+        <View
+          style={[
+            styles3d.backPattern,
+            {
+              borderColor: rarity.color,
+              shadowColor: rarity.color,
+            },
+          ]}
+        >
+          <View style={[styles3d.backDiamond, { borderColor: rarity.color }]}>
+            <Ionicons name="diamond" size={compact ? 24 : 32} color={rarity.color} />
+          </View>
           <View style={styles3d.backStars}>
             {Array.from({ length: rarity.stars }).map((_, i) => (
-              <Ionicons key={i} name="star" size={8} color={rarity.color} />
+              <Ionicons key={i} name="star" size={compact ? 7 : 8} color={rarity.color} />
             ))}
           </View>
+          <Animated.Text style={[styles3d.backCode, { color: rarity.color }]}>
+            EIN // {String(index + 1).padStart(2, '0')}
+          </Animated.Text>
         </View>
       </Animated.View>
 
       {/* Front face (revealed) */}
       <Animated.View style={[styles3d.face, styles3d.front, frontStyle]}>
-        <View style={[styles3d.cardInner, { borderColor: rarity.color }]}>
+        <View
+          style={[
+            styles3d.cardInner,
+            {
+              borderColor: rarity.color,
+              borderWidth: isBest ? 2 : 1,
+              shadowColor: rarity.color,
+            },
+          ]}
+        >
+          <View style={[styles3d.rarityRail, { backgroundColor: rarity.color }]} />
+          {isBest && (
+            <View style={[styles3d.bestFlag, { backgroundColor: rarity.color }]}>
+              <Ionicons name="star" size={8} color="#08090b" />
+              <Animated.Text style={styles3d.bestFlagText}>DESTACADO</Animated.Text>
+            </View>
+          )}
           {/* Image / fallback */}
-          <View style={styles3d.imageWrap}>
+          <View style={[styles3d.imageWrap, { height: imageHeight }]}>
             {item.image ? (
               <Animated.Image
                 source={item.image}
@@ -441,24 +500,44 @@ export const FlipCard3D = ({ item, index, isBest, delayMs }: FlipCard3DProps) =>
                 <Ionicons name={item.fallbackIcon as any} size={40} color={rarity.color} />
               </View>
             )}
-            <View style={[styles3d.imageOverlay, { backgroundColor: rarity.glowColor }]} />
+            <LinearGradient
+              colors={['transparent', rarity.glowColor, 'rgba(4,6,10,0.96)']}
+              locations={[0.48, 0.78, 1]}
+              style={styles3d.imageOverlay}
+            />
           </View>
 
           {/* Info */}
-          <View style={styles3d.info}>
+          <View style={[styles3d.info, compact && styles3d.infoCompact]}>
             <View style={styles3d.stars}>
               {Array.from({ length: rarity.stars }).map((_, i) => (
-                <Ionicons key={i} name="star" size={10} color={rarity.color} />
+                <Ionicons key={i} name="star" size={compact ? 8 : 10} color={rarity.color} />
               ))}
             </View>
             <Animated.Text
-              style={[styles3d.name, { color: rarity.color }]}
+              style={[
+                styles3d.name,
+                compact && styles3d.nameCompact,
+                { color: rarity.color },
+              ]}
               numberOfLines={2}
             >
               {item.name}
             </Animated.Text>
-            <View style={[styles3d.typeBadge, { borderColor: rarity.color }]}>
-              <Animated.Text style={[styles3d.typeText, { color: rarity.color }]}>
+            <View
+              style={[
+                styles3d.typeBadge,
+                compact && styles3d.typeBadgeCompact,
+                { borderColor: rarity.color },
+              ]}
+            >
+              <Animated.Text
+                style={[
+                  styles3d.typeText,
+                  compact && styles3d.typeTextCompact,
+                  { color: rarity.color },
+                ]}
+              >
                 {typeLabel}
               </Animated.Text>
             </View>
@@ -471,9 +550,6 @@ export const FlipCard3D = ({ item, index, isBest, delayMs }: FlipCard3DProps) =>
 
 const styles3d = StyleSheet.create({
   cardWrap: {
-    width: (SCREEN_W - Spacing.xl * 2 - Spacing.md) / 2,
-    height: 240,
-    marginBottom: Spacing.md,
     transform: [{ perspective: 1000 }],
   },
   face: {
@@ -487,29 +563,73 @@ const styles3d = StyleSheet.create({
   backPattern: {
     width: '100%',
     height: '100%',
-    borderRadius: Radius.md,
+    borderRadius: Radius.sm,
     borderWidth: 2,
-    backgroundColor: 'rgba(10,10,10,0.9)',
+    backgroundColor: 'rgba(3,7,13,0.96)',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
+  },
+  backDiamond: {
+    width: 64,
+    height: 64,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ rotate: '45deg' }],
   },
   backStars: {
     flexDirection: 'row',
     gap: 2,
   },
+  backCode: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 8,
+    letterSpacing: 1.4,
+    opacity: 0.72,
+  },
   front: {},
   cardInner: {
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(10,10,10,0.9)',
-    borderRadius: Radius.md,
+    backgroundColor: 'rgba(4,6,10,0.96)',
+    borderRadius: Radius.sm,
     borderWidth: 1,
     overflow: 'hidden',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.48,
+    shadowRadius: 12,
+  },
+  rarityRail: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    zIndex: 4,
+  },
+  bestFlag: {
+    position: 'absolute',
+    top: 10,
+    right: 8,
+    zIndex: 5,
+    minHeight: 21,
+    paddingHorizontal: 7,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  bestFlagText: {
+    color: '#08090b',
+    fontFamily: Fonts.bodyBold,
+    fontSize: 7,
+    letterSpacing: 0.7,
   },
   imageWrap: {
     width: '100%',
-    height: 160,
     position: 'relative',
   },
   image: {
@@ -524,16 +644,24 @@ const styles3d = StyleSheet.create({
   },
   imageOverlay: {
     position: 'absolute',
+    top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    height: 30,
-    opacity: 0.5,
   },
   info: {
-    padding: Spacing.sm,
+    flex: 1,
+    minHeight: 0,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 7,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
+  },
+  infoCompact: {
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+    gap: 2,
   },
   stars: {
     flexDirection: 'row',
@@ -545,6 +673,10 @@ const styles3d = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
   },
+  nameCompact: {
+    fontSize: 11,
+    lineHeight: 13,
+  },
   typeBadge: {
     borderWidth: 1,
     borderRadius: Radius.full,
@@ -552,10 +684,19 @@ const styles3d = StyleSheet.create({
     paddingVertical: 2,
     marginTop: 2,
   },
+  typeBadgeCompact: {
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    marginTop: 0,
+  },
   typeText: {
     fontFamily: Fonts.body,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  typeTextCompact: {
+    fontSize: 8,
+    letterSpacing: 0.6,
   },
 });

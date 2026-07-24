@@ -75,8 +75,7 @@ export const ProbabilitiesPanel = ({ rewards }: ProbabilitiesPanelProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: Spacing.lg,
-    marginTop: Spacing.sm,
+    marginTop: 0,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,

@@ -1,24 +1,41 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Animated,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { doc, runTransaction, collection, where, getDocs, increment, query } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
-import { auth, db } from '@/config/firebase';
+import { auth } from '@/config/firebase';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { Background } from '@/components/Background';
 import { GlassCard } from '@/components/GlassCard';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
-import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { Colors, Fonts, Layout, Spacing, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useUserData } from '@/hooks/useUserData';
 import { TransferModal } from '@/components/TransferModal';
+import { convertKeysToSpheres } from '@/services/economy';
 
 export default function DashboardScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userData, loading } = useUserData();
+  const { width } = useWindowDimensions();
+  const compact = width < 390;
+  const stackedHeader = width < 620;
+  const wide = width >= 720;
+  const { userData, loading, error: userDataError } = useUserData();
 
   // Modal states
   const [showTransferModal, setShowTransferModal] = useState(false);
@@ -43,15 +60,6 @@ export default function DashboardScreen() {
     }
   }, [loading, fadeAnim]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.replace('/(auth)/login');
-    } catch (error) {
-      console.error('Error signing out: ', error);
-    }
-  };
-
   const calculateWinrate = () => {
     if (!userData) return 0;
     const total = (userData.victorias || 0) + (userData.derrotas || 0);
@@ -72,6 +80,13 @@ export default function DashboardScreen() {
 
   const handleConvert = async () => {
     setConvertMsg(null);
+    if (userDataError) {
+      setConvertMsg({
+        type: 'error',
+        text: 'Espera a que el perfil vuelva a sincronizarse.',
+      });
+      return;
+    }
     const amount = parseInt(convertAmount, 10);
 
     if (!amount || amount <= 0) {
@@ -86,27 +101,13 @@ export default function DashboardScreen() {
 
     setConvertBusy(true);
     try {
-      const userRef = doc(db, 'users', auth.currentUser!.uid);
-      await runTransaction(db, async (transaction) => {
-        const userSnap = await transaction.get(userRef);
-        if (!userSnap.exists()) {
-          throw new Error('Usuario no encontrado.');
-        }
-        const currentKeys = userSnap.data().keys || 0;
-        if (currentKeys < amount) {
-          throw new Error('Saldo insuficiente.');
-        }
-        transaction.update(userRef, {
-          keys: increment(-amount),
-          spheres: increment(amount * 50),
-        });
-      });
+      await convertKeysToSpheres(auth.currentUser!.uid, amount);
 
       setConvertMsg({ type: 'success', text: `¡Convertiste ${amount} llaves en ${amount * 50} esferas!` });
       setConvertAmount('1');
       // onSnapshot in useUserData will auto-refresh balances
     } catch (error: any) {
-      console.error('Convert error:', error);
+      if (__DEV__) console.error('Convert error:', error?.code || error?.message);
       setConvertMsg({ type: 'error', text: error?.message || 'Error al convertir llaves.' });
     } finally {
       setConvertBusy(false);
@@ -137,98 +138,152 @@ export default function DashboardScreen() {
         style={[styles.container, { opacity: fadeAnim }]}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + 80 }
+          compact && styles.scrollContentCompact,
+          {
+            paddingTop: insets.top + Spacing.md,
+            paddingBottom: insets.bottom + 88,
+          }
         ]}
         showsVerticalScrollIndicator={false}
       >
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.brandSection}>
-            <Ionicons name="shield-half" size={24} color={Colors.primaryGold} />
-            <Text style={styles.brandText}>Einherjer Blitz</Text>
-          </View>
-
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.iconBtn}>
-              <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
-            </TouchableOpacity>
-
-            <View style={styles.avatarWrapper}>
+        <View style={[styles.lobbyHeader, stackedHeader && styles.lobbyHeaderCompact]}>
+          <TouchableOpacity
+            style={styles.playerIdentity}
+            onPress={() => router.push('/(tabs)/profile')}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver perfil de ${userData?.username || 'Guerrero'}, nivel ${userData?.nivel || 1}`}
+          >
+            <View style={styles.avatarFrame}>
               {userData?.avatar ? (
-                <Image source={{ uri: userData.avatar }} style={styles.avatar} />
+                <Image
+                  source={{ uri: userData.avatar }}
+                  style={styles.playerAvatar}
+                  contentFit="cover"
+                  transition={150}
+                />
               ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Ionicons name="person" size={20} color={Colors.primaryGold} />
+                <View style={styles.playerAvatarPlaceholder}>
+                  <Ionicons name="person" size={25} color={Colors.primaryGold} />
                 </View>
               )}
-              <View style={styles.levelBadge}>
-                <Text style={styles.levelBadgeText}>{userData?.nivel || 1}</Text>
+              <View style={styles.playerLevelBadge}>
+                <Text style={styles.playerLevelText}>{userData?.nivel || 1}</Text>
               </View>
             </View>
 
-            <TouchableOpacity style={styles.iconBtn} onPress={handleLogout}>
-              <Ionicons name="log-out-outline" size={24} color={Colors.textPrimary} />
-            </TouchableOpacity>
+            <View style={styles.playerCopy}>
+              <Text style={styles.playerName} numberOfLines={1}>
+                {userData?.username || 'Guerrero'}
+              </Text>
+              <Text style={styles.playerRank} numberOfLines={1}>
+                {userData?.rango || 'Iniciado'}
+              </Text>
+              <View style={styles.headerProgressTrack}>
+                <View
+                  style={[
+                    styles.headerProgressFill,
+                    { width: `${progress.percent}%` },
+                  ]}
+                />
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={17} color={Colors.textMuted} />
+          </TouchableOpacity>
+
+          <View style={styles.wallet} accessibilityLabel="Tus recursos">
+            <View style={[styles.currencyPill, stackedHeader && styles.currencyPillCompact]}>
+              <Ionicons name="key-outline" size={18} color={Colors.primaryGold} />
+              <View>
+                <Text style={styles.currencyLabel}>LLAVES</Text>
+                <Text style={styles.currencyValue}>{userData?.keys || 0}</Text>
+              </View>
+            </View>
+            <View style={[styles.currencyPill, stackedHeader && styles.currencyPillCompact]}>
+              <Ionicons name="planet-outline" size={18} color="#7ed9e7" />
+              <View>
+                <Text style={styles.currencyLabel}>ESFERAS</Text>
+                <Text style={styles.currencyValue}>{userData?.spheres || 0}</Text>
+              </View>
+            </View>
           </View>
         </View>
 
-        {/* Welcome Section */}
-        <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>¡Bienvenido, {userData?.username || 'Guerrero'}!</Text>
-          <Text style={styles.welcomeSubtitle}>{userData?.frase || 'Forjando mi destino...'}</Text>
-        </View>
+        {userDataError ? (
+          <Text style={styles.syncError} accessibilityRole="alert">
+            No se pudieron sincronizar tus datos. Comprueba tu conexión antes de operar.
+          </Text>
+        ) : null}
 
-        {/* Stats Grid */}
-        <View style={styles.statsGrid}>
-          <GlassCard style={styles.statCard}>
-            <Ionicons name="trophy-outline" size={24} color={Colors.primaryGold} />
-            <Text style={styles.statValue}>{userData?.copas || 0}</Text>
-            <Text style={styles.statLabel}>Copas</Text>
-            <Text style={styles.statSublabel}>{userData?.rango || 'Iniciado'}</Text>
-          </GlassCard>
+        <TouchableOpacity
+          style={[styles.showcase, wide && styles.showcaseWide]}
+          onPress={() => router.push('/(tabs)/profile')}
+          activeOpacity={0.9}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir perfil y trayectoria"
+        >
+          <Image
+            source={require('../../../assets/images/loading_screen/orfevre.jpg')}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            contentPosition="center"
+            transition={220}
+          />
+          <LinearGradient
+            colors={[
+              'rgba(5, 5, 5, 0.06)',
+              'rgba(5, 5, 5, 0.44)',
+              'rgba(5, 5, 5, 0.96)',
+            ]}
+            locations={[0, 0.5, 1]}
+            style={StyleSheet.absoluteFill}
+          />
 
-          <GlassCard style={styles.statCard}>
-            <Ionicons name="medal-outline" size={24} color={Colors.primaryGold} />
-            <Text style={styles.statValue}>{userData?.nivel || 1}</Text>
-            <Text style={styles.statLabel}>Nivel</Text>
-            <Text style={styles.statSublabel}>{userData?.experiencia || 0} EXP</Text>
-          </GlassCard>
+          <View style={styles.showcaseTop}>
+            <View>
+              <Text style={styles.showcaseEyebrow}>PERFIL DE GUERRERO</Text>
+              <Text style={styles.showcaseSeason}>Temporada actual</Text>
+            </View>
+            <View style={styles.statusPill}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>EN LÍNEA</Text>
+            </View>
+          </View>
 
-          <GlassCard style={styles.statCard}>
-            <Ionicons name="stats-chart-outline" size={24} color={Colors.primaryGold} />
-            <Text style={styles.statValue}>{winrate}%</Text>
-            <Text style={styles.statLabel}>Winrate</Text>
-            <Text style={styles.statSublabel}>{userData?.victorias || 0}W / {userData?.derrotas || 0}L</Text>
-          </GlassCard>
+          <View style={styles.showcaseBottom}>
+            <Text style={styles.showcaseRank}>{userData?.rango || 'Iniciado'}</Text>
+            <Text style={styles.showcaseQuote} numberOfLines={2}>
+              {userData?.frase || 'Forjando mi destino...'}
+            </Text>
+            <View style={styles.showcaseStats}>
+              <View style={styles.showcaseStat}>
+                <Text style={styles.showcaseStatValue}>{userData?.copas || 0}</Text>
+                <Text style={styles.showcaseStatLabel}>COPAS</Text>
+              </View>
+              <View style={styles.showcaseStatDivider} />
+              <View style={styles.showcaseStat}>
+                <Text style={styles.showcaseStatValue}>{userData?.victorias || 0}</Text>
+                <Text style={styles.showcaseStatLabel}>VICTORIAS</Text>
+              </View>
+              <View style={styles.showcaseStatDivider} />
+              <View style={styles.showcaseStat}>
+                <Text style={styles.showcaseStatValue}>{winrate}%</Text>
+                <Text style={styles.showcaseStatLabel}>WINRATE</Text>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>
 
-          <GlassCard style={styles.statCard}>
-            <Ionicons name="key-outline" size={24} color={Colors.primaryGold} />
-            <Text style={styles.statValue}>{userData?.keys || 0}</Text>
-            <Text style={styles.statLabel}>Llaves</Text>
-            <Text style={styles.statSublabel}>Para cofres</Text>
-          </GlassCard>
-
-          <GlassCard style={styles.statCard}>
-            <Ionicons name="planet-outline" size={24} color={Colors.primaryGold} />
-            <Text style={styles.statValue}>{userData?.spheres || 0}</Text>
-            <Text style={styles.statLabel}>Esferas</Text>
-            <Text style={styles.statSublabel}>Moneda del juego</Text>
-          </GlassCard>
-
-          <GlassCard style={styles.statCard}>
-            <Ionicons name="time-outline" size={24} color={Colors.primaryGold} />
-            <Text style={styles.statValue}>{userData?.horas_jugadas || 0}h</Text>
-            <Text style={styles.statLabel}>Horas</Text>
-            <Text style={styles.statSublabel}>Tiempo total</Text>
-          </GlassCard>
-        </View>
-
-        {/* Level Progress */}
-        <GlassCard style={styles.progressSection}>
+        <GlassCard style={styles.progressSection} contentStyle={styles.progressContent}>
           <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Progreso de Nivel</Text>
-            <Text style={styles.progressLevels}>Nivel {userData?.nivel || 1} → {(userData?.nivel || 1) + 1}</Text>
+            <View>
+              <Text style={styles.progressEyebrow}>PROGRESO GENERAL</Text>
+              <Text style={styles.progressTitle}>Nivel {userData?.nivel || 1}</Text>
+            </View>
+            <View style={styles.nextLevelBadge}>
+              <Text style={styles.nextLevelLabel}>SIGUIENTE</Text>
+              <Text style={styles.nextLevelValue}>{(userData?.nivel || 1) + 1}</Text>
+            </View>
           </View>
           <View style={styles.progressBarBg}>
             <View style={[styles.progressBarFill, { width: `${progress.percent}%` }]} />
@@ -239,78 +294,102 @@ export default function DashboardScreen() {
           </View>
         </GlassCard>
 
-        {/* Navigation Grid */}
-        <View style={styles.navGrid}>
-          <TouchableOpacity style={styles.navCard}>
-            <GlassCard style={styles.navGlass}>
-              <Ionicons name="game-controller-outline" size={28} color={Colors.textPrimary} />
-              <Text style={styles.navTitle}>Jugar</Text>
-              <Text style={styles.navDesc}>(Próximamente)</Text>
-            </GlassCard>
+        <View style={styles.sectionHeading}>
+          <View>
+            <Text style={styles.sectionTitle}>Operaciones</Text>
+            <Text style={styles.sectionSubtitle}>Gestiona tu economía</Text>
+          </View>
+        </View>
+
+        <View style={styles.operationsGrid}>
+          <TouchableOpacity
+            style={[
+              styles.operationCard,
+              wide && styles.operationCardWide,
+              userDataError && styles.operationCardDisabled,
+            ]}
+            onPress={() => setShowTransferModal(true)}
+            disabled={Boolean(userDataError)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Transferir llaves"
+            accessibilityState={{ disabled: Boolean(userDataError) }}
+          >
+            <View style={styles.operationIcon}>
+              <Ionicons name="swap-horizontal-outline" size={23} color={Colors.primaryGold} />
+            </View>
+            <Text style={styles.operationTitle}>Transferir</Text>
+            <Text style={styles.operationDescription}>Envía llaves a otro usuario</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navCard}>
-            <GlassCard style={styles.navGlass}>
-              <Ionicons name="bar-chart-outline" size={28} color={Colors.textPrimary} />
-              <Text style={styles.navTitle}>Estadísticas</Text>
-              <Text style={styles.navDesc}>(Próximamente)</Text>
-            </GlassCard>
+          <TouchableOpacity
+            style={[
+              styles.operationCard,
+              wide && styles.operationCardWide,
+              userDataError && styles.operationCardDisabled,
+            ]}
+            onPress={() => setShowConvertModal(true)}
+            disabled={Boolean(userDataError)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Convertir llaves en esferas"
+            accessibilityState={{ disabled: Boolean(userDataError) }}
+          >
+            <View style={styles.operationIcon}>
+              <Ionicons name="sync-outline" size={23} color={Colors.primaryGold} />
+            </View>
+            <Text style={styles.operationTitle}>Convertir</Text>
+            <Text style={styles.operationDescription}>Cambia llaves por esferas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navCard} onPress={() => router.push('/(tabs)/gacha')}>
-            <GlassCard style={styles.navGlass}>
-              <Ionicons name="sparkles-outline" size={28} color={Colors.primaryGold} />
-              <Text style={styles.navTitle}>Gacha</Text>
-              <Text style={styles.navDesc}>Invoca recompensas</Text>
-            </GlassCard>
+          <TouchableOpacity
+            style={[styles.operationCard, wide && styles.operationCardWide]}
+            onPress={() => router.push('/(tabs)/gacha')}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir gacha"
+          >
+            <View style={styles.operationIcon}>
+              <Ionicons name="sparkles-outline" size={23} color={Colors.primaryGold} />
+            </View>
+            <Text style={styles.operationTitle}>Gacha</Text>
+            <Text style={styles.operationDescription}>Usa esferas y reclama premios</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navCard} onPress={() => router.push('/(tabs)/store')}>
-            <GlassCard style={styles.navGlass}>
-              <Ionicons name="cart-outline" size={28} color={Colors.primaryGold} />
-              <Text style={styles.navTitle}>Tienda</Text>
-              <Text style={styles.navDesc}>Compra artículos</Text>
-            </GlassCard>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navCard} onPress={() => setShowConvertModal(true)}>
-            <GlassCard style={styles.navGlass}>
-              <Ionicons name="sync-outline" size={28} color={Colors.primaryGold} />
-              <Text style={styles.navTitle}>Conversión</Text>
-              <Text style={styles.navDesc}>Llaves → Esferas</Text>
-            </GlassCard>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navCard}>
-            <GlassCard style={styles.navGlass}>
-              <Ionicons name="people-outline" size={28} color={Colors.textPrimary} />
-              <Text style={styles.navTitle}>Online</Text>
-              <Text style={styles.navDesc}>(Próximamente)</Text>
-            </GlassCard>
+          <TouchableOpacity
+            style={[styles.operationCard, wide && styles.operationCardWide]}
+            onPress={() => router.push('/(tabs)/store')}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir tienda"
+          >
+            <View style={styles.operationIcon}>
+              <Ionicons name="bag-handle-outline" size={23} color={Colors.primaryGold} />
+            </View>
+            <Text style={styles.operationTitle}>Tienda</Text>
+            <Text style={styles.operationDescription}>Compra y revisa el catálogo</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Quick Actions */}
-        <GlassCard style={styles.quickActionsSection}>
-          <Text style={styles.quickActionsTitle}>Acciones Rápidas</Text>
-          <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => setShowTransferModal(true)}>
-              <Ionicons name="swap-horizontal-outline" size={20} color={Colors.primaryGold} />
-              <Text style={styles.actionText}>Transferir</Text>
-            </TouchableOpacity>
-            
-            <View style={[styles.actionBtn, { opacity: 0.5 }]}>
-              <Ionicons name="person-circle-outline" size={20} color={Colors.textMuted} />
-              <Text style={[styles.actionText, { color: Colors.textMuted }]}>Perfil</Text>
-            </View>
-
-            <View style={[styles.actionBtn, { opacity: 0.5 }]}>
-              <Ionicons name="skull-outline" size={20} color={Colors.textMuted} />
-              <Text style={[styles.actionText, { color: Colors.textMuted }]}>Mega Jefe</Text>
-            </View>
+        <Text style={styles.sectionTitle}>Modo de juego</Text>
+        <TouchableOpacity
+          style={styles.arenaStrip}
+          onPress={() => router.push('/(tabs)/play')}
+          activeOpacity={0.82}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir arena de combate"
+        >
+          <View style={styles.arenaIcon}>
+            <Ionicons name="game-controller-outline" size={25} color={Colors.primaryGold} />
           </View>
-        </GlassCard>
-
+          <View style={styles.arenaCopy}>
+            <Text style={styles.arenaTitle}>Arena de combate</Text>
+            <Text style={styles.arenaDescription} numberOfLines={2}>
+              Prueba tus personajes en el modo RPG
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={21} color={Colors.textMuted} />
+        </TouchableOpacity>
       </Animated.ScrollView>
 
       {/* Transfer Keys Modal */}
@@ -334,7 +413,12 @@ export default function DashboardScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Convertir Llaves</Text>
-              <TouchableOpacity onPress={closeConvertModal} style={styles.modalCloseBtn}>
+              <TouchableOpacity
+                onPress={closeConvertModal}
+                style={styles.modalCloseBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar conversión"
+              >
                 <Ionicons name="close" size={22} color={Colors.textPrimary} />
               </TouchableOpacity>
             </View>
@@ -348,7 +432,12 @@ export default function DashboardScreen() {
 
             <Text style={styles.inputLabel}>Cantidad de llaves a convertir</Text>
             <View style={styles.stepperRow}>
-              <TouchableOpacity style={styles.stepperBtn} onPress={() => setConvertAmount(String(Math.max(1, (parseInt(convertAmount, 10) || 1) - 1)))}>
+              <TouchableOpacity
+                style={styles.stepperBtn}
+                onPress={() => setConvertAmount(String(Math.max(1, (parseInt(convertAmount, 10) || 1) - 1)))}
+                accessibilityRole="button"
+                accessibilityLabel="Restar una llave"
+              >
                 <Ionicons name="remove" size={20} color={Colors.primaryGold} />
               </TouchableOpacity>
               <TextInput
@@ -358,8 +447,14 @@ export default function DashboardScreen() {
                 value={convertAmount}
                 onChangeText={setConvertAmount}
                 keyboardType="number-pad"
+                accessibilityLabel="Cantidad de llaves a convertir"
               />
-              <TouchableOpacity style={styles.stepperBtn} onPress={() => setConvertAmount(String((parseInt(convertAmount, 10) || 0) + 1))}>
+              <TouchableOpacity
+                style={styles.stepperBtn}
+                onPress={() => setConvertAmount(String((parseInt(convertAmount, 10) || 0) + 1))}
+                accessibilityRole="button"
+                accessibilityLabel="Sumar una llave"
+              >
                 <Ionicons name="add" size={20} color={Colors.primaryGold} />
               </TouchableOpacity>
             </View>
@@ -381,6 +476,9 @@ export default function DashboardScreen() {
               style={[styles.modalBtn, convertBusy && styles.modalBtnDisabled]}
               onPress={handleConvert}
               disabled={convertBusy}
+              accessibilityRole="button"
+              accessibilityLabel="Confirmar conversión"
+              accessibilityState={{ disabled: convertBusy, busy: convertBusy }}
             >
               {convertBusy ? (
                 <ActivityIndicator color={Colors.bgDarker} />
@@ -397,144 +495,365 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: Colors.primaryGold,
-    fontFamily: Fonts.bodyBold,
-    marginTop: Spacing.md,
-    letterSpacing: 2,
-    fontSize: 12,
-  },
   container: {
     flex: 1,
   },
   scrollContent: {
     padding: Spacing.lg,
+    width: '100%',
+    maxWidth: Layout.contentMaxWidth,
+    alignSelf: 'center',
   },
-  
-  /* Header */
-  header: {
+  scrollContentCompact: {
+    paddingHorizontal: Spacing.md,
+  },
+
+  /* Player lobby header */
+  lobbyHeader: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.xl,
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
   },
-  brandSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
+  lobbyHeaderCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: Spacing.sm,
   },
-  brandText: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 18,
-    letterSpacing: 2,
-  },
-  headerActions: {
+  playerIdentity: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 58,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+    paddingRight: Spacing.xs,
   },
-  iconBtn: {
-    padding: Spacing.xs,
-  },
-  avatarWrapper: {
+  avatarFrame: {
+    width: 52,
+    height: 52,
     position: 'relative',
-    marginHorizontal: Spacing.xs,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  playerAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     borderWidth: 1.5,
     borderColor: Colors.primaryGold,
   },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  playerAvatarPlaceholder: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     borderWidth: 1.5,
     borderColor: Colors.primaryGold,
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
-    justifyContent: 'center',
+    backgroundColor: '#17140f',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  levelBadge: {
+  playerLevelBadge: {
     position: 'absolute',
-    bottom: -5,
-    right: -5,
-    backgroundColor: Colors.primaryGold,
-    borderWidth: 1,
-    borderColor: Colors.primaryGold,
-    borderRadius: 10,
-    width: 20,
+    right: -3,
+    bottom: -3,
+    minWidth: 20,
     height: 20,
-    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.primaryGold,
+    borderWidth: 2,
+    borderColor: Colors.bgDarker,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  levelBadgeText: {
+  playerLevelText: {
     color: Colors.bgDarker,
     fontFamily: Fonts.bodyBold,
     fontSize: 10,
   },
-
-  /* Welcome */
-  welcomeSection: {
-    marginBottom: Spacing.xl,
+  playerCopy: {
+    flex: 1,
+    minWidth: 0,
   },
-  welcomeTitle: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 24,
-    marginBottom: Spacing.xs,
-  },
-  welcomeSubtitle: {
-    color: Colors.primaryGold,
-    fontFamily: Fonts.body,
-    fontSize: 14,
-    fontStyle: 'italic',
-  },
-
-  /* Stats Grid */
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
-  },
-  statCard: {
-    width: '47%',
-    padding: Spacing.md,
-    alignItems: 'center',
-  },
-  statValue: {
+  playerName: {
     color: Colors.textPrimary,
     fontFamily: Fonts.bodyBold,
-    fontSize: 24,
-    marginTop: Spacing.xs,
+    fontSize: 17,
   },
-  statLabel: {
+  playerRank: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyMedium,
+    fontSize: 12,
+    marginTop: 1,
+  },
+  headerProgressTrack: {
+    height: 3,
+    marginTop: 6,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    overflow: 'hidden',
+  },
+  headerProgressFill: {
+    height: '100%',
+    borderRadius: Radius.full,
+    backgroundColor: '#67d9e7',
+  },
+  wallet: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  currencyPill: {
+    minWidth: 104,
+    minHeight: Layout.touchTarget,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(201,170,113,0.22)',
+    backgroundColor: 'rgba(10,10,10,0.9)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  currencyPillCompact: {
+    flex: 1,
+  },
+  currencyLabel: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 9,
+    letterSpacing: 0.8,
+  },
+  currencyValue: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 16,
+    lineHeight: 18,
+  },
+
+  /* Player showcase */
+  showcase: {
+    height: 270,
+    overflow: 'hidden',
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    backgroundColor: Colors.bgCard,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    justifyContent: 'space-between',
+  },
+  showcaseWide: {
+    height: 330,
+    padding: Spacing.lg,
+  },
+  showcaseTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+  },
+  showcaseEyebrow: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 11,
+    letterSpacing: 1.5,
+  },
+  showcaseSeason: {
     color: Colors.textSecondary,
     fontFamily: Fonts.body,
     fontSize: 12,
-    marginTop: Spacing.xs,
-  },
-  statSublabel: {
-    color: Colors.primaryGold,
-    fontFamily: Fonts.body,
-    fontSize: 10,
     marginTop: 2,
-    opacity: 0.8,
+  },
+  statusPill: {
+    minHeight: 28,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(5,5,5,0.72)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: Colors.strengthStrong,
+  },
+  statusText: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 9,
+    letterSpacing: 1,
+  },
+  showcaseBottom: {
+    maxWidth: 520,
+  },
+  showcaseRank: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.title,
+    fontSize: 27,
+    letterSpacing: 0.5,
+  },
+  showcaseQuote: {
+    color: Colors.textSecondary,
+    fontFamily: Fonts.body,
+    fontSize: 14,
+    lineHeight: 19,
+    marginTop: 3,
+  },
+  showcaseStats: {
+    minHeight: 52,
+    marginTop: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: 'rgba(5,5,5,0.74)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  showcaseStat: {
+    flex: 1,
+  },
+  showcaseStatValue: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 17,
+  },
+  showcaseStatLabel: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 9,
+    letterSpacing: 0.8,
+    marginTop: 1,
+  },
+  showcaseStatDivider: {
+    width: 1,
+    height: 28,
+    marginHorizontal: Spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.13)',
   },
 
+  /* Economy operations */
+  sectionHeading: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  sectionSubtitle: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  operationsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+    marginBottom: Spacing.xl,
+  },
+  operationCard: {
+    width: '48.5%',
+    minHeight: 112,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(201,170,113,0.18)',
+    backgroundColor: '#121212',
+    alignItems: 'flex-start',
+  },
+  operationCardWide: {
+    width: '23.5%',
+  },
+  operationCardDisabled: {
+    opacity: 0.45,
+  },
+  operationIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: Radius.sm,
+    backgroundColor: 'rgba(201,170,113,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(201,170,113,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.sm,
+  },
+  operationTitle: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+  },
+  operationDescription: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 2,
+  },
+  arenaStrip: {
+    minHeight: 76,
+    marginTop: 2,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#111111',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  arenaIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: Radius.md,
+    backgroundColor: 'rgba(201,170,113,0.08)',
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  arenaCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  arenaTitle: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+  },
+  arenaDescription: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 2,
+  },
+
+  sectionTitle: {
+    color: Colors.textPrimary,
+    fontFamily: Fonts.title,
+    fontSize: 16,
+    letterSpacing: 1.2,
+  },
+
+  syncError: {
+    color: Colors.strengthWeak,
+    fontFamily: Fonts.body,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+  },
   /* Progress Section */
   progressSection: {
-    padding: Spacing.lg,
     marginBottom: Spacing.xl,
+  },
+  progressContent: {
+    padding: Spacing.md,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -542,18 +861,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
+  progressEyebrow: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 10,
+    letterSpacing: 1.2,
+    marginBottom: 3,
+  },
   progressTitle: {
     color: Colors.textPrimary,
     fontFamily: Fonts.title,
-    fontSize: 14,
+    fontSize: 17,
   },
-  progressLevels: {
-    color: Colors.textSecondary,
-    fontFamily: Fonts.body,
-    fontSize: 12,
+  nextLevelBadge: {
+    minWidth: 58,
+    minHeight: 42,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    backgroundColor: 'rgba(201,170,113,0.07)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextLevelLabel: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 8,
+    letterSpacing: 0.8,
+  },
+  nextLevelValue: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 16,
+    lineHeight: 17,
   },
   progressBarBg: {
-    height: 8,
+    height: 7,
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: Radius.full,
     overflow: 'hidden',
@@ -561,7 +905,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: Colors.primaryGold,
+    backgroundColor: '#67d9e7',
   },
   progressFooter: {
     flexDirection: 'row',
@@ -571,67 +915,6 @@ const styles = StyleSheet.create({
     color: Colors.primaryGold,
     fontFamily: Fonts.body,
     fontSize: 12,
-  },
-
-  /* Nav Grid */
-  navGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
-  },
-  navCard: {
-    width: '47%',
-  },
-  navGlass: {
-    padding: Spacing.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  navTitle: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.bodyBold,
-    fontSize: 14,
-    marginTop: Spacing.sm,
-  },
-  navDesc: {
-    color: Colors.textSecondary,
-    fontFamily: Fonts.body,
-    fontSize: 10,
-    marginTop: Spacing.xs,
-    textAlign: 'center',
-  },
-
-  /* Quick Actions */
-  quickActionsSection: {
-    padding: Spacing.lg,
-  },
-  quickActionsTitle: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 16,
-    marginBottom: Spacing.md,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionBtn: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    padding: Spacing.sm,
-    borderRadius: Radius.sm,
-    alignItems: 'center',
-    marginHorizontal: Spacing.xs,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  actionText: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.body,
-    fontSize: 12,
-    marginTop: Spacing.xs,
   },
 
   /* Modals */

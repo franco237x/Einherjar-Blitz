@@ -1,0 +1,368 @@
+<?xml version="1.0"?>
+<canvas version="1.2" width="1086" height="1448" xres="2834.645752" yres="2834.645752" view-box="0.000000 1448.000000 1086.000000 0.000000" antialias="1" fps="12.000" begin-time="0f" end-time="10f" bgcolor="0.000000 0.000000 0.000000 0.000000">
+  <name>Argos — Idle Rig</name>
+  <desc>Rig base de Argos reconstruido desde piezas PNG transparentes.</desc>
+  <keyframe time="0f" active="true">Pose 1 — reposo</keyframe>
+  <keyframe time="2f" active="true">Pose 2</keyframe>
+  <keyframe time="4f" active="true">Pose 3</keyframe>
+  <keyframe time="6f" active="true">Pose 4</keyframe>
+  <keyframe time="8f" active="true">Pose 5</keyframe>
+  <keyframe time="10f" active="true">Pose 6 — inhalación</keyframe>
+
+  <layer type="import" active="false" version="0.1" desc="REFERENCIA — Argos ensamblado">
+    <param name="z_depth"><real value="0.0000000000"/></param>
+    <param name="amount"><real value="0.3500000000"/></param>
+    <param name="blend_method"><integer value="0"/></param>
+    <param name="tl"><vector><x>0.0000000000</x><y>1448.0000000000</y></vector></param>
+    <param name="br"><vector><x>1086.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="c"><integer value="1"/></param>
+    <param name="gamma_adjust"><real value="1.0000000000"/></param>
+    <param name="filename"><string>../../assets/images/game/argos/frames/argos_robot.png</string></param>
+    <param name="time_offset"><time value="0s"/></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Hombro derecho">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_shoulder_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>675.2700000000</x><y>1225.0310000000</y></vector></param><param name="br"><vector><x>793.0700000000</x><y>1058.7810000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_shoulder_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote hombro derecho">
+        <param name="origin"><vector><x>734.1700000000</x><y>1141.9060000000</y></vector></param><param name="amount"><angle value="-3.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Codo derecho">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_elbow_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>735.0000000000</x><y>1046.0000000000</y></vector></param><param name="br"><vector><x>814.0000000000</x><y>957.0000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_elbow_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Antebrazo derecho">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_arm_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>755.3520000000</x><y>996.9730000000</y></vector></param><param name="br"><vector><x>868.0520000000</x><y>750.8730000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_arm_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote antebrazo derecho">
+        <param name="origin"><vector><x>811.7020000000</x><y>873.9230000000</y></vector></param><param name="amount"><angle value="12.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Mano derecha">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_hand_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>732.0000000000</x><y>765.0000000000</y></vector></param><param name="br"><vector><x>836.5000000000</x><y>586.8000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_hand_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Hombro izquierdo">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_shoulder_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>317.0000000000</x><y>1212.0000000000</y></vector></param><param name="br"><vector><x>444.0000000000</x><y>1037.0000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_shoulder_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Codo izquierdo">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_elbow_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>290.0000000000</x><y>1039.0000000000</y></vector></param><param name="br"><vector><x>367.0000000000</x><y>956.0000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_elbow_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Antebrazo izquierdo">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_arm_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>233.9450000000</x><y>971.4800000000</y></vector></param><param name="br"><vector><x>323.0450000000</x><y>736.0800000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_arm_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote antebrazo izquierdo">
+        <param name="origin"><vector><x>278.4950000000</x><y>853.7800000000</y></vector></param><param name="amount"><angle value="-15.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Mano izquierda">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>4.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>6.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_hand_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>218.0000000000</x><y>749.0000000000</y></vector></param><param name="br"><vector><x>294.0000000000</x><y>597.9500000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_hand_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Pierna superior derecha">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_knee_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>570.3830000000</x><y>846.3900000000</y></vector></param><param name="br"><vector><x>692.4830000000</x><y>564.7900000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_knee_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote pierna superior derecha">
+        <param name="origin"><vector><x>631.4330000000</x><y>705.5900000000</y></vector></param><param name="amount"><angle value="6.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Pierna superior izquierda">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_knee_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>348.4700000000</x><y>847.6330000000</y></vector></param><param name="br"><vector><x>489.2700000000</x><y>562.7330000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_knee_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote pierna superior izquierda">
+        <param name="origin"><vector><x>418.8700000000</x><y>705.1830000000</y></vector></param><param name="amount"><angle value="-15.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Pierna inferior derecha">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_leg_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>641.2790000000</x><y>566.0750000000</y></vector></param><param name="br"><vector><x>762.0290000000</x><y>156.6750000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_leg_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote pierna inferior derecha">
+        <param name="origin"><vector><x>701.6540000000</x><y>361.3750000000</y></vector></param><param name="amount"><angle value="9.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Pierna inferior izquierda">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_leg_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>330.9580000000</x><y>557.8950000000</y></vector></param><param name="br"><vector><x>459.6580000000</x><y>173.9950000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_leg_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote pierna inferior izquierda">
+        <param name="origin"><vector><x>395.3080000000</x><y>365.9450000000</y></vector></param><param name="amount"><angle value="-3.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Pie derecho">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_foot_2.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>694.3860000000</x><y>158.2040000000</y></vector></param><param name="br"><vector><x>788.3860000000</x><y>19.2040000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_foot_2.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote pie derecho">
+        <param name="origin"><vector><x>741.3860000000</x><y>88.7040000000</y></vector></param><param name="amount"><angle value="15.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Pie izquierdo">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_foot_1.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>263.2770000000</x><y>187.1160000000</y></vector></param><param name="br"><vector><x>453.3270000000</x><y>56.9160000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_foot_1.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+      <layer type="rotate" active="true" version="0.1" desc="Pivote pie izquierdo">
+        <param name="origin"><vector><x>358.3020000000</x><y>122.0160000000</y></vector></param><param name="amount"><angle value="-3.000000"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Cadera">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.5000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>1.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>1.5000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>3.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_hip.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>425.0000000000</x><y>955.0000000000</y></vector></param><param name="br"><vector><x>645.5000000000</x><y>780.7000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_hip.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Cuello">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>3.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>7.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>11.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>15.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>18.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_neck.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>503.0000000000</x><y>1297.0000000000</y></vector></param><param name="br"><vector><x>574.0000000000</x><y>1211.0000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_neck.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Torso">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>2.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>5.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>8.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>10.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>12.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_body.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>411.0000000000</x><y>1250.0000000000</y></vector></param><param name="br"><vector><x>683.8000000000</x><y>920.0000000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_body.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+
+  <layer type="PasteCanvas" active="true" version="0.1" desc="Cabeza">
+    <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+    <param name="origin"><animated type="vector">
+      <waypoint time="0f" before="auto" after="auto"><vector><x>0.0000000000</x><y>0.0000000000</y></vector></waypoint>
+      <waypoint time="2f" before="auto" after="auto"><vector><x>0.0000000000</x><y>3.0000000000</y></vector></waypoint>
+      <waypoint time="4f" before="auto" after="auto"><vector><x>0.0000000000</x><y>7.0000000000</y></vector></waypoint>
+      <waypoint time="6f" before="auto" after="auto"><vector><x>0.0000000000</x><y>11.0000000000</y></vector></waypoint>
+      <waypoint time="8f" before="auto" after="auto"><vector><x>0.0000000000</x><y>15.0000000000</y></vector></waypoint>
+      <waypoint time="10f" before="auto" after="auto"><vector><x>0.0000000000</x><y>18.0000000000</y></vector></waypoint>
+    </animated></param>
+    <param name="canvas"><canvas>
+      <layer type="import" active="true" version="0.1" desc="argos_head.png">
+        <param name="z_depth"><real value="0.0000000000"/></param><param name="amount"><real value="1.0000000000"/></param><param name="blend_method"><integer value="0"/></param>
+        <param name="tl"><vector><x>490.0000000000</x><y>1424.0000000000</y></vector></param><param name="br"><vector><x>607.3000000000</x><y>1257.2500000000</y></vector></param>
+        <param name="c"><integer value="1"/></param><param name="gamma_adjust"><real value="1.0000000000"/></param>
+        <param name="filename"><string>../../assets/images/game/argos/frames/argos_head.png</string></param><param name="time_offset"><time value="0s"/></param>
+      </layer>
+    </canvas></param>
+  </layer>
+</canvas>

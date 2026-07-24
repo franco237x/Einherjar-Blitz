@@ -11,22 +11,22 @@
  *   - obtainedAt: timestamp (serverTimestamp)
  *   - bannerId?: string
  *
- * Rewards can be deleted by the owner when claimed via PDF.
+ * Rewards remain as an immutable audit trail after being claimed.
  */
 
 import {
   collection,
   doc,
-  addDoc,
-  deleteDoc,
   serverTimestamp,
+  writeBatch,
   query,
   orderBy,
   onSnapshot,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import type { RewardItem, RarityKey } from '@/constants/gachaData';
+import type { RarityKey } from '@/constants/gachaData';
+import { createOperationId } from '@/services/economy';
 
 export interface InventoryItem {
   id: string;
@@ -35,45 +35,14 @@ export interface InventoryItem {
   rarity: RarityKey;
   obtainedAt: Date | null;
   bannerId?: string;
-}
-
-export interface InventoryItemInput {
-  name: string;
-  type: RewardItem['type'];
-  rarity: RarityKey;
-  bannerId?: string;
+  sourceId?: string;
+  status: 'active' | 'claimed';
+  claimId?: string | null;
+  claimedAt?: Date | null;
 }
 
 const invCollection = (uid: string) =>
   collection(doc(db, 'users', uid), 'inventory');
-
-/**
- * Append pulled rewards to the user's inventory.
- * Uses a batch-free sequential addDoc loop: each addDoc is independent and
- * the firestore.rules validate every doc. If one fails the schema check,
- * the others still succeed (we don't want to lose pulls due to a single
- * malformed entry). Caller is responsible for the balance deduction which
- * happens BEFORE this call.
- */
-export async function addInventoryItems(
-  uid: string,
-  items: InventoryItemInput[]
-): Promise<void> {
-  if (!uid) throw new Error('UID requerido para escribir inventario');
-  if (items.length === 0) return;
-
-  const writes = items.map((item) =>
-    addDoc(invCollection(uid), {
-      name: item.name,
-      type: item.type,
-      rarity: item.rarity,
-      obtainedAt: serverTimestamp(),
-      ...(item.bannerId ? { bannerId: item.bannerId } : {}),
-    })
-  );
-
-  await Promise.all(writes);
-}
 
 /**
  * Real-time stream of the user's inventory, newest first.
@@ -101,6 +70,10 @@ export function streamInventory(
           rarity: RarityKey;
           obtainedAt?: Timestamp | null;
           bannerId?: string;
+          sourceId?: string;
+          status?: 'active' | 'claimed';
+          claimId?: string | null;
+          claimedAt?: Timestamp | null;
         };
         return {
           id: d.id,
@@ -109,8 +82,13 @@ export function streamInventory(
           rarity: data.rarity,
           obtainedAt: data.obtainedAt instanceof Timestamp ? data.obtainedAt.toDate() : null,
           bannerId: data.bannerId,
+          sourceId: data.sourceId,
+          status: data.status ?? 'active',
+          claimId: data.claimId ?? null,
+          claimedAt:
+            data.claimedAt instanceof Timestamp ? data.claimedAt.toDate() : null,
         };
-      });
+      }).filter((item) => item.status !== 'claimed');
       onItems(items);
     },
     (err) => onError?.(err as Error)
@@ -136,12 +114,37 @@ export function groupInventory(items: InventoryItem[]): Array<InventoryItem & { 
 }
 
 /**
- * Delete a single inventory item by its document id.
- * Used when the user claims a reward via PDF — once claimed, the item is
- * removed from Firestore so it can't be claimed again.
+ * Mark inventory items as claimed without deleting their audit history.
  */
-export async function deleteInventoryItem(uid: string, itemId: string): Promise<void> {
-  if (!uid) throw new Error('UID requerido para eliminar item');
-  if (!itemId) throw new Error('itemId requerido');
-  await deleteDoc(doc(db, 'users', uid, 'inventory', itemId));
+export async function markInventoryItemsClaimed(
+  uid: string,
+  itemIds: string[],
+  format: 'pdf' | 'txt',
+  claimId = createOperationId('claim_inventory')
+): Promise<string> {
+  if (!uid) throw new Error('UID requerido');
+  if (itemIds.length === 0) throw new Error('No hay recompensas para reclamar.');
+
+  for (let offset = 0; offset < itemIds.length; offset += 400) {
+    const ids = itemIds.slice(offset, offset + 400);
+    const chunkClaimId = offset === 0 ? claimId : `${claimId}_${offset / 400}`;
+    const batch = writeBatch(db);
+    ids.forEach((id) => {
+      batch.update(doc(db, 'users', uid, 'inventory', id), {
+        status: 'claimed',
+        claimId: chunkClaimId,
+        claimedAt: serverTimestamp(),
+      });
+    });
+    batch.set(doc(db, 'users', uid, 'claims', chunkClaimId), {
+      type: 'inventory',
+      format,
+      itemIds: ids,
+      status: 'completed',
+      completedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+    });
+    await batch.commit();
+  }
+  return claimId;
 }

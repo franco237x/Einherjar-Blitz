@@ -27,7 +27,7 @@ import * as Sharing from 'expo-sharing';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
-import { deleteInventoryItem } from '@/services/inventory';
+import { markInventoryItemsClaimed } from '@/services/inventory';
 import { auth } from '@/config/firebase';
 import { MiniLoader } from '@/components/MiniLoader';
 import { EmptyState } from '@/components/EmptyState';
@@ -111,11 +111,11 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
     setShowClaimModal(true);
   };
 
-  // Delete every item from Firestore once the reward has been handed out.
-  const clearInventory = async () => {
+  // Preserve the reward ledger and only transition active items to claimed.
+  const markInventoryClaimed = async (format: 'pdf' | 'txt') => {
     const uid = auth.currentUser?.uid;
-    if (!uid) return;
-    await Promise.all(items.map((item) => deleteInventoryItem(uid, item.id)));
+    if (!uid) throw new Error('Debes iniciar sesión para reclamar.');
+    await markInventoryItemsClaimed(uid, items.map((item) => item.id), format);
   };
 
   // ─── Option 1: PDF flow — generate, SAVE to device, then offer share ────
@@ -188,8 +188,10 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
 
       if (Platform.OS === 'web') {
         await Print.printAsync({ html });
-        // On web, no file to save — just clear inventory
-        await clearInventory();
+        Alert.alert(
+          'Impresión abierta',
+          'No podemos confirmar si guardaste el PDF desde el navegador. Las recompensas seguirán disponibles.'
+        );
         return;
       }
 
@@ -200,9 +202,12 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       const timestamp = Date.now();
       const fileName = `einherjar-certificado-${timestamp}.pdf`;
       const result = await savePdfFile(tempUri, fileName);
+      if (!result.saved) {
+        throw new Error('No se pudo guardar ni compartir el certificado.');
+      }
 
-      // 3. Delete inventory items from Firestore — file is handled
-      await clearInventory();
+      // 3. The file is available; atomically mark the items as claimed.
+      await markInventoryClaimed('pdf');
 
       // 4. Show success state
       setSaveResult({ uri: result.uri || tempUri, fileType: 'pdf' });
@@ -262,9 +267,12 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
       const timestamp = Date.now();
       const fileName = `einherjar-recompensas-${timestamp}.txt`;
       const result = await saveTextFile(fileName, text);
+      if (!result.saved) {
+        throw new Error('No se pudo guardar ni compartir el certificado.');
+      }
 
-      // 2. Delete inventory items from Firestore — file is handled
-      await clearInventory();
+      // 2. The file is available; atomically mark the items as claimed.
+      await markInventoryClaimed('txt');
 
       // 3. Show success state
       setSaveResult({ uri: result.uri || '', fileType: 'txt' });

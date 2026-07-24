@@ -1,27 +1,30 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { CharacterSelect } from '@/components/game/CharacterSelect';
-import { GameHub } from '@/components/game/GameHub';
+import { MissionBriefingScreen } from '@/components/game/MissionBriefingScreen';
 
-type GameView = 'hub' | 'select';
+type GameView = 'briefing' | 'select';
 
 export default function GameIndexScreen() {
   const router = useRouter();
-  const [view, setView] = useState<GameView>('hub');
+  const [view, setView] = useState<GameView>('briefing');
+
+  const handleBriefingComplete = useCallback(() => {
+    setView('select');
+  }, []);
 
   const handleStartBattle = (charId: string) => {
     router.push({ pathname: '/(game)/battle', params: { charId } } as any);
   };
 
-  if (view === 'select') {
-    return <CharacterSelect onSelectCharacter={handleStartBattle} onCancel={() => setView('hub')} />;
+  if (view === 'briefing') {
+    return <MissionBriefingScreen onComplete={handleBriefingComplete} />;
   }
 
   return (
-    <GameHub
-      onContinue={() => setView('select')}
-      onQuickDuel={() => setView('select')}
-      onExit={() => router.replace('/(tabs)/play' as any)}
+    <CharacterSelect
+      onSelectCharacter={handleStartBattle}
+      onCancel={() => router.replace('/(tabs)/play' as any)}
     />
   );
 }

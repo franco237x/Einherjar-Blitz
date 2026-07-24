@@ -491,11 +491,11 @@ export const ConvergePhase = ({
 
 // ─── Pacing per rarity (ms) ───────────────────────────────────────────
 export const CONVERGE_DURATION: Record<RarityKey, number> = {
-  mythic: 2500,
-  legendary: 2500,
-  epic: 2500,
-  rare: 2500,
-  common: 2500,
+  mythic: 3200,
+  legendary: 2800,
+  epic: 2350,
+  rare: 1850,
+  common: 1450,
 };
 
 // ─── styles ───────────────────────────────────────────────────────────

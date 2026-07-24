@@ -4,16 +4,34 @@ import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SyncIndicator } from '@/components/SyncIndicator';
+import { FEATURE_FLAGS } from '@/config/featureFlags';
 
-function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+type CustomTabBarProps = Parameters<
+  NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
+>[0];
+
+function CustomTabBar({ state, descriptors, navigation }: CustomTabBarProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.tabBarContainer, { paddingBottom: insets.bottom }]}>
-      <BlurView intensity={Platform.OS === 'ios' ? 30 : 60} tint="dark" style={styles.blurView}>
+    <View style={styles.tabBarContainer}>
+      <BlurView
+        intensity={Platform.OS === 'ios' ? 30 : 45}
+        tint="dark"
+        style={[
+          styles.blurView,
+          {
+            height: 64 + insets.bottom,
+            paddingBottom: insets.bottom,
+          },
+        ]}
+      >
         {state.routes.map((route, index) => {
+          if (route.name === 'play' && !FEATURE_FLAGS.game) {
+            return null;
+          }
+
           const { options } = descriptors[route.key];
           const label =
             options.tabBarLabel !== undefined
@@ -46,12 +64,12 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           return (
             <TouchableOpacity
               key={route.key}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              testID={options.tabBarTestID}
+              accessibilityLabel={(options.tabBarAccessibilityLabel ?? label) as string}
+              testID={options.tabBarButtonTestID}
               onPress={onPress}
-              style={styles.tabItem}
+              style={[styles.tabItem, isFocused && styles.tabItemActive]}
             >
               <Ionicons 
                 name={isFocused ? iconName : `${iconName}-outline`} 
@@ -74,26 +92,30 @@ export default function TabsLayout() {
     <>
       <SyncIndicator />
       <Tabs
+        initialRouteName="index"
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
         }}
       >
       <Tabs.Screen
-        name="play"
-        options={{ title: 'Jugar' }}
+        name="index"
+        options={{ title: 'Inicio' }}
       />
       <Tabs.Screen
         name="gacha"
         options={{ title: 'Gacha' }}
       />
       <Tabs.Screen
-        name="index"
-        options={{ title: 'Inicio' }}
-      />
-      <Tabs.Screen
         name="store"
         options={{ title: 'Tienda' }}
+      />
+      <Tabs.Screen
+        name="play"
+        options={{
+          title: 'Jugar',
+          href: FEATURE_FLAGS.game ? '/play' : null,
+        }}
       />
       <Tabs.Screen
         name="profile"
@@ -112,21 +134,27 @@ const styles = StyleSheet.create({
     right: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(212, 175, 55, 0.3)',
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.bgDarker,
   },
   blurView: {
     flexDirection: 'row',
-    height: Platform.OS === 'ios' ? 64 : 58,
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xs,
+    paddingTop: Spacing.xs,
   },
   tabItem: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: Spacing.sm,
+    minHeight: 52,
+    borderRadius: Radius.md,
+  },
+  tabItemActive: {
+    backgroundColor: 'rgba(201, 170, 113, 0.11)',
   },
   tabLabel: {
     fontFamily: Fonts.bodyBold,
-    fontSize: 10,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 3,
   },
 });

@@ -14,7 +14,7 @@ export const Background = ({ children }: BackgroundProps) => {
         colors={[Colors.bgDark, Colors.bgSecondary, Colors.bgDark]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       {children}
     </View>

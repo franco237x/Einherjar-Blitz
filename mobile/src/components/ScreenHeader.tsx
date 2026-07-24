@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
@@ -29,18 +29,36 @@ interface ScreenHeaderProps {
 
 export const ScreenHeader = ({ title, subtitle, badges, action }: ScreenHeaderProps) => {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compact = width < 390;
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
+    <View
+      style={[
+        styles.header,
+        compact && styles.headerCompact,
+        { paddingTop: insets.top + Spacing.md },
+      ]}
+    >
       <View style={styles.left}>
-        <Text style={styles.title}>{title}</Text>
+        <Text
+          accessibilityRole="header"
+          style={[styles.title, compact && styles.titleCompact]}
+        >
+          {title}
+        </Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
 
       {(badges?.length || action) ? (
-        <View style={styles.right}>
+        <View style={[styles.right, compact && styles.rightCompact]}>
           {badges?.map((badge) => (
-            <View key={badge.label} style={styles.badge}>
+            <View
+              key={badge.label}
+              style={[styles.badge, compact && styles.badgeCompact]}
+              accessible
+              accessibilityLabel={`${badge.label}: ${badge.value}`}
+            >
               <Ionicons name={badge.icon} size={18} color={Colors.primaryGold} />
               <View>
                 <Text style={styles.badgeLabel}>{badge.label}</Text>
@@ -64,6 +82,10 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
     gap: Spacing.md,
   },
+  headerCompact: {
+    flexDirection: 'column',
+    gap: Spacing.sm,
+  },
   left: {
     flex: 1,
     gap: 4,
@@ -77,6 +99,10 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
+  titleCompact: {
+    fontSize: 21,
+    letterSpacing: 1.4,
+  },
   subtitle: {
     color: Colors.textMuted,
     fontFamily: Fonts.body,
@@ -85,6 +111,11 @@ const styles = StyleSheet.create({
   right: {
     alignItems: 'flex-end',
     gap: Spacing.sm,
+  },
+  rightCompact: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
   badge: {
     flexDirection: 'row',
@@ -96,6 +127,11 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     borderWidth: 1,
     borderColor: Colors.glassBorder,
+  },
+  badgeCompact: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.sm,
   },
   badgeLabel: {
     color: Colors.textMuted,

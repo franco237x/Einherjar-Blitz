@@ -1,15 +1,22 @@
-import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  AccessibilityInfo,
+  StyleSheet,
+  View,
+  Animated,
+  useWindowDimensions,
+} from 'react-native';
 import { Colors } from '@/constants/theme';
 
-const { width, height } = Dimensions.get('window');
 const PARTICLE_COUNT = 30;
 
 interface ParticleProps {
   delay: number;
+  width: number;
+  height: number;
 }
 
-const Particle = ({ delay }: ParticleProps) => {
+const Particle = ({ delay, width, height }: ParticleProps) => {
   const translateY = useRef(new Animated.Value(height)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(Math.random() * width)).current;
@@ -82,19 +89,43 @@ const Particle = ({ delay }: ParticleProps) => {
 };
 
 export const ParticlesBackground = () => {
+  const { width, height } = useWindowDimensions();
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    void AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    );
+    return () => subscription.remove();
+  }, []);
+
+  if (reduceMotion) {
+    return null;
+  }
+
   // Generate particles with random delays so they don't spawn all at once
   const particles = Array.from({ length: PARTICLE_COUNT }).map((_, i) => (
-    <Particle key={i} delay={Math.random() * 5000} />
+    <Particle
+      key={`${Math.round(width)}-${Math.round(height)}-${i}`}
+      delay={Math.random() * 5000}
+      width={width}
+      height={height}
+    />
   ));
 
   return (
-    <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, styles.container]} pointerEvents="none">
       {particles}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    overflow: 'hidden',
+  },
   particle: {
     position: 'absolute',
     top: 0,

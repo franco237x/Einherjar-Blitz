@@ -13,6 +13,8 @@ export const GoldButton = ({ title, loading, style, disabled, ...props }: GoldBu
     <TouchableOpacity
       activeOpacity={0.8}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: Boolean(disabled || loading), busy: Boolean(loading) }}
       style={[styles.container, style, disabled && styles.disabled]}
       {...props}
     >

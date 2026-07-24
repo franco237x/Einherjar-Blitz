@@ -1,9 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, Animated, Image, Dimensions, Text } from 'react-native';
+import {
+  AccessibilityInfo,
+  View,
+  StyleSheet,
+  Animated,
+  Image,
+  Text,
+  useWindowDimensions,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Fonts } from '@/constants/theme';
-
-const { width, height } = Dimensions.get('window');
 
 const BG_IMAGES = [
   require('../../assets/images/loading_screen/argos.jpg'),
@@ -17,6 +23,9 @@ interface LoadingScreenProps {
 }
 
 export const LoadingScreen = ({ message = 'CARGANDO EL REINO...' }: LoadingScreenProps = {}) => {
+  const { width, height } = useWindowDimensions();
+  const compact = width < 360 || height < 650;
+  const [reduceMotion, setReduceMotion] = useState(false);
   // Start with a random image so every app launch feels different
   const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * BG_IMAGES.length));
   const fadeAnim1 = useRef(new Animated.Value(1)).current;
@@ -27,21 +36,22 @@ export const LoadingScreen = ({ message = 'CARGANDO EL REINO...' }: LoadingScree
   const scaleAnim2 = useRef(new Animated.Value(1.1)).current; // starts a bit zoomed
 
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const [progressText, setProgressText] = useState(0);
 
   const [useFirstAnim, setUseFirstAnim] = useState(true);
 
   useEffect(() => {
-    // Progress Bar Animation (0 to 100 over 2.5 seconds to match the preloading time)
-    Animated.timing(progressAnim, {
-      toValue: 100,
-      duration: 2500,
-      useNativeDriver: false,
-    }).start();
+    void AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    );
+    return () => subscription.remove();
+  }, []);
 
-    const listener = progressAnim.addListener(({ value }) => {
-      setProgressText(Math.floor(value));
-    });
+  useEffect(() => {
+    if (reduceMotion) {
+      return;
+    }
 
     // Start initial scale for the first image
     Animated.timing(scaleAnim1, {
@@ -85,16 +95,32 @@ export const LoadingScreen = ({ message = 'CARGANDO EL REINO...' }: LoadingScree
 
     return () => {
       clearInterval(interval);
-      progressAnim.removeListener(listener);
     };
-  }, [currentIndex, useFirstAnim]);
+  }, [currentIndex, reduceMotion, useFirstAnim]);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      return;
+    }
+
+    const progressLoop = Animated.loop(
+      Animated.timing(progressAnim, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+      })
+    );
+
+    progressLoop.start();
+    return () => progressLoop.stop();
+  }, [progressAnim, reduceMotion]);
 
   const currentImage = BG_IMAGES[currentIndex];
   const nextImage = BG_IMAGES[(currentIndex + 1) % BG_IMAGES.length];
 
-  const progressWidth = progressAnim.interpolate({
-    inputRange: [0, 100],
-    outputRange: ['0%', '100%'],
+  const progressTranslate = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-120, 120],
   });
 
   return (
@@ -102,33 +128,54 @@ export const LoadingScreen = ({ message = 'CARGANDO EL REINO...' }: LoadingScree
       {/* Background Images Crossfading with Zoom */}
       <Animated.Image
         source={useFirstAnim ? currentImage : nextImage}
-        style={[styles.bgImage, { opacity: fadeAnim1, transform: [{ scale: scaleAnim1 }] }]}
+        style={[
+          styles.bgImage,
+          {
+            width,
+            height,
+            opacity: fadeAnim1,
+            transform: [{ scale: scaleAnim1 }],
+          },
+        ]}
         resizeMode="cover"
       />
       <Animated.Image
         source={useFirstAnim ? nextImage : currentImage}
-        style={[styles.bgImage, { opacity: fadeAnim2, transform: [{ scale: scaleAnim2 }] }]}
+        style={[
+          styles.bgImage,
+          {
+            width,
+            height,
+            opacity: fadeAnim2,
+            transform: [{ scale: scaleAnim2 }],
+          },
+        ]}
         resizeMode="cover"
       />
 
       {/* Dark Overlay reduced for better character visibility */}
       <LinearGradient
         colors={['transparent', 'rgba(10,10,10,0.4)', 'rgba(10,10,10,0.9)']}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
 
       {/* Content Center */}
       <View style={styles.content}>
         <Image 
           source={require('../../assets/images/logo.jpg')}
-          style={styles.logo}
+          style={[styles.logo, compact && styles.logoCompact]}
           resizeMode="contain"
         />
         
         <View style={styles.loaderContainer}>
-          <Text style={styles.loadingText}>{message} {progressText}%</Text>
+          <Text style={styles.loadingText}>{message}</Text>
           <View style={styles.progressBarTrack}>
-            <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
+            <Animated.View
+              style={[
+                styles.progressBarFill,
+                { transform: [{ translateX: progressTranslate }] },
+              ]}
+            />
           </View>
         </View>
       </View>
@@ -144,8 +191,6 @@ const styles = StyleSheet.create({
   },
   bgImage: {
     position: 'absolute',
-    width: width,
-    height: height,
   },
   content: {
     flex: 1,
@@ -161,6 +206,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.borderGold,
     marginBottom: 40,
+  },
+  logoCompact: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    marginBottom: 28,
   },
   loaderContainer: {
     width: '70%',
@@ -181,6 +232,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   progressBarFill: {
+    width: '38%',
     height: '100%',
     backgroundColor: Colors.primaryGold,
     shadowColor: Colors.glowGold,

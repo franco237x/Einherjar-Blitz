@@ -9,10 +9,30 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+    function hasVerifiedEmail() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true;
+    }
     // Admin account can read/write any user document
     function isAdmin() {
       return isSignedIn()
-        && request.auth.token.email == 'admin@einherjarblitz.com';
+        && (
+          request.auth.token.admin == true
+          || (
+            request.auth.token.email == 'admin@einherjarblitz.com'
+            && request.auth.token.email_verified == true
+          )
+        );
+    }
+
+    // Some accounts predate the mobile economy and do not have a `keys`
+    // field yet. Treat that missing field as a zero balance so they can
+    // receive their first transfer without weakening the transfer checks.
+    function keysOrZero(data) {
+      return 'keys' in data && data.keys is int ? data.keys : 0;
+    }
+    function spheresOrZero(data) {
+      return 'spheres' in data && data.spheres is int ? data.spheres : 0;
     }
 
     // Rarity & type whitelists for inventory items
@@ -39,10 +59,36 @@ service cloud.firestore {
         : 'Iniciado';
     }
 
+    // Minimal directory used by transfers. Sensitive balances, email and
+    // private avatar data remain under users/{uid}.
+    match /publicUsers/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'uid', 'username', 'transferCode', 'avatarUrl', 'updatedAt'
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.username is string
+        && request.resource.data.username.size() > 0
+        && request.resource.data.username.size() <= 40
+        && request.resource.data.transferCode is string
+        && request.resource.data.transferCode.size() >= 6
+        && request.resource.data.transferCode.size() <= 12
+        && (
+          request.resource.data.avatarUrl == null
+          || (
+            request.resource.data.avatarUrl is string
+            && request.resource.data.avatarUrl.matches('https://.*')
+            && request.resource.data.avatarUrl.size() <= 2048
+          )
+        )
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isOwner(userId);
+    }
+
     // ─── User profile ──────────────────────────────────────────────────
-    // Owner can read/write own profile.
-    // Any signed-in user can READ other users' profiles (needed for the
-    // key-transfer user search). Only the owner or admin can write.
+    // Private user profiles are readable only by their owner or an admin.
+    // Transfer discovery uses the minimal publicUsers directory above.
     //
     // ─── SPARK PLAN SECURITY MODEL ─────────────────────────────────────
     // The project is on the Spark (free) plan — no Cloud Functions are
@@ -64,17 +110,144 @@ service cloud.firestore {
     // TODO: upgrade to Blaze and deploy the Cloud Function in
     // mobile/functions/ to close the farm-by-fresh-battleId hole.
     match /users/{userId} {
-      allow read: if isSignedIn();
-      allow write: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAdmin();
+      // New accounts may only be initialized with the known profile schema
+      // and zero-valued economy fields. Without this, a client could create
+      // its own document with an arbitrary starting balance.
+      allow create: if isAdmin() || (isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'email', 'username', 'createdAt', 'keys', 'spheres', 'avatar',
+          'nivel', 'experiencia', 'copas', 'victorias', 'derrotas', 'rango',
+          'horas_jugadas', 'frase'
+        ])
+        && request.resource.data.email is string
+        && request.resource.data.username is string
+        && request.resource.data.username.size() > 0
+        && request.resource.data.username.size() <= 40
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.keys is int
+        && request.resource.data.keys == 0
+        && request.resource.data.spheres is int
+        && request.resource.data.spheres == 0
+        && (!('copas' in request.resource.data) || request.resource.data.copas == 0)
+        && (!('experiencia' in request.resource.data) || request.resource.data.experiencia == 0)
+        && (!('victorias' in request.resource.data) || request.resource.data.victorias == 0)
+        && (!('derrotas' in request.resource.data) || request.resource.data.derrotas == 0)
+        && (!('nivel' in request.resource.data) || request.resource.data.nivel == 1)
+        && (!('horas_jugadas' in request.resource.data) || request.resource.data.horas_jugadas == 0));
+
+      // Do not add a broad owner `allow write`: Firestore ORs matching allows
+      // and that would bypass every economy restriction below.
+      allow update: if isAdmin();
 
       // ─── Owner profile updates (username, frase, avatar, economy) ───
       // Allows the owner to update profile + economy fields (gacha, store,
       // index tabs) EXCEPT the battle-only counters, which have a dedicated
       // rule below that enforces fixed increments + anti-replay.
+      // Cosmetic profile fields only. Economy has dedicated rules below.
       allow update: if isOwner(userId)
-        && !request.resource.data.diff(resource.data).affectedKeys()
-            .hasAny(['victorias', 'derrotas', 'jefes_derrotados', 'nivel', 'horas_jugadas', 'createdAt']);
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['username', 'frase', 'avatar'])
+        && (!('username' in request.resource.data)
+            || (request.resource.data.username is string
+                && request.resource.data.username.size() > 0
+                && request.resource.data.username.size() <= 40))
+        && (!('frase' in request.resource.data)
+            || (request.resource.data.frase is string
+                && request.resource.data.frase.size() <= 160))
+        && (!('avatar' in request.resource.data)
+            || request.resource.data.avatar == null
+            || (request.resource.data.avatar is string
+                && request.resource.data.avatar.size() <= 1000000));
+
+      // Every economy mutation is linked to an immutable operation document
+      // created in the same atomic commit. There is intentionally no generic
+      // "owner may decrease balance" rule because it would bypass the ledger.
+
+      // Key-to-sphere conversion; the 1:50 rate is enforced by rules.
+      allow update: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'keys', 'spheres', 'lastOperationId', 'lastOperationType',
+          'lastOperationAt'
+        ])
+        && request.resource.data.keys is int
+        && request.resource.data.spheres is int
+        && request.resource.data.keys >= 0
+        && request.resource.data.keys < keysOrZero(resource.data)
+        && request.resource.data.spheres == spheresOrZero(resource.data)
+            + (keysOrZero(resource.data) - request.resource.data.keys) * 50
+        && request.resource.data.lastOperationType == 'conversion'
+        && request.resource.data.lastOperationId is string
+        && request.resource.data.lastOperationAt == request.time
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.type
+            == 'conversion'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceBefore
+            == keysOrZero(resource.data)
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
+            == request.resource.data.keys;
+
+      // Gacha debit. The pull, operation and inventory documents must be
+      // committed together; interruption cannot charge without recording it.
+      allow update: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'keys', 'spheres', 'lastOperationId', 'lastOperationType',
+          'lastOperationAt'
+        ])
+        && request.resource.data.lastOperationType == 'gacha'
+        && request.resource.data.lastOperationId is string
+        && request.resource.data.lastOperationAt == request.time
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.type
+            == 'gacha'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/gachaPulls/$(request.resource.data.lastOperationId)).data.operationId
+            == request.resource.data.lastOperationId
+        && (
+          (
+            getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.currency == 'keys'
+            && request.resource.data.keys is int
+            && request.resource.data.keys >= 0
+            && request.resource.data.keys < keysOrZero(resource.data)
+            && spheresOrZero(request.resource.data) == spheresOrZero(resource.data)
+            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceBefore
+                == keysOrZero(resource.data)
+            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
+                == request.resource.data.keys
+          )
+          ||
+          (
+            getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.currency == 'spheres'
+            && request.resource.data.spheres is int
+            && request.resource.data.spheres >= 0
+            && request.resource.data.spheres < spheresOrZero(resource.data)
+            && keysOrZero(request.resource.data) == keysOrZero(resource.data)
+            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceBefore
+                == spheresOrZero(resource.data)
+            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
+                == request.resource.data.spheres
+          )
+        );
+
+      // Store purchase debit, linked to its purchase and product stock write.
+      allow update: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'spheres', 'lastOperationId', 'lastOperationType', 'lastOperationAt'
+        ])
+        && request.resource.data.spheres is int
+        && request.resource.data.spheres >= 0
+        && request.resource.data.spheres < spheresOrZero(resource.data)
+        && request.resource.data.lastOperationType == 'purchase'
+        && request.resource.data.lastOperationId is string
+        && request.resource.data.lastOperationAt == request.time
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.type
+            == 'purchase'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceBefore
+            == spheresOrZero(resource.data)
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
+            == request.resource.data.spheres
+        && getAfter(/databases/$(database)/documents/users/$(userId)/purchases/$(request.resource.data.lastOperationId)).data.operationId
+            == request.resource.data.lastOperationId;
 
       // ─── Battle victory reward update ───────────────────────────────
       // Triggered by battleService.saveBattleVictory. Validates:
@@ -89,29 +262,93 @@ service cloud.firestore {
       //    prevent reusing the same battleId, which is the actual
       //    anti-replay mechanism.
       allow update: if isOwner(userId)
+        && hasVerifiedEmail()
         && request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['copas', 'victorias', 'jefes_derrotados', 'spheres', 'experiencia', 'rango'])
-        && request.resource.data.copas == resource.data.copas + VICTORY_COPAS()
-        && request.resource.data.victorias == resource.data.victorias + 1
-        && request.resource.data.jefes_derrotados == resource.data.jefes_derrotados + 1
-        && request.resource.data.spheres == resource.data.spheres + VICTORY_SPHERES()
-        && request.resource.data.experiencia == resource.data.experiencia + VICTORY_XP()
-        && request.resource.data.rango == rankForCopas(resource.data.copas + VICTORY_COPAS());
+        && request.resource.data.copas
+            == (('copas' in resource.data ? resource.data.copas : 0) + VICTORY_COPAS())
+        && request.resource.data.victorias
+            == (('victorias' in resource.data ? resource.data.victorias : 0) + 1)
+        && request.resource.data.jefes_derrotados
+            == (('jefes_derrotados' in resource.data ? resource.data.jefes_derrotados : 0) + 1)
+        && request.resource.data.spheres
+            == (('spheres' in resource.data ? resource.data.spheres : 0) + VICTORY_SPHERES())
+        && request.resource.data.experiencia
+            == (('experiencia' in resource.data ? resource.data.experiencia : 0) + VICTORY_XP())
+        && request.resource.data.rango == rankForCopas(
+            ('copas' in resource.data ? resource.data.copas : 0) + VICTORY_COPAS());
 
       // ─── Battle defeat reward update ────────────────────────────────
       // Only `derrotas` may change, and only by +1.
       allow update: if isOwner(userId)
+        && hasVerifiedEmail()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['derrotas'])
-        && request.resource.data.derrotas == resource.data.derrotas + 1;
+        && request.resource.data.derrotas
+            == (('derrotas' in resource.data ? resource.data.derrotas : 0) + 1);
 
-      // Allow any signed-in user to INCREMENT the keys field on another user's
-      // document (for receiving key transfers). Only the keys field may change
-      // and it must be an increase (recipient gains keys).
-      allow update: if isSignedIn()
-        && !isOwner(userId)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['keys'])
+      // Transfers are atomic. The recipient gain is allowed only when the
+      // sender loses exactly the same amount in this transaction.
+      allow update: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'keys', 'lastOutgoingTransferId', 'lastOutgoingTransferTo',
+          'lastOutgoingTransferAmount', 'lastOperationId',
+          'lastOperationType', 'lastOperationAt'
+        ])
         && request.resource.data.keys is int
-        && request.resource.data.keys > resource.data.keys;
+        && request.resource.data.keys >= 0
+        && request.resource.data.keys < resource.data.keys
+        && request.resource.data.lastOutgoingTransferId is string
+        && request.resource.data.lastOutgoingTransferId.size() > 0
+        && request.resource.data.lastOutgoingTransferTo is string
+        && request.resource.data.lastOutgoingTransferTo != userId
+        && request.resource.data.lastOutgoingTransferAmount is int
+        && request.resource.data.lastOutgoingTransferAmount
+            == resource.data.keys - request.resource.data.keys
+        && request.resource.data.lastOperationId
+            == request.resource.data.lastOutgoingTransferId
+        && request.resource.data.lastOperationType == 'transfer_sent'
+        && request.resource.data.lastOperationAt == request.time
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOutgoingTransferId)).data.type
+            == 'transfer_sent'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOutgoingTransferId)).data.relatedId
+            == request.resource.data.lastOutgoingTransferTo
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOutgoingTransferId)).data.delta
+            == -request.resource.data.lastOutgoingTransferAmount
+        && getAfter(/databases/$(database)/documents/users/$(request.resource.data.lastOutgoingTransferTo)).data.keys
+            == keysOrZero(get(/databases/$(database)/documents/users/$(request.resource.data.lastOutgoingTransferTo)).data)
+                + request.resource.data.lastOutgoingTransferAmount
+        && getAfter(/databases/$(database)/documents/users/$(request.resource.data.lastOutgoingTransferTo)).data.lastIncomingTransferId
+            == request.resource.data.lastOutgoingTransferId
+        && getAfter(/databases/$(database)/documents/users/$(request.resource.data.lastOutgoingTransferTo)).data.lastIncomingTransferFrom
+            == userId
+        && getAfter(/databases/$(database)/documents/users/$(request.resource.data.lastOutgoingTransferTo)).data.lastIncomingTransferAmount
+            == request.resource.data.lastOutgoingTransferAmount;
+
+      allow update: if isSignedIn()
+        && hasVerifiedEmail()
+        && !isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'keys', 'lastIncomingTransferId', 'lastIncomingTransferFrom',
+          'lastIncomingTransferAmount'
+        ])
+        && request.resource.data.keys is int
+        && request.resource.data.keys > keysOrZero(resource.data)
+        && request.resource.data.lastIncomingTransferId is string
+        && request.resource.data.lastIncomingTransferId.size() > 0
+        && request.resource.data.lastIncomingTransferFrom == request.auth.uid
+        && request.resource.data.lastIncomingTransferAmount is int
+        && request.resource.data.lastIncomingTransferAmount
+            == request.resource.data.keys - keysOrZero(resource.data)
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.keys
+            == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.keys
+                - request.resource.data.lastIncomingTransferAmount
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.lastOutgoingTransferId
+            == request.resource.data.lastIncomingTransferId
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.lastOutgoingTransferTo
+            == userId
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.lastOutgoingTransferAmount
+            == request.resource.data.lastIncomingTransferAmount;
     }
 
     // ─── Battle records (anti-replay ledger) ───────────────────────────
@@ -122,6 +359,7 @@ service cloud.firestore {
     match /users/{userId}/game/battles/{battleId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId)
+        && hasVerifiedEmail()
         && request.resource.data.result is string
         && request.resource.data.result in ['victory', 'defeat']
         && request.resource.data.charId is string
@@ -146,6 +384,99 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Immutable economy ledger. The user update and operation creation must
+    // happen in one atomic commit, making operation IDs idempotent.
+    match /users/{userId}/operations/{operationId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.keys().hasOnly([
+          'type', 'currency', 'delta', 'balanceBefore', 'balanceAfter',
+          'relatedId', 'status', 'createdAt'
+        ])
+        && request.resource.data.type in [
+          'conversion', 'gacha', 'purchase', 'transfer_sent'
+        ]
+        && request.resource.data.currency in ['keys', 'spheres']
+        && request.resource.data.delta is int
+        && request.resource.data.delta < 0
+        && request.resource.data.balanceBefore is int
+        && request.resource.data.balanceAfter is int
+        && request.resource.data.balanceAfter >= 0
+        && request.resource.data.balanceAfter
+            == request.resource.data.balanceBefore + request.resource.data.delta
+        && request.resource.data.relatedId is string
+        && request.resource.data.relatedId.size() > 0
+        && request.resource.data.status == 'completed'
+        && request.resource.data.createdAt == request.time
+        && (!('lastOperationId' in get(/databases/$(database)/documents/users/$(userId)).data)
+            || get(/databases/$(database)/documents/users/$(userId)).data.lastOperationId
+                != operationId)
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.lastOperationId
+            == operationId
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.lastOperationType
+            == request.resource.data.type
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.lastOperationAt
+            == request.time
+        && (
+          (
+            request.resource.data.currency == 'keys'
+            && request.resource.data.balanceBefore
+                == keysOrZero(get(/databases/$(database)/documents/users/$(userId)).data)
+            && request.resource.data.balanceAfter
+                == keysOrZero(getAfter(/databases/$(database)/documents/users/$(userId)).data)
+          )
+          ||
+          (
+            request.resource.data.currency == 'spheres'
+            && request.resource.data.balanceBefore
+                == spheresOrZero(get(/databases/$(database)/documents/users/$(userId)).data)
+            && request.resource.data.balanceAfter
+                == spheresOrZero(getAfter(/databases/$(database)/documents/users/$(userId)).data)
+          )
+        )
+        && (
+          request.resource.data.type != 'transfer_sent'
+          ||
+          (
+            request.resource.data.currency == 'keys'
+            && request.resource.data.relatedId != userId
+            && getAfter(/databases/$(database)/documents/users/$(request.resource.data.relatedId)).data.lastIncomingTransferId
+                == operationId
+            && getAfter(/databases/$(database)/documents/users/$(request.resource.data.relatedId)).data.lastIncomingTransferFrom
+                == userId
+            && getAfter(/databases/$(database)/documents/users/$(request.resource.data.relatedId)).data.lastIncomingTransferAmount
+                == -request.resource.data.delta
+          )
+        );
+      allow update, delete: if false;
+    }
+
+    match /users/{userId}/gachaPulls/{pullId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.keys().hasOnly([
+          'operationId', 'bannerId', 'currency', 'unitCost', 'totalCost',
+          'amount', 'itemIds', 'createdAt'
+        ])
+        && request.resource.data.operationId == pullId
+        && request.resource.data.bannerId == 'persona'
+        && request.resource.data.currency == 'keys'
+        && request.resource.data.unitCost == 1
+        && request.resource.data.amount in [1, 10]
+        && request.resource.data.totalCost
+            == request.resource.data.unitCost * request.resource.data.amount
+        && request.resource.data.itemIds is list
+        && request.resource.data.itemIds.size() == request.resource.data.amount
+        && request.resource.data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(pullId)).data.type
+            == 'gacha'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(pullId)).data.delta
+            == -request.resource.data.totalCost;
+      allow update, delete: if false;
+    }
+
     // ─── Inventory (gacha rewards) ─────────────────────────────────────
     // Each pull writes one doc. Schema is strictly validated on create.
     // Owner can delete an item when claiming it via PDF (no updates allowed).
@@ -153,17 +484,56 @@ service cloud.firestore {
       allow read: if isOwner(userId);
 
       allow create: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.keys().hasOnly([
+          'name', 'type', 'rarity', 'obtainedAt', 'bannerId', 'sourceType',
+          'sourceId', 'status'
+        ])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 80
         && validItemType(request.resource.data.type)
         && validRarity(request.resource.data.rarity)
-        && request.resource.data.obtainedAt is timestamp
-        && (request.resource.data.bannerId is string
-            || !('bannerId' in request.resource.data));
+        && request.resource.data.obtainedAt == request.time
+        && request.resource.data.bannerId is string
+        && request.resource.data.sourceType == 'gacha'
+        && request.resource.data.sourceId is string
+        && request.resource.data.status == 'active'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/gachaPulls/$(request.resource.data.sourceId)).data.bannerId
+            == request.resource.data.bannerId
+        && itemId in getAfter(/databases/$(database)/documents/users/$(userId)/gachaPulls/$(request.resource.data.sourceId)).data.itemIds;
 
-      allow delete: if isOwner(userId);
-      allow update: if false;
+      allow update: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'claimId', 'claimedAt'
+        ])
+        && (!('status' in resource.data) || resource.data.status == 'active')
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.claimId is string
+        && request.resource.data.claimId.size() > 0
+        && request.resource.data.claimedAt == request.time;
+      allow delete: if false;
+    }
+
+    match /users/{userId}/claims/{claimId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.keys().hasOnly([
+          'type', 'format', 'itemIds', 'status', 'completedAt', 'createdAt'
+        ])
+        && request.resource.data.type in ['inventory', 'purchase']
+        && request.resource.data.format in ['pdf', 'txt']
+        && (request.resource.data.type == 'inventory'
+            || request.resource.data.format == 'pdf')
+        && request.resource.data.itemIds is list
+        && request.resource.data.itemIds.size() > 0
+        && request.resource.data.itemIds.size() <= 400
+        && request.resource.data.status == 'completed'
+        && request.resource.data.completedAt == request.time
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
     }
 
     // ─── Store: Products ──────────────────────────────────────────────
@@ -173,14 +543,20 @@ service cloud.firestore {
     // user is signed in and we trust the transaction logic (no price/name changes).
     match /products/{productId} {
       allow read: if isSignedIn();
-      // Allow stock decrement via transaction (only the stock field changes)
       allow update: if isSignedIn()
-        && request.resource.data.name == resource.data.name
-        && request.resource.data.price == resource.data.price
-        && request.resource.data.imageUrl == resource.data.imageUrl
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'stock', 'lastPurchaseId', 'lastPurchaseBy'
+        ])
         && request.resource.data.stock is int
         && request.resource.data.stock >= 0
-        && request.resource.data.stock < resource.data.stock;
+        && request.resource.data.stock == resource.data.stock - 1
+        && request.resource.data.lastPurchaseId is string
+        && request.resource.data.lastPurchaseBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/purchases/$(request.resource.data.lastPurchaseId)).data.productId
+            == productId
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/operations/$(request.resource.data.lastPurchaseId)).data.relatedId
+            == productId;
       allow create, delete: if false;
     }
 
@@ -191,16 +567,46 @@ service cloud.firestore {
       allow read: if isOwner(userId);
 
       allow create: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.keys().hasOnly([
+          'operationId', 'productId', 'productName', 'price', 'status',
+          'claimId', 'claimedAt', 'purchasedAt'
+        ])
+        && request.resource.data.operationId == purchaseId
         && request.resource.data.productId is string
         && request.resource.data.productName is string
         && request.resource.data.productName.size() > 0
         && request.resource.data.productName.size() <= 80
         && request.resource.data.price is int
         && request.resource.data.price >= 0
-        && request.resource.data.purchasedAt is timestamp;
+        && request.resource.data.status == 'active'
+        && request.resource.data.claimId == null
+        && request.resource.data.claimedAt == null
+        && request.resource.data.purchasedAt == request.time
+        && get(/databases/$(database)/documents/products/$(request.resource.data.productId)).data.name
+            == request.resource.data.productName
+        && get(/databases/$(database)/documents/products/$(request.resource.data.productId)).data.price
+            == request.resource.data.price
+        && getAfter(/databases/$(database)/documents/products/$(request.resource.data.productId)).data.lastPurchaseId
+            == purchaseId
+        && getAfter(/databases/$(database)/documents/products/$(request.resource.data.productId)).data.lastPurchaseBy
+            == userId
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(purchaseId)).data.type
+            == 'purchase'
+        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(purchaseId)).data.delta
+            == -request.resource.data.price;
 
-      allow delete: if isOwner(userId);
-      allow update: if false;
+      allow update: if isOwner(userId)
+        && hasVerifiedEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'claimId', 'claimedAt'
+        ])
+        && (!('status' in resource.data) || resource.data.status == 'active')
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.claimId is string
+        && request.resource.data.claimId.size() > 0
+        && request.resource.data.claimedAt == request.time;
+      allow delete: if false;
     }
 
     // ─── Default deny ──────────────────────────────────────────────────

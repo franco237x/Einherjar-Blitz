@@ -10,7 +10,14 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
@@ -21,9 +28,18 @@ interface StoreCardProps {
   spheres: number;
   onBuy: (product: StoreProduct) => void;
   buying: boolean;
+  style?: StyleProp<ViewStyle>;
+  imageHeight?: number;
 }
 
-export const StoreCard = ({ product, spheres, onBuy, buying }: StoreCardProps) => {
+export const StoreCard = ({
+  product,
+  spheres,
+  onBuy,
+  buying,
+  style,
+  imageHeight,
+}: StoreCardProps) => {
   const soldOut = product.stock <= 0;
   const canAfford = spheres >= product.price && !soldOut;
 
@@ -34,14 +50,16 @@ export const StoreCard = ({ product, spheres, onBuy, buying }: StoreCardProps) =
   };
 
   return (
-    <View style={[styles.card, product.isExclusive && styles.cardExclusive]}>
+    <View style={[styles.card, product.isExclusive && styles.cardExclusive, style]}>
       {/* Image */}
-      <View style={styles.imageWrap}>
+      <View style={[styles.imageWrap, imageHeight ? { height: imageHeight } : null]}>
         <Image
           source={{ uri: product.imageUrl }}
           style={styles.image}
           contentFit="cover"
+          cachePolicy="memory-disk"
           transition={300}
+          accessibilityLabel={`Imagen de ${product.name}`}
         />
         {/* Category tag */}
         <View style={styles.tag}>
@@ -65,27 +83,18 @@ export const StoreCard = ({ product, spheres, onBuy, buying }: StoreCardProps) =
 
       {/* Body */}
       <View style={styles.body}>
-        <Text style={styles.title} numberOfLines={1}>{product.name}</Text>
-        <Text style={styles.desc} numberOfLines={2}>{product.description}</Text>
-
-        {/* Footer: price + stock */}
-        <View style={styles.footer}>
-          <View style={styles.priceGroup}>
-            <Text style={styles.priceLabel}>Precio</Text>
-            <View style={styles.priceRow}>
-              <Ionicons name="planet" size={12} color={Colors.primaryGold} />
-              <Text style={styles.priceValue}>{product.price.toLocaleString()}</Text>
-            </View>
-          </View>
-          <View style={[styles.stockGroup, soldOut && styles.stockOut]}>
-            <Ionicons name="cube" size={12} color={soldOut ? '#ffb4b4' : Colors.textMuted} />
-            <Text style={[styles.stockText, soldOut && styles.stockOutText]}>
-              {product.stock} en stock
-            </Text>
-          </View>
+        <Text style={styles.title} numberOfLines={2}>{product.name}</Text>
+        <View style={styles.stockRow}>
+          <Ionicons
+            name={soldOut ? 'ban-outline' : 'cube-outline'}
+            size={11}
+            color={soldOut ? '#ffb4b4' : Colors.textMuted}
+          />
+          <Text style={[styles.stockText, soldOut && styles.stockOutText]}>
+            {soldOut ? 'Agotado' : `${product.stock} disponibles`}
+          </Text>
         </View>
 
-        {/* Buy button */}
         <TouchableOpacity
           style={[
             styles.buyBtn,
@@ -93,13 +102,35 @@ export const StoreCard = ({ product, spheres, onBuy, buying }: StoreCardProps) =
             product.isExclusive && styles.buyBtnExclusive,
           ]}
           onPress={handlePress}
-          disabled={soldOut || buying}
+          disabled={!canAfford || buying}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={
+            soldOut
+              ? `${product.name}, agotado`
+              : canAfford
+                ? `Comprar ${product.name} por ${product.price} esferas`
+                : `Saldo insuficiente para comprar ${product.name}`
+          }
+          accessibilityState={{ disabled: !canAfford || buying, busy: buying }}
         >
-          <Text style={styles.buyBtnText}>
-            {buying ? 'COMPRANDO...' : 'COMPRAR'}
+          <Ionicons
+            name="planet"
+            size={14}
+            color={canAfford ? '#111' : Colors.textMuted}
+          />
+          <Text style={[styles.buyPrice, !canAfford && styles.buyBtnTextDisabled]}>
+            {product.price.toLocaleString()}
           </Text>
-          <Ionicons name="cart" size={16} color={soldOut ? '#666' : '#111'} />
+          <Text style={[styles.buyBtnText, !canAfford && styles.buyBtnTextDisabled]}>
+            {buying
+              ? '...'
+              : soldOut
+                ? 'AGOTADO'
+                : canAfford
+                  ? 'COMPRAR'
+                  : 'SIN SALDO'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -108,12 +139,12 @@ export const StoreCard = ({ product, spheres, onBuy, buying }: StoreCardProps) =
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(10,10,10,0.65)',
-    borderRadius: Radius.lg,
+    backgroundColor: 'rgba(10,14,16,0.88)',
+    borderRadius: Radius.sm,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'transparent',
-    marginBottom: Spacing.lg,
+    borderColor: 'rgba(201,170,113,0.28)',
+    marginBottom: Spacing.md,
   },
   cardExclusive: {
     borderColor: 'rgba(255,180,70,0.5)',
@@ -187,49 +218,17 @@ const styles = StyleSheet.create({
 
   /* Body */
   body: {
-    padding: Spacing.md,
-    gap: Spacing.sm,
+    padding: Spacing.sm,
+    gap: 6,
   },
   title: {
     color: Colors.textPrimary,
-    fontFamily: Fonts.title,
-    fontSize: 16,
-    letterSpacing: 1,
-  },
-  desc: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
+    fontFamily: Fonts.bodyBold,
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 16,
+    minHeight: 32,
   },
-
-  /* Footer */
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  priceGroup: {
-    gap: 2,
-  },
-  priceLabel: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  priceValue: {
-    color: Colors.primaryGold,
-    fontFamily: Fonts.title,
-    fontSize: 15,
-  },
-  stockGroup: {
+  stockRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -238,9 +237,6 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontFamily: Fonts.body,
     fontSize: 12,
-  },
-  stockOut: {
-    opacity: 0.7,
   },
   stockOutText: {
     color: '#ffb4b4',
@@ -253,9 +249,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: Colors.primaryGold,
-    paddingVertical: 12,
-    borderRadius: Radius.sm,
-    marginTop: 4,
+    minHeight: 46,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: 2,
+    marginTop: 2,
   },
   buyBtnDisabled: {
     backgroundColor: 'rgba(255,255,255,0.1)',
@@ -266,7 +263,16 @@ const styles = StyleSheet.create({
   buyBtnText: {
     color: '#111',
     fontFamily: Fonts.bodyBold,
-    fontSize: 14,
-    letterSpacing: 2,
+    fontSize: 9,
+    letterSpacing: 0.8,
+  },
+  buyPrice: {
+    color: '#111',
+    fontFamily: Fonts.bodyBold,
+    fontSize: 13,
+    marginRight: 'auto',
+  },
+  buyBtnTextDisabled: {
+    color: Colors.textMuted,
   },
 });

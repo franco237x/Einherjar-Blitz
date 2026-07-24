@@ -198,6 +198,12 @@ describe('executePlayerSpecial', () => {
     // Galileo can still use its own special after transforming.
     expect(newState.player.specialUsed).toBe(false);
     expect(newState.player.spriteState).toBe('special');
+    // Argos owns the disappearance clip; Galileo becomes visible on the
+    // following combat step.
+    expect(newState.player.animationCharacterId).toBe('argos');
+
+    const afterBossTurn = executeBossTurn(newState, sequenceRng([0, 0]));
+    expect(afterBossTurn.newState.player.animationCharacterId).toBe('galileo');
   });
 
   it('applies damage bonus for default-handler characters (orfevre)', () => {

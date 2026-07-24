@@ -45,3 +45,9 @@ export const Radius = {
   xl: 20,
   full: 9999,
 };
+
+export const Layout = {
+  authMaxWidth: 480,
+  contentMaxWidth: 1040,
+  touchTarget: 44,
+};

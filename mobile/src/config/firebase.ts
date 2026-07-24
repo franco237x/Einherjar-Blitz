@@ -1,5 +1,5 @@
 ﻿import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, initializeAuth } from 'firebase/auth';
+import { getAuth, initializeAuth, type Auth } from 'firebase/auth';
 // getReactNativePersistence is exported from the React Native bundle entry of
 // @firebase/auth (resolved by Metro at runtime), but not from the browser
 // typings that TypeScript sees. Suppress the missing-export type error.
@@ -43,13 +43,18 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-let auth: any;
+let auth: Auth;
 if (Platform.OS === 'web') {
   auth = getAuth(app);
 } else {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-  });
+  try {
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch {
+    // Fast Refresh can evaluate this module after Auth was already initialized.
+    auth = getAuth(app);
+  }
 }
 
 const db = getFirestore(app);

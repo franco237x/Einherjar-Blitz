@@ -1,6 +1,6 @@
 # ⚔️ Einherjar Blitz — Diseño del Modo Combate (Mobile)
 
-> **Versión:** 1.1 · **Fecha:** Julio 2026  
+> **Versión:** 1.1 · **Fecha:** Julio 2026<br>
 > **Objetivo:** Módulo de combate clásico (`game/`) independiente del resto de la app, en **landscape**, con placeholders visuales hasta tener sprites propios.
 
 ---

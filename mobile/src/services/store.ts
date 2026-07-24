@@ -15,11 +15,9 @@
 import {
   collection,
   doc,
-  getDoc,
   getDocs,
-  addDoc,
-  deleteDoc,
   serverTimestamp,
+  writeBatch,
   query,
   orderBy,
   onSnapshot,
@@ -28,6 +26,10 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import type { StoreProduct, PurchaseRecord } from '@/constants/storeData';
+import {
+  buildOperationData,
+  createOperationId,
+} from '@/services/economy';
 
 const productsCol = () => collection(db, 'products');
 const purchasesCol = (uid: string) =>
@@ -68,29 +70,49 @@ export async function fetchProducts(): Promise<StoreProduct[]> {
  */
 export async function purchaseProduct(
   uid: string,
-  productId: string
+  productId: string,
+  operationId = createOperationId('purchase')
 ): Promise<{ productName: string; price: number }> {
   if (!uid) throw new Error('Debes iniciar sesión.');
   if (!productId) throw new Error('Producto inválido.');
 
   const userRef = doc(db, 'users', uid);
   const productRef = doc(db, 'products', productId);
+  const purchaseRef = doc(db, 'users', uid, 'purchases', operationId);
+  const operationRef = doc(db, 'users', uid, 'operations', operationId);
 
   const result = await runTransaction(db, async (tx) => {
-    // Read both docs inside the transaction
-    const [userSnap, productSnap] = await Promise.all([
+    const [userSnap, productSnap, purchaseSnap, operationSnap] = await Promise.all([
       tx.get(userRef),
       tx.get(productRef),
+      tx.get(purchaseRef),
+      tx.get(operationRef),
     ]);
 
     if (!userSnap.exists()) throw new Error('No se pudo validar tu usuario.');
     if (!productSnap.exists()) throw new Error('Este producto no existe o fue retirado.');
+    if (purchaseSnap.exists() || operationSnap.exists()) {
+      const previous = purchaseSnap.data();
+      return {
+        productName: previous?.productName ?? 'Producto',
+        price: previous?.price ?? 0,
+      };
+    }
 
     const userData = userSnap.data();
     const productData = productSnap.data() as Omit<StoreProduct, 'id'>;
 
-    const currentSpheres = userData.spheres || 0;
-    const currentStock = productData.stock || 0;
+    const currentSpheres = userData.spheres ?? 0;
+    const currentStock = productData.stock ?? 0;
+
+    if (
+      !Number.isInteger(currentSpheres) ||
+      !Number.isInteger(currentStock) ||
+      !Number.isInteger(productData.price) ||
+      productData.price < 0
+    ) {
+      throw new Error('El producto o el saldo tienen un formato inválido.');
+    }
 
     if (currentSpheres < productData.price) {
       throw new Error('No tienes Esferas suficientes.');
@@ -99,28 +121,46 @@ export async function purchaseProduct(
       throw new Error('Este producto está agotado.');
     }
 
-    // Write: deduct spheres
-    tx.update(userRef, { spheres: currentSpheres - productData.price });
-    // Write: decrement stock
-    tx.update(productRef, { stock: currentStock - 1 });
+    const nextSpheres = currentSpheres - productData.price;
+
+    tx.update(userRef, {
+      spheres: nextSpheres,
+      lastOperationId: operationId,
+      lastOperationType: 'purchase',
+      lastOperationAt: serverTimestamp(),
+    });
+    tx.update(productRef, {
+      stock: currentStock - 1,
+      lastPurchaseId: operationId,
+      lastPurchaseBy: uid,
+    });
+    tx.set(purchaseRef, {
+      operationId,
+      productId,
+      productName: productData.name,
+      price: productData.price,
+      status: 'active',
+      claimId: null,
+      claimedAt: null,
+      purchasedAt: serverTimestamp(),
+    });
+    tx.set(
+      operationRef,
+      buildOperationData({
+        type: 'purchase',
+        currency: 'spheres',
+        delta: -productData.price,
+        balanceBefore: currentSpheres,
+        balanceAfter: nextSpheres,
+        relatedId: productId,
+      })
+    );
 
     return {
       productName: productData.name,
       price: productData.price,
     };
   });
-
-  // Record purchase AFTER transaction succeeds (fire-and-forget)
-  try {
-    await addDoc(purchasesCol(uid), {
-      productId,
-      productName: result.productName,
-      price: result.price,
-      purchasedAt: serverTimestamp(),
-    });
-  } catch (err) {
-    console.error('Failed to record purchase:', err);
-  }
 
   return result;
 }
@@ -149,6 +189,9 @@ export function streamPurchases(
           productName: string;
           price: number;
           purchasedAt?: Timestamp | null;
+          status?: 'active' | 'claimed';
+          claimId?: string | null;
+          claimedAt?: Timestamp | null;
         };
         return {
           id: d.id,
@@ -157,6 +200,10 @@ export function streamPurchases(
           price: data.price,
           purchasedAt:
             data.purchasedAt instanceof Timestamp ? data.purchasedAt.toDate() : null,
+          status: data.status ?? 'active',
+          claimId: data.claimId ?? null,
+          claimedAt:
+            data.claimedAt instanceof Timestamp ? data.claimedAt.toDate() : null,
         };
       });
       onPurchases(items);
@@ -166,21 +213,40 @@ export function streamPurchases(
 }
 
 /**
- * Delete a single purchase record by its document id.
- * Called after the user claims a purchase via PDF — once claimed, the
- * record is removed so it can't be claimed again.
+ * Mark purchases as claimed while preserving the immutable purchase history.
+ * This runs only after the file service confirms that the certificate was
+ * saved or handed to the native share sheet.
  */
-export async function deletePurchase(uid: string, purchaseId: string): Promise<void> {
-  if (!uid) throw new Error('UID requerido para eliminar compra');
-  if (!purchaseId) throw new Error('purchaseId requerido');
-  await deleteDoc(doc(db, 'users', uid, 'purchases', purchaseId));
-}
-
-/**
- * Delete all purchase records for a user (bulk claim).
- */
-export async function deleteAllPurchases(uid: string, purchaseIds: string[]): Promise<void> {
+export async function markPurchasesClaimed(
+  uid: string,
+  purchaseIds: string[],
+  claimId = createOperationId('claim_purchase')
+): Promise<string> {
   if (!uid) throw new Error('UID requerido');
-  if (purchaseIds.length === 0) return;
-  await Promise.all(purchaseIds.map((id) => deletePurchase(uid, id)));
+  if (purchaseIds.length === 0) {
+    throw new Error('No hay compras para reclamar.');
+  }
+
+  for (let offset = 0; offset < purchaseIds.length; offset += 400) {
+    const ids = purchaseIds.slice(offset, offset + 400);
+    const chunkClaimId = offset === 0 ? claimId : `${claimId}_${offset / 400}`;
+    const batch = writeBatch(db);
+    ids.forEach((id) => {
+      batch.update(doc(db, 'users', uid, 'purchases', id), {
+        status: 'claimed',
+        claimId: chunkClaimId,
+        claimedAt: serverTimestamp(),
+      });
+    });
+    batch.set(doc(db, 'users', uid, 'claims', chunkClaimId), {
+      type: 'purchase',
+      format: 'pdf',
+      itemIds: ids,
+      status: 'completed',
+      completedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+    });
+    await batch.commit();
+  }
+  return claimId;
 }

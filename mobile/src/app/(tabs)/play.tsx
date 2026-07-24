@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { Background } from '@/components/Background';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FEATURE_FLAGS } from '@/config/featureFlags';
 
 /**
  * Play tab — launcher for the game module.
@@ -14,6 +15,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  * just a portrait-mode entry point with a "Enter Combat" button.
  */
 export default function PlayScreen() {
+  if (!FEATURE_FLAGS.game) {
+    return <Redirect href="/(tabs)" />;
+  }
+
+  return <PlayLauncher />;
+}
+
+function PlayLauncher() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 

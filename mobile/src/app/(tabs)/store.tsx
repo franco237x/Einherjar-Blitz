@@ -9,7 +9,7 @@
  * - Purchase history modal
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -21,26 +21,36 @@ import {
   Alert,
   RefreshControl,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAuth } from 'firebase/auth';
-import { db } from '@/config/firebase';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Background } from '@/components/Background';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
 import { StoreCard } from '@/components/store/StoreCard';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { PurchaseModal, type PurchaseState } from '@/components/store/PurchaseModal';
-import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { Colors, Fonts, Layout, Spacing, Radius } from '@/constants/theme';
 import type { StoreProduct, PurchaseRecord } from '@/constants/storeData';
-import { fetchProducts, purchaseProduct, streamPurchases, deletePurchase, deleteAllPurchases } from '@/services/store';
+import {
+  fetchProducts,
+  markPurchasesClaimed,
+  purchaseProduct,
+  streamPurchases,
+} from '@/services/store';
 import { claimPurchasePDF, claimAllPurchasesPDF } from '@/services/purchaseClaim';
 import { useSyncStatus } from '@/hooks/useSyncStatus';
 import { useUserData } from '@/hooks/useUserData';
 
 export default function StoreScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compact = width < 390;
+  const tablet = width >= 700;
+  const desktop = width >= 1000;
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,6 +67,7 @@ export default function StoreScreen() {
   const [purchases, setPurchases] = useState<PurchaseRecord[]>([]);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [claimingAll, setClaimingAll] = useState(false);
+  const purchaseLockRef = useRef(false);
 
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
@@ -111,6 +122,11 @@ export default function StoreScreen() {
     return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
   }, [products]);
 
+  const activePurchases = useMemo(
+    () => purchases.filter((purchase) => purchase.status !== 'claimed'),
+    [purchases]
+  );
+
   // ─── Filtered products ──────────────────────────────────────────────
   const { available, soldOut } = useMemo(() => {
     const filtered = filter
@@ -125,11 +141,13 @@ export default function StoreScreen() {
   // ─── Buy handler ────────────────────────────────────────────────────
   const handleBuy = useCallback(
     async (product: StoreProduct) => {
+      if (purchaseLockRef.current) return;
       if (!uid) {
         setPurchaseInfo({ errorMessage: 'Debes iniciar sesión.' });
         setPurchaseState('error');
         return;
       }
+      purchaseLockRef.current = true;
       setBuyingId(product.id);
       setPurchaseInfo({ productName: product.name, productImage: product.imageUrl, price: product.price });
       setPurchaseState('loading');
@@ -147,6 +165,7 @@ export default function StoreScreen() {
         setPurchaseInfo({ errorMessage: err?.message || 'No se pudo completar la compra.' });
         setPurchaseState('error');
       } finally {
+        purchaseLockRef.current = false;
         setBuyingId(null);
       }
     },
@@ -161,11 +180,18 @@ export default function StoreScreen() {
   // ─── Claim single purchase as PDF, save to device, then delete from Firestore ──
   const handleClaimOne = useCallback(async (purchase: PurchaseRecord) => {
     if (!uid) return;
+    if (purchase.status === 'claimed') return;
     setClaimingId(purchase.id);
     try {
       const result = await claimPurchasePDF(purchase);
-      // PDF saved to device → safe to delete from Firestore
-      await deletePurchase(uid, purchase.id);
+      if (!result.saved) {
+        Alert.alert(
+          'Impresión abierta',
+          'En la web no podemos confirmar si guardaste el PDF. La compra seguirá disponible para reclamar.'
+        );
+        return;
+      }
+      await markPurchasesClaimed(uid, [purchase.id]);
       Alert.alert(
         '¡Certificado generado!',
         result.shared
@@ -181,24 +207,33 @@ export default function StoreScreen() {
 
   // ─── Claim all purchases as PDF, save to device, then delete all from Firestore ─
   const handleClaimAll = useCallback(async () => {
-    if (!uid || purchases.length === 0) return;
+    if (!uid || activePurchases.length === 0) return;
     setClaimingAll(true);
     try {
-      const result = await claimAllPurchasesPDF(purchases);
-      // PDF saved to device → safe to delete from Firestore
-      await deleteAllPurchases(uid, purchases.map((p) => p.id));
+      const result = await claimAllPurchasesPDF(activePurchases);
+      if (!result.saved) {
+        Alert.alert(
+          'Impresión abierta',
+          'En la web no podemos confirmar si guardaste el PDF. Las compras seguirán disponibles para reclamar.'
+        );
+        return;
+      }
+      await markPurchasesClaimed(
+        uid,
+        activePurchases.map((purchase) => purchase.id)
+      );
       Alert.alert(
         '¡Certificado generado!',
         result.shared
-          ? `Certificado de ${purchases.length} compras listo. Desde el menú de compartir puedes guardarlo en Descargas o Drive.`
-          : `Certificado de ${purchases.length} compras guardado en el almacenamiento de la app.`
+          ? `Certificado de ${activePurchases.length} compras listo. Desde el menú de compartir puedes guardarlo en Descargas o Drive.`
+          : `Certificado de ${activePurchases.length} compras guardado en el almacenamiento de la app.`
       );
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'No se pudo generar el certificado.');
     } finally {
       setClaimingAll(false);
     }
-  }, [uid, purchases]);
+  }, [uid, activePurchases]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -219,77 +254,119 @@ export default function StoreScreen() {
 
   return (
     <Background>
+      <Image
+        source={require('../../../assets/images/loading_screen/manhattan.jpg')}
+        style={styles.sceneBackground}
+        contentFit="cover"
+        contentPosition="center"
+        blurRadius={4}
+      />
+      <LinearGradient
+        colors={['rgba(5,5,5,0.78)', 'rgba(5,5,5,0.92)', '#050505']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFill}
+      />
       <ParticlesBackground />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 80 }
+          compact && styles.scrollContentCompact,
+          {
+            paddingTop: insets.top + Spacing.md,
+            paddingBottom: insets.bottom + 88,
+          }
         ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primaryGold} />}
       >
-        {/* ═══ Header ═══ */}
-        <ScreenHeader
-          title="Tienda Oficial"
-          subtitle="Artículos exclusivos para tu inventario"
-          badges={[{ icon: 'planet', label: 'Esferas', value: spheres.toLocaleString() }]}
-          action={
-            <TouchableOpacity
-              style={styles.historyBtn}
-              onPress={() => setShowHistory(true)}
-            >
-              <Ionicons name="receipt" size={16} color={Colors.textPrimary} />
-              <Text style={styles.historyBtnText}>Historial</Text>
-            </TouchableOpacity>
-          }
-        />
-
-        {/* ═══ Toolbar: stats + filter ═══ */}
-        <View style={styles.toolbar}>
-          <View style={styles.statsGroup}>
-            <View style={styles.statsCard}>
-              <Text style={styles.statsLabel}>Productos</Text>
-              <Text style={styles.statsValue}>{available.length}</Text>
-            </View>
-            <View style={styles.statsCard}>
-              <Text style={styles.statsLabel}>Categorías</Text>
-              <Text style={styles.statsValue}>{categories.length}</Text>
+        <View style={styles.storeTopBar}>
+          <View style={styles.storeTitleRow}>
+            <Ionicons name="storefront-outline" size={22} color={Colors.primaryGold} />
+            <View>
+              <Text style={styles.storeEyebrow}>MERCADO EINHERJAR</Text>
+              <Text style={styles.storeTitle}>Tienda</Text>
             </View>
           </View>
 
-          {categories.length > 0 && (
-            <View style={styles.filterGroup}>
-              <Ionicons name="filter" size={14} color={Colors.textMuted} />
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-                <TouchableOpacity
-                  style={[styles.filterChip, !filter && styles.filterChipActive]}
-                  onPress={() => setFilter('')}
-                >
-                  <Text style={[styles.filterChipText, !filter && styles.filterChipTextActive]}>
-                    Todas
-                  </Text>
-                </TouchableOpacity>
-                {categories.map(([key, label]) => (
-                  <TouchableOpacity
-                    key={key}
-                    style={[styles.filterChip, filter === key && styles.filterChipActive]}
-                    onPress={() => setFilter(key)}
-                  >
-                    <Text style={[styles.filterChipText, filter === key && styles.filterChipTextActive]}>
-                      {label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+          <View style={styles.storeTools}>
+            <View style={styles.balancePill} accessibilityLabel={`${spheres} esferas`}>
+              <Ionicons name="planet" size={18} color="#7ed9e7" />
+              <Text style={styles.balanceValue}>{spheres.toLocaleString()}</Text>
             </View>
-          )}
+            <TouchableOpacity
+              style={styles.historyBtn}
+              onPress={() => setShowHistory(true)}
+              accessibilityRole="button"
+              accessibilityLabel={`Abrir historial, ${activePurchases.length} compras pendientes`}
+            >
+              <Ionicons name="receipt-outline" size={21} color={Colors.primaryGold} />
+              {activePurchases.length > 0 ? (
+                <View style={styles.historyBadge}>
+                  <Text style={styles.historyBadgeText}>
+                    {Math.min(activePurchases.length, 99)}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+          </View>
         </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={[styles.categoryRail, compact && styles.categoryRailCompact]}
+          contentContainerStyle={styles.categoryContent}
+        >
+          <TouchableOpacity
+            style={[styles.categoryTab, !filter && styles.categoryTabActive]}
+            onPress={() => setFilter('')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: !filter }}
+          >
+            <Ionicons
+              name="grid-outline"
+              size={20}
+              color={!filter ? Colors.primaryGold : Colors.textMuted}
+            />
+            <Text style={[styles.categoryText, !filter && styles.categoryTextActive]}>
+              TODOS
+            </Text>
+          </TouchableOpacity>
+          {categories.map(([key, label]) => (
+            <TouchableOpacity
+              key={key}
+              style={[styles.categoryTab, filter === key && styles.categoryTabActive]}
+              onPress={() => setFilter(key)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: filter === key }}
+            >
+              <Ionicons
+                name="pricetag-outline"
+                size={20}
+                color={filter === key ? Colors.primaryGold : Colors.textMuted}
+              />
+              <Text
+                style={[styles.categoryText, filter === key && styles.categoryTextActive]}
+                numberOfLines={1}
+              >
+                {label.toUpperCase()}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         {/* ═══ Available section ═══ */}
         {available.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Disponibles</Text>
-            <Text style={styles.sectionSubtitle}>Escoge el equipo que necesitas</Text>
+            <View style={styles.catalogHeading}>
+              <View>
+                <Text style={styles.sectionEyebrow}>CATÁLOGO</Text>
+                <Text style={styles.sectionTitle}>
+                  {filter ? categories.find(([key]) => key === filter)?.[1] : 'Todos los artículos'}
+                </Text>
+              </View>
+              <Text style={styles.catalogCount}>{available.length} disponibles</Text>
+            </View>
             <View style={styles.grid}>
               {available.map((product) => (
                 <StoreCard
@@ -298,6 +375,12 @@ export default function StoreScreen() {
                   spheres={spheres}
                   onBuy={handleBuy}
                   buying={buyingId === product.id}
+                  imageHeight={desktop ? 150 : tablet ? 160 : compact ? 128 : 150}
+                  style={[
+                    styles.productCard,
+                    tablet && styles.productCardTablet,
+                    desktop && styles.productCardDesktop,
+                  ]}
                 />
               ))}
             </View>
@@ -317,6 +400,12 @@ export default function StoreScreen() {
                   spheres={spheres}
                   onBuy={handleBuy}
                   buying={buyingId === product.id}
+                  imageHeight={desktop ? 150 : tablet ? 160 : compact ? 128 : 150}
+                  style={[
+                    styles.productCard,
+                    tablet && styles.productCardTablet,
+                    desktop && styles.productCardDesktop,
+                  ]}
                 />
               ))}
             </View>
@@ -346,13 +435,19 @@ export default function StoreScreen() {
       />
 
       {/* ═══ Purchase History Modal ═══ */}
-      <Modal visible={showHistory} transparent animationType="slide" statusBarTranslucent>
-        <View style={styles.modalOverlay}>
+      <Modal
+        visible={showHistory}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setShowHistory(false)}
+      >
+        <View style={[styles.modalOverlay, { paddingTop: insets.top + Spacing.md }]}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <View style={styles.modalHeaderLeft}>
                 <Text style={styles.modalTitle}>Historial de Compras</Text>
-                {purchases.length > 0 && (
+                {activePurchases.length > 0 && (
                   <TouchableOpacity
                     style={styles.claimAllBtn}
                     onPress={handleClaimAll}
@@ -370,7 +465,12 @@ export default function StoreScreen() {
                   </TouchableOpacity>
                 )}
               </View>
-              <TouchableOpacity onPress={() => setShowHistory(false)}>
+              <TouchableOpacity
+                onPress={() => setShowHistory(false)}
+                style={styles.modalCloseBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar historial"
+              >
                 <Ionicons name="close" size={24} color={Colors.textPrimary} />
               </TouchableOpacity>
             </View>
@@ -409,10 +509,15 @@ export default function StoreScreen() {
                       <TouchableOpacity
                         style={styles.claimBtn}
                         onPress={() => handleClaimOne(item)}
-                        disabled={claimingId === item.id}
+                        disabled={claimingId === item.id || item.status === 'claimed'}
                         activeOpacity={0.7}
                       >
-                        {claimingId === item.id ? (
+                        {item.status === 'claimed' ? (
+                          <>
+                            <Ionicons name="checkmark-circle" size={12} color={Colors.textMuted} />
+                            <Text style={styles.claimBtnText}>RECLAMADA</Text>
+                          </>
+                        ) : claimingId === item.id ? (
                           <ActivityIndicator size="small" color={Colors.primaryGold} />
                         ) : (
                           <>
@@ -435,7 +540,19 @@ export default function StoreScreen() {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: 20 },
+  scrollContent: {
+    width: '100%',
+    maxWidth: Layout.contentMaxWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.lg,
+  },
+  scrollContentCompact: {
+    paddingHorizontal: Spacing.md,
+  },
+  sceneBackground: {
+    ...StyleSheet.absoluteFill,
+    opacity: 0.16,
+  },
 
   /* Loading */
   loadingWrap: {
@@ -450,97 +567,153 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  /* Header */
-  historyBtn: {
+  /* Game-client header */
+  storeTopBar: {
+    minHeight: 64,
+    marginBottom: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: Radius.sm,
-  },
-  historyBtnText: {
-    color: Colors.textPrimary,
-    fontFamily: Fonts.body,
-    fontSize: 12,
-  },
-
-  /* Toolbar */
-  toolbar: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
+    justifyContent: 'space-between',
     gap: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(201,170,113,0.18)',
   },
-  statsGroup: {
+  storeTitleRow: {
+    minWidth: 0,
     flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.sm,
   },
-  statsCard: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: Radius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  statsLabel: {
+  storeEyebrow: {
     color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 8,
+    letterSpacing: 1.2,
   },
-  statsValue: {
+  storeTitle: {
     color: Colors.textPrimary,
     fontFamily: Fonts.title,
-    fontSize: 18,
-    marginTop: 2,
+    fontSize: 21,
+    letterSpacing: 0.8,
   },
-  filterGroup: {
+  storeTools: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  balancePill: {
+    minHeight: 42,
+    minWidth: 86,
+    paddingHorizontal: Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(126,217,231,0.24)',
+    backgroundColor: 'rgba(5,5,5,0.72)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
   },
-  filterScroll: {
-    flex: 1,
-  },
-  filterChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: Radius.full,
-    marginRight: 8,
-  },
-  filterChipActive: {
-    borderColor: Colors.primaryGold,
-    backgroundColor: 'rgba(201,170,113,0.15)',
-  },
-  filterChipText: {
-    color: Colors.textMuted,
-    fontFamily: Fonts.body,
-    fontSize: 12,
-  },
-  filterChipTextActive: {
-    color: Colors.primaryGold,
+  balanceValue: {
+    color: Colors.textPrimary,
     fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+  },
+  historyBtn: {
+    width: 44,
+    height: 44,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    backgroundColor: 'rgba(5,5,5,0.72)',
+  },
+  historyBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    minWidth: 18,
+    height: 18,
+    borderRadius: Radius.full,
+    paddingHorizontal: 4,
+    backgroundColor: Colors.primaryGold,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyBadgeText: {
+    color: Colors.bgDarker,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 9,
+  },
+  categoryRail: {
+    marginHorizontal: -Spacing.lg,
+    marginBottom: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
+  },
+  categoryRailCompact: {
+    marginHorizontal: -Spacing.md,
+  },
+  categoryContent: {
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.xs,
+  },
+  categoryTab: {
+    width: 88,
+    minHeight: 64,
+    paddingHorizontal: Spacing.xs,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  categoryTabActive: {
+    borderBottomColor: Colors.primaryGold,
+    backgroundColor: 'rgba(201,170,113,0.06)',
+  },
+  categoryText: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 9,
+    letterSpacing: 0.7,
+  },
+  categoryTextActive: {
+    color: Colors.primaryGold,
   },
 
   /* Section */
   section: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
+    paddingTop: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    color: Colors.primaryGold,
+    color: Colors.textPrimary,
     fontFamily: Fonts.title,
     fontSize: 18,
-    letterSpacing: 2,
+    letterSpacing: 0.8,
     marginBottom: 2,
+  },
+  sectionEyebrow: {
+    color: Colors.primaryGold,
+    fontFamily: Fonts.bodyBold,
+    fontSize: 9,
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+  catalogHeading: {
+    minHeight: 50,
+    marginBottom: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+  },
+  catalogCount: {
+    color: Colors.textMuted,
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    marginBottom: 4,
   },
   sectionSubtitle: {
     color: Colors.textMuted,
@@ -553,6 +726,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
+  productCard: {
+    width: '48.5%',
+  },
+  productCardTablet: {
+    width: '31.8%',
+  },
+  productCardDesktop: {
+    width: '23.5%',
+  },
 
   /* History modal */
   modalOverlay: {
@@ -564,6 +746,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
+    maxWidth: 720,
     maxHeight: '80%',
     backgroundColor: '#0d0d0d',
     borderRadius: Radius.lg,
@@ -580,10 +763,19 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.glassBorder,
   },
   modalHeaderLeft: {
+    flex: 1,
     flexDirection: 'column',
     gap: 8,
   },
+  modalCloseBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   claimAllBtn: {
+    minHeight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -608,6 +800,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   claimBtn: {
+    minHeight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,

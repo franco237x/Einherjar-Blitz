@@ -9,9 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { auth } from '@/config/firebase';
@@ -20,7 +29,7 @@ import { Background } from '@/components/Background';
 import { GlassCard } from '@/components/GlassCard';
 import { GoldButton } from '@/components/GoldButton';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Layout, Radius, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 const GOOGLE_WEB_CLIENT_ID = '618656654443-37njkq2qia9a5qs7393dn4jhtjgihutr.apps.googleusercontent.com';
@@ -32,6 +41,9 @@ if (Platform.OS !== 'web') {
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  const compact = width < 360;
+  const short = height < 700;
   const params = useLocalSearchParams<{ registered?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,7 +51,9 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState(
-    params?.registered === '1' ? '¡Registro exitoso! Inicia sesión con tus credenciales.' : ''
+    params?.registered === 'verify'
+      ? 'Registro exitoso. Revisa tu correo antes de iniciar sesión.'
+      : ''
   );
 
   // Animation values
@@ -64,24 +78,61 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     setErrorMsg('');
     setSuccessMsg('');
-    if (!email || !password) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password) {
       setErrorMsg('Por favor, completa todos los campos.');
       return;
     }
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        normalizedEmail,
+        password
+      );
+      if (!credential.user.emailVerified) {
+        await sendEmailVerification(credential.user).catch(() => {});
+        await signOut(auth);
+        setErrorMsg(
+          'Debes verificar tu correo antes de ingresar. Te enviamos un nuevo enlace.'
+        );
+        return;
+      }
       router.replace('/(tabs)');
     } catch (error: any) {
-      let msg = 'Error al iniciar sesión.';
-      if (error.code === 'auth/invalid-credential') msg = 'Credenciales inválidas.';
-      if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado.';
-      if (error.code === 'auth/wrong-password') msg = 'Contraseña incorrecta.';
+      let msg = 'El correo o la contraseña no son correctos.';
       if (error.code === 'auth/invalid-email') msg = 'El correo no es válido.';
       if (error.code === 'auth/operation-not-allowed') msg = 'Inicio de sesión no habilitado.';
-      if (error.message?.includes('INVALID_LOGIN_CREDENTIALS')) msg = 'El correo o la contraseña son incorrectos.';
-      console.log('Login Error:', error);
+      if (__DEV__) console.log('Login Error:', error?.code);
       setErrorMsg(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    const normalizedEmail = email.trim().toLowerCase();
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!normalizedEmail) {
+      setErrorMsg('Ingresa tu correo para recuperar la contraseña.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, normalizedEmail);
+      setSuccessMsg(
+        'Si existe una cuenta con ese correo, recibirás instrucciones para recuperar el acceso.'
+      );
+    } catch (error: any) {
+      if (error?.code === 'auth/invalid-email') {
+        setErrorMsg('El correo no es válido.');
+      } else {
+        setSuccessMsg(
+          'Si existe una cuenta con ese correo, recibirás instrucciones para recuperar el acceso.'
+        );
+      }
+      if (__DEV__) console.log('Password reset error:', error?.code);
     } finally {
       setLoading(false);
     }
@@ -97,7 +148,7 @@ export default function LoginScreen() {
         await signInWithPopup(auth, provider);
         router.replace('/(tabs)');
       } catch (error: any) {
-        console.log('Google Login Error:', error);
+        if (__DEV__) console.log('Google Login Error:', error?.code);
         setErrorMsg('Error al iniciar sesión con Google.');
         setLoading(false);
       }
@@ -119,7 +170,7 @@ export default function LoginScreen() {
       await signInWithCredential(auth, credential);
       router.replace('/(tabs)');
     } catch (error: any) {
-      console.log('Google Login Error:', error?.code, error?.message);
+      if (__DEV__) console.log('Google Login Error:', error?.code);
       if (error?.code !== 'SIGN_IN_CANCELLED' && error?.code !== '-5') {
         setErrorMsg('Error al iniciar sesión con Google.');
       }
@@ -137,18 +188,33 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.container,
+            compact && styles.containerCompact,
+            short && styles.containerShort,
             { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.lg }
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View style={[styles.header, { opacity: fadeAnimHeader, transform: [{ translateY: slideAnimHeader }] }]}>
-            <Text style={styles.title}>EINHERJER</Text>
-            <Text style={styles.titleBlitz}>BLITZ</Text>
-            <Text style={styles.subtitle}>PORTAL DEL GUERRERO</Text>
+          <Animated.View
+            style={[
+              styles.header,
+              short && styles.headerShort,
+              { opacity: fadeAnimHeader, transform: [{ translateY: slideAnimHeader }] },
+            ]}
+          >
+            <Text style={[styles.title, compact && styles.titleCompact]}>EINHERJAR</Text>
+            <Text style={[styles.titleBlitz, compact && styles.titleCompact]}>BLITZ</Text>
+            <Text style={[styles.subtitle, compact && styles.subtitleCompact]}>
+              PORTAL DEL GUERRERO
+            </Text>
           </Animated.View>
 
-          <Animated.View style={{ opacity: fadeAnimForm, transform: [{ translateY: slideAnimForm }] }}>
+          <Animated.View
+            style={[
+              styles.formShell,
+              { opacity: fadeAnimForm, transform: [{ translateY: slideAnimForm }] },
+            ]}
+          >
             <GlassCard style={styles.card}>
               <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>ACCESO AL REINO</Text>
@@ -163,6 +229,10 @@ export default function LoginScreen() {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  returnKeyType="next"
+                  accessibilityLabel="Correo electrónico"
                 />
                 <View style={styles.passwordContainer}>
                   <TextInput
@@ -172,17 +242,42 @@ export default function LoginScreen() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
+                    autoComplete="current-password"
+                    textContentType="password"
+                    returnKeyType="done"
+                    onSubmitEditing={handleLogin}
+                    accessibilityLabel="Contraseña"
                   />
                   <TouchableOpacity
                     style={styles.eyeIcon}
                     onPress={() => setShowPassword(!showPassword)}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color={Colors.textMuted} />
                   </TouchableOpacity>
                 </View>
 
-                {successMsg ? <Text style={styles.successText}>{successMsg}</Text> : null}
-                {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+                {successMsg ? (
+                  <Text style={styles.successText} accessibilityLiveRegion="polite">
+                    {successMsg}
+                  </Text>
+                ) : null}
+                {errorMsg ? (
+                  <Text style={styles.errorText} accessibilityRole="alert">
+                    {errorMsg}
+                  </Text>
+                ) : null}
+
+                <TouchableOpacity
+                  style={styles.forgotButton}
+                  onPress={handlePasswordReset}
+                  disabled={loading}
+                  accessibilityRole="button"
+                  accessibilityLabel="Recuperar contraseña"
+                >
+                  <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
+                </TouchableOpacity>
 
                 <GoldButton
                   title="INGRESAR"
@@ -195,6 +290,9 @@ export default function LoginScreen() {
                   style={styles.googleBtn}
                   onPress={handleGoogleLogin}
                   disabled={loading}
+                  accessibilityRole="button"
+                  accessibilityLabel="Continuar con Google"
+                  accessibilityState={{ disabled: loading }}
                 >
                   <Ionicons name="logo-google" size={20} color={Colors.textPrimary} style={styles.googleIcon} />
                   <Text style={styles.googleBtnText}>Continuar con Google</Text>
@@ -202,7 +300,11 @@ export default function LoginScreen() {
 
                 <View style={styles.footer}>
                   <Text style={styles.footerText}>¿No tienes cuenta? </Text>
-                  <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+                  <TouchableOpacity
+                    onPress={() => router.push('/(auth)/register')}
+                    accessibilityRole="link"
+                    accessibilityLabel="Crear una cuenta"
+                  >
                     <Text style={styles.linkText}>Regístrate</Text>
                   </TouchableOpacity>
                 </View>
@@ -224,9 +326,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: Spacing.lg,
   },
+  containerCompact: {
+    paddingHorizontal: Spacing.md,
+  },
+  containerShort: {
+    justifyContent: 'flex-start',
+  },
   header: {
     marginBottom: Spacing.xxl,
     alignItems: 'center',
+  },
+  headerShort: {
+    marginBottom: Spacing.lg,
   },
   title: {
     fontFamily: Fonts.title,
@@ -242,6 +353,11 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     lineHeight: 46,
   },
+  titleCompact: {
+    fontSize: 30,
+    lineHeight: 35,
+    letterSpacing: 3,
+  },
   subtitle: {
     fontFamily: Fonts.bodyMedium,
     fontSize: 14,
@@ -249,8 +365,17 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
     marginTop: Spacing.sm,
   },
+  subtitleCompact: {
+    fontSize: 12,
+    letterSpacing: 2,
+  },
+  formShell: {
+    width: '100%',
+    maxWidth: Layout.authMaxWidth,
+    alignSelf: 'center',
+  },
   card: {
-    marginHorizontal: Spacing.sm,
+    width: '100%',
   },
   cardHeader: {
     alignItems: 'center',
@@ -328,11 +453,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
+  forgotButton: {
+    minHeight: Layout.touchTarget,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: Spacing.sm,
+    minHeight: Layout.touchTarget,
   },
   footerText: {
     color: Colors.textSecondary,

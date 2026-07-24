@@ -27,23 +27,26 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   collection,
   query,
-  where,
   getDocs,
   orderBy,
   limit,
   doc,
+  increment,
   runTransaction,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { buildOperationData, createOperationId } from '@/services/economy';
+import { normalizeUsername } from '@/services/userDirectory';
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
 interface UserResult {
   uid: string;
   username: string;
+  transferCode: string;
   avatar: string | null;
-  email: string;
 }
 
 type Step = 'recipient' | 'amount' | 'confirm' | 'result';
@@ -109,7 +112,8 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
   // ─── Search users by username prefix ────────────────────────────────
 
   const searchUsers = useCallback(async (text: string) => {
-    if (text.length < 2) {
+    const normalizedText = normalizeUsername(text);
+    if (normalizedText.length < 2) {
       setResults([]);
       setHasSearched(false);
       return;
@@ -119,11 +123,9 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
     setHasSearched(true);
     try {
       const q = query(
-        collection(db, 'users'),
-        where('username', '>=', text),
-        where('username', '<=', text + '\uf8ff'),
+        collection(db, 'publicUsers'),
         orderBy('username'),
-        limit(10)
+        limit(100)
       );
 
       const snapshot = await getDocs(q);
@@ -134,17 +136,20 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
         // Exclude ourselves
         if (docSnap.id === currentUid) return;
         const data = docSnap.data();
-        users.push({
-          uid: docSnap.id,
-          username: data.username || 'Sin nombre',
-          avatar: data.avatar || null,
-          email: data.email || '',
-        });
+        const username = data.username || 'Sin nombre';
+        if (normalizeUsername(username).startsWith(normalizedText)) {
+          users.push({
+            uid: docSnap.id,
+            username,
+            transferCode: data.transferCode || docSnap.id.slice(0, 8),
+            avatar: data.avatarUrl || null,
+          });
+        }
       });
 
-      setResults(users);
+      setResults(users.slice(0, 10));
     } catch (err) {
-      console.error('User search error:', err);
+      if (__DEV__) console.error('User search error:', (err as Error)?.message);
       setResults([]);
     } finally {
       setSearching(false);
@@ -160,7 +165,7 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
       clearTimeout(debounceTimer.current);
     }
 
-    if (text.length < 2) {
+    if (normalizeUsername(text).length < 2) {
       setResults([]);
       setHasSearched(false);
       return;
@@ -203,24 +208,55 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
     try {
       const senderRef = doc(db, 'users', auth.currentUser!.uid);
       const recipientRef = doc(db, 'users', selected.uid);
+      const transferId = createOperationId('transfer');
+      const operationRef = doc(
+        db,
+        'users',
+        auth.currentUser!.uid,
+        'operations',
+        transferId
+      );
 
       await runTransaction(db, async (transaction) => {
         const senderSnap = await transaction.get(senderRef);
-        const recipientSnap = await transaction.get(recipientRef);
+        const operationSnap = await transaction.get(operationRef);
 
-        if (!senderSnap.exists() || !recipientSnap.exists()) {
+        if (!senderSnap.exists()) {
           throw new Error('Usuario no encontrado.');
         }
+        if (operationSnap.exists()) return;
 
-        const senderKeys = senderSnap.data().keys || 0;
+        const senderKeys = senderSnap.data().keys ?? 0;
         if (senderKeys < amountNum) {
           throw new Error('Saldo insuficiente en el momento de la transacción.');
         }
 
-        transaction.update(senderRef, { keys: senderKeys - amountNum });
-        transaction.update(recipientRef, {
-          keys: (recipientSnap.data().keys || 0) + amountNum,
+        transaction.update(senderRef, {
+          keys: senderKeys - amountNum,
+          lastOutgoingTransferId: transferId,
+          lastOutgoingTransferTo: selected.uid,
+          lastOutgoingTransferAmount: amountNum,
+          lastOperationId: transferId,
+          lastOperationType: 'transfer_sent',
+          lastOperationAt: serverTimestamp(),
         });
+        transaction.update(recipientRef, {
+          keys: increment(amountNum),
+          lastIncomingTransferId: transferId,
+          lastIncomingTransferFrom: auth.currentUser!.uid,
+          lastIncomingTransferAmount: amountNum,
+        });
+        transaction.set(
+          operationRef,
+          buildOperationData({
+            type: 'transfer_sent',
+            currency: 'keys',
+            delta: -amountNum,
+            balanceBefore: senderKeys,
+            balanceAfter: senderKeys - amountNum,
+            relatedId: selected.uid,
+          })
+        );
       });
 
       setResult({
@@ -331,7 +367,10 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
         ) : hasSearched && results.length === 0 ? (
           <View style={styles.hintWrap}>
             <Ionicons name="alert-circle-outline" size={36} color={Colors.textMuted} />
-            <Text style={styles.hintText}>No se encontraron usuarios con ese nombre.</Text>
+            <Text style={styles.hintText}>
+              No se encontraron usuarios. Los usuarios existentes deben abrir
+              la versión nueva una vez para aparecer en el buscador.
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -349,11 +388,7 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
                   {renderAvatar(item, 36)}
                   <View style={styles.resultInfo}>
                     <Text style={styles.resultName}>{item.username}</Text>
-                    {item.email ? (
-                      <Text style={styles.resultEmail} numberOfLines={1}>
-                        {item.email}
-                      </Text>
-                    ) : null}
+                    <Text style={styles.resultEmail}>#{item.transferCode}</Text>
                   </View>
                   <Ionicons
                     name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}

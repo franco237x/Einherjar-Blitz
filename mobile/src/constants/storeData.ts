@@ -23,4 +23,7 @@ export interface PurchaseRecord {
   productName: string;
   price: number;
   purchasedAt: Date | null;
+  status: 'active' | 'claimed';
+  claimId?: string | null;
+  claimedAt?: Date | null;
 }

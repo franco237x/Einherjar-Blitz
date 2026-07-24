@@ -18,10 +18,11 @@ async function generateAndShare(
   html: string,
   fileName: string,
   dialogTitle: string
-): Promise<{ uri: string; shared: boolean }> {
+): Promise<{ uri: string; shared: boolean; saved: boolean }> {
   if (Platform.OS === 'web') {
     await Print.printAsync({ html });
-    return { uri: '', shared: false };
+    // Browsers do not report whether printing was completed or cancelled.
+    return { uri: '', shared: false, saved: false };
   }
 
   // 1. Generate PDF to temp cache
@@ -29,8 +30,15 @@ async function generateAndShare(
 
   // 2. Save to Downloads via SAF (Android) or share sheet (iOS)
   const result = await savePdfFile(tempUri, fileName);
+  if (!result.saved) {
+    throw new Error('No se pudo guardar ni compartir el certificado.');
+  }
 
-  return { uri: result.uri || tempUri, shared: result.saved };
+  return {
+    uri: result.uri || tempUri,
+    shared: result.method === 'share',
+    saved: true,
+  };
 }
 
 // ─── Single purchase certificate ──────────────────────────────────────────
@@ -41,7 +49,7 @@ async function generateAndShare(
  */
 export async function claimPurchasePDF(
   purchase: PurchaseRecord
-): Promise<{ uri: string; shared: boolean }> {
+): Promise<{ uri: string; shared: boolean; saved: boolean }> {
   const dateStr = new Date().toLocaleString('es-ES', {
     day: '2-digit',
     month: 'long',
@@ -134,8 +142,10 @@ export async function claimPurchasePDF(
  */
 export async function claimAllPurchasesPDF(
   purchases: PurchaseRecord[]
-): Promise<{ uri: string; shared: boolean }> {
-  if (purchases.length === 0) return { uri: '', shared: false };
+): Promise<{ uri: string; shared: boolean; saved: boolean }> {
+  if (purchases.length === 0) {
+    return { uri: '', shared: false, saved: false };
+  }
 
   const dateStr = new Date().toLocaleString('es-ES', {
     day: '2-digit',
