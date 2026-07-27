@@ -16,6 +16,7 @@ import {
   Wifi,
   Newspaper,
   ChevronDown,
+  Ghost,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
@@ -255,15 +256,27 @@ export default function Home() {
               legendarios y conquista la arena multijugador.
             </p>
 
-            <motion.a
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              href="https://github.com/franco237x/Einherjar-Blitz/releases/latest/download/Einherjar_Blitz_Latest.apk"
-              className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-7 py-3.5 rounded-full font-bold text-base shadow-[0_0_24px_rgba(201,170,113,0.45)] hover:shadow-[0_0_32px_rgba(201,170,113,0.65)] transition-all"
-            >
-              <Download className="w-5 h-5" />
-              Descargar APK
-            </motion.a>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <motion.a
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                href="https://github.com/franco237x/Einherjar-Blitz/releases/latest/download/Einherjar_Blitz_Latest.apk"
+                className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-7 py-3.5 rounded-full font-bold text-base shadow-[0_0_24px_rgba(201,170,113,0.45)] hover:shadow-[0_0_32px_rgba(201,170,113,0.65)] transition-all"
+              >
+                <Download className="w-5 h-5" />
+                Descargar APK
+              </motion.a>
+
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Link
+                  href="/macrocosmos"
+                  className="inline-flex items-center gap-2.5 border border-red-500/40 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/60 px-6 py-3 rounded-full font-bold text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.15)] hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]"
+                >
+                  <Ghost className="w-4 h-4" />
+                  Jugar Macrocosmos
+                </Link>
+              </motion.div>
+            </div>
 
             <p className="text-xs text-muted-foreground mt-3">
               v1.1.7 • Android 8.0+
@@ -421,6 +434,7 @@ export default function Home() {
             ))}
           </div>
         </section>
+
 
         {/* ── Requirements ── */}
         <section
