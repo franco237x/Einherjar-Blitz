@@ -614,7 +614,7 @@ export const TransferModal = ({ visible, onClose, myKeys }: TransferModalProps) 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.overlay}
       >
         <View style={styles.card}>
