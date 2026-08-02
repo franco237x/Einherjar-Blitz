@@ -12,8 +12,18 @@ import {
   useState,
 } from "react";
 
-import { MACROSCOP_STORY } from "@/data/macrocosmosStory";
-import type { StoryChoice, StoryNode } from "@/data/macrocosmosStory";
+import {
+  MACROSCOP_STORY,
+  validateMacrocosmosStory,
+} from "@/data/macrocosmosStory";
+import type {
+  StoryChoice,
+  StoryEffect,
+  StoryFlag,
+  StoryNode,
+  StoryRequirement,
+  StoryTimer,
+} from "@/data/macrocosmosStory";
 
 /* ═══════════════════════════════════════════════════════════════
    MACROSCOP — MOTOR DE FICCIÓN INTERACTIVA
@@ -63,6 +73,7 @@ interface GameState {
   phase: GamePhase;
   currentNodeId: string;
   sanity: number;
+  flags: StoryFlag[];
   displayedText: string;
   voiceText: string;
   discoveredEndings: EndingType[];
@@ -82,6 +93,7 @@ type GameAction =
   | { type: "SET_PHASE"; phase: GamePhase }
   | { type: "SET_TEXT"; text: string }
   | { type: "SET_VOICE"; text: string }
+  | { type: "SET_CONTEXT"; sanity: number; flags: StoryFlag[] }
   | { type: "CHANGE_SANITY"; amount: number }
   | { type: "SET_SANITY"; value: number }
   | { type: "SET_TIMER"; value: number | null }
@@ -97,6 +109,7 @@ const initialState: GameState = {
   phase: "title",
   currentNodeId: START_NODE_ID,
   sanity: 100,
+  flags: [],
   displayedText: "",
   voiceText: "",
   discoveredEndings: [],
@@ -113,6 +126,125 @@ function clampSanity(value: number): number {
   return Math.max(0, Math.min(100, value));
 }
 
+interface StoryContext {
+  sanity: number;
+  flags: StoryFlag[];
+}
+
+function requirementsMet(
+  requirements: StoryRequirement[] | undefined,
+  context: StoryContext,
+): boolean {
+  return (requirements ?? []).every((requirement) => {
+    switch (requirement.type) {
+      case "hasFlag":
+        return context.flags.includes(requirement.flag);
+      case "lacksFlag":
+        return !context.flags.includes(requirement.flag);
+      case "minSanity":
+        return context.sanity >= requirement.value;
+      case "maxSanity":
+        return context.sanity <= requirement.value;
+      default:
+        return false;
+    }
+  });
+}
+
+function applyEffectsToContext(
+  context: StoryContext,
+  effects: StoryEffect[] | undefined,
+): StoryContext {
+  let sanity = context.sanity;
+  const flags = new Set(context.flags);
+
+  for (const effect of effects ?? []) {
+    switch (effect.type) {
+      case "sanity":
+        sanity = clampSanity(sanity + effect.amount);
+        break;
+      case "setFlag":
+        flags.add(effect.flag);
+        break;
+      case "clearFlag":
+        flags.delete(effect.flag);
+        break;
+    }
+  }
+
+  return {
+    sanity,
+    flags: [...flags],
+  };
+}
+
+function getNodeEffects(node: StoryNode): StoryEffect[] {
+  return [
+    ...(node.onEnterEffects ?? []),
+    ...(typeof node.sanityChange === "number"
+      ? [{ type: "sanity" as const, amount: node.sanityChange }]
+      : []),
+  ];
+}
+
+function getChoiceEffects(choice: StoryChoice): StoryEffect[] {
+  return [
+    ...(choice.effects ?? []),
+    ...(typeof choice.sanityChange === "number"
+      ? [{ type: "sanity" as const, amount: choice.sanityChange }]
+      : []),
+  ];
+}
+
+function getChoiceRequirements(choice: StoryChoice): StoryRequirement[] {
+  return [
+    ...(choice.requirements ?? []),
+    ...(typeof choice.reqSanity === "number"
+      ? [{ type: "minSanity" as const, value: choice.reqSanity }]
+      : []),
+    ...(typeof choice.maxSanity === "number"
+      ? [{ type: "maxSanity" as const, value: choice.maxSanity }]
+      : []),
+  ];
+}
+
+function isChoiceAvailable(choice: StoryChoice, context: StoryContext): boolean {
+  return requirementsMet(getChoiceRequirements(choice), context);
+}
+
+function getNodeText(node: StoryNode, context: StoryContext): string {
+  return (
+    node.textVariants?.find((variant) =>
+      requirementsMet(variant.requirements, context),
+    )?.text ?? node.text ?? ""
+  );
+}
+
+function getChoiceTarget(choice: StoryChoice, context: StoryContext): string {
+  return (
+    choice.routes?.find((route) => requirementsMet(route.requirements, context))
+      ?.targetNodeId ?? choice.targetNodeId
+  );
+}
+
+function getNodeTimer(node: StoryNode): StoryTimer | null {
+  if (node.timer) return node.timer;
+  if (node.timerMs) {
+    return {
+      durationMs: node.timerMs,
+      targetNodeId: node.choices?.[0]?.targetNodeId ?? START_NODE_ID,
+    };
+  }
+  return null;
+}
+
+function getSanityDelta(effects: StoryEffect[]): number {
+  return effects.reduce(
+    (total, effect) => total + (effect.type === "sanity" ? effect.amount : 0),
+    0,
+  );
+}
+
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME":
@@ -121,6 +253,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         phase: "typing",
         currentNodeId: START_NODE_ID,
         sanity: 100,
+        flags: [],
         displayedText: "",
         voiceText: "",
         copiedCode: false,
@@ -133,6 +266,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         phase: "typing",
         currentNodeId: START_NODE_ID,
         sanity: 100,
+        flags: [],
         displayedText: "",
         voiceText: "",
         copiedCode: false,
@@ -153,6 +287,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SET_VOICE":
       return { ...state, voiceText: action.text };
+
+    case "SET_CONTEXT":
+      return {
+        ...state,
+        sanity: clampSanity(action.sanity),
+        flags: action.flags,
+      };
 
     case "CHANGE_SANITY":
       return { ...state, sanity: clampSanity(state.sanity + action.amount) };
@@ -221,22 +362,8 @@ function getNode(nodeId: string): StoryNode {
 function validateStoryGraph(): void {
   if (process.env.NODE_ENV === "production") return;
 
-  for (const [nodeId, node] of Object.entries(MACROSCOP_STORY)) {
-    for (const choice of node.choices ?? []) {
-      const directTargetExists = Boolean(MACROSCOP_STORY[choice.targetNodeId]);
-      const alias = LEGACY_NODE_ALIASES[choice.targetNodeId];
-      const aliasTargetExists = Boolean(alias && MACROSCOP_STORY[alias]);
-
-      if (!directTargetExists && !aliasTargetExists) {
-        console.error(
-          `[MACROSCOP] El nodo "${nodeId}" apunta a "${choice.targetNodeId}", que no existe.`,
-        );
-      } else if (!directTargetExists && aliasTargetExists) {
-        console.warn(
-          `[MACROSCOP] El nodo "${nodeId}" usa el alias temporal "${choice.targetNodeId}" → "${alias}".`,
-        );
-      }
-    }
+  for (const error of validateMacrocosmosStory(MACROSCOP_STORY)) {
+    console.error(`[MACROSCOP] ${error}`);
   }
 }
 
@@ -430,21 +557,27 @@ function TitleScreen({
   onStart,
 }: TitleScreenProps) {
   return (
-    <div className="macrocosmos-body atm-unease">
+    <main className="macrocosmos-body atm-unease">
       <HorrorEffects glitchActive={false} jumpscareActive={false} />
 
       <div className="game-container">
         <header className="terminal-header">
-          <span className="terminal-red-text">MACROSCOP // SEÑAL K-19</span>
+          <span className="terminal-red-text">K-19 // SEÑAL IMPOSIBLE</span>
           <span className="terminal-amber">{clock}</span>
         </header>
 
-        <section className="game-screen title-screen">
+        <section
+          className="game-screen title-screen"
+          aria-labelledby="k19-title"
+        >
+          <h1 id="k19-title" className="visually-hidden">
+            K-19 — Señal imposible
+          </h1>
           <div className="title-art" aria-hidden="true">
             <pre className="ascii-art">{`
     ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
     ▓                           ▓
-    ▓    M  A  C  R  O  S  C  O  P   ▓
+    ▓          K  -  1  9          ▓
     ▓                           ▓
     ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
             `}</pre>
@@ -484,7 +617,7 @@ function TitleScreen({
           </Link>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -504,7 +637,7 @@ function GameHeader({
   return (
     <header className="terminal-header">
       <span className="terminal-red-text">
-        MACROSCOP — INTEGRIDAD {Math.round(sanity)}%
+        K-19 — INTEGRIDAD {Math.round(sanity)}%
       </span>
 
       <div className="header-right">
@@ -570,24 +703,29 @@ function SanityMeter({ sanity, draining }: SanityMeterProps) {
 
 interface ChoiceListProps {
   choices: StoryChoice[];
-  sanity: number;
+  context: StoryContext;
   disabled: boolean;
   onChoose: (choice: StoryChoice) => void;
 }
 
 function ChoiceList({
   choices,
-  sanity,
+  context,
   disabled,
   onChoose,
 }: ChoiceListProps) {
+  const visibleChoices = choices.filter(
+    (choice) =>
+      !choice.hiddenWhenUnavailable || isChoiceAvailable(choice, context),
+  );
+
   return (
     <div className="choices-container">
-      {choices.map((choice, index) => {
-        const lacksSanity =
-          typeof choice.reqSanity === "number" && sanity < choice.reqSanity;
-        const isDisabled = disabled || lacksSanity;
-        const choiceKey = `${choice.targetNodeId}:${choice.text}`;
+      {visibleChoices.map((choice, index) => {
+        const isUnavailable = !isChoiceAvailable(choice, context);
+        const isDisabled = disabled || isUnavailable;
+        const choiceKey = choice.id;
+        const requirementId = `${choice.id}-requirement`;
 
         return (
           <button
@@ -595,16 +733,19 @@ function ChoiceList({
             key={choiceKey}
             disabled={isDisabled}
             onClick={() => onChoose(choice)}
-            className={`choice-button ${lacksSanity ? "choice-disabled" : ""}`}
+            className={`choice-button ${isUnavailable ? "choice-disabled" : ""}`}
             style={{ animationDelay: `${index * 0.09}s` }}
+            aria-describedby={isUnavailable ? requirementId : undefined}
           >
             <span className="choice-letter">
               {String.fromCharCode(65 + index)})
             </span>
             {choice.text}
-            {lacksSanity ? (
-              <span className="req-tag">
-                [REQ. INTEGRIDAD {choice.reqSanity}%]
+            {isUnavailable ? (
+              <span id={requirementId} className="req-tag">
+                {typeof choice.reqSanity === "number"
+                  ? `[REQ. INTEGRIDAD ${choice.reqSanity}%]`
+                  : "[REQUISITO NO CUMPLIDO]"}
               </span>
             ) : null}
           </button>
@@ -675,7 +816,7 @@ function EndingScreen({
         </div>
 
         <div className="score-card-footer">
-          ╚══ EINHERJAR BLITZ • MACROSCOP ══╝
+          ╚══ EINHERJAR BLITZ • K-19 ══╝
         </div>
       </div>
 
@@ -715,9 +856,11 @@ function EndingScreen({
 export default function MacrocosmosPage() {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const stateRef = useRef(state);
+  const contextRef = useRef<StoryContext>({ sanity: 100, flags: [] });
   const [clock, setClock] = useState("");
 
-  const narrativeRef = useRef<HTMLDivElement | null>(null);
+  const narrativeRef = useRef<HTMLElement | null>(null);
+  const sceneTitleRef = useRef<HTMLHeadingElement | null>(null);
   const typingAbortRef = useRef(false);
   const sequenceRef = useRef(0);
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -748,6 +891,26 @@ export default function MacrocosmosPage() {
     },
     [],
   );
+
+  const syncStoryContext = useCallback((nextContext: StoryContext) => {
+    contextRef.current = nextContext;
+    dispatch({
+      type: "SET_CONTEXT",
+      sanity: nextContext.sanity,
+      flags: nextContext.flags,
+    });
+    return nextContext;
+  }, []);
+
+  const applyStoryEffects = useCallback(
+    (effects: StoryEffect[] | undefined) =>
+      syncStoryContext(applyEffectsToContext(contextRef.current, effects)),
+    [syncStoryContext],
+  );
+
+  const resetStoryContext = useCallback(() => {
+    syncStoryContext({ sanity: 100, flags: [] });
+  }, [syncStoryContext]);
 
   const clearChoiceTimer = useCallback(() => {
     if (timerIntervalRef.current) {
@@ -871,39 +1034,33 @@ export default function MacrocosmosPage() {
   >(async () => undefined);
 
   const handleTimerExpired = useCallback(
-    (nodeId: string) => {
+    (nodeId: string, timer: StoryTimer) => {
       const node = getNode(nodeId);
       const currentState = stateRef.current;
       if (currentState.phase !== "choosing" || node.isEnding) return;
 
-      const availableChoices = (node.choices ?? []).filter(
-        (choice) =>
-          typeof choice.reqSanity !== "number" ||
-          currentState.sanity >= choice.reqSanity,
-      );
-      const fallback = availableChoices[0];
-
-      dispatch({ type: "CHANGE_SANITY", amount: -12 });
+      const timerEffects = timer.effects ?? [
+        { type: "sanity" as const, amount: -12 },
+      ];
+      applyStoryEffects(timerEffects);
       dispatch({ type: "SET_TIMER", value: null });
       triggerShake(420);
       triggerGlitch(180);
       playSound("impact");
 
-      if (fallback) {
-        void loadSceneRef.current(fallback.targetNodeId, {
-          entryShockAlreadyPlayed: false,
-        });
-      }
+      void loadSceneRef.current(timer.targetNodeId, {
+        entryShockAlreadyPlayed: false,
+      });
     },
-    [playSound, triggerGlitch, triggerShake],
+    [applyStoryEffects, playSound, triggerGlitch, triggerShake],
   );
 
   const startChoiceTimer = useCallback(
-    (nodeId: string, durationMs: number) => {
+    (nodeId: string, timer: StoryTimer) => {
       clearChoiceTimer();
 
-      const endAt = Date.now() + durationMs;
-      dispatch({ type: "SET_TIMER", value: durationMs });
+      const endAt = Date.now() + timer.durationMs;
+      dispatch({ type: "SET_TIMER", value: timer.durationMs });
 
       timerIntervalRef.current = setInterval(() => {
         dispatch({
@@ -918,8 +1075,8 @@ export default function MacrocosmosPage() {
           timerIntervalRef.current = null;
         }
         timerTimeoutRef.current = null;
-        handleTimerExpired(nodeId);
-      }, durationMs);
+        handleTimerExpired(nodeId, timer);
+      }, timer.durationMs);
     },
     [clearChoiceTimer, handleTimerExpired],
   );
@@ -930,10 +1087,12 @@ export default function MacrocosmosPage() {
       if (!amountPerSecond || amountPerSecond <= 0) return;
 
       drainRef.current = setInterval(() => {
-        dispatch({ type: "CHANGE_SANITY", amount: -amountPerSecond / 10 });
+        applyStoryEffects([
+          { type: "sanity", amount: -amountPerSecond / 10 },
+        ]);
       }, 100);
     },
-    [clearSanityDrain],
+    [applyStoryEffects, clearSanityDrain],
   );
 
   const loadScene = useCallback(
@@ -950,20 +1109,17 @@ export default function MacrocosmosPage() {
 
       const nodeId = resolveNodeId(requestedNodeId);
       const node = getNode(nodeId);
+      const sceneContext = applyStoryEffects(getNodeEffects(node));
 
       dispatch({ type: "SET_NODE", nodeId });
       dispatch({ type: "SET_TIMER", value: null });
       dispatch({ type: "SET_VOICE", text: "" });
 
-      if (node.sanityChange) {
-        dispatch({ type: "CHANGE_SANITY", amount: node.sanityChange });
-      }
-
       if (node.jumpscareOnEnter && !options.entryShockAlreadyPlayed) {
         triggerJumpscare();
       }
 
-      const completed = await typewrite(node.text ?? "", sequence);
+      const completed = await typewrite(getNodeText(node, sceneContext), sequence);
       if (!completed || sequence !== sequenceRef.current) return;
 
       if (node.voice) {
@@ -989,11 +1145,13 @@ export default function MacrocosmosPage() {
       dispatch({ type: "SET_PHASE", phase: "choosing" });
       startSanityDrain(node.drainSanityPerSecond);
 
-      if (node.timerMs) {
-        startChoiceTimer(nodeId, node.timerMs);
+      const timer = getNodeTimer(node);
+      if (timer) {
+        startChoiceTimer(nodeId, timer);
       }
     },
     [
+      applyStoryEffects,
       clearChoiceTimer,
       clearSanityDrain,
       playEndingCue,
@@ -1013,38 +1171,41 @@ export default function MacrocosmosPage() {
 
   const handleChoice = useCallback(
     (choice: StoryChoice) => {
-      if (state.phase !== "choosing") return;
+      if (stateRef.current.phase !== "choosing") return;
+
+      const currentContext = contextRef.current;
+      if (!isChoiceAvailable(choice, currentContext)) return;
 
       clearChoiceTimer();
       clearSanityDrain();
       dispatch({ type: "SET_PHASE", phase: "typing" });
 
-      if (choice.sanityChange) {
-        dispatch({ type: "CHANGE_SANITY", amount: choice.sanityChange });
-      }
+      const choiceEffects = getChoiceEffects(choice);
+      const nextContext = applyStoryEffects(choiceEffects);
+      const targetNodeId = getChoiceTarget(choice, nextContext);
+      const targetNode = getNode(targetNodeId);
 
-      const targetNode = getNode(choice.targetNodeId);
       const shouldShock = Boolean(choice.jumpscare || targetNode.jumpscareOnEnter);
 
       if (shouldShock) {
         triggerJumpscare();
-      } else if ((choice.sanityChange ?? 0) < 0) {
+      } else if (getSanityDelta(choiceEffects) < 0) {
         playSound("impact");
         triggerShake(260);
       } else {
         playSound("click");
       }
 
-      void loadScene(choice.targetNodeId, {
+      void loadScene(targetNodeId, {
         entryShockAlreadyPlayed: shouldShock,
       });
     },
     [
+      applyStoryEffects,
       clearChoiceTimer,
       clearSanityDrain,
       loadScene,
       playSound,
-      state.phase,
       triggerJumpscare,
       triggerShake,
     ],
@@ -1060,6 +1221,7 @@ export default function MacrocosmosPage() {
   }, [getAudioContext, state.audioEnabled]);
 
   const startGame = useCallback(() => {
+    resetStoryContext();
     dispatch({ type: "START_GAME" });
     zeroSanityTriggeredRef.current = false;
 
@@ -1068,16 +1230,23 @@ export default function MacrocosmosPage() {
     }
 
     void loadScene(START_NODE_ID);
-  }, [getAudioContext, loadScene, state.audioEnabled]);
+  }, [getAudioContext, loadScene, resetStoryContext, state.audioEnabled]);
 
   const restartGame = useCallback(() => {
     clearChoiceTimer();
     clearSanityDrain();
+    resetStoryContext();
     dispatch({ type: "RESTART_GAME" });
     zeroSanityTriggeredRef.current = false;
     playSound("click");
     void loadScene(START_NODE_ID);
-  }, [clearChoiceTimer, clearSanityDrain, loadScene, playSound]);
+  }, [
+    clearChoiceTimer,
+    clearSanityDrain,
+    loadScene,
+    playSound,
+    resetStoryContext,
+  ]);
 
   const copyResults = useCallback(async () => {
     const roundedSanity = Math.round(state.sanity);
@@ -1095,7 +1264,7 @@ export default function MacrocosmosPage() {
     );
 
     const result = [
-      "🎮 EINHERJAR BLITZ — MACROSCOP",
+      "🎮 EINHERJAR BLITZ — K-19",
       `🏆 ${currentNode.rewardRank ?? "Sin rango"}`,
       `📊 Puntos: ${endingScore}`,
       `🧠 Integridad: ${roundedSanity}%`,
@@ -1144,6 +1313,11 @@ export default function MacrocosmosPage() {
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    if (state.phase === "title") return;
+    sceneTitleRef.current?.focus({ preventScroll: false });
+  }, [state.currentNodeId, state.phase]);
 
   useEffect(() => {
     validateStoryGraph();
@@ -1285,6 +1459,8 @@ export default function MacrocosmosPage() {
   ]);
 
   useEffect(() => {
+    const effectTimeouts = effectTimeoutsRef.current;
+
     return () => {
       sequenceRef.current += 1;
       typingAbortRef.current = true;
@@ -1292,8 +1468,8 @@ export default function MacrocosmosPage() {
       clearSanityDrain();
 
       if (heartbeatRef.current) clearInterval(heartbeatRef.current);
-      for (const timeout of effectTimeoutsRef.current) clearTimeout(timeout);
-      effectTimeoutsRef.current.clear();
+      for (const timeout of effectTimeouts) clearTimeout(timeout);
+      effectTimeouts.clear();
     };
   }, [clearChoiceTimer, clearSanityDrain]);
 
@@ -1313,6 +1489,7 @@ export default function MacrocosmosPage() {
   const showVoice = state.phase === "voice" || state.phase === "choosing";
   const showChoices = state.phase === "choosing";
   const isEnding = state.phase === "ending";
+  const activeTimer = getNodeTimer(currentNode);
 
   return (
     <main className={`macrocosmos-body ${atmosphereClass}`}>
@@ -1336,10 +1513,21 @@ export default function MacrocosmosPage() {
           />
         ) : null}
 
-        <section className="game-screen" ref={narrativeRef}>
-          <div className={`chapter-title ${isEnding ? "ending-title" : ""}`}>
+        <section
+          className="game-screen"
+          ref={narrativeRef}
+          aria-labelledby="scene-title"
+          aria-busy={isTyping}
+        >
+          <h1
+            id="scene-title"
+            ref={sceneTitleRef}
+            className={`chapter-title ${isEnding ? "ending-title" : ""}`}
+            tabIndex={-1}
+            aria-live="polite"
+          >
             {currentNode.title}
-          </div>
+          </h1>
 
           <div className="location-tag">&gt; {currentNode.location}</div>
 
@@ -1361,22 +1549,29 @@ export default function MacrocosmosPage() {
           ) : null}
 
           {showVoice && state.voiceText ? (
-            <div className="am-voice">
+            <div className="am-voice" role="status" aria-live="polite">
               <span className="am-text">{state.voiceText}</span>
             </div>
           ) : null}
 
           {showChoices &&
-          currentNode.timerMs &&
+          activeTimer &&
           state.timerLeft !== null &&
           state.timerLeft > 0 ? (
-            <div className="timer-bar" aria-label="Tiempo para decidir">
+            <div
+              className="timer-bar"
+              role="progressbar"
+              aria-label="Tiempo para decidir"
+              aria-valuemin={0}
+              aria-valuemax={activeTimer.durationMs}
+              aria-valuenow={state.timerLeft}
+            >
               <div
                 className="timer-fill"
                 style={{
                   width: `${Math.max(
                     0,
-                    (state.timerLeft / currentNode.timerMs) * 100,
+                    (state.timerLeft / activeTimer.durationMs) * 100,
                   )}%`,
                 }}
               />
@@ -1387,7 +1582,7 @@ export default function MacrocosmosPage() {
           {showChoices && currentNode.choices ? (
             <ChoiceList
               choices={currentNode.choices}
-              sanity={state.sanity}
+              context={{ sanity: state.sanity, flags: state.flags }}
               disabled={state.jumpscareActive}
               onChoose={handleChoice}
             />

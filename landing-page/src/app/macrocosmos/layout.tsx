@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 
-const title = "MACROSCOP — Señal K-19 | Einherjar Blitz";
+const title = "K-19 — Señal imposible | Einherjar Blitz";
 const description =
-  "Minijuego interactivo de terror psicológico: vigila una señal imposible desde el observatorio K-19, conserva la cordura y evita que algo aprenda a mirarte.";
+  "Minijuego interactivo de terror psicológico: sobrevive a la señal imposible del observatorio K-19 antes de que aprenda a mirarte.";
 
 export const metadata: Metadata = {
   title,
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   category: "game",
   keywords: [
     "Einherjar Blitz",
+    "K-19",
     "MACROSCOP",
     "minijuego de terror",
     "terror psicológico",

@@ -273,7 +273,7 @@ export default function Home() {
                   className="inline-flex items-center gap-2.5 border border-red-500/40 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/60 px-6 py-3 rounded-full font-bold text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.15)] hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]"
                 >
                   <Ghost className="w-4 h-4" />
-                  Jugar Macrocosmos
+                  Jugar K-19
                 </Link>
               </motion.div>
             </div>

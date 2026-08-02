@@ -938,7 +938,7 @@ Sirve para producir diecinueve intervalos sin observación. Un punto ciego lo ba
   ending_consumed: {
     id: "ending_consumed",
     title: "REFERENCIA COMPLETA",
-    location: "MACROSCOP — Observador persistente",
+    location: "K-19 — Observador persistente",
     atmosphere: "end",
     isEnding: true,
     endingType: "consumed",
@@ -994,7 +994,7 @@ Sirve para producir diecinueve intervalos sin observación. Un punto ciego lo ba
   ending_master: {
     id: "ending_master",
     title: "PUNTO CIEGO ESTABLE",
-    location: "MACROSCOP — Sesión sin observador",
+    location: "K-19 — Sesión sin observador",
     atmosphere: "end",
     isEnding: true,
     endingType: "master",
