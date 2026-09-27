@@ -5,6 +5,14 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    // The game renders user avatars, remote store images and sprite frames
+    // that change every few ms; next/image adds no value there.
+    files: ["src/app/juego/**", "src/components/juego/**"],
+    rules: {
+      "@next/next/no-img-element": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

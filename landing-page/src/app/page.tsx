@@ -17,6 +17,7 @@ import {
   Newspaper,
   ChevronDown,
   Ghost,
+  Gamepad2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
@@ -145,6 +146,13 @@ export default function Home() {
             >
               Noticias
             </Link>
+            <Link
+              href="/juego"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-3 py-1 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+            >
+              <Gamepad2 className="w-4 h-4" />
+              Jugar
+            </Link>
           </nav>
 
           {/* Hamburger */}
@@ -192,6 +200,14 @@ export default function Home() {
                 >
                   <Newspaper className="w-4 h-4 text-primary" />
                   Noticias
+                </Link>
+                <Link
+                  href="/juego"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-primary hover:bg-primary/5 transition-all"
+                >
+                  <Gamepad2 className="w-4 h-4" />
+                  Jugar en el navegador
                 </Link>
               </div>
             </motion.div>
@@ -266,6 +282,16 @@ export default function Home() {
                 <Download className="w-5 h-5" />
                 Descargar APK
               </motion.a>
+
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Link
+                  href="/juego"
+                  className="inline-flex items-center gap-2.5 border border-primary/50 text-primary hover:bg-primary/10 px-6 py-3 rounded-full font-bold text-sm transition-all"
+                >
+                  <Gamepad2 className="w-4 h-4" />
+                  Jugar en el navegador
+                </Link>
+              </motion.div>
 
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                 <Link

@@ -18,6 +18,15 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --font-title: var(--font-cinzel), serif;
+  /* Game palette (mirrors mobile/src/constants/theme.ts) */
+  --color-gold: #c9aa71;
+  --color-gold-dark: #9e8b54;
+  --color-gold-light: #d4b885;
+  --color-ink: #0a0a0a;
+  --color-ink-deep: #050505;
+  --color-ink-soft: #1a1a1a;
+  --color-ink-card: #151515;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-sm: calc(var(--radius) * 0.6);
