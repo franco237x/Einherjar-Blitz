@@ -14,8 +14,8 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  title: "Einherjar Blitz | Descargar APK",
-  description: "Descarga la última versión de Einherjar Blitz. Sumérgete en este RPG táctico con invocaciones gacha.",
+  title: "Einherjar Blitz | Portal del Guerrero",
+  description: "Juega Einherjar Blitz desde el navegador: invocaciones gacha, tienda, economía de llaves y esferas y rangos, con la misma cuenta de la app.",
 };
 
 export default function RootLayout({

@@ -7,8 +7,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     // The game renders user avatars, remote store images and sprite frames
-    // that change every few ms; next/image adds no value there.
-    files: ["src/app/juego/**", "src/components/juego/**"],
+    // that change every few ms, and the landing reuses those small assets as
+    // decoration; next/image adds no value there.
+    files: ["src/app/juego/**", "src/components/juego/**", "src/components/landing/**"],
     rules: {
       "@next/next/no-img-element": "off",
     },
