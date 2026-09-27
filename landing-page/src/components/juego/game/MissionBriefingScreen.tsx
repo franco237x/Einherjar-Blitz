@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { Crown, Crosshair, ShieldAlert } from 'lucide-react';
 import { getCharacterVisual } from '@/constants/characterAssets';
 
-const ARENA = '/juego/game/arena-nordica.png';
+const ARENA = '/juego/game/arena-nordica.webp';
 const ARGOS_SPLASH = '/juego/game/argos/argos-splash.jpg';
 const MINIMUM_BRIEFING_MS = 2600;
 

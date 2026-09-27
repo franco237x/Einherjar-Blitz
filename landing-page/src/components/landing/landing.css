@@ -1,165 +1,30 @@
-/* Animations for the landing page (portal). */
+/* Landing page: restrained, editorial finish. */
 
-@keyframes landing-ember {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0;
-  }
-  15% {
-    opacity: var(--ember-peak, 0.7);
-  }
-  100% {
-    transform: translate3d(var(--ember-sway, 0px), -105vh, 0) scale(0.4);
-    opacity: 0;
-  }
+/* Lenis smooth scrolling (recommended base styles). */
+html.lenis,
+html.lenis body {
+  height: auto;
 }
 
-@keyframes landing-ken-burns {
-  from { transform: scale(1.02) translate3d(0, 0, 0); }
-  to { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
-@keyframes landing-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
-@keyframes landing-spin {
-  to { transform: rotate(360deg); }
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
-@keyframes landing-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes landing-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes landing-pulse-ring {
-  0% { transform: scale(0.9); opacity: 0.7; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-
-@keyframes landing-dash {
-  to { stroke-dashoffset: -24; }
-}
-
-@keyframes landing-travel {
-  0% { left: 0%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { left: 100%; opacity: 0; }
-}
-
-@keyframes landing-flip {
-  0%, 30% { transform: rotateY(180deg); }
-  45%, 85% { transform: rotateY(0deg); }
-  100% { transform: rotateY(180deg); }
-}
-
-@keyframes landing-key-hop {
-  0% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  50% { transform: translateX(calc(var(--hop-distance) / 2)) translateY(-26px) rotate(180deg); }
-  90% { opacity: 1; }
-  100% { transform: translateX(var(--hop-distance)) translateY(0) rotate(360deg); opacity: 0; }
-}
-
-@keyframes landing-fill {
-  0% { width: 8%; }
-  70%, 100% { width: 86%; }
-}
-
-.landing-ember {
-  position: absolute;
-  bottom: -12px;
-  border-radius: 9999px;
-  background: #e8c98a;
-  box-shadow: 0 0 10px 2px rgba(232, 180, 90, 0.55);
-  animation: landing-ember linear infinite both;
-  will-change: transform, opacity;
-}
-
-.landing-ken-burns {
-  animation: landing-ken-burns 9s ease-out both;
-}
-
-.landing-marquee {
-  animation: landing-marquee var(--marquee-duration, 40s) linear infinite;
-}
-
-.landing-marquee-reverse {
-  animation-direction: reverse;
-}
-
-.landing-spin-slow {
-  animation: landing-spin 24s linear infinite;
-}
-
-.landing-spin-slower {
-  animation: landing-spin 60s linear infinite;
-}
-
-.landing-shimmer-text {
-  background: linear-gradient(110deg, #9e8b54 0%, #f3dca6 22%, #c9aa71 40%, #fff4d6 50%, #c9aa71 60%, #9e8b54 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: landing-shimmer 6s linear infinite;
-}
-
-.landing-float {
-  animation: landing-float 5s ease-in-out infinite;
-}
-
-.landing-pulse-ring {
-  animation: landing-pulse-ring 2.4s ease-out infinite;
-}
-
-.landing-dash {
-  stroke-dasharray: 6 6;
-  animation: landing-dash 1s linear infinite;
-}
-
-.landing-travel {
-  animation: landing-travel 2.6s ease-in-out infinite;
-}
-
-.landing-flip {
-  animation: landing-flip 5s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-
-.landing-key-hop {
-  animation: landing-key-hop 2.8s ease-in-out infinite;
-}
-
-.landing-fill {
-  animation: landing-fill 4s ease-in-out infinite alternate;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .landing-ember,
-  .landing-ken-burns,
-  .landing-marquee,
-  .landing-spin-slow,
-  .landing-spin-slower,
-  .landing-shimmer-text,
-  .landing-float,
-  .landing-pulse-ring,
-  .landing-dash,
-  .landing-travel,
-  .landing-flip,
-  .landing-key-hop,
-  .landing-fill {
-    animation: none;
-  }
-
-  .landing-ember {
-    display: none;
-  }
+/* Film grain: a tiny SVG noise tile over the whole page. */
+.landing-grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

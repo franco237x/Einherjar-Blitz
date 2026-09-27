@@ -1,22 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MotionConfig, motion, useScroll, useSpring } from 'framer-motion';
-import { ArenaTeaser } from './ArenaTeaser';
-import { FinalCta, NewsSection, SideDots, SiteFooter } from './ClosingSections';
-import { EconomyFlow } from './EconomyFlow';
-import { GachaShowcase } from './GachaShowcase';
+import { Inter } from 'next/font/google';
+import { MotionConfig } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { FinalCta, SiteFooter } from './ClosingSections';
+import { GachaFeature } from './GachaFeature';
 import { Hero } from './Hero';
-import { PortalFeatures } from './PortalFeatures';
-import { RankLadder } from './RankLadder';
-import { RewardMarquee } from './RewardMarquee';
+import { PortalPillars } from './PortalPillars';
+import { Progression } from './Progression';
 import { SECTIONS, SiteHeader } from './SiteHeader';
+import { startSmoothScroll } from './smoothScroll';
 import './landing.css';
+
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export function LandingPage() {
   const [activeSection, setActiveSection] = useState<string>('inicio');
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+
+  useEffect(() => startSmoothScroll(), []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,23 +38,13 @@ export function LandingPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-screen overflow-x-clip bg-black text-white">
-        <motion.div
-          className="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-gradient-to-r from-[#9e8b54] via-primary to-[#f3dca6]"
-          style={{ scaleX: progress }}
-          aria-hidden="true"
-        />
+      <div className={cn(inter.className, 'landing-grain relative min-h-screen bg-[#0b0a09] text-white antialiased')}>
         <SiteHeader activeSection={activeSection} />
-        <SideDots activeSection={activeSection} />
         <main>
           <Hero />
-          <RewardMarquee />
-          <PortalFeatures />
-          <GachaShowcase />
-          <EconomyFlow />
-          <RankLadder />
-          <ArenaTeaser />
-          <NewsSection />
+          <PortalPillars />
+          <GachaFeature />
+          <Progression />
           <FinalCta />
         </main>
         <SiteFooter />
