@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { BANNERS, RARITIES, getRarityOdds } from '@/constants/gachaData';
 import { Reveal, SectionHeading } from './primitives';
+import { RewardsGallery } from './RewardsGallery';
 
 const banner = BANNERS[0];
 const ODDS = getRarityOdds(banner.rewards);
@@ -15,7 +16,7 @@ function formatPercent(p: number) {
 
 export function GachaFeature() {
   return (
-    <section id="invocaciones" className="border-t border-white/[0.06] bg-[#0e0d0c] py-28 md:py-40">
+    <section id="invocaciones" className="border-t border-white/[0.06] bg-[#0e0d0c] pt-28 md:pt-40">
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading
           eyebrow="Invocaciones"
@@ -70,6 +71,8 @@ export function GachaFeature() {
           </Reveal>
         </div>
       </div>
+
+      <RewardsGallery />
     </section>
   );
 }

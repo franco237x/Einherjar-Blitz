@@ -3,34 +3,42 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { deleteApp, initializeApp } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
   deleteUser,
   getAuth,
-  GoogleAuthProvider,
   sendEmailVerification,
-  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth';
 import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
-import { auth, firebaseConfig } from '@/config/firebase';
-import { Background } from '@/components/juego/Background';
-import { GlassCard } from '@/components/juego/GlassCard';
-import { GoldButton } from '@/components/juego/GoldButton';
-import { ParticlesBackground } from '@/components/juego/ParticlesBackground';
-import { GoogleLogo } from '@/components/juego/Icon';
-import { PasswordField, TextField } from '@/components/juego/AuthFields';
+import { firebaseConfig } from '@/config/firebase';
+import { FormMessage, PasswordField, SubmitButton, TextField } from '@/components/juego/AuthFields';
+import { AuthShell } from '@/components/juego/auth/AuthShell';
+import { GoogleBenefits, GoogleButton, useGoogleSignIn } from '@/components/juego/auth/GoogleSignIn';
+import { cn } from '@/lib/utils';
+
+const GOOGLE_BENEFITS = [
+  'Entras al instante, sin esperar un correo de verificación.',
+  'Sin contraseñas nuevas que recordar.',
+  'Tu nombre y foto de Google se usan de inicio; puedes cambiarlos en tu perfil.',
+];
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [googleError, setGoogleError] = useState('');
+  const google = useGoogleSignIn({ onError: setGoogleError });
+  const busy = loading || google.pending;
 
   const handleRegister = async (event?: FormEvent) => {
     event?.preventDefault();
@@ -97,11 +105,11 @@ export default function RegisterPage() {
       }
       const { code, message } = (error ?? {}) as { code?: string; message?: string };
       let msg = 'Error al registrar usuario.';
-      if (code === 'auth/email-already-in-use') msg = 'El correo ya está en uso.';
+      if (code === 'auth/email-already-in-use') msg = 'El correo ya está en uso. Inicia sesión o entra con Google.';
       if (code === 'auth/invalid-email') msg = 'El correo no es válido.';
       if (code === 'auth/weak-password') msg = 'La contraseña debe tener al menos 6 caracteres.';
       if (code === 'auth/operation-not-allowed') msg = 'El registro no está habilitado.';
-      if (message?.includes('EMAIL_EXISTS')) msg = 'El correo ya está en uso.';
+      if (message?.includes('EMAIL_EXISTS')) msg = 'El correo ya está en uso. Inicia sesión o entra con Google.';
       if (code === 'permission-denied') msg = 'Error de permisos en Firestore.';
       if (process.env.NODE_ENV !== 'production') console.log('Register Error:', code);
       setErrorMsg(msg);
@@ -111,93 +119,100 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleRegister = async () => {
-    setErrorMsg('');
-    setLoading(true);
-    try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
-      router.replace('/juego');
-    } catch (error: unknown) {
-      const code = (error as { code?: string })?.code;
-      if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
-        setErrorMsg('Error al registrarse con Google.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <Background>
-      <ParticlesBackground />
-      <div className="relative z-10 flex min-h-dvh flex-col justify-center px-4 py-10 sm:px-6">
-        <header className="juego-fade-up mb-6 text-center sm:mb-8">
-          <h1 className="font-title text-[30px] leading-9 tracking-[0.1em] text-gold sm:text-[38px] sm:leading-[46px]">
-            UNIRSE
-          </h1>
-          <p className="mt-2 text-xs font-medium tracking-[0.2em] text-white/70 sm:text-sm">CREA TU CUENTA</p>
-        </header>
+    <AuthShell>
+      <div className="juego-fade-up [--juego-fade-distance:16px]">
+        <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-gold">Nueva cuenta</p>
+        <h1 className="mt-4 font-title text-[2rem] leading-tight text-white sm:text-[2.4rem]">Únete a los Einherjar</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-white/55">
+          Una sola cuenta para la app y el navegador. Crearla es gratis.
+        </p>
 
-        <div className="juego-fade-up mx-auto w-full max-w-[480px] [animation-delay:200ms] [--juego-fade-distance:50px]">
-          <GlassCard>
-            <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
-              <TextField
-                label="Nombre de Usuario"
-                autoComplete="username"
-                autoCapitalize="none"
-                maxLength={20}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <TextField
-                label="Correo Electrónico"
-                type="email"
-                autoComplete="email"
-                autoCapitalize="none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <PasswordField
-                label="Contraseña"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <PasswordField
-                label="Confirmar Contraseña"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-
-              {errorMsg ? (
-                <p className="text-center text-sm text-red-500" role="alert">
-                  {errorMsg}
-                </p>
-              ) : null}
-
-              <GoldButton type="submit" title="REGISTRARSE" loading={loading} className="mt-2" />
-
-              <button
-                type="button"
-                onClick={handleGoogleRegister}
-                disabled={loading}
-                className="flex items-center justify-center gap-3 rounded-xl border border-white/30 bg-white/10 px-8 py-4 text-[15px] font-medium text-white/95 transition hover:bg-white/15 disabled:opacity-60"
-              >
-                <GoogleLogo />
-                Continuar con Google
-              </button>
-
-              <p className="mt-2 flex min-h-11 items-center justify-center text-sm text-white/70">
-                ¿Ya tienes cuenta?&nbsp;
-                <Link href="/juego/login" className="font-bold text-gold hover:underline">
-                  Inicia sesión
-                </Link>
-              </p>
-            </form>
-          </GlassCard>
+        <div className="mt-9">
+          <GoogleButton onClick={google.signIn} pending={google.pending} disabled={busy} label="Crear cuenta con Google" />
+          <GoogleBenefits items={GOOGLE_BENEFITS} />
+          {googleError ? (
+            <div className="mt-5">
+              <FormMessage tone="error">{googleError}</FormMessage>
+            </div>
+          ) : null}
         </div>
+
+        <div className="mt-9 border-t border-white/10 pt-6">
+          <button
+            type="button"
+            onClick={() => setShowEmailForm((open) => !open)}
+            aria-expanded={showEmailForm}
+            aria-controls="email-register"
+            className="flex w-full items-center justify-between text-sm text-white/55 transition hover:text-white/85"
+          >
+            Prefiero registrarme con correo y contraseña
+            <ChevronDown className={cn('h-4 w-4 transition-transform duration-300', showEmailForm && 'rotate-180')} />
+          </button>
+
+          <AnimatePresence initial={false}>
+            {showEmailForm ? (
+              <motion.div
+                id="email-register"
+                key="email-register"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <form className="flex flex-col gap-5 pt-6" onSubmit={handleRegister} noValidate>
+                  <TextField
+                    label="Nombre de usuario"
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    maxLength={20}
+                    placeholder="Cómo te verán otros jugadores"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  <TextField
+                    label="Correo electrónico"
+                    type="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    placeholder="tu@correo.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <PasswordField
+                    label="Contraseña"
+                    autoComplete="new-password"
+                    placeholder="Mínimo 8 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <PasswordField
+                    label="Confirmar contraseña"
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+
+                  <FormMessage tone="error">{errorMsg}</FormMessage>
+
+                  <SubmitButton loading={loading}>Crear cuenta</SubmitButton>
+                  <p className="text-center text-xs text-white/40">
+                    Te enviaremos un correo para verificar la dirección antes de tu primer ingreso.
+                  </p>
+                </form>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
+
+        <p className="mt-9 text-center text-sm text-white/50">
+          ¿Ya tienes cuenta?{' '}
+          <Link href="/juego/login" className="font-semibold text-gold hover:underline">
+            Inicia sesión
+          </Link>
+        </p>
       </div>
-    </Background>
+    </AuthShell>
   );
 }

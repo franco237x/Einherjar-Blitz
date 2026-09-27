@@ -11,6 +11,7 @@ import { scrollToSection } from './smoothScroll';
 export const SECTIONS = [
   { id: 'inicio', label: 'Inicio' },
   { id: 'portal', label: 'El portal' },
+  { id: 'personajes', label: 'Personajes' },
   { id: 'invocaciones', label: 'Invocaciones' },
   { id: 'progresion', label: 'Progresión' },
 ] as const;

@@ -4,20 +4,15 @@ import { Suspense, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  GoogleAuthProvider,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut,
 } from 'firebase/auth';
 import { auth } from '@/config/firebase';
-import { Background } from '@/components/juego/Background';
-import { GlassCard } from '@/components/juego/GlassCard';
-import { GoldButton } from '@/components/juego/GoldButton';
-import { ParticlesBackground } from '@/components/juego/ParticlesBackground';
-import { GoogleLogo } from '@/components/juego/Icon';
-import { PasswordField, TextField } from '@/components/juego/AuthFields';
+import { FormMessage, PasswordField, SubmitButton, TextField } from '@/components/juego/AuthFields';
+import { AuthShell } from '@/components/juego/auth/AuthShell';
+import { AuthDivider, GoogleButton, useGoogleSignIn } from '@/components/juego/auth/GoogleSignIn';
 
 function LoginForm() {
   const router = useRouter();
@@ -28,9 +23,16 @@ function LoginForm() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState(
     params.get('registered') === 'verify'
-      ? 'Registro exitoso. Revisa tu correo antes de iniciar sesión.'
+      ? 'Cuenta creada. Revisa tu correo y confirma la dirección antes de iniciar sesión.'
       : ''
   );
+  const google = useGoogleSignIn({
+    onError: (message) => {
+      setSuccessMsg('');
+      setErrorMsg(message);
+    },
+  });
+  const busy = loading || google.pending;
 
   const handleLogin = async (event?: FormEvent) => {
     event?.preventDefault();
@@ -47,7 +49,9 @@ function LoginForm() {
       if (!credential.user.emailVerified) {
         await sendEmailVerification(credential.user).catch(() => {});
         await signOut(auth);
-        setErrorMsg('Debes verificar tu correo antes de ingresar. Te enviamos un nuevo enlace.');
+        setErrorMsg(
+          'Debes verificar tu correo antes de ingresar. Te enviamos un nuevo enlace. Si prefieres no esperar, entra con Google.'
+        );
         return;
       }
       router.replace('/juego');
@@ -55,6 +59,7 @@ function LoginForm() {
       const code = (error as { code?: string })?.code;
       let msg = 'El correo o la contraseña no son correctos.';
       if (code === 'auth/invalid-email') msg = 'El correo no es válido.';
+      if (code === 'auth/too-many-requests') msg = 'Demasiados intentos. Espera un momento o entra con Google.';
       if (code === 'auth/operation-not-allowed') msg = 'Inicio de sesión no habilitado.';
       if (process.env.NODE_ENV !== 'production') console.log('Login Error:', code);
       setErrorMsg(msg);
@@ -86,110 +91,70 @@ function LoginForm() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setErrorMsg('');
-    setSuccessMsg('');
-    setLoading(true);
-    try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
-      router.replace('/juego');
-    } catch (error: unknown) {
-      const code = (error as { code?: string })?.code;
-      if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
-        setErrorMsg('Error al iniciar sesión con Google.');
-      }
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="relative z-10 flex min-h-dvh flex-col justify-center px-4 py-10 sm:px-6">
-      <header className="juego-fade-up mb-6 text-center sm:mb-12">
-        <h1 className="font-title text-[30px] leading-[35px] tracking-[0.1em] sm:text-[38px] sm:leading-[46px]">
-          <span className="block text-gold">EINHERJAR</span>
-          <span className="block text-white/95">BLITZ</span>
-        </h1>
-        <p className="mt-2 text-xs font-medium tracking-[0.2em] text-white/70 sm:text-sm">PORTAL DEL GUERRERO</p>
-      </header>
+    <div className="juego-fade-up [--juego-fade-distance:16px]">
+      <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-gold">Portal del guerrero</p>
+      <h1 className="mt-4 font-title text-[2rem] leading-tight text-white sm:text-[2.4rem]">Vuelve al Valhalla</h1>
+      <p className="mt-3 text-[15px] leading-relaxed text-white/55">
+        Entra con la misma cuenta que usas en la app. Tu progreso te espera.
+      </p>
 
-      <div className="juego-fade-up mx-auto w-full max-w-[480px] [animation-delay:200ms] [--juego-fade-distance:50px]">
-        <GlassCard>
-          <h2 className="mb-6 text-center font-title text-xl tracking-wide text-gold">ACCESO AL REINO</h2>
+      <div className="mt-9">
+        <GoogleButton onClick={google.signIn} pending={google.pending} disabled={busy} />
+        <p className="mt-3 text-center text-xs text-white/40">Un clic, sin contraseñas ni correos de verificación.</p>
+      </div>
 
-          <form className="flex flex-col gap-4" onSubmit={handleLogin} noValidate>
-            <TextField
-              label="Correo Electrónico"
-              type="email"
-              autoComplete="email"
-              autoCapitalize="none"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <PasswordField
-              label="Contraseña"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+      <AuthDivider>o con tu correo</AuthDivider>
 
-            {successMsg ? (
-              <p className="text-center text-sm font-medium text-green-500" aria-live="polite">
-                {successMsg}
-              </p>
-            ) : null}
-            {errorMsg ? (
-              <p className="text-center text-sm text-red-500" role="alert">
-                {errorMsg}
-              </p>
-            ) : null}
-
+      <form className="flex flex-col gap-5" onSubmit={handleLogin} noValidate>
+        <TextField
+          label="Correo electrónico"
+          type="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          placeholder="tu@correo.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <PasswordField
+          label="Contraseña"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          hint={
             <button
               type="button"
               onClick={handlePasswordReset}
-              disabled={loading}
-              className="min-h-11 self-start text-sm font-bold text-gold hover:underline disabled:opacity-60"
+              disabled={busy}
+              className="text-xs text-white/45 transition hover:text-gold disabled:opacity-60"
             >
-              ¿Olvidaste tu contraseña?
+              ¿La olvidaste?
             </button>
+          }
+        />
 
-            <GoldButton type="submit" title="INGRESAR" loading={loading} className="mt-2" />
+        <FormMessage tone="success">{successMsg}</FormMessage>
+        <FormMessage tone="error">{errorMsg}</FormMessage>
 
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={loading}
-              className="flex items-center justify-center gap-3 rounded-xl border border-white/30 bg-white/10 px-8 py-4 text-[15px] font-medium text-white/95 transition hover:bg-white/15 disabled:opacity-60"
-            >
-              <GoogleLogo />
-              Continuar con Google
-            </button>
+        <SubmitButton loading={loading}>Ingresar</SubmitButton>
+      </form>
 
-            <p className="mt-2 flex min-h-11 items-center justify-center text-sm text-white/70">
-              ¿No tienes cuenta?&nbsp;
-              <Link href="/juego/registro" className="font-bold text-gold hover:underline">
-                Regístrate
-              </Link>
-            </p>
-          </form>
-        </GlassCard>
-
-        <p className="mt-6 text-center text-xs text-white/40">
-          <Link href="/" className="hover:text-gold">
-            ← Volver a la página principal
-          </Link>
-        </p>
-      </div>
+      <p className="mt-8 text-center text-sm text-white/50">
+        ¿Primera vez aquí?{' '}
+        <Link href="/juego/registro" className="font-semibold text-gold hover:underline">
+          Crea tu cuenta
+        </Link>
+      </p>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Background>
-      <ParticlesBackground />
+    <AuthShell>
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>
-    </Background>
+    </AuthShell>
   );
 }
