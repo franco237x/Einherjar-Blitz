@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties, type FormEvent } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { auth, db } from '@/config/firebase';
-import { Background } from '@/components/juego/Background';
 import { GlassCard } from '@/components/juego/GlassCard';
 import { Icon } from '@/components/juego/Icon';
 import { LobbyPageHeader } from '@/components/juego/LobbyPageHeader';
-import { ParticlesBackground } from '@/components/juego/ParticlesBackground';
 import { Spinner } from '@/components/juego/Spinner';
 import { useUserData } from '@/hooks/useUserData';
 import { useDialog } from '@/providers/DialogProvider';
@@ -213,98 +211,106 @@ export default function ProfilePage() {
   const winrate = totalBattles > 0 ? Math.round(((userData?.victorias || 0) / totalBattles) * 100) : 0;
 
   const sectionHeading = (title: string, subtitle: string) => (
-    <div className="mb-2 mt-6">
-      <h2 className="font-title text-base tracking-[0.08em] text-white/95">{title}</h2>
-      <p className="mt-0.5 text-xs text-white/50">{subtitle}</p>
+    <div className="mb-3 mt-8">
+      <h2 className="font-title text-xl text-white/95">{title}</h2>
+      <p className="mt-1 text-xs text-white/45">{subtitle}</p>
     </div>
   );
 
   const inputClass =
-    'w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-[15px] text-white/95 outline-none transition placeholder:text-white/40 focus:border-gold/60';
+    'w-full rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-[15px] text-white/95 outline-none transition placeholder:text-white/35 focus:border-gold/60 focus:bg-black/50 focus:ring-4 focus:ring-gold/10';
 
   return (
-    <Background>
-      <ParticlesBackground />
-      <main className="juego-fade-in relative z-10 mx-auto w-full max-w-[1040px] px-4 pb-28 pt-4 sm:px-6">
+    <>
+      <main className="relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5">
         <LobbyPageHeader
-          eyebrow="IDENTIDAD DEL JUGADOR"
+          eyebrow="Identidad del jugador"
           title="Perfil y ajustes"
           subtitle="Administra tu identidad, preferencias y seguridad."
-          badges={[
-            { icon: 'key-outline', label: 'LLAVES', value: userData?.keys || 0 },
-            { icon: 'planet-outline', label: 'ESFERAS', value: userData?.spheres || 0, color: '#7ed9e7' },
-          ]}
         />
 
         {userDataError ? (
-          <p className="mb-6 text-center text-[13px] text-red-500" role="alert">
+          <p
+            className="mb-6 flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/[0.07] px-4 py-3 text-[13px] text-red-300"
+            role="alert"
+          >
+            <Icon name="cloud-offline" size={16} />
             No se pudo sincronizar tu perfil. Comprueba tu conexión.
           </p>
         ) : null}
 
-        <GlassCard contentClassName="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="relative h-24 w-24 shrink-0">
-              {uploadingAvatar ? (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-gold bg-ink-deep">
-                  <Spinner size={28} className="text-gold" />
-                </div>
-              ) : userData?.avatar ? (
-                <img
-                  src={userData.avatar}
-                  alt={`Avatar de ${username || 'Guerrero'}`}
-                  className="h-24 w-24 rounded-full border-2 border-gold object-cover"
-                />
-              ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-gold bg-[#17140f]">
-                  <Icon name="person" size={42} color="#c9aa71" />
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingAvatar || Boolean(userDataError)}
-                aria-busy={uploadingAvatar || undefined}
-                className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-ink-card bg-gold text-ink-deep transition hover:brightness-110 disabled:opacity-60"
-                aria-label="Cambiar avatar"
-              >
-                <Icon name="camera" size={16} />
-              </button>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarFile} />
-              <span className="absolute -left-1 -top-1 flex h-7 min-w-7 items-center justify-center rounded-full border-2 border-ink-card bg-[#67d9e7] px-1 text-xs font-bold text-ink-deep">
-                {userData?.nivel || 1}
-              </span>
-            </div>
-
-            <div className="min-w-0">
-              <p className="truncate font-title text-xl text-white/95">{username || 'GUERRERO'}</p>
-              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-ink-deep">
-                <Icon name="shield" size={13} />
-                {userData?.rango || 'INICIADO'}
-              </span>
-              <p className="mt-1.5 truncate text-xs text-white/50">{auth.currentUser?.email}</p>
-              <p className="mt-1 line-clamp-2 text-sm italic text-white/70">{frase || 'Forjando mi destino...'}</p>
-            </div>
+        <section
+          className="juego-rise relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#100e0c]"
+          style={{ '--i': 1 } as CSSProperties}
+        >
+          <div className="relative h-32">
+            <img src="/juego/loading_screen/nathan.jpg" alt="" className="h-full w-full object-cover object-[center_30%] opacity-70" />
+            <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,14,12,0.1),#100e0c)]" />
           </div>
 
-          <div className="flex min-h-[60px] items-center rounded-xl border border-white/10 bg-black/40 px-4 md:min-w-[300px]">
-            {[
-              { value: userData?.nivel || 1, label: 'NIVEL' },
-              { value: userData?.copas || 0, label: 'COPAS' },
-              { value: `${winrate}%`, label: 'WINRATE' },
-            ].map((stat, i) => (
-              <div key={stat.label} className="flex flex-1 items-center">
-                {i > 0 && <span className="mr-3 h-8 w-px bg-white/15" />}
-                <div>
-                  <p className="text-lg font-bold text-white/95">{stat.value}</p>
-                  <p className="text-[9px] font-bold tracking-[0.08em] text-gold">{stat.label}</p>
-                </div>
+          <div className="relative -mt-14 flex flex-col gap-4 px-4 pb-4">
+            <div className="flex min-w-0 items-end gap-4">
+              <div className="relative h-24 w-24 shrink-0">
+                {uploadingAvatar ? (
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-[3px] border-gold bg-[#0b0a09]">
+                    <Spinner size={28} className="text-gold" />
+                  </div>
+                ) : userData?.avatar ? (
+                  <img
+                    src={userData.avatar}
+                    alt={`Avatar de ${username || 'Guerrero'}`}
+                    className="h-24 w-24 rounded-full border-[3px] border-gold object-cover shadow-[0_0_40px_rgba(201,170,113,0.35)]"
+                  />
+                ) : (
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-[3px] border-gold bg-[#17140f] shadow-[0_0_40px_rgba(201,170,113,0.35)]">
+                    <Icon name="person" size={46} color="#c9aa71" />
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar || Boolean(userDataError)}
+                  aria-busy={uploadingAvatar || undefined}
+                  className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#100e0c] bg-gold text-[#0b0a09] transition hover:brightness-110 disabled:opacity-60"
+                  aria-label="Cambiar avatar"
+                >
+                  <Icon name="camera" size={16} />
+                </button>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarFile} />
               </div>
-            ))}
-          </div>
-        </GlassCard>
 
-        <div className="grid gap-x-6 md:grid-cols-2">
+              <div className="min-w-0 pb-1">
+                <p className="truncate font-title text-2xl text-white">{username || 'Guerrero'}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#0b0a09]">
+                    <Icon name="shield" size={12} />
+                    {userData?.rango || 'Iniciado'}
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-[#67d9e7]/40 bg-[#67d9e7]/10 px-2.5 py-0.5 text-[11px] font-bold tracking-wider text-[#9be8f2]">
+                    NIVEL {userData?.nivel || 1}
+                  </span>
+                </div>
+                <p className="mt-2 truncate text-xs text-white/45">{auth.currentUser?.email}</p>
+                <p className="mt-1 line-clamp-2 text-sm italic text-white/70">“{frase || 'Forjando mi destino...'}”</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/[0.08] bg-black/30 py-3">
+              {[
+                { value: userData?.nivel || 1, label: 'Nivel' },
+                { value: (userData?.copas || 0).toLocaleString('es'), label: 'Copas' },
+                { value: `${winrate}%`, label: 'Winrate' },
+              ].map((stat) => (
+                <div key={stat.label} className="flex flex-col items-center px-3">
+                  <p className="text-xl font-bold tabular-nums text-white">{stat.value}</p>
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gold">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <div>
           <div>
             {sectionHeading('Personalización', 'Cómo te verán los demás')}
             <GlassCard contentClassName="p-5">
@@ -344,7 +350,7 @@ export default function ProfilePage() {
                   type="submit"
                   disabled={saving || Boolean(userDataError)}
                   aria-busy={saving || undefined}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold text-sm font-bold tracking-[0.15em] text-ink-deep transition hover:brightness-110 disabled:opacity-60"
+                  className="juego-sheen flex min-h-12 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#e2c68e,#c9aa71_55%,#a88a52)] text-sm font-bold tracking-[0.15em] text-[#0b0a09] shadow-[0_10px_30px_-12px_rgba(201,170,113,0.7)] transition hover:brightness-110 disabled:opacity-60"
                 >
                   <Icon name="save-outline" size={18} />
                   {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
@@ -385,7 +391,7 @@ export default function ProfilePage() {
                 onClick={handlePasswordChange}
                 disabled={securityBusy}
                 aria-busy={securityBusy || undefined}
-                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-white/5 disabled:opacity-70"
+                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition active:bg-white/5 disabled:opacity-70"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10">
                   {securityBusy ? <Spinner size={18} className="text-gold" /> : <Icon name="key-outline" size={20} color="#c9aa71" />}
@@ -416,7 +422,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-white/5"
+                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition active:bg-white/5"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10">
                   <Icon name="log-out-outline" size={20} color="#ef4444" />
@@ -431,6 +437,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
-    </Background>
+    </>
   );
 }

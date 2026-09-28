@@ -5,13 +5,12 @@
  * filter, product grid (available + sold-out) and purchase history modal.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { auth } from '@/config/firebase';
-import { Background } from '@/components/juego/Background';
 import { EmptyState } from '@/components/juego/EmptyState';
 import { Icon } from '@/components/juego/Icon';
 import { Modal } from '@/components/juego/Modal';
-import { ParticlesBackground } from '@/components/juego/ParticlesBackground';
+import { LobbyPageHeader } from '@/components/juego/LobbyPageHeader';
 import { Spinner } from '@/components/juego/Spinner';
 import { PurchaseModal, type PurchaseState } from '@/components/juego/store/PurchaseModal';
 import { StoreCard } from '@/components/juego/store/StoreCard';
@@ -183,27 +182,27 @@ export default function StorePage() {
 
   if (loading) {
     return (
-      <Background>
-        <ParticlesBackground />
-        <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center gap-3">
-          <Spinner size={36} className="text-gold" />
-          <p className="text-sm text-white/60">Cargando tienda...</p>
-        </div>
-      </Background>
+      <div className="relative z-10 flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center gap-3">
+        <Spinner size={36} className="text-gold" />
+        <p className="text-sm text-white/60">Cargando tienda...</p>
+      </div>
     );
   }
 
   const categoryTab = (active: boolean) =>
     cn(
-      'flex min-h-[68px] min-w-[84px] shrink-0 flex-col items-center justify-center gap-1 rounded-xl border px-3 transition',
-      active ? 'border-gold/50 bg-gold/10 text-gold' : 'border-white/10 bg-black/40 text-white/50 hover:text-white/80'
+      'flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-bold tracking-[0.08em] transition active:scale-95',
+      active
+        ? 'border-gold/60 bg-gold text-[#0b0a09]'
+        : 'border-white/10 bg-white/[0.03] text-white/60'
     );
 
   const grid = (list: StoreProduct[]) => (
-    <div className="grid grid-cols-2 gap-3 min-[700px]:grid-cols-3 min-[1000px]:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3">
       {list.map((product) => (
         <StoreCard
           key={product.id}
+          featured={list.length === 1}
           product={product}
           spheres={spheres}
           onBuy={handleBuy}
@@ -214,62 +213,51 @@ export default function StorePage() {
   );
 
   return (
-    <Background>
+    <>
       <img
         src="/juego/loading_screen/manhattan.jpg"
         alt=""
-        className="pointer-events-none fixed inset-0 h-full w-full object-cover blur-[4px]"
+        className="pointer-events-none fixed inset-x-0 top-0 h-[50vh] w-full object-cover opacity-20 blur-[3px] [mask-image:linear-gradient(180deg,#000_0%,transparent_100%)]"
       />
-      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.78)_0%,rgba(5,5,5,0.92)_50%,#050505_100%)]" />
-      <ParticlesBackground />
 
-      <main className="juego-fade-in relative z-10 mx-auto w-full max-w-[1040px] px-4 pb-28 pt-4 sm:px-6">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Icon name="storefront-outline" size={22} color="#c9aa71" />
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.16em] text-gold">MERCADO EINHERJAR</p>
-              <h1 className="font-title text-2xl text-white/95">Tienda</h1>
-            </div>
-          </div>
+      <main className="relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5">
+        <LobbyPageHeader
+          eyebrow="Mercado Einherjar"
+          title="Tienda"
+          subtitle="Canjea tus esferas. Cada compra genera un certificado para reclamarla."
+          action={
+            <>
+              <button
+                type="button"
+                onClick={onRefresh}
+                disabled={refreshing}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/70 transition active:scale-95 disabled:opacity-60"
+                aria-label="Actualizar catálogo"
+              >
+                <Icon name="refresh" size={17} className={refreshing ? 'juego-spin' : undefined} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHistory(true)}
+                className="relative flex h-11 w-11 items-center justify-center rounded-full border border-gold/35 bg-gold/10 text-gold transition active:scale-95"
+                aria-label={`Abrir historial, ${activePurchases.length} compras pendientes`}
+              >
+                <Icon name="receipt" size={18} />
+                {activePurchases.length > 0 ? (
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#0b0a09] bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {Math.min(activePurchases.length, 99)}
+                  </span>
+                ) : null}
+              </button>
+            </>
+          }
+        />
 
-          <div className="flex items-center gap-2">
-            <span
-              className="flex min-h-10 items-center gap-1.5 rounded-full border border-gold/20 bg-ink/90 px-3"
-              aria-label={`${spheres} esferas`}
-            >
-              <Icon name="planet" size={18} color="#7ed9e7" />
-              <span className="text-sm font-bold text-white/95">{spheres.toLocaleString()}</span>
-            </span>
-            <button
-              type="button"
-              onClick={onRefresh}
-              disabled={refreshing}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/70 transition hover:text-white disabled:opacity-60"
-              aria-label="Actualizar catálogo"
-            >
-              <Icon name="refresh" size={18} className={refreshing ? 'juego-spin' : undefined} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowHistory(true)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-gold/30 bg-gold/10 transition hover:bg-gold/20"
-              aria-label={`Abrir historial, ${activePurchases.length} compras pendientes`}
-            >
-              <Icon name="receipt-outline" size={21} color="#c9aa71" />
-              {activePurchases.length > 0 ? (
-                <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                  {Math.min(activePurchases.length, 99)}
-                </span>
-              ) : null}
-            </button>
-          </div>
-        </div>
-
-        <div className="juego-scroll -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="Categorías">
+        {categories.length > 1 ? (
+        <div className="juego-rise -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Categorías" style={{ '--i': 1 } as CSSProperties}>
           <button type="button" className={categoryTab(!filter)} onClick={() => setFilter('')} aria-pressed={!filter}>
-            <Icon name="grid-outline" size={20} />
-            <span className="text-[10px] font-bold tracking-[0.12em]">TODOS</span>
+            <Icon name="grid" size={15} />
+            Todos
           </button>
           {categories.map(([key, label]) => (
             <button
@@ -279,31 +267,35 @@ export default function StorePage() {
               onClick={() => setFilter(key)}
               aria-pressed={filter === key}
             >
-              <Icon name="pricetag-outline" size={20} />
-              <span className="max-w-[110px] truncate text-[10px] font-bold tracking-[0.12em]">{label.toUpperCase()}</span>
+              <Icon name="pricetag" size={15} />
+              <span className="max-w-[140px] truncate">{label}</span>
             </button>
           ))}
         </div>
+        ) : null}
 
         {available.length > 0 && (
-          <section className="mb-8">
-            <div className="mb-3 flex items-end justify-between">
-              <div>
-                <p className="text-[10px] font-bold tracking-[0.16em] text-gold">CATÁLOGO</p>
-                <h2 className="font-title text-lg text-white/95">
-                  {filter ? categories.find(([key]) => key === filter)?.[1] : 'Todos los artículos'}
-                </h2>
-              </div>
-              <span className="text-xs text-white/50">{available.length} disponibles</span>
+          <section className="juego-rise mb-10" style={{ '--i': 2 } as CSSProperties}>
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <h2 className="font-title text-xl text-white/95">
+                {filter
+                  ? categories.find(([key]) => key === filter)?.[1]
+                  : available.length === 1
+                    ? 'Disponible ahora'
+                    : 'Todos los artículos'}
+              </h2>
+              <span className="shrink-0 rounded-full border border-white/[0.08] px-2.5 py-1 text-[11px] text-white/55">
+                {available.length} disponibles
+              </span>
             </div>
             {grid(available)}
           </section>
         )}
 
         {soldOut.length > 0 && (
-          <section className="mb-8">
-            <h2 className="font-title text-lg text-white/95">Agotados</h2>
-            <p className="mb-3 mt-0.5 text-xs text-white/50">Vuelve más tarde para su reposición</p>
+          <section className="juego-rise mb-8" style={{ '--i': 3 } as CSSProperties}>
+            <h2 className="font-title text-xl text-white/70">Agotados</h2>
+            <p className="mb-4 mt-1 text-xs text-white/45">Vuelve más tarde para su reposición</p>
             {grid(soldOut)}
           </section>
         )}
@@ -334,7 +326,7 @@ export default function StorePage() {
         onClose={() => setShowHistory(false)}
         label="Historial de compras"
         variant="sheet"
-        className="max-w-xl"
+        className="sm:max-w-xl"
       >
         <div className="flex items-center justify-between gap-3 border-b border-gold/20 px-5 py-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -344,7 +336,7 @@ export default function StorePage() {
                 type="button"
                 onClick={handleClaimAll}
                 disabled={claimingAll}
-                className="flex min-h-8 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-gold transition hover:bg-gold/20 disabled:opacity-60"
+                className="flex min-h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 text-xs font-bold text-gold transition active:scale-95 disabled:opacity-60"
               >
                 {claimingAll ? (
                   <Spinner size={14} />
@@ -360,7 +352,7 @@ export default function StorePage() {
           <button
             type="button"
             onClick={() => setShowHistory(false)}
-            className="rounded-lg p-1 text-white/90 hover:bg-white/10"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-white/90 active:bg-white/10"
             aria-label="Cerrar historial"
           >
             <Icon name="close" size={24} />
@@ -396,7 +388,7 @@ export default function StorePage() {
                       onClick={() => handleClaimOne(item)}
                       disabled={claimingId === item.id || item.status === 'claimed'}
                       className={cn(
-                        'flex min-h-8 items-center gap-1.5 rounded-full border px-3 text-[11px] font-bold tracking-[0.1em] transition',
+                        'flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 text-[11px] font-bold tracking-[0.1em] transition active:scale-95',
                         item.status === 'claimed'
                           ? 'border-white/10 text-white/50'
                           : 'border-gold/40 text-gold hover:bg-gold/10'
@@ -423,6 +415,6 @@ export default function StorePage() {
           )}
         </div>
       </Modal>
-    </Background>
+    </>
   );
 }

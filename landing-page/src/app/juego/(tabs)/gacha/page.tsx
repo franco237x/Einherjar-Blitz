@@ -9,15 +9,14 @@
  *   pull system, and triggers the cinematic summon animation.
  */
 
-import { useRef, useState } from 'react';
-import { Background } from '@/components/juego/Background';
-import { ParticlesBackground } from '@/components/juego/ParticlesBackground';
+import { useRef, useState, type CSSProperties } from 'react';
 import { Icon } from '@/components/juego/Icon';
+import { LobbyPageHeader } from '@/components/juego/LobbyPageHeader';
 import { BannerCard } from '@/components/juego/gacha/BannerCard';
 import { InventorySheet } from '@/components/juego/gacha/InventorySheet';
 import { ProbabilitiesPanel } from '@/components/juego/gacha/ProbabilitiesPanel';
 import { SummonAnimation } from '@/components/juego/gacha/SummonCeremony';
-import { BANNERS, pullMultiple, type RewardItem } from '@/constants/gachaData';
+import { BANNERS, RARITIES, pullMultiple, type RarityKey, type RewardItem } from '@/constants/gachaData';
 import { auth } from '@/config/firebase';
 import { performGachaPull } from '@/services/gacha';
 import { useUserData } from '@/hooks/useUserData';
@@ -89,71 +88,42 @@ export default function GachaPage() {
     }
   };
 
-  const railTab = (active: boolean) =>
+  const banner = BANNERS[activeBanner];
+  const featured = banner.rewards.filter((reward) => FEATURED_RARITIES.includes(reward.rarity));
+
+  const segment = (active: boolean) =>
     cn(
-      'flex min-h-11 flex-1 items-center justify-center gap-2 text-[11px] font-bold tracking-[0.15em] transition',
-      active ? 'border-b-2 border-gold text-gold' : 'border-b-2 border-transparent text-white/50 hover:text-white/80'
+      'flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-xs font-bold tracking-[0.12em] transition active:scale-[0.97]',
+      active ? 'bg-white/[0.09] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'text-white/50 hover:text-white/80'
     );
 
   return (
-    <Background>
-      <ParticlesBackground />
-
-      <main className="juego-fade-in relative z-10 mx-auto w-full max-w-[1040px] px-4 pb-28 pt-4 sm:px-6">
-        <div className="mb-4 flex flex-col gap-3 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
-          <div className="flex items-center gap-3">
-            <Icon name="sparkles" size={22} color="#c9aa71" />
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.16em] text-gold">CÁMARA EINHERJAR</p>
-              <h1 className="font-title text-2xl text-white/95">Invocaciones</h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span
-              className="flex min-h-10 items-center gap-1.5 rounded-full border border-gold/20 bg-ink/90 px-3"
-              aria-label={`${userData?.keys || 0} llaves`}
-            >
-              <Icon name="key" size={16} color="#c9aa71" />
-              <span className="text-sm font-bold text-white/95">{userData?.keys || 0}</span>
-            </span>
-            <span
-              className="flex min-h-10 items-center gap-1.5 rounded-full border border-gold/20 bg-ink/90 px-3"
-              aria-label={`${userData?.spheres || 0} esferas`}
-            >
-              <Icon name="planet" size={16} color="#7ed9e7" />
-              <span className="text-sm font-bold text-white/95">{userData?.spheres || 0}</span>
-            </span>
+    <>
+      <main className="relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5">
+        <LobbyPageHeader
+          eyebrow="Cámara Einherjar"
+          title="Invocaciones"
+          action={
             <button
               type="button"
               onClick={() => setShowInventory(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/30 bg-gold/10 transition hover:bg-gold/20"
-              aria-label="Abrir inventario"
+              className="flex min-h-11 items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 text-[13px] font-bold text-gold transition active:scale-95 active:bg-gold/20"
             >
-              <Icon name="briefcase-outline" size={20} color="#c9aa71" />
+              <Icon name="briefcase" size={16} />
+              Inventario
             </button>
-          </div>
-        </div>
-
-        <div className="mb-3 flex items-end justify-between">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.16em] text-white/50">BANNER ACTIVO</p>
-            <h2 className="font-title text-lg text-white/95">{BANNERS[activeBanner].title}</h2>
-          </div>
-          <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[9px] font-bold tracking-[0.12em] text-emerald-400">DISPONIBLE</span>
-          </span>
-        </div>
+          }
+        />
 
         <div
           ref={carouselRef}
           onScroll={handleScroll}
-          className="flex h-[clamp(340px,102vw,520px)] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] md:h-[clamp(340px,56vw,520px)] [&::-webkit-scrollbar]:hidden"
+          className="juego-rise -mx-4 flex h-[clamp(440px,122vw,600px)] snap-x snap-mandatory overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ '--i': 1 } as CSSProperties}
         >
-          {BANNERS.map((banner) => (
-            <div key={banner.id} className="h-full w-full shrink-0 snap-center">
-              <BannerCard banner={banner} onSummon={handleSummon} disabled={summonBusy} />
+          {BANNERS.map((item) => (
+            <div key={item.id} className="h-full w-full shrink-0 snap-center">
+              <BannerCard banner={item} onSummon={handleSummon} disabled={summonBusy} />
             </div>
           ))}
         </div>
@@ -161,41 +131,44 @@ export default function GachaPage() {
         {BANNERS.length > 1 && (
           <div className="mt-3 flex justify-center">
             <div className="flex gap-1.5 rounded-full bg-black/40 px-3 py-1.5">
-              {BANNERS.map((banner, i) => (
+              {BANNERS.map((item, i) => (
                 <span
-                  key={banner.id}
+                  key={item.id}
                   className={cn('h-1.5 rounded-full transition-all', activeBanner === i ? 'w-5' : 'w-1.5 bg-white/30')}
-                  style={activeBanner === i ? { backgroundColor: banner.accentColor } : undefined}
+                  style={activeBanner === i ? { backgroundColor: item.accentColor } : undefined}
                 />
               ))}
             </div>
           </div>
         )}
 
-        <div className="mt-4 flex border-b border-white/10" role="tablist">
-          <button type="button" role="tab" aria-selected={!showRates} className={railTab(!showRates)} onClick={() => setShowRates(false)}>
-            <Icon name="sparkles-outline" size={18} />
-            DESTACADO
-          </button>
-          <button type="button" role="tab" aria-selected={showRates} className={railTab(showRates)} onClick={() => setShowRates(true)}>
-            <Icon name="stats-chart-outline" size={18} />
-            TASAS
-          </button>
-          <button type="button" className={railTab(false)} onClick={() => setShowInventory(true)} aria-label="Abrir inventario">
-            <Icon name="albums-outline" size={18} />
-            INVENTARIO
-          </button>
+        <div className="juego-rise mt-6" style={{ '--i': 2 } as CSSProperties}>
+          <div className="grid grid-cols-2 rounded-full border border-white/[0.08] bg-black/30 p-1" role="tablist" aria-label="Detalle del banner">
+            <button type="button" role="tab" aria-selected={!showRates} className={segment(!showRates)} onClick={() => setShowRates(false)}>
+              <Icon name="sparkles" size={15} />
+              Destacados
+            </button>
+            <button type="button" role="tab" aria-selected={showRates} className={segment(showRates)} onClick={() => setShowRates(true)}>
+              <Icon name="stats-chart" size={15} />
+              Tasas
+            </button>
+          </div>
+          <h2 className="mt-5 font-title text-xl text-white/95">
+            {showRates ? 'Probabilidades' : 'Recompensas destacadas'}
+          </h2>
         </div>
 
-        {showRates ? (
-          <section className="mt-4">
-            <div className="mb-3">
-              <h3 className="font-title text-base text-white/95">Probabilidades del banner</h3>
-              <p className="mt-0.5 text-xs text-white/50">Tasas calculadas sobre todos los objetos disponibles.</p>
-            </div>
-            <ProbabilitiesPanel rewards={BANNERS[activeBanner].rewards} />
-          </section>
-        ) : null}
+        <section className="juego-rise mt-3" style={{ '--i': 3 } as CSSProperties}>
+          {showRates ? (
+            <ProbabilitiesPanel rewards={banner.rewards} />
+          ) : (
+            <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {featured.map((reward) => (
+                <FeaturedReward key={reward.name} reward={reward} />
+              ))}
+            </ul>
+          )}
+        </section>
       </main>
 
       <SummonAnimation
@@ -208,6 +181,53 @@ export default function GachaPage() {
       />
 
       <InventorySheet visible={showInventory} onClose={() => setShowInventory(false)} />
-    </Background>
+    </>
+  );
+}
+
+const FEATURED_RARITIES: RarityKey[] = ['mythic', 'legendary', 'epic'];
+
+function FeaturedReward({ reward }: { reward: RewardItem }) {
+  const [imageError, setImageError] = useState(false);
+  const rarity = RARITIES[reward.rarity];
+  return (
+    <li
+      className="relative w-[138px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-[#0e0d0c]"
+      style={{ borderColor: `${rarity.color}55` }}
+    >
+      <div className="relative aspect-[3/4] overflow-hidden">
+        {reward.image && !imageError ? (
+          <img
+            src={reward.image}
+            alt=""
+            loading="lazy"
+            onError={() => setImageError(true)}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Icon name={reward.fallbackIcon} size={40} color={rarity.color} />
+          </div>
+        )}
+        <span
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `linear-gradient(180deg, transparent 45%, ${rarity.glowColor} 85%, #0e0d0c 100%)` }}
+        />
+        <span
+          className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-bold tracking-[0.14em] backdrop-blur-md"
+          style={{ color: rarity.color }}
+        >
+          {rarity.label}
+        </span>
+      </div>
+      <div className="px-3 pb-3 pt-2">
+        <p className="truncate text-sm font-bold text-white/95">{reward.name}</p>
+        <div className="mt-1 flex gap-px" aria-label={`${rarity.stars} estrellas`}>
+          {Array.from({ length: rarity.stars }).map((_, i) => (
+            <Icon key={i} name="star" size={10} color={rarity.color} />
+          ))}
+        </div>
+      </div>
+    </li>
   );
 }

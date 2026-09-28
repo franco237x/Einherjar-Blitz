@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Background } from '@/components/juego/Background';
 import { Icon } from '@/components/juego/Icon';
 import { FEATURE_FLAGS } from '@/config/featureFlags';
 
@@ -21,8 +20,8 @@ export default function PlayPage() {
   if (!FEATURE_FLAGS.game) return null;
 
   return (
-    <Background>
-      <main className="relative z-10 flex min-h-dvh flex-col items-center justify-center px-6 pb-28 text-center">
+    <>
+      <main className="relative z-10 flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center px-6 pb-28 text-center">
         <span className="mb-6 flex h-32 w-32 items-center justify-center rounded-full border-2 border-gold/40 bg-gold/10 shadow-[0_0_40px_rgba(201,170,113,0.2)]">
           <Icon name="game-controller" size={64} color="#c9aa71" />
         </span>
@@ -40,6 +39,6 @@ export default function PlayPage() {
           ENTRAR AL COMBATE
         </Link>
       </main>
-    </Background>
+    </>
   );
 }
