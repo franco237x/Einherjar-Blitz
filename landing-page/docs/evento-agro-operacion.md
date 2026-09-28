@@ -41,7 +41,7 @@ Referencias: [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup),
 
 ## Integridad del saldo y del canje
 
-El navegador envía acciones, una revisión y un identificador de petición. La API determina tiempo, azar, inventario y saldo. Una transacción guarda partida y vale juntos, reserva el saldo completo y conserva un recibo para reintentos. Una revisión evita gastar dos veces desde pestañas desactualizadas. Los últimos 40 recibos se conservan; peticiones más antiguas quedan rechazadas por su revisión.
+El navegador envía acciones, una revisión y un identificador de petición. La API determina tiempo, azar, inventario y saldo. Una transacción guarda partida y vale juntos, reserva hasta el cupo diario de emisión y conserva un recibo para reintentos. Una revisión evita gastar dos veces desde pestañas desactualizadas. Los últimos 40 recibos se conservan; peticiones más antiguas quedan rechazadas por su revisión.
 
 El PDF acepta únicamente un folio existente. No acepta nombre, importe ni fechas como autoridad. El folio contiene 96 bits aleatorios y su enlace permite consultar el registro actual. El PDF por sí solo no sustituye esa consulta: puede copiarse o editarse, por lo que el administrador debe utilizar los datos guardados. Una segunda acreditación del mismo folio se rechaza transaccionalmente.
 
@@ -57,4 +57,8 @@ Las partidas del prototipo `einherjar-agro-v1` se conservan intactas en localSto
 
 ## Economía
 
-El canje es una acreditación manual en el grupo, no un pago automático ni dinero real. Se mantiene el importe nominal del vale; los premios o usos de esas monedas los establece la administración. No se definieron compras, caducidad, fecha de cierre ni tope diario. Ajustar las reglas y el texto público juntos si la administración decide añadirlos.
+El canje es una acreditación manual en el grupo, no un pago automático ni dinero real. Se mantiene el importe nominal del vale; los premios o usos de esas monedas los establece la administración. No se definieron compras, caducidad ni fecha de cierre.
+
+Por huerto se permiten **2.000 monedas cosechadas, 2.000 monedas emitidas en vales y 500 acciones completadas por día**. Los contadores se guardan con la partida en la misma transacción y se reinician a las 00:00 de Argentina. Cada invocación de diez cuenta como una acción; las consultas, descargas, solicitudes fallidas y canjes administrativos no cuentan. Reintentar una acción con el mismo identificador recupera el recibo anterior sin consumir otro cupo. Al llegar al límite de cosecha, el excedente permanece en la planta; al llegar al límite de vales, el saldo sin reservar permanece en el huerto. Una fusión o retirada se rechaza si descartaría monedas pendientes.
+
+El límite reduce las escrituras y acota el importe emitido **por huerto**. No es un límite por persona ni bloquea solicitudes maliciosas: otro navegador o una cookie nueva crean otro huerto. Si el evento necesita un único cupo por miembro, habrá que vincular partidas a una identidad del grupo y aplicar controles de tráfico antes de abrirlo a público amplio.

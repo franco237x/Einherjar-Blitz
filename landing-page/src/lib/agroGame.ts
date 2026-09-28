@@ -13,6 +13,8 @@ export const FREE_DRAW_COOLDOWN_MS = 60_000;
 export const SINGLE_DRAW_COST = 1;
 export const TEN_DRAW_COST = 10;
 export const DAILY_POLLEN = 5;
+export const DAILY_COIN_LIMIT = 2_000;
+export const DAILY_ACTION_LIMIT = 500;
 export const PITY_LIMITS = [10, 30, 45, 120] as const;
 export const RARITIES = [
   'Común',
@@ -50,7 +52,14 @@ export interface FarmPlot {
   lastHarvestAt: number;
   nextPollenAt: number;
   bonusCycles: number;
+  storedCoins?: number;
   plantedAt: number;
+}
+export interface DailyUsage {
+  day: string;
+  earned: number;
+  redeemed: number;
+  actions: number;
 }
 export interface PlantProgress {
   discovered: boolean;
@@ -85,6 +94,7 @@ export interface FarmState {
   lastDailyGift: string;
   playerName: string;
   vouchers: AgroVoucher[];
+  daily: DailyUsage;
 }
 export type FarmAction =
   | { type: 'plant'; index: number; plantId: string }
@@ -100,7 +110,7 @@ export interface ActionOutcome {
   results?: string[];
   voucher?: AgroVoucher;
 }
-export function createInitialFarm(): FarmState {
+export function createInitialFarm(now = Date.now()): FarmState {
   const seeds: Record<string, number> = {};
   const album: Record<string, PlantProgress> = {};
   for (const plant of PLANTS) {
@@ -129,6 +139,7 @@ export function createInitialFarm(): FarmState {
     lastDailyGift: '',
     playerName: '',
     vouchers: [],
+    daily: { day: eventDay(now), earned: 0, redeemed: 0, actions: 0 },
   };
 }
 export const cultivatedCount = (farm: FarmState) =>
@@ -138,12 +149,13 @@ export function readyCoins(plot: FarmPlot, now: number): number {
   if (!isMature(plot)) return 0;
   const plant = getPlant(plot.plantId);
   return (
+    (plot.storedCoins ?? 0) +
     (Math.min(
       plant.reserve,
       Math.max(0, Math.floor((now - plot.lastHarvestAt) / plant.cycleMs)),
     ) +
       plot.bonusCycles) *
-    plant.yield
+      plant.yield
   );
 }
 export function nextCoinIn(plot: FarmPlot, now: number): number {
@@ -166,6 +178,20 @@ export const canFuse = (state: FarmState, index: number) =>
   fusionPartner(state, index) >= 0;
 export function eventDay(now: number): string {
   return new Date(now - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+export function dailyUsage(farm: FarmState, now: number): DailyUsage {
+  const day = eventDay(now);
+  const current = farm.daily?.day === day ? farm.daily : null;
+  // Existing farms may have vouchers from before daily counters were added.
+  const vouchersToday = farm.vouchers
+    .filter((voucher) => eventDay(voucher.createdAt) === day)
+    .reduce((sum, voucher) => sum + voucher.amount, 0);
+  return {
+    day,
+    earned: current?.earned ?? 0,
+    redeemed: Math.max(current?.redeemed ?? 0, vouchersToday),
+    actions: current?.actions ?? 0,
+  };
 }
 export function formatDuration(ms: number): string {
   const seconds = Math.max(0, Math.ceil(ms / 1000));
@@ -197,19 +223,25 @@ function needPlot(farm: FarmState, index: number): FarmPlot {
 }
 function creditHarvest(farm: FarmState, index: number, now: number): number {
   const plot = needPlot(farm, index);
-  const amount = readyCoins(plot, now);
+  const available = readyCoins(plot, now);
+  const amount = Math.min(
+    available,
+    Math.max(0, DAILY_COIN_LIMIT - farm.daily.earned),
+  );
   if (!amount) return 0;
   const plant = getPlant(plot.plantId);
   const elapsed = Math.max(0, now - plot.lastHarvestAt);
   // Preserve the unfinished production cycle, including after a full reserve.
   plot.lastHarvestAt = now - (elapsed % plant.cycleMs);
   plot.bonusCycles = 0;
+  plot.storedCoins = available - amount;
   if (now >= plot.nextPollenAt) {
     farm.pollen += 1;
     plot.nextPollenAt = now + 60_000;
   }
   farm.coins += amount;
   farm.totalHarvested += amount;
+  farm.daily.earned += amount;
   farm.album[plot.plantId].harvests += 1;
   return amount;
 }
@@ -227,6 +259,12 @@ export function applyFarmAction(
   voucherContext?: { id: string; environment: 'local' | 'live' },
 ): { farm: FarmState; outcome: ActionOutcome } {
   const farm: FarmState = structuredClone(source);
+  farm.daily = dailyUsage(source, now);
+  if (farm.daily.actions >= DAILY_ACTION_LIMIT)
+    throw new GameError(
+      'Llegaste a 500 acciones hoy. Tu huerto vuelve a abrir a las 00:00 de Argentina.',
+      429,
+    );
   let outcome: ActionOutcome;
   switch (action.type) {
     case 'plant': {
@@ -244,6 +282,7 @@ export function applyFarmAction(
         lastHarvestAt: now,
         nextPollenAt: now,
         bonusCycles: 0,
+        storedCoins: 0,
         plantedAt: now,
       };
       outcome = {
@@ -284,7 +323,13 @@ export function applyFarmAction(
     }
     case 'harvest': {
       const amount = creditHarvest(farm, action.index, now);
-      if (!amount) throw new GameError('Todavía no hay cosecha disponible.');
+      if (!amount)
+        throw new GameError(
+          farm.daily.earned >= DAILY_COIN_LIMIT
+            ? 'Llegaste a 2.000 monedas cosechadas hoy. La cosecha pendiente seguirá disponible mañana.'
+            : 'Todavía no hay cosecha disponible.',
+          farm.daily.earned >= DAILY_COIN_LIMIT ? 429 : 400,
+        );
       outcome = { message: `Cosechaste ${amount} monedas.` };
       break;
     }
@@ -293,13 +338,24 @@ export function applyFarmAction(
       farm.plots.forEach((plot, i) => {
         if (plot) amount += creditHarvest(farm, i, now);
       });
-      if (!amount) throw new GameError('Todavía no hay cosecha disponible.');
+      if (!amount)
+        throw new GameError(
+          farm.daily.earned >= DAILY_COIN_LIMIT
+            ? 'Llegaste a 2.000 monedas cosechadas hoy. La cosecha pendiente seguirá disponible mañana.'
+            : 'Todavía no hay cosecha disponible.',
+          farm.daily.earned >= DAILY_COIN_LIMIT ? 429 : 400,
+        );
       outcome = { message: `Cosechaste ${amount} monedas en todo el huerto.` };
       break;
     }
     case 'uproot': {
       const plot = needPlot(farm, action.index);
       creditHarvest(farm, action.index, now);
+      if (readyCoins(plot, now) > 0)
+        throw new GameError(
+          'Quedan monedas pendientes. Recógelas después del reinicio diario antes de retirar esta planta.',
+          429,
+        );
       farm.plots[action.index] = null;
       outcome = {
         message: `${getPlant(plot.plantId).name} retirada. Tu descubrimiento permanece en el álbum.`,
@@ -323,6 +379,11 @@ export function applyFarmAction(
         throw new GameError('Ya tienes el sello de este linaje.');
       creditHarvest(farm, action.index, now);
       creditHarvest(farm, action.partnerIndex, now);
+      if (readyCoins(first, now) > 0 || readyCoins(second, now) > 0)
+        throw new GameError(
+          'Quedan monedas pendientes. Recógelas después del reinicio diario antes de fusionar.',
+          429,
+        );
       farm.plots[action.partnerIndex] = null;
       if (plant.tier === 4) {
         farm.familySeals.push(plant.family);
@@ -343,6 +404,7 @@ export function applyFarmAction(
           lastHarvestAt: now,
           nextPollenAt: now,
           bonusCycles: 0,
+          storedCoins: 0,
           plantedAt: now,
         };
         outcome = {
@@ -443,6 +505,15 @@ export function applyFarmAction(
         throw new GameError('Usa un nombre de entre 2 y 48 caracteres.');
       if (farm.coins < 1 || !voucherContext)
         throw new GameError('Cosecha monedas antes de emitir un vale.');
+      const amount = Math.min(
+        farm.coins,
+        DAILY_COIN_LIMIT - farm.daily.redeemed,
+      );
+      if (amount < 1)
+        throw new GameError(
+          'Llegaste a 2.000 monedas en vales hoy. El saldo restante seguirá disponible mañana.',
+          429,
+        );
       if (farm.vouchers[0] && now - farm.vouchers[0].createdAt < 60_000)
         throw new GameError(
           'Espera un minuto entre vales. Puedes descargar otra vez el último.',
@@ -450,7 +521,7 @@ export function applyFarmAction(
       const voucher: AgroVoucher = {
         id: voucherContext.id,
         playerName: name,
-        amount: farm.coins,
+        amount,
         createdAt: now,
         totalHarvested: farm.totalHarvested,
         plantsGrowing: farm.plots.filter(Boolean).length,
@@ -458,11 +529,14 @@ export function applyFarmAction(
         environment: voucherContext.environment,
       };
       farm.playerName = name;
-      farm.coins = 0;
+      farm.coins -= amount;
+      farm.daily.redeemed += amount;
       farm.vouchers = [voucher, ...farm.vouchers].slice(0, 100);
       outcome = {
         message:
-          'Vale emitido. Puedes descargarlo otra vez sin gastar monedas.',
+          farm.coins > 0
+            ? 'Vale emitido hasta el límite diario. Tu saldo restante seguirá disponible mañana.'
+            : 'Vale emitido. Puedes descargarlo otra vez sin gastar monedas.',
         voucher,
       };
       break;
@@ -470,6 +544,7 @@ export function applyFarmAction(
     default:
       throw new GameError('Acción desconocida.');
   }
+  farm.daily.actions += 1;
   farm.revision += 1;
   return { farm, outcome };
 }

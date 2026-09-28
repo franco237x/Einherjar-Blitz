@@ -18,12 +18,15 @@ import {
 import { ALBUM_FAMILIES, type AlbumFamilyId } from '@/lib/agroAlbum';
 import {
   BASE_ODDS,
+  DAILY_ACTION_LIMIT,
+  DAILY_COIN_LIMIT,
   PITY_LIMITS,
   PLANTS,
   RARITIES,
   TEN_DRAW_COST,
   canFuse,
   cultivatedCount,
+  dailyUsage,
   eventDay,
   formatDuration,
   fusionPartner,
@@ -77,13 +80,16 @@ function PlotCard({
 }) {
   const { farm, now, busy, act } = useAgro();
   if (!farm) return null;
+  const usage = dailyUsage(farm, now);
+  const actionsFull = usage.actions >= DAILY_ACTION_LIMIT;
+  const coinsLeft = Math.max(0, DAILY_COIN_LIMIT - usage.earned);
   if (!plot) {
     const available = farm.seeds[selected] > 0;
     return (
       <button
         type="button"
         className="agro-plot agro-plot-empty"
-        disabled={busy || !available}
+        disabled={busy || actionsFull || !available}
         onClick={() => void act({ type: 'plant', index, plantId: selected })}
         aria-label={`Plantar ${getPlant(selected).name} en parcela ${index + 1}`}
       >
@@ -103,6 +109,10 @@ function PlotCard({
   const plant = getPlant(plot.plantId);
   const mature = isMature(plot);
   const ready = readyCoins(plot, now);
+  const partnerIndex = fusionPartner(farm, index);
+  const fusionReady =
+    ready +
+    (partnerIndex >= 0 ? readyCoins(farm.plots[partnerIndex]!, now) : 0);
   const wait = Math.max(0, plot.nextWaterAt - now);
   const maxBonus = plant.family === 'brasas' ? 6 : 3;
   return (
@@ -148,7 +158,9 @@ function PlotCard({
         <button
           type="button"
           className="agro-action-water"
-          disabled={busy || wait > 0 || plot.bonusCycles >= maxBonus}
+          disabled={
+            busy || actionsFull || wait > 0 || plot.bonusCycles >= maxBonus
+          }
           onClick={() => void act({ type: 'water', index })}
         >
           <Droplets size={15} />
@@ -163,7 +175,7 @@ function PlotCard({
         <button
           type="button"
           className="agro-action-harvest"
-          disabled={busy || ready < 1}
+          disabled={busy || actionsFull || coinsLeft < 1 || ready < 1}
           onClick={() => void act({ type: 'harvest', index })}
         >
           Cosechar
@@ -172,12 +184,14 @@ function PlotCard({
       <div className="agro-plot-bottom">
         <button
           type="button"
-          disabled={busy || !canFuse(farm, index)}
+          disabled={
+            busy || actionsFull || !canFuse(farm, index) || fusionReady > coinsLeft
+          }
           onClick={() =>
             onConfirm({
               type: 'fuse',
               index,
-              partnerIndex: fusionPartner(farm, index),
+              partnerIndex,
             })
           }
         >
@@ -186,7 +200,7 @@ function PlotCard({
         </button>
         <button
           type="button"
-          disabled={busy}
+          disabled={busy || actionsFull || ready > coinsLeft}
           aria-label={`Retirar ${plant.name} de parcela ${index + 1}`}
           onClick={() => onConfirm({ type: 'uproot', index })}
         >
@@ -206,6 +220,11 @@ export function AgroEvent() {
   const [voucher, setVoucher] = useState<AgroVoucher | null>(null);
   const [playerName, setPlayerName] = useState<string | null>(null);
   if (!farm) return <AgroConnection />;
+  const usage = dailyUsage(farm, now);
+  const coinsLeft = Math.max(0, DAILY_COIN_LIMIT - usage.earned);
+  const actionsFull = usage.actions >= DAILY_ACTION_LIMIT;
+  const voucherLeft = Math.max(0, DAILY_COIN_LIMIT - usage.redeemed);
+  const voucherAmount = Math.min(farm.coins, voucherLeft);
   const count = cultivatedCount(farm);
   const readyTotal = farm.plots.reduce(
     (sum, plot) => sum + (plot ? readyCoins(plot, now) : 0),
@@ -348,13 +367,31 @@ export function AgroEvent() {
             <button
               type="button"
               className="agro-harvest-all"
-              disabled={busy || readyTotal < 1}
+              disabled={busy || actionsFull || coinsLeft < 1 || readyTotal < 1}
               onClick={() => void act({ type: 'harvestAll' })}
             >
               <Coins size={17} /> Cosechar todo{' '}
-              <span>{number(readyTotal)}</span>
+              <span>{number(Math.min(readyTotal, coinsLeft))}</span>
             </button>
           </div>
+          <aside className="agro-daily-limits" aria-label="Límites diarios del huerto">
+            <div>
+              <span>Monedas cosechadas hoy</span>
+              <strong>
+                {number(usage.earned)} / {number(DAILY_COIN_LIMIT)}
+              </strong>
+            </div>
+            <div>
+              <span>Acciones hoy</span>
+              <strong>
+                {number(usage.actions)} / {number(DAILY_ACTION_LIMIT)}
+              </strong>
+            </div>
+            <p>
+              Se reinician a las 00:00 de Argentina. La cosecha pendiente
+              permanece en las plantas.
+            </p>
+          </aside>
           <div
             className="agro-family-tabs"
             role="group"
@@ -430,7 +467,9 @@ export function AgroEvent() {
                 <button
                   type="button"
                   className="agro-draw-main"
-                  disabled={busy || (!freeReady && farm.pollen < 1)}
+                  disabled={
+                    busy || actionsFull || (!freeReady && farm.pollen < 1)
+                  }
                   onClick={() => void draw(1)}
                 >
                   <Sparkles size={17} />
@@ -444,7 +483,7 @@ export function AgroEvent() {
                 <button
                   type="button"
                   className="agro-draw-ten"
-                  disabled={busy || farm.pollen < TEN_DRAW_COST}
+                  disabled={busy || actionsFull || farm.pollen < TEN_DRAW_COST}
                   onClick={() => void draw(10)}
                 >
                   Invocar 10 · {TEN_DRAW_COST} polen
@@ -452,7 +491,9 @@ export function AgroEvent() {
                 <button
                   type="button"
                   className="agro-draw-ten"
-                  disabled={busy || farm.lastDailyGift === eventDay(now)}
+                  disabled={
+                    busy || actionsFull || farm.lastDailyGift === eventDay(now)
+                  }
                   onClick={() => void act({ type: 'daily' })}
                 >
                   <Gift size={15} />{' '}
@@ -585,7 +626,10 @@ export function AgroEvent() {
             <p>
               Tu huerto se reconoce en este navegador mediante una cookie. Usa
               el mismo navegador y evita borrar sus datos. El regalo diario
-              vuelve a las 00:00 de Argentina; no hay rachas que perder.
+              vuelve a las 00:00 de Argentina; no hay rachas que perder. Cada
+              huerto puede cosechar hasta 2.000 monedas, emitir vales por hasta
+              2.000 monedas y completar 500 acciones por día. Los tres cupos
+              se reinician a la misma hora.
             </p>
           </details>
         </section>
@@ -599,8 +643,9 @@ export function AgroEvent() {
               Tu cosecha tiene <em>recompensa.</em>
             </h2>
             <p>
-              Emite un vale con tu nombre del grupo. El saldo se reserva en el
-              folio y puedes descargar su PDF tantas veces como necesites.
+              Emite un vale con tu nombre del grupo. Se reservan hasta 2.000
+              monedas en vales por día; el saldo restante queda para mañana.
+              Puedes descargar cada PDF tantas veces como necesites.
             </p>
             <p className="agro-redeem-note">
               Envía el PDF a Messenger. El administrador consulta el importe y
@@ -625,8 +670,11 @@ export function AgroEvent() {
               <span>VALE DE COSECHA</span>
             </div>
             <div className="agro-voucher-amount">
-              <strong>{number(farm.coins)}</strong>
-              <span>monedas disponibles</span>
+              <strong>{number(voucherAmount)}</strong>
+              <span>
+                monedas para el próximo vale · {number(usage.redeemed)} /{' '}
+                {number(DAILY_COIN_LIMIT)} emitidas hoy
+              </span>
             </div>
             <label htmlFor="agro-player">
               Tu nombre en el grupo de Messenger
@@ -645,14 +693,14 @@ export function AgroEvent() {
             <button
               type="submit"
               className="agro-voucher-button"
-              disabled={busy || farm.coins < 1}
+              disabled={busy || actionsFull || voucherAmount < 1}
             >
               <Download size={18} /> Preparar vale PDF
             </button>
             <small>
               {local
                 ? 'Este entorno emite muestras locales sin validez de canje.'
-                : 'Se reservará todo tu saldo disponible. Descargar otra vez no crea un nuevo vale.'}
+                : 'Se reservará el importe mostrado. El saldo que exceda el cupo seguirá disponible mañana. Descargar otra vez no crea un nuevo vale.'}
             </small>
           </form>
         </section>
@@ -744,7 +792,7 @@ export function AgroEvent() {
       >
         {confirmation?.type === 'voucher' ? (
           <p>
-            Vas a reservar <strong>{number(farm.coins)} monedas</strong> a
+            Vas a reservar <strong>{number(voucherAmount)} monedas</strong> a
             nombre de <strong>{confirmation.playerName}</strong>. El saldo
             quedará en un folio que podrás descargar desde tu historial.
           </p>
@@ -795,7 +843,11 @@ export function AgroEvent() {
           <button
             type="button"
             className="agro-draw-main"
-            disabled={busy}
+            disabled={
+              busy ||
+              actionsFull ||
+              (confirmation?.type === 'voucher' && voucherAmount < 1)
+            }
             onClick={() => void confirm()}
           >
             {busy ? 'Guardando…' : 'Confirmar'}

@@ -11,7 +11,12 @@ import {
   type AlbumFamilyId,
   type AlbumPlant,
 } from '@/lib/agroAlbum';
-import { cultivatedCount, getPlant } from '@/lib/agroGame';
+import {
+  DAILY_ACTION_LIMIT,
+  cultivatedCount,
+  dailyUsage,
+  getPlant,
+} from '@/lib/agroGame';
 import { AgroConnection, useAgro } from './AgroProvider';
 
 function FamilyMark({ id, size = 19 }: { id: AlbumFamilyId; size?: number }) {
@@ -50,12 +55,13 @@ function PlantImage({
 }
 
 export function AgroAlbum() {
-  const { farm, busy, error, notice, act } = useAgro();
+  const { farm, now, busy, error, notice, act } = useAgro();
   const [familyId, setFamilyId] = useState<AlbumFamilyId>('alba');
   const [selectedTier, setSelectedTier] = useState<AlbumPlant['tier']>(0);
   const [preview, setPreview] = useState(false);
   const [rewardChoice, setRewardChoice] = useState<AlbumFamilyId>('alba');
   if (!farm) return <AgroConnection />;
+  const actionsFull = dailyUsage(farm, now).actions >= DAILY_ACTION_LIMIT;
   const family = ALBUM_FAMILIES.find((item) => item.id === familyId)!;
   const plants = ALBUM_PLANTS.filter((plant) => plant.family === familyId);
   const selected = plants[selectedTier];
@@ -351,6 +357,7 @@ export function AgroAlbum() {
                   type="button"
                   disabled={
                     busy ||
+                    actionsFull ||
                     total < milestone.count ||
                     farm.claimedMilestones.includes(milestone.count)
                   }
@@ -371,6 +378,12 @@ export function AgroAlbum() {
               </div>
             ))}
           </div>
+          {actionsFull && (
+            <p className="album-concept-note" role="status">
+              Llegaste a 500 acciones hoy. Podrás recoger premios y cambiar el
+              fondo desde las 00:00 de Argentina.
+            </p>
+          )}
           {farm.claimedMilestones.includes(9) && (
             <div className="album-theme-picker">
               <span>Fondo de tu herbario</span>
@@ -379,7 +392,7 @@ export function AgroAlbum() {
                   type="button"
                   key={item.id}
                   aria-pressed={farm.theme === item.id}
-                  disabled={busy}
+                  disabled={busy || actionsFull}
                   onClick={() => void act({ type: 'theme', family: item.id })}
                 >
                   {item.name}

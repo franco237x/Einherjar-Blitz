@@ -168,6 +168,11 @@
 .agro-harvest-all:hover:not(:disabled) { background: var(--agro-gold); color: #101b14; }
 .agro-harvest-all:disabled { opacity: 0.4; }
 .agro-harvest-all span { padding: 0.2rem 0.4rem; background: rgba(216, 187, 125, 0.14); }
+.agro-daily-limits { display: grid; grid-template-columns: 1fr 1fr minmax(210px, 1.4fr); align-items: center; gap: 1.5rem; margin: -0.9rem 0 2rem; padding: 1rem 1.25rem; border: 1px solid var(--agro-line); background: rgba(216, 187, 125, 0.06); }
+.agro-daily-limits > div { display: flex; flex-direction: column; gap: 0.2rem; }
+.agro-daily-limits span { color: var(--agro-muted); font-size: 0.7rem; }
+.agro-daily-limits strong { color: var(--agro-gold); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.agro-daily-limits p { margin: 0; color: var(--agro-muted); font-size: 0.72rem; line-height: 1.5; }
 .agro-content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; align-items: start; gap: 1.3rem; }
 .agro-plots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 
@@ -350,6 +355,8 @@
   .agro-field, .agro-guide, .agro-redeem { padding: 3.5rem 0; }
   .agro-section-heading { flex-direction: column; align-items: flex-start; gap: 1.2rem; }
   .agro-harvest-all { width: 100%; }
+  .agro-daily-limits { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-top: 0; }
+  .agro-daily-limits p { grid-column: 1 / -1; }
   .agro-side { grid-template-columns: 1fr; }
   .agro-plots { grid-template-columns: 1fr; }
   .agro-plot { min-height: 410px; }

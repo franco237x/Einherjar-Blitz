@@ -13,6 +13,15 @@ El polen sirve para invocar semillas; las monedas se reservan para el canje.
 Una cosecha puede dar 1 polen por parcela cada minuto. El tiempo ausente no acumula polen.
 También tienes un regalo de 5 polen al día, que se renueva a las 00:00 de Argentina.
 
+⏰ LÍMITES DIARIOS POR HUERTO
+Puedes cosechar hasta 2.000 monedas y completar hasta 500 acciones por día.
+También puedes emitir vales PDF por un total máximo de 2.000 monedas al día.
+Los tres contadores se reinician a las 00:00 de Argentina.
+Las monedas que superen el cupo de cosecha quedan pendientes en las plantas para otro día.
+Si ya tienes saldo y alcanzas el cupo de vales, el resto del saldo queda para mañana.
+Cada invocación de 10 cuenta como una acción. Solo cuentan las acciones completadas;
+abrir la página y volver a descargar un PDF existente no gastan acciones.
+
 ✨ INVOCACIONES
 Elige qué linaje quieres conseguir. Hay una invocación gratis cada minuto.
 Las adicionales cuestan 1 polen; diez invocaciones cuestan 10 polen.
@@ -33,6 +42,8 @@ Las plantas no se marchitan: producen con la página cerrada hasta llenar su res
 🔀 FUSIONES
 Dos plantas maduras de la MISMA especie crean una de la rareza siguiente del mismo linaje.
 La fusión recoge las monedas pendientes, consume las dos plantas y libera una parcela.
+Si la cosecha de ambas supera el cupo diario restante, recógela en los días siguientes
+antes de fusionar o retirar una planta; así no pierdes esas monedas.
 La nueva planta necesita 3 riegos. Revisa el resultado antes de confirmar.
 Dos míticas idénticas permiten crear un sello decorativo: conservas una mítica madura.
 Puedes ganar un sello por linaje.
@@ -53,7 +64,8 @@ Recoge los premios desde el álbum. Cada premio se obtiene una sola vez.
 📄 CANJEAR EN EL GRUPO
 1. Cosecha tus monedas y entra en Canje.
 2. Escribe el nombre con el que te conocen en Messenger.
-3. Confirma el vale: todo tu saldo disponible queda reservado en un folio.
+3. Confirma el vale: se reserva tu saldo hasta el cupo diario restante de 2.000 monedas.
+   Si tienes más saldo, permanece en tu huerto para emitir otro vale mañana.
 4. Descarga el PDF y envíalo al grupo.
 5. El administrador consulta el folio, registra el canje y acredita las monedas manualmente.
 Puedes descargar el mismo PDF otra vez desde el historial. Cada folio vale una sola vez.

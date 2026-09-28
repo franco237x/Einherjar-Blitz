@@ -19,8 +19,11 @@ Cultiva especies distintas y recoge premios al llegar a 3, 6, 9, 12 y 15: marcos
 📄 **Canjea tu cosecha**
 Escribe tu nombre del grupo, convierte tus monedas en un vale PDF y envíalo por Messenger. La administración revisa el folio y acredita el importe. **Cada folio se canjea una sola vez.**
 
+⏰ **Cupos diarios por huerto**
+Puedes cosechar hasta **2.000 monedas**, emitir vales por hasta **2.000 monedas** y completar **500 acciones** al día. Todo se reinicia a las **00:00 de Argentina**. La cosecha pendiente y el saldo que exceda el cupo quedan para los días siguientes.
+
 💡 El polen sirve para invocar y las monedas para canjear. Tus plantas no se marchitan. Juega siempre desde el mismo navegador para conservar el acceso a tu huerto.
 
 ---
 
-Nota para la administración, no incluir al copiar: añadir el enlace público una vez configurados Firebase, la clave administrativa y el dominio. Esta entrega funciona en local; sus PDF están identificados como demostraciones sin validez de canje. No anunciar la apertura antes de activar el guardado de producción. Reglas completas en `public/evento-agro/guia-del-grupo.txt`.
+Nota para la administración, no incluir al copiar: enlace público `https://einherjar-blitz.vercel.app/evento/agro`. El guardado de producción usa Firebase; las pruebas locales emiten PDF de demostración sin validez de canje. Reglas completas en `public/evento-agro/guia-del-grupo.txt`.
