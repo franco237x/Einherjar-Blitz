@@ -17,17 +17,25 @@ Los vales locales llevan la leyenda de demostración y no son canjeables en el e
 
 Si el proceso se interrumpe mientras mantiene el bloqueo, detener todos los servidores del evento y retirar únicamente `.agro-data/store.lock` antes de reiniciar. No eliminar `store.json`. Hacer copias de respaldo del directorio antes de cambios de infraestructura.
 
-## Activar en Vercel / producción
+## Configuración de producción
 
-La configuración pública de Firebase que ya usa `/juego` no concede acceso al servidor. Se necesita completar lo siguiente antes de anunciar el evento:
+El evento usa el proyecto Firebase `einherjar-agro-7578c`, separado del juego anterior. Su primera base Firestore se llama `agro`, está en `southamerica-east1`, tiene protección contra borrado y conserva la cuota gratuita. Las reglas de `firestore.agro.rules` ya están publicadas para esa base y bloquean el acceso directo de clientes. La cuenta `agro-game-server@einherjar-agro-7578c.iam.gserviceaccount.com` tiene el rol `roles/datastore.user` en ese proyecto.
 
-1. Crear una base Firestore **separada y con nombre**, por ejemplo `agro`. El código rechaza la base `(default)` para no mezclar el evento con las reglas del juego anterior.
+Vercel tiene las variables de producción `AGRO_STORE`, `AGRO_FIREBASE_PROJECT_ID`, `AGRO_FIRESTORE_DATABASE_ID`, `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON`, `AGRO_ADMIN_KEY` y `AGRO_PUBLIC_URL`. Los secretos `AGRO_ADMIN_KEY` y `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON` no deben copiarse al repositorio. La clave administrativa se guardó en el perfil local del propietario, fuera de `htdocs`: `C:\Users\gg454\.codex\secrets\einherjar-agro-admin-key.txt`.
+
+## Reproducir o reparar la configuración
+
+La configuración pública de Firebase que ya usa `/juego` no concede acceso al servidor. Si hay que reproducir esta instalación, seguir estos pasos:
+
+1. Usar el proyecto Firebase `einherjar-agro-7578c` y su base Firestore **separada y con nombre** `agro`. El código rechaza la base `(default)` para no mezclar el evento con las reglas del juego anterior.
 2. Aplicar `firestore.agro.rules` en esa base: ningún cliente puede leer o escribir directamente. `firebase.agro.json` describe solo esa base. Si se utiliza otro nombre, actualizar el archivo y la variable de entorno juntos. No desplegar reglas del proyecto viejo sobre esta base.
-3. Otorgar a una cuenta de servicio acceso IAM a esa base e introducir su JSON como secreto `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON`, o usar `GOOGLE_APPLICATION_CREDENTIALS` en un servidor propio. Nunca usar prefijos `NEXT_PUBLIC_` para credenciales administrativas.
+3. Otorgar a la cuenta de servicio `roles/datastore.user` en el proyecto del evento e introducir su JSON como secreto `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON`, o usar `GOOGLE_APPLICATION_CREDENTIALS` en un servidor propio. Nunca usar prefijos `NEXT_PUBLIC_` para credenciales administrativas.
 4. Configurar `AGRO_STORE=firestore`, `AGRO_FIREBASE_PROJECT_ID`, `AGRO_FIRESTORE_DATABASE_ID=agro`, `AGRO_ADMIN_KEY` (secreto aleatorio de al menos 32 caracteres) y `AGRO_PUBLIC_URL` (origen HTTPS público sin barra final).
 5. Publicar la versión y comprobar el recorrido completo con saldo real de juego: guardar, emitir, descargar, consultar y registrar un canje. Guardar la clave administrativa en un gestor de contraseñas y dar acceso solo a quienes acrediten monedas.
 
-Sin la base privada y las credenciales, la API pública de la partida responde 503. Sin una clave administrativa válida, la emisión de vales públicos también queda bloqueada y el jugador conserva su saldo. No hay una alternativa de saldo controlado por el navegador en producción. No se ha desplegado ni configurado una cuenta de servicio desde esta tarea.
+Sin la base privada y las credenciales, la API pública de la partida responde 503. Sin una clave administrativa válida, la emisión de vales públicos también queda bloqueada y el jugador conserva su saldo. No hay una alternativa de saldo controlado por el navegador en producción.
+
+El 28 de septiembre de 2026 se comprobó en producción una partida, tres riegos, una cosecha, la emisión y descarga del PDF, la consulta del folio y el canje administrativo. El folio `AGRO-20260928-BCB2B0D109675964EC5CE27D`, a nombre de `Prueba de sistema` por 1 moneda, ya figura como canjeado. No acreditarlo en el grupo. Un segundo intento de canje devolvió HTTP 409.
 
 Referencias: [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup), [transacciones de Firestore](https://firebase.google.com/docs/firestore/manage-data/transactions), [seguridad de clientes y servidores](https://firebase.google.com/docs/firestore/security/overview).
 
