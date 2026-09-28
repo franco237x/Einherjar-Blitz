@@ -379,3 +379,72 @@
 @media (prefers-reduced-motion: reduce) {
   .agro-page *, .agro-page *::before, .agro-page *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ─── Huerto: mobile game screen ─────────────────────────────────────── */
+
+/* `clip` instead of `hidden` keeps the sticky HUD working. */
+.hg-page { overflow: clip; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.hg-page .agro-draw-main, .hg-page .agro-draw-ten, .agro-reveal-dialog .agro-draw-main, .agro-reveal-dialog .agro-draw-ten { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: 48px; margin-top: 0; border-radius: 14px; font-size: 0.8rem; }
+.agro-confirm-actions { margin-top: 1.2rem; }
+
+.hg-tap { transition: transform 140ms ease, filter 140ms ease; }
+.hg-tap:active:not(:disabled) { transform: scale(0.96); filter: brightness(1.1); }
+
+.hg-panel { animation: hg-panel-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes hg-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.hg-toast { animation: hg-toast-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes hg-toast-in { from { opacity: 0; transform: translateY(-10px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+/* Plots */
+.hg-ready { box-shadow: 0 0 0 1px rgba(240, 207, 115, 0.35), 0 0 28px -6px rgba(240, 207, 115, 0.55); animation: hg-ready-glow 2.2s ease-in-out infinite; }
+@keyframes hg-ready-glow { 50% { box-shadow: 0 0 0 1px rgba(240, 207, 115, 0.55), 0 0 36px -4px rgba(240, 207, 115, 0.75); } }
+.hg-sway { transform-origin: 50% 100%; animation: hg-sway 4.5s ease-in-out infinite; }
+@keyframes hg-sway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+.hg-pop { display: inline-block; animation: hg-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes hg-pop { 0% { transform: scale(0.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.hg-bounce { animation: hg-bounce 1.3s ease-in-out infinite; }
+@keyframes hg-bounce { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+
+/* Effects */
+.hg-float { position: absolute; left: 50%; top: 36%; translate: -50% 0; white-space: nowrap; font-weight: 900; font-size: 1.35rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7); animation: hg-float 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.hg-float-coins { color: #ffe7a3; }
+.hg-float-water { color: #9fd6f5; font-size: 1.05rem; }
+.hg-float-grow { color: #c9f0a0; font-size: 1.2rem; }
+.hg-float-plant { color: #f0eadb; font-size: 1rem; }
+@keyframes hg-float { 0% { opacity: 0; transform: translateY(12px) scale(0.7); } 18% { opacity: 1; transform: translateY(0) scale(1.18); } 100% { opacity: 0; transform: translateY(-64px) scale(1); } }
+.hg-coin { position: absolute; left: 50%; top: 55%; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff6d3, #e3b04f 55%, #a87725); box-shadow: 0 0 8px rgba(240, 207, 115, 0.8); animation: hg-coin 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes hg-coin { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.05); } }
+.hg-drop { position: absolute; left: calc(50% + var(--dx)); top: 8%; width: 7px; height: 11px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: linear-gradient(#d6f1ff, #5fb3e6); animation: hg-drop 700ms ease-in both; }
+@keyframes hg-drop { 0% { opacity: 0; transform: translateY(-10px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(90px) scaleY(0.7); } }
+.hg-burst { position: absolute; left: 50%; top: 55%; width: 40px; height: 40px; border-radius: 50%; translate: -50% -50%; background: radial-gradient(circle, rgba(201, 240, 160, 0.9), rgba(201, 240, 160, 0) 70%); animation: hg-burst 900ms ease-out forwards; }
+@keyframes hg-burst { from { opacity: 1; transform: scale(0.4); } to { opacity: 0; transform: scale(5); } }
+
+/* Calls to action */
+.hg-glow { animation: hg-glow 2s ease-in-out infinite; }
+@keyframes hg-glow { 0%, 100% { box-shadow: 0 8px 26px -10px rgba(240, 207, 115, 0.55); } 50% { box-shadow: 0 10px 34px -6px rgba(240, 207, 115, 0.9); } }
+.hg-spin-slow { animation: juego-spin-slow 24s linear infinite; }
+.hg-spin-rev { animation: juego-spin-slow 36s linear infinite reverse; }
+@keyframes juego-spin-slow { to { transform: rotate(360deg); } }
+.hg-float-idle { animation: hg-float-idle 5s ease-in-out infinite; }
+@keyframes hg-float-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* Summon reveal */
+.hg-orb { position: absolute; left: 50%; top: 42%; width: 70px; height: 70px; border-radius: 50%; translate: -50% -50%; background: radial-gradient(circle, #fff, var(--tier) 45%, transparent 72%); animation: hg-orb 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@keyframes hg-orb { 0% { opacity: 0; transform: scale(0.2); } 45% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(4.5); } }
+.hg-reveal-single { animation: hg-reveal 700ms 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes hg-reveal { from { opacity: 0; transform: scale(0.6) translateY(16px); } to { opacity: 1; transform: none; } }
+.hg-rays { position: absolute; left: 50%; top: 45%; width: 260px; height: 260px; translate: -50% -50%; border-radius: 50%; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tier) 30%, transparent) 0 8deg, transparent 8deg 22deg); mask-image: radial-gradient(circle, #000 20%, transparent 68%); animation: juego-spin-slow 18s linear infinite; }
+.hg-card { animation: hg-flip 620ms cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 110ms + 150ms); background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--tier) 18%, transparent), transparent 70%), #0b1711; }
+.hg-card-rare { box-shadow: 0 0 18px -4px var(--tier); }
+@keyframes hg-flip { 0% { opacity: 0; transform: perspective(600px) rotateY(90deg) scale(0.85); } 60% { opacity: 1; transform: perspective(600px) rotateY(-10deg) scale(1.05); } 100% { opacity: 1; transform: none; } }
+
+/* Dialogs become bottom sheets on phones. */
+@media (max-width: 640px) {
+  .agro-reveal-dialog { width: 100%; max-width: 100%; max-height: 90dvh; margin: auto 0 0; padding: 1.6rem 1.1rem calc(1.2rem + env(safe-area-inset-bottom)); border-width: 1px 0 0; border-radius: 26px 26px 0 0; animation: hg-sheet-up 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .agro-reveal-dialog::before { content: ''; position: absolute; left: 50%; top: 8px; width: 40px; height: 4px; translate: -50% 0; border-radius: 999px; background: rgba(255, 255, 255, 0.2); }
+  .agro-reveal-dialog h2 { margin: 0.4rem 2.5rem 1rem 0; font-size: 1.5rem; }
+  .agro-dialog-close { top: 0.9rem; right: 0.7rem; width: 44px; height: 44px; }
+}
+@keyframes hg-sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+.hg-float-wait { color: #dfe6d8; font-size: 0.85rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(7, 17, 13, 0.85); text-shadow: none; }
