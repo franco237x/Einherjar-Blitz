@@ -109,7 +109,7 @@ export function DialogProvider({ children }: PropsWithChildren) {
         visible={dialog !== null}
         onClose={() => dialog && close(dialog.cancelId)}
         label={dialog?.title ?? 'Aviso'}
-        className="max-w-[380px]"
+        className="sm:max-w-[380px]"
       >
         {dialog ? (
           <div role="alertdialog" aria-live="assertive">

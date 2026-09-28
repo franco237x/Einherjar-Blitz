@@ -530,7 +530,7 @@ function OpenTransferModal({ visible, onClose, myKeys }: TransferModalProps) {
   );
 
   return (
-    <Modal visible={visible} onClose={onClose} label="Transferir llaves" locked={transferring} className="max-w-[440px]">
+    <Modal visible={visible} onClose={onClose} label="Transferir llaves" locked={transferring} className="sm:max-w-[440px]">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="font-title text-lg tracking-wide text-gold">Transferir Llaves</h2>

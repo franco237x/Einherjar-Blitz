@@ -26,7 +26,7 @@ function isActive(pathname: string, href: string) {
 function CurrencyChip({ icon, color, value, label }: { icon: string; color: string; value: number; label: string }) {
   return (
     <span
-      className="flex h-9 items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] pl-2.5 pr-3"
+      className="flex h-9 items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] pl-2.5 pr-3"
       aria-label={`${value.toLocaleString('es')} ${label}`}
     >
       <Icon name={icon} size={15} color={color} />
@@ -35,6 +35,10 @@ function CurrencyChip({ icon, color, value, label }: { icon: string; color: stri
   );
 }
 
+/**
+ * Lobby shell, designed as a phone app: compact top bar with balances and a
+ * floating bottom tab bar. On bigger screens the same column is centered.
+ */
 export default function TabsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { userData } = useUserData();
@@ -43,61 +47,15 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
     <Background>
       <ParticlesBackground />
 
-      {/* Top bar: brand, desktop navigation and balances. */}
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#0b0a09]/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1120px] items-center gap-4 px-4 sm:px-6">
-          <Link href="/juego" className="flex shrink-0 items-center gap-3" aria-label="Einherjar Blitz, inicio del juego">
-            <Image src="/assets/einherjer-logo.jpg" alt="" width={30} height={30} className="rounded-md" priority />
-            <span className="hidden font-title text-[13px] tracking-[0.22em] text-white/90 min-[480px]:inline">
-              EINHERJAR BLITZ
-            </span>
+      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#0b0a09]/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-[520px] items-center gap-3 px-4">
+          <Link href="/juego" className="flex shrink-0 items-center gap-2.5" aria-label="Einherjar Blitz, inicio del juego">
+            <Image src="/assets/einherjer-logo.jpg" alt="" width={28} height={28} className="rounded-md" priority />
+            <span className="hidden font-title text-[12px] tracking-[0.2em] text-white/85 min-[400px]:inline">EINHERJAR</span>
           </Link>
-
-          <nav aria-label="Navegación principal" className="mx-auto hidden md:block">
-            <ul className="flex items-center gap-1">
-              {TABS.map((tab) => {
-                const active = isActive(pathname, tab.href);
-                return (
-                  <li key={tab.href}>
-                    <Link
-                      href={tab.href}
-                      aria-current={active ? 'page' : undefined}
-                      className={cn(
-                        'relative flex h-16 items-center gap-2 px-4 text-sm transition-colors',
-                        active ? 'text-white' : 'text-white/50 hover:text-white/85'
-                      )}
-                    >
-                      <Icon name={tab.icon} size={16} color={active ? '#c9aa71' : 'currentColor'} />
-                      {tab.label}
-                      <span
-                        className={cn(
-                          'absolute inset-x-4 bottom-0 h-px origin-center bg-gold transition-transform duration-500',
-                          active ? 'scale-x-100' : 'scale-x-0'
-                        )}
-                      />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <div className="ml-auto flex items-center gap-2 md:ml-0">
+          <div className="ml-auto flex items-center gap-2">
             <CurrencyChip icon="key" color="#c9aa71" value={userData?.keys || 0} label="llaves" />
             <CurrencyChip icon="planet" color="#7ed9e7" value={userData?.spheres || 0} label="esferas" />
-            <Link
-              href="/juego/perfil"
-              className="hidden h-9 w-9 shrink-0 overflow-hidden rounded-full border border-gold/40 transition hover:border-gold md:block"
-              aria-label="Ir a tu perfil"
-            >
-              {userData?.avatar ? (
-                <img src={userData.avatar} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center bg-[#17140f]">
-                  <Icon name="person" size={16} color="#c9aa71" />
-                </span>
-              )}
-            </Link>
           </div>
         </div>
       </header>
@@ -105,12 +63,11 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
       <SyncIndicator />
       {children}
 
-      {/* Mobile: floating tab bar. */}
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       >
-        <ul className="mx-auto flex h-[64px] max-w-md items-center rounded-2xl border border-white/[0.08] bg-[#141210]/85 px-1.5 shadow-[0_18px_40px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+        <ul className="mx-auto flex h-16 max-w-[496px] items-center rounded-2xl border border-white/[0.08] bg-[#141210]/90 px-1.5 shadow-[0_18px_40px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
           {TABS.map((tab) => {
             const active = isActive(pathname, tab.href);
             return (
@@ -119,12 +76,15 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
                   href={tab.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'relative mx-auto flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl transition-colors',
-                    active ? 'text-gold' : 'text-white/45 hover:text-white/80'
+                    'relative mx-auto flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl transition active:scale-95',
+                    active ? 'text-gold' : 'text-white/45'
                   )}
                 >
                   {active ? (
-                    <span className="absolute inset-x-2 inset-y-0 rounded-xl bg-[radial-gradient(ellipse_at_top,rgba(201,170,113,0.22),rgba(201,170,113,0.04)_70%)]" aria-hidden="true" />
+                    <span
+                      className="absolute inset-x-2 inset-y-0 rounded-xl bg-[radial-gradient(ellipse_at_top,rgba(201,170,113,0.22),rgba(201,170,113,0.04)_70%)]"
+                      aria-hidden="true"
+                    />
                   ) : null}
                   <Icon name={tab.icon} size={21} strokeWidth={active ? 2.2 : 1.75} className="relative" />
                   <span className="relative text-[10px] font-bold tracking-wide">{tab.label}</span>

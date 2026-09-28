@@ -51,8 +51,8 @@ export function BannerCard({ banner, onSummon, disabled = false }: BannerCardPro
         />
       </div>
 
-      <div className="relative z-[2] flex flex-1 flex-col justify-between p-5 sm:p-8">
-        <div className="ml-auto flex max-w-[80%] flex-col items-end text-right sm:max-w-[60%]">
+      <div className="relative z-[2] flex flex-1 flex-col justify-between p-4">
+        <div className="ml-auto flex max-w-[82%] flex-col items-end text-right">
           <span
             className="mb-3 flex items-center gap-1.5 rounded-full border bg-black/40 px-3 py-1 text-[10px] font-bold tracking-[0.2em] backdrop-blur-md"
             style={{ borderColor: `${accent}99`, color: '#c7c9ff' }}
@@ -61,26 +61,26 @@ export function BannerCard({ banner, onSummon, disabled = false }: BannerCardPro
             BANNER ACTIVO
           </span>
           <h3
-            className="font-title text-[28px] leading-[1.1] text-white sm:text-[44px]"
+            className="font-title text-[28px] leading-[1.1] text-white"
             style={{ textShadow: `0 0 32px ${accent}` }}
           >
             {banner.title}
           </h3>
-          <p className="mt-2 text-[13px] tracking-wide text-white/75 sm:text-sm">{banner.subtitle}</p>
+          <p className="mt-2 text-[13px] tracking-wide text-white/75">{banner.subtitle}</p>
           <p className="mt-3 flex items-center gap-1.5 text-xs text-white/55">
             <Icon name={costIcon} size={13} color="#c9aa71" />
             {banner.costAmount} {banner.costAmount === 1 ? currency.slice(0, -1) : currency} por invocación
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/55 p-1.5 backdrop-blur-md sm:ml-auto sm:w-[440px]">
+        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/55 p-1.5 backdrop-blur-md">
           <button
             type="button"
             onClick={() => onSummon(1)}
             disabled={disabled}
             aria-busy={disabled || undefined}
             aria-label={`Invocar una vez por ${banner.costAmount} ${currency}`}
-            className="flex min-h-[60px] flex-col items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] text-white transition hover:border-white/30 hover:bg-white/[0.08] disabled:opacity-60"
+            className="flex min-h-[62px] flex-col items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] text-white transition active:scale-[0.97] active:bg-white/[0.1] disabled:opacity-60"
           >
             <span className="text-sm font-bold uppercase tracking-[0.14em]">{disabled ? 'Procesando' : 'Invocar ×1'}</span>
             <span className="mt-1 flex items-center gap-1 text-xs font-bold text-white/65">
@@ -95,7 +95,7 @@ export function BannerCard({ banner, onSummon, disabled = false }: BannerCardPro
             disabled={disabled}
             aria-busy={disabled || undefined}
             aria-label={`Invocar diez veces por ${banner.costAmount * 10} ${currency}`}
-            className="juego-sheen flex min-h-[60px] flex-col items-center justify-center rounded-xl text-white transition hover:brightness-110 disabled:opacity-60"
+            className="flex min-h-[62px] flex-col items-center justify-center rounded-xl text-white transition active:scale-[0.97] active:brightness-90 disabled:opacity-60"
             style={{
               background: `linear-gradient(135deg, ${accent}, #8b5cf6)`,
               boxShadow: `0 10px 30px -10px ${accent}`,

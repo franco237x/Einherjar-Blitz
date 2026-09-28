@@ -211,7 +211,7 @@ export default function ProfilePage() {
   const winrate = totalBattles > 0 ? Math.round(((userData?.victorias || 0) / totalBattles) * 100) : 0;
 
   const sectionHeading = (title: string, subtitle: string) => (
-    <div className="mb-3 mt-10">
+    <div className="mb-3 mt-8">
       <h2 className="font-title text-xl text-white/95">{title}</h2>
       <p className="mt-1 text-xs text-white/45">{subtitle}</p>
     </div>
@@ -222,7 +222,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <main className="relative z-10 mx-auto w-full max-w-[1120px] px-4 pb-32 pt-8 sm:px-6 md:pb-16 md:pt-10">
+      <main className="relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5">
         <LobbyPageHeader
           eyebrow="Identidad del jugador"
           title="Perfil y ajustes"
@@ -243,26 +243,26 @@ export default function ProfilePage() {
           className="juego-rise relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#100e0c]"
           style={{ '--i': 1 } as CSSProperties}
         >
-          <div className="relative h-32 sm:h-44">
+          <div className="relative h-32">
             <img src="/juego/loading_screen/nathan.jpg" alt="" className="h-full w-full object-cover object-[center_30%] opacity-70" />
             <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,14,12,0.1),#100e0c)]" />
           </div>
 
-          <div className="relative -mt-14 flex flex-col gap-5 px-5 pb-6 sm:-mt-16 sm:px-8 md:flex-row md:items-end md:justify-between">
-            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="relative h-28 w-28 shrink-0">
+          <div className="relative -mt-14 flex flex-col gap-4 px-4 pb-4">
+            <div className="flex min-w-0 items-end gap-4">
+              <div className="relative h-24 w-24 shrink-0">
                 {uploadingAvatar ? (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full border-[3px] border-gold bg-[#0b0a09]">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-[3px] border-gold bg-[#0b0a09]">
                     <Spinner size={28} className="text-gold" />
                   </div>
                 ) : userData?.avatar ? (
                   <img
                     src={userData.avatar}
                     alt={`Avatar de ${username || 'Guerrero'}`}
-                    className="h-28 w-28 rounded-full border-[3px] border-gold object-cover shadow-[0_0_40px_rgba(201,170,113,0.35)]"
+                    className="h-24 w-24 rounded-full border-[3px] border-gold object-cover shadow-[0_0_40px_rgba(201,170,113,0.35)]"
                   />
                 ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full border-[3px] border-gold bg-[#17140f] shadow-[0_0_40px_rgba(201,170,113,0.35)]">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-[3px] border-gold bg-[#17140f] shadow-[0_0_40px_rgba(201,170,113,0.35)]">
                     <Icon name="person" size={46} color="#c9aa71" />
                   </div>
                 )}
@@ -280,7 +280,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="min-w-0 pb-1">
-                <p className="truncate font-title text-2xl text-white sm:text-3xl">{username || 'Guerrero'}</p>
+                <p className="truncate font-title text-2xl text-white">{username || 'Guerrero'}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#0b0a09]">
                     <Icon name="shield" size={12} />
@@ -295,7 +295,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/[0.08] bg-black/30 py-3 md:min-w-[320px]">
+            <div className="grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/[0.08] bg-black/30 py-3">
               {[
                 { value: userData?.nivel || 1, label: 'Nivel' },
                 { value: (userData?.copas || 0).toLocaleString('es'), label: 'Copas' },
@@ -310,7 +310,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <div className="grid gap-x-6 md:grid-cols-2">
+        <div>
           <div>
             {sectionHeading('Personalización', 'Cómo te verán los demás')}
             <GlassCard contentClassName="p-5">
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                 onClick={handlePasswordChange}
                 disabled={securityBusy}
                 aria-busy={securityBusy || undefined}
-                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-white/5 disabled:opacity-70"
+                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition active:bg-white/5 disabled:opacity-70"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10">
                   {securityBusy ? <Spinner size={18} className="text-gold" /> : <Icon name="key-outline" size={20} color="#c9aa71" />}
@@ -422,7 +422,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-white/5"
+                className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition active:bg-white/5"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10">
                   <Icon name="log-out-outline" size={20} color="#ef4444" />

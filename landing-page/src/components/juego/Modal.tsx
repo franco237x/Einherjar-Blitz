@@ -52,12 +52,13 @@ export function Modal({ visible, onClose, children, label, className, variant = 
 
   if (!visible || typeof document === 'undefined') return null;
 
+  const isSheet = variant === 'center' || variant === 'sheet';
+
   return createPortal(
     <div
       className={cn(
-        'juego-fade-in fixed inset-0 z-[70] flex bg-black/75 backdrop-blur-sm',
-        variant === 'center' && 'items-center justify-center p-6',
-        variant === 'sheet' && 'items-end justify-center sm:items-center sm:p-6',
+        'juego-fade-in fixed inset-0 z-[70] flex bg-black/75 backdrop-blur-sm [-webkit-tap-highlight-color:transparent]',
+        isSheet && 'items-end justify-center sm:items-center sm:p-6',
         variant === 'fullscreen' && 'items-stretch justify-stretch'
       )}
       onMouseDown={(event) => {
@@ -72,14 +73,23 @@ export function Modal({ visible, onClose, children, label, className, variant = 
         tabIndex={-1}
         className={cn(
           'outline-none',
+          // Phones: bottom sheet anchored to the thumb zone. `sm` and up: centered card.
+          isSheet &&
+            'juego-sheet relative w-full rounded-t-3xl border border-b-0 border-white/[0.09] bg-[linear-gradient(180deg,#1a1714,#110f0d)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_-20px_60px_-20px_rgba(0,0,0,0.9)] sm:rounded-3xl sm:border-b',
           variant === 'center' &&
-            'juego-pop-in max-h-[calc(100dvh-3rem)] w-full max-w-[400px] overflow-y-auto rounded-3xl border border-white/[0.09] bg-[linear-gradient(180deg,#1a1714,#110f0d)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_40px_80px_-20px_rgba(0,0,0,0.9)]',
+            'max-h-[88dvh] overflow-y-auto px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-7 sm:max-h-[calc(100dvh-3rem)] sm:max-w-[400px] sm:pb-6 sm:pt-6',
           variant === 'sheet' &&
-            'juego-scroll flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-white/[0.09] bg-[linear-gradient(180deg,#171411,#0e0c0a)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_40px_80px_-20px_rgba(0,0,0,0.9)] sm:rounded-3xl',
+            'juego-scroll flex max-h-[92dvh] max-w-3xl flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] sm:pb-0',
           variant === 'fullscreen' && 'relative h-dvh w-full overflow-hidden',
           className
         )}
       >
+        {isSheet ? (
+          <span
+            className="pointer-events-none absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/20 sm:hidden"
+            aria-hidden="true"
+          />
+        ) : null}
         {children}
       </div>
     </div>,

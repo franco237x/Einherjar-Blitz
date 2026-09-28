@@ -93,24 +93,23 @@ export default function GachaPage() {
 
   const segment = (active: boolean) =>
     cn(
-      'flex min-h-10 items-center justify-center gap-2 rounded-full px-4 text-xs font-bold tracking-[0.12em] transition',
+      'flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-xs font-bold tracking-[0.12em] transition active:scale-[0.97]',
       active ? 'bg-white/[0.09] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'text-white/50 hover:text-white/80'
     );
 
   return (
     <>
-      <main className="relative z-10 mx-auto w-full max-w-[1120px] px-4 pb-32 pt-8 sm:px-6 md:pb-16 md:pt-10">
+      <main className="relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5">
         <LobbyPageHeader
           eyebrow="Cámara Einherjar"
           title="Invocaciones"
-          subtitle="Usa tus llaves para invocar personas, héroes y artefactos. Todo lo que obtengas queda en tu inventario."
           action={
             <button
               type="button"
               onClick={() => setShowInventory(true)}
-              className="flex min-h-11 items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 text-sm font-bold text-gold transition hover:bg-gold/20"
+              className="flex min-h-11 items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 text-[13px] font-bold text-gold transition active:scale-95 active:bg-gold/20"
             >
-              <Icon name="briefcase" size={17} />
+              <Icon name="briefcase" size={16} />
               Inventario
             </button>
           }
@@ -119,7 +118,7 @@ export default function GachaPage() {
         <div
           ref={carouselRef}
           onScroll={handleScroll}
-          className="juego-rise flex h-[clamp(420px,120vw,560px)] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] md:h-[clamp(420px,50vw,560px)] [&::-webkit-scrollbar]:hidden"
+          className="juego-rise -mx-4 flex h-[clamp(440px,122vw,600px)] snap-x snap-mandatory overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ '--i': 1 } as CSSProperties}
         >
           {BANNERS.map((item) => (
@@ -143,14 +142,8 @@ export default function GachaPage() {
           </div>
         )}
 
-        <div className="juego-rise mt-10 flex flex-wrap items-center justify-between gap-4" style={{ '--i': 2 } as CSSProperties}>
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/45">{banner.title}</p>
-            <h2 className="mt-1 font-title text-2xl text-white/95">
-              {showRates ? 'Probabilidades' : 'Recompensas destacadas'}
-            </h2>
-          </div>
-          <div className="flex rounded-full border border-white/[0.08] bg-black/30 p-1" role="tablist" aria-label="Detalle del banner">
+        <div className="juego-rise mt-6" style={{ '--i': 2 } as CSSProperties}>
+          <div className="grid grid-cols-2 rounded-full border border-white/[0.08] bg-black/30 p-1" role="tablist" aria-label="Detalle del banner">
             <button type="button" role="tab" aria-selected={!showRates} className={segment(!showRates)} onClick={() => setShowRates(false)}>
               <Icon name="sparkles" size={15} />
               Destacados
@@ -160,13 +153,16 @@ export default function GachaPage() {
               Tasas
             </button>
           </div>
+          <h2 className="mt-5 font-title text-xl text-white/95">
+            {showRates ? 'Probabilidades' : 'Recompensas destacadas'}
+          </h2>
         </div>
 
-        <section className="juego-rise mt-5" style={{ '--i': 3 } as CSSProperties}>
+        <section className="juego-rise mt-3" style={{ '--i': 3 } as CSSProperties}>
           {showRates ? (
             <ProbabilitiesPanel rewards={banner.rewards} />
           ) : (
-            <ul className="juego-scroll -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-7 lg:overflow-visible lg:pb-0">
+            <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {featured.map((reward) => (
                 <FeaturedReward key={reward.name} reward={reward} />
               ))}
@@ -196,7 +192,7 @@ function FeaturedReward({ reward }: { reward: RewardItem }) {
   const rarity = RARITIES[reward.rarity];
   return (
     <li
-      className="group relative w-[150px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-[#0e0d0c] transition-transform duration-300 hover:-translate-y-1 sm:w-[156px] lg:w-auto"
+      className="relative w-[138px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-[#0e0d0c]"
       style={{ borderColor: `${rarity.color}55` }}
     >
       <div className="relative aspect-[3/4] overflow-hidden">
@@ -206,7 +202,7 @@ function FeaturedReward({ reward }: { reward: RewardItem }) {
             alt=""
             loading="lazy"
             onError={() => setImageError(true)}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">

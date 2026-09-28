@@ -28,7 +28,7 @@ export function PurchaseModal({ state, productName, productImage, price, errorMe
       onClose={onClose}
       label="Resultado de la compra"
       locked={state === 'loading'}
-      className="max-w-[360px]"
+      className="sm:max-w-[360px]"
     >
       <div key={state ?? 'none'} className="juego-pop-in flex flex-col items-center text-center" aria-live="polite">
         {state === 'loading' && (

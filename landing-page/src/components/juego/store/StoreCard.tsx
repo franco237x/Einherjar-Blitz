@@ -16,9 +16,11 @@ interface StoreCardProps {
   spheres: number;
   onBuy: (product: StoreProduct) => void;
   buying: boolean;
+  /** Full-width layout, used when the catalog shows a single product. */
+  featured?: boolean;
 }
 
-export function StoreCard({ product, spheres, onBuy, buying }: StoreCardProps) {
+export function StoreCard({ product, spheres, onBuy, buying, featured = false }: StoreCardProps) {
   const soldOut = product.stock <= 0;
   const canAfford = spheres >= product.price && !soldOut;
   const lowStock = !soldOut && product.stock <= 3;
@@ -26,20 +28,20 @@ export function StoreCard({ product, spheres, onBuy, buying }: StoreCardProps) {
   return (
     <article
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-2xl border bg-[linear-gradient(180deg,#151311,#0e0c0b)] transition duration-300',
+        'relative flex flex-col overflow-hidden rounded-2xl border bg-[linear-gradient(180deg,#151311,#0e0c0b)]',
+        featured && 'col-span-2 rounded-3xl',
         product.isExclusive
           ? 'border-[#d4af37]/70 shadow-[0_0_0_1px_rgba(212,175,55,0.25),0_20px_50px_-20px_rgba(212,175,55,0.45)]'
-          : 'border-white/[0.08] hover:border-white/20',
-        !soldOut && 'hover:-translate-y-1'
+          : 'border-white/[0.08]'
       )}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className={cn('relative overflow-hidden', featured ? 'aspect-[16/11]' : 'aspect-[4/3]')}>
         <img
           src={product.imageUrl}
           alt={`Imagen de ${product.name}`}
           className={cn(
-            'h-full w-full object-cover transition-transform duration-700 ease-out',
-            soldOut ? 'grayscale' : 'group-hover:scale-105'
+            'h-full w-full object-cover',
+            soldOut && 'grayscale'
           )}
           loading="lazy"
         />
@@ -63,8 +65,18 @@ export function StoreCard({ product, spheres, onBuy, buying }: StoreCardProps) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-3.5">
-        <h3 className="line-clamp-2 min-h-[2.5em] text-[15px] font-bold leading-tight text-white/95">{product.name}</h3>
+      <div className={cn('flex flex-1 flex-col', featured ? 'p-4' : 'p-3')}>
+        <h3
+          className={cn(
+            'font-bold leading-tight text-white/95',
+            featured ? 'font-title text-[22px]' : 'line-clamp-2 min-h-[2.5em] text-[14px]'
+          )}
+        >
+          {product.name}
+        </h3>
+        {featured && product.description ? (
+          <p className="mt-1.5 text-[13px] leading-5 text-white/60">{product.description}</p>
+        ) : null}
         <p
           className={cn(
             'mt-1.5 flex items-center gap-1 text-[11px]',
@@ -75,9 +87,14 @@ export function StoreCard({ product, spheres, onBuy, buying }: StoreCardProps) {
           {soldOut ? 'Sin existencias' : lowStock ? `¡Solo quedan ${product.stock}!` : `${product.stock} disponibles`}
         </p>
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-white/[0.06] pt-3 min-[440px]:flex-row min-[440px]:items-center min-[440px]:justify-between">
-          <span className="flex items-center gap-1.5 text-base font-bold tabular-nums text-white">
-            <Icon name="planet" size={15} color="#7ed9e7" />
+        <div
+          className={cn(
+            'mt-auto flex gap-2 border-t border-white/[0.06] pt-3',
+            featured ? 'mt-4 items-center justify-between' : 'flex-col'
+          )}
+        >
+          <span className={cn('flex items-center gap-1.5 font-bold tabular-nums text-white', featured ? 'text-xl' : 'text-base')}>
+            <Icon name="planet" size={featured ? 18 : 15} color="#7ed9e7" />
             {product.price.toLocaleString('es')}
           </span>
           <button
@@ -93,11 +110,12 @@ export function StoreCard({ product, spheres, onBuy, buying }: StoreCardProps) {
                   : `Saldo insuficiente para comprar ${product.name}`
             }
             className={cn(
-              'flex min-h-9 items-center justify-center whitespace-nowrap rounded-full px-3.5 text-[11px] font-bold tracking-[0.1em] transition',
+              'flex min-h-11 items-center justify-center whitespace-nowrap rounded-full text-[11px] font-bold tracking-[0.1em] transition active:scale-[0.97]',
+              featured ? 'px-6 text-xs' : 'w-full',
               canAfford
                 ? product.isExclusive
-                  ? 'juego-sheen bg-[linear-gradient(135deg,#f5d77a,#d4af37)] text-[#111] hover:brightness-110'
-                  : 'juego-sheen bg-gold text-[#111] hover:brightness-110'
+                  ? 'bg-[linear-gradient(135deg,#f5d77a,#d4af37)] text-[#111]'
+                  : 'bg-gold text-[#111]'
                 : 'cursor-not-allowed border border-white/10 text-white/40'
             )}
           >

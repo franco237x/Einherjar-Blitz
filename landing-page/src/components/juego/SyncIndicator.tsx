@@ -35,7 +35,7 @@ function SyncBadge({ status }: { status: SyncStatus }) {
 
   return (
     <div
-      className={`pointer-events-none fixed bottom-[calc(92px+env(safe-area-inset-bottom))] right-4 md:bottom-6 md:right-6 z-[60] flex h-[30px] w-[30px] items-center justify-center transition-opacity duration-500 ${
+      className={`pointer-events-none fixed bottom-[calc(92px+env(safe-area-inset-bottom))] right-4 z-[60] flex h-[30px] w-[30px] items-center justify-center transition-opacity duration-500 ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
       aria-hidden="true"
