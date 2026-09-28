@@ -20,6 +20,7 @@ import {
   getApps,
   initializeApp,
 } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import type { NextRequest } from 'next/server';
 import {
@@ -39,6 +40,10 @@ interface FarmRecord {
   farm: FarmState;
   receipts: { id: string; outcome: ActionOutcome }[];
   nextActionAt: number;
+  linkedUid?: string;
+}
+interface AgroAccountRecord {
+  ownerId: string;
 }
 interface VoucherRecord {
   voucher: AgroVoucher;
@@ -91,6 +96,41 @@ function firestore() {
       'agro-server',
     );
   return getFirestore(app, databaseId);
+}
+function playerAuth() {
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  if (!projectId)
+    throw new GameError('El acceso con cuenta todavía está en preparación.', 503);
+  const existing = getApps().find((app) => app.name === 'agro-player-auth');
+  const serviceAccount = process.env.AGRO_FIREBASE_SERVICE_ACCOUNT_JSON;
+  const app =
+    existing ||
+    initializeApp(
+      {
+        projectId,
+        credential: serviceAccount
+          ? cert(JSON.parse(serviceAccount))
+          : applicationDefault(),
+      },
+      'agro-player-auth',
+    );
+  return getAuth(app);
+}
+export async function requireAgroUser(request: NextRequest): Promise<string> {
+  const authorization = request.headers.get('authorization') || '';
+  const token = /^Bearer ([A-Za-z0-9._-]{100,8192})$/.exec(authorization)?.[1];
+  if (!token)
+    throw new GameError('Inicia sesión para abrir tu huerto.', 401);
+  const auth = playerAuth();
+  try {
+    const decoded = await auth.verifyIdToken(token);
+    if (decoded.email_verified !== true)
+      throw new GameError('Verifica tu correo antes de abrir el huerto.', 403);
+    return decoded.uid;
+  } catch (error) {
+    if (error instanceof GameError) throw error;
+    throw new GameError('Tu sesión venció. Vuelve a iniciar sesión.', 401);
+  }
 }
 async function localTransaction<T>(
   run: (store: StoreTransaction) => Promise<T>,
@@ -159,14 +199,17 @@ async function transaction<T>(
     }),
   );
 }
-export function sessionIdentity(request: NextRequest, create = false) {
-  let token = request.cookies.get(AGRO_COOKIE)?.value;
-  if (!token || !/^[a-f0-9]{64}$/.test(token)) {
-    if (!create)
-      throw new GameError('Abre el huerto para iniciar tu partida.', 401);
-    token = randomBytes(32).toString('hex');
-  }
-  return { token, ownerId: createHash('sha256').update(token).digest('hex') };
+export function legacyOwnerId(request: NextRequest): string | null {
+  const token = request.cookies.get(AGRO_COOKIE)?.value;
+  return token && /^[a-f0-9]{64}$/.test(token)
+    ? createHash('sha256').update(token).digest('hex')
+    : null;
+}
+function accountKey(uid: string) {
+  return `agroAccounts/${createHash('sha256').update(uid).digest('hex')}`;
+}
+function newAccountOwnerId(uid: string) {
+  return createHash('sha256').update(`firebase-user:${uid}`).digest('hex');
 }
 export function assertSameOrigin(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -207,18 +250,61 @@ export async function requestJson(
     throw new GameError('Solicitud inválida.');
   }
 }
-export async function loadFarm(ownerId: string): Promise<FarmState> {
+export async function loadFarm(
+  uid: string,
+  legacyOwner: string | null,
+): Promise<FarmState> {
   return transaction(async (store) => {
-    const key = `farms/${ownerId}`;
-    const record = await store.get<FarmRecord>(key);
-    if (record) return record.farm;
+    const key = accountKey(uid);
+    const account = await store.get<AgroAccountRecord>(key);
+    if (account) {
+      const currentKey = `farms/${account.ownerId}`;
+      const current = await store.get<FarmRecord>(currentKey);
+      if (!current || current.linkedUid !== uid)
+        throw new GameError('No pudimos recuperar el huerto de tu cuenta.', 503);
+      // If an empty account was opened on another device first, it can still
+      // adopt the older cookie farm before any game action is taken.
+      if (
+        legacyOwner &&
+        legacyOwner !== account.ownerId &&
+        current.farm.revision === 0
+      ) {
+        const previous = await store.get<FarmRecord>(`farms/${legacyOwner}`);
+        if (previous && (!previous.linkedUid || previous.linkedUid === uid)) {
+          previous.linkedUid = uid;
+          store.set(`farms/${legacyOwner}`, previous);
+          store.set(key, { ownerId: legacyOwner });
+          return previous.farm;
+        }
+      }
+      return current.farm;
+    }
+    if (legacyOwner) {
+      const previous = await store.get<FarmRecord>(`farms/${legacyOwner}`);
+      if (previous && (!previous.linkedUid || previous.linkedUid === uid)) {
+        previous.linkedUid = uid;
+        store.set(`farms/${legacyOwner}`, previous);
+        store.set(key, { ownerId: legacyOwner });
+        return previous.farm;
+      }
+    }
+    const ownerId = newAccountOwnerId(uid);
+    const farmKey = `farms/${ownerId}`;
+    const existing = await store.get<FarmRecord>(farmKey);
+    if (existing && existing.linkedUid !== uid)
+      throw new GameError('No pudimos recuperar el huerto de tu cuenta.', 503);
+    if (existing) {
+      store.set(key, { ownerId });
+      return existing.farm;
+    }
     const farm = createInitialFarm();
-    store.set(key, { farm, receipts: [], nextActionAt: 0 });
+    store.set(farmKey, { farm, receipts: [], nextActionAt: 0, linkedUid: uid });
+    store.set(key, { ownerId });
     return farm;
   });
 }
 export async function performAction(
-  ownerId: string,
+  uid: string,
   input: Record<string, unknown>,
 ) {
   const { requestId, revision, action } = input;
@@ -245,10 +331,14 @@ export async function performAction(
   );
   const id = `AGRO-${new Date(now).toISOString().slice(0, 10).replaceAll('-', '')}-${randomBytes(12).toString('hex').toUpperCase()}`;
   return transaction(async (store) => {
+    const account = await store.get<AgroAccountRecord>(accountKey(uid));
+    if (!account)
+      throw new GameError('Abre el huerto para iniciar tu partida.', 401);
+    const ownerId = account.ownerId;
     const key = `farms/${ownerId}`;
     const record = await store.get<FarmRecord>(key);
-    if (!record)
-      throw new GameError('Abre el huerto para iniciar tu partida.', 401);
+    if (!record || record.linkedUid !== uid)
+      throw new GameError('No pudimos recuperar el huerto de tu cuenta.', 503);
     const receipt = record.receipts.find((item) => item.id === requestId);
     if (receipt) return { farm: record.farm, outcome: receipt.outcome };
     if (revision !== record.farm.revision)
@@ -282,6 +372,7 @@ export async function performAction(
         { id: requestId, outcome: result.outcome },
       ].slice(-40),
       nextActionAt: now + 150,
+      linkedUid: uid,
     });
     if (result.outcome.voucher)
       store.set(`vouchers/${id}`, { voucher: result.outcome.voucher, ownerId });

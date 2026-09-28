@@ -13,7 +13,7 @@ El polen sirve para invocar semillas; las monedas se reservan para el canje.
 Una cosecha puede dar 1 polen por parcela cada minuto. El tiempo ausente no acumula polen.
 También tienes un regalo de 5 polen al día, que se renueva a las 00:00 de Argentina.
 
-⏰ LÍMITES DIARIOS POR HUERTO
+⏰ LÍMITES DIARIOS POR CUENTA
 Puedes cosechar hasta 2.000 monedas y completar hasta 500 acciones por día.
 También puedes emitir vales PDF por un total máximo de 2.000 monedas al día.
 Los tres contadores se reinician a las 00:00 de Argentina.
@@ -72,7 +72,10 @@ Puedes descargar el mismo PDF otra vez desde el historial. Cada folio vale una s
 Los PDF de demostración local NO son canjeables.
 
 💡 CONSERVA TU PARTIDA
-Usa el mismo navegador y evita borrar sus cookies. El navegador interno de Messenger
-puede abrir una partida diferente: conviene jugar siempre desde tu navegador habitual.
+Inicia sesión con tu cuenta de Einherjar Blitz. Tu huerto y tus cupos diarios
+pertenecen a esa cuenta y puedes continuar desde otro navegador con ella.
+Si ya jugaste, inicia sesión primero en el navegador donde está ese huerto:
+se vinculará a tu cuenta al abrirlo. Las partidas anteriores de varios
+navegadores no se fusionan automáticamente.
 Si se corta la conexión, actualiza el huerto y revisa tu saldo e historial antes de repetir un canje.
 No hay compras con dinero real ni rachas que perder por ausentarte.

@@ -17,6 +17,7 @@ import { AuthDivider, GoogleButton, useGoogleSignIn } from '@/components/juego/a
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const returnTo = params.get('next') === '/evento/agro' ? '/evento/agro' : '/juego';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,7 @@ function LoginForm() {
       : ''
   );
   const google = useGoogleSignIn({
+    returnTo,
     onError: (message) => {
       setSuccessMsg('');
       setErrorMsg(message);
@@ -54,7 +56,7 @@ function LoginForm() {
         );
         return;
       }
-      router.replace('/juego');
+      router.replace(returnTo);
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code;
       let msg = 'El correo o la contraseña no son correctos.';
@@ -141,7 +143,10 @@ function LoginForm() {
 
       <p className="mt-8 text-center text-sm text-white/50">
         ¿Primera vez aquí?{' '}
-        <Link href="/juego/registro" className="font-semibold text-gold hover:underline">
+        <Link
+          href={returnTo === '/evento/agro' ? '/juego/registro?next=%2Fevento%2Fagro' : '/juego/registro'}
+          className="font-semibold text-gold hover:underline"
+        >
           Crea tu cuenta
         </Link>
       </p>

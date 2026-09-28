@@ -19,18 +19,18 @@ Si el proceso se interrumpe mientras mantiene el bloqueo, detener todos los serv
 
 ## Configuración de producción
 
-El evento usa el proyecto Firebase `einherjar-agro-7578c`, separado del juego anterior. Su primera base Firestore se llama `agro`, está en `southamerica-east1`, tiene protección contra borrado y conserva la cuota gratuita. Las reglas de `firestore.agro.rules` ya están publicadas para esa base y bloquean el acceso directo de clientes. La cuenta `agro-game-server@einherjar-agro-7578c.iam.gserviceaccount.com` tiene el rol `roles/datastore.user` en ese proyecto.
+El evento usa el proyecto Firebase `einherjar-agro-7578c` para su base privada, separado del juego anterior. El inicio de sesión sigue usando el proyecto existente `einherjer-blitz-7578c`. La base Firestore del evento se llama `agro`, está en `southamerica-east1`, tiene protección contra borrado y conserva la cuota gratuita. Las reglas de `firestore.agro.rules` ya están publicadas para esa base y bloquean el acceso directo de clientes. La cuenta `agro-game-server@einherjar-agro-7578c.iam.gserviceaccount.com` tiene el rol `roles/datastore.user` en ese proyecto.
 
 Vercel tiene las variables de producción `AGRO_STORE`, `AGRO_FIREBASE_PROJECT_ID`, `AGRO_FIRESTORE_DATABASE_ID`, `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON`, `AGRO_ADMIN_KEY` y `AGRO_PUBLIC_URL`. Los secretos `AGRO_ADMIN_KEY` y `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON` no deben copiarse al repositorio. La clave administrativa se guardó en el perfil local del propietario, fuera de `htdocs`: `C:\Users\gg454\.codex\secrets\einherjar-agro-admin-key.txt`.
 
 ## Reproducir o reparar la configuración
 
-La configuración pública de Firebase que ya usa `/juego` no concede acceso al servidor. Si hay que reproducir esta instalación, seguir estos pasos:
+La configuración pública de Firebase que usa `/juego` identifica el proyecto de Authentication para verificar tokens, pero no concede acceso a la base privada del evento. Si hay que reproducir esta instalación, seguir estos pasos:
 
 1. Usar el proyecto Firebase `einherjar-agro-7578c` y su base Firestore **separada y con nombre** `agro`. El código rechaza la base `(default)` para no mezclar el evento con las reglas del juego anterior.
 2. Aplicar `firestore.agro.rules` en esa base: ningún cliente puede leer o escribir directamente. `firebase.agro.json` describe solo esa base. Si se utiliza otro nombre, actualizar el archivo y la variable de entorno juntos. No desplegar reglas del proyecto viejo sobre esta base.
 3. Otorgar a la cuenta de servicio `roles/datastore.user` en el proyecto del evento e introducir su JSON como secreto `AGRO_FIREBASE_SERVICE_ACCOUNT_JSON`, o usar `GOOGLE_APPLICATION_CREDENTIALS` en un servidor propio. Nunca usar prefijos `NEXT_PUBLIC_` para credenciales administrativas.
-4. Configurar `AGRO_STORE=firestore`, `AGRO_FIREBASE_PROJECT_ID`, `AGRO_FIRESTORE_DATABASE_ID=agro`, `AGRO_ADMIN_KEY` (secreto aleatorio de al menos 32 caracteres) y `AGRO_PUBLIC_URL` (origen HTTPS público sin barra final).
+4. Configurar `AGRO_STORE=firestore`, `AGRO_FIREBASE_PROJECT_ID`, `AGRO_FIRESTORE_DATABASE_ID=agro`, `AGRO_ADMIN_KEY` (secreto aleatorio de al menos 32 caracteres) y `AGRO_PUBLIC_URL` (origen HTTPS público sin barra final). Mantener `NEXT_PUBLIC_FIREBASE_PROJECT_ID` apuntando al proyecto del login existente, no al proyecto privado del huerto.
 5. Publicar la versión y comprobar el recorrido completo con saldo real de juego: guardar, emitir, descargar, consultar y registrar un canje. Guardar la clave administrativa en un gestor de contraseñas y dar acceso solo a quienes acrediten monedas.
 
 Sin la base privada y las credenciales, la API pública de la partida responde 503. Sin una clave administrativa válida, la emisión de vales públicos también queda bloqueada y el jugador conserva su saldo. No hay una alternativa de saldo controlado por el navegador en producción.
@@ -41,7 +41,7 @@ Referencias: [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup),
 
 ## Integridad del saldo y del canje
 
-El navegador envía acciones, una revisión y un identificador de petición. La API determina tiempo, azar, inventario y saldo. Una transacción guarda partida y vale juntos, reserva hasta el cupo diario de emisión y conserva un recibo para reintentos. Una revisión evita gastar dos veces desde pestañas desactualizadas. Los últimos 40 recibos se conservan; peticiones más antiguas quedan rechazadas por su revisión.
+El navegador envía el token de Firebase Auth, acciones, una revisión y un identificador de petición. La API verifica el token contra el proyecto del login y obtiene el UID; nunca acepta un UID enviado como dato del juego. Después determina tiempo, azar, inventario y saldo. Una transacción guarda partida y vale juntos, reserva hasta el cupo diario de emisión y conserva un recibo para reintentos. Una revisión evita gastar dos veces desde pestañas desactualizadas. Los últimos 40 recibos se conservan; peticiones más antiguas quedan rechazadas por su revisión.
 
 El PDF acepta únicamente un folio existente. No acepta nombre, importe ni fechas como autoridad. El folio contiene 96 bits aleatorios y su enlace permite consultar el registro actual. El PDF por sí solo no sustituye esa consulta: puede copiarse o editarse, por lo que el administrador debe utilizar los datos guardados. Una segunda acreditación del mismo folio se rechaza transaccionalmente.
 
@@ -49,7 +49,9 @@ La clave de administración se envía en cabecera y no se guarda en el navegador
 
 ## Identidad, privacidad y progreso anterior
 
-El evento utiliza una cookie de sesión aleatoria, HttpOnly y SameSite=Strict, válida un año y renovada al abrir el huerto; Secure en HTTPS. No comparte identidad con el juego antiguo ni comprueba una cuenta de Messenger. Cada navegador tiene su huerto; el administrador debe contrastar el nombre del vale con el miembro que lo presenta. Borrar cookies o utilizar otro navegador crea una partida diferente. No hay recuperación de cuenta ni protección contra múltiples navegadores: si se exige una única partida por persona, se necesita incorporar un registro de miembros antes del evento.
+La partida y el límite diario se vinculan al UID verificado de Firebase Auth del juego existente. La API exige un token válido y una cuenta con correo verificado para abrir o modificar el huerto. Un mismo usuario recupera la misma partida al cambiar de navegador. No se comprueba la identidad de Messenger: el administrador debe contrastar el nombre del vale con el miembro que lo presenta.
+
+La cookie aleatoria de la versión anterior solo se lee para migrar el huerto existente al primer UID que lo abra en ese navegador. Se conserva la misma partida y los mismos folios, por lo que el canje administrativo sigue actualizando su historial. Una partida ya vinculada no puede ser reclamada por otra cuenta. Si existen partidas anteriores en varios navegadores, la primera vinculada se usa para la cuenta y las demás no se fusionan automáticamente.
 
 Quien tenga un folio puede consultar su nombre declarado, importe y estado; no publicar folios fuera del grupo. No se expone un listado de jugadores o vales.
 
@@ -59,6 +61,6 @@ Las partidas del prototipo `einherjar-agro-v1` se conservan intactas en localSto
 
 El canje es una acreditación manual en el grupo, no un pago automático ni dinero real. Se mantiene el importe nominal del vale; los premios o usos de esas monedas los establece la administración. No se definieron compras, caducidad ni fecha de cierre.
 
-Por huerto se permiten **2.000 monedas cosechadas, 2.000 monedas emitidas en vales y 500 acciones completadas por día**. Los contadores se guardan con la partida en la misma transacción y se reinician a las 00:00 de Argentina. Cada invocación de diez cuenta como una acción; las consultas, descargas, solicitudes fallidas y canjes administrativos no cuentan. Reintentar una acción con el mismo identificador recupera el recibo anterior sin consumir otro cupo. Al llegar al límite de cosecha, el excedente permanece en la planta; al llegar al límite de vales, el saldo sin reservar permanece en el huerto. Una fusión o retirada se rechaza si descartaría monedas pendientes.
+Por cuenta se permiten **2.000 monedas cosechadas, 2.000 monedas emitidas en vales y 500 acciones completadas por día**. Los contadores se guardan con la partida en la misma transacción y se reinician a las 00:00 de Argentina. Cada invocación de diez cuenta como una acción; las consultas, descargas, solicitudes fallidas y canjes administrativos no cuentan. Reintentar una acción con el mismo identificador recupera el recibo anterior sin consumir otro cupo. Al llegar al límite de cosecha, el excedente permanece en la planta; al llegar al límite de vales, el saldo sin reservar permanece en el huerto. Una fusión o retirada se rechaza si descartaría monedas pendientes.
 
-El límite reduce las escrituras y acota el importe emitido **por huerto**. No es un límite por persona ni bloquea solicitudes maliciosas: otro navegador o una cookie nueva crean otro huerto. Si el evento necesita un único cupo por miembro, habrá que vincular partidas a una identidad del grupo y aplicar controles de tráfico antes de abrirlo a público amplio.
+El límite reduce las escrituras y acota el importe emitido **por cuenta de Firebase**. Cambiar de navegador o borrar cookies no crea otro cupo con el mismo login. No bloquea solicitudes maliciosas ni impide que una persona registre varias cuentas; para una sola cuenta por miembro de Messenger haría falta validar la membresía y aplicar controles de tráfico.

@@ -29,7 +29,13 @@ function googleErrorMessage(code: string | undefined) {
  * Google sign-in. New Google users get their profile created automatically by
  * UserDataProvider, so this is also the fastest way to register.
  */
-export function useGoogleSignIn({ onError }: { onError: (message: string) => void }) {
+export function useGoogleSignIn({
+  onError,
+  returnTo = '/juego',
+}: {
+  onError: (message: string) => void;
+  returnTo?: '/juego' | '/evento/agro';
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -40,7 +46,7 @@ export function useGoogleSignIn({ onError }: { onError: (message: string) => voi
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
-      router.replace('/juego');
+      router.replace(returnTo);
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code;
       if (!code || !SILENT_CODES.has(code)) onError(googleErrorMessage(code));

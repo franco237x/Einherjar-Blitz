@@ -30,11 +30,16 @@ function RouteGuard({ children }: PropsWithChildren) {
 
   const onAuthRoute = isAuthRoute(pathname);
   const onGameRoute = pathname.startsWith(GAME_ROUTE_PREFIX);
+  const returnToAgro =
+    onAuthRoute &&
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('next') === '/evento/agro';
 
   let redirectTo: string | null = null;
   if (!authLoading) {
     if (!user && !onAuthRoute) redirectTo = '/juego/login';
-    else if (user && onAuthRoute) redirectTo = '/juego';
+    else if (user && onAuthRoute)
+      redirectTo = returnToAgro ? '/evento/agro' : '/juego';
     else if (user && onGameRoute && !FEATURE_FLAGS.game) redirectTo = '/juego';
   }
 

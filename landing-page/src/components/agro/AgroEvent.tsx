@@ -388,8 +388,8 @@ export function AgroEvent() {
               </strong>
             </div>
             <p>
-              Se reinician a las 00:00 de Argentina. La cosecha pendiente
-              permanece en las plantas.
+              Cupos vinculados a tu cuenta. Se reinician a las 00:00 de
+              Argentina; la cosecha pendiente permanece en las plantas.
             </p>
           </aside>
           <div
@@ -624,12 +624,12 @@ export function AgroEvent() {
               conservas una mítica madura. Los sellos son decorativos.
             </p>
             <p>
-              Tu huerto se reconoce en este navegador mediante una cookie. Usa
-              el mismo navegador y evita borrar sus datos. El regalo diario
-              vuelve a las 00:00 de Argentina; no hay rachas que perder. Cada
-              huerto puede cosechar hasta 2.000 monedas, emitir vales por hasta
-              2.000 monedas y completar 500 acciones por día. Los tres cupos
-              se reinician a la misma hora.
+              Tu huerto y sus cupos se vinculan a tu cuenta de Einherjar Blitz.
+              Puedes continuar desde otro navegador con la misma cuenta. El
+              regalo diario vuelve a las 00:00 de Argentina; no hay rachas que
+              perder. Cada cuenta puede cosechar hasta 2.000 monedas, emitir
+              vales por hasta 2.000 monedas y completar 500 acciones por día.
+              Los tres cupos se reinician a la misma hora.
             </p>
           </details>
         </section>

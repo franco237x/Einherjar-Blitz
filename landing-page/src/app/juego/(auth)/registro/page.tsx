@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { Suspense, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { deleteApp, initializeApp } from 'firebase/app';
@@ -27,8 +27,10 @@ const GOOGLE_BENEFITS = [
   'Tu nombre y foto de Google se usan de inicio; puedes cambiarlos en tu perfil.',
 ];
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const returnTo = params.get('next') === '/evento/agro' ? '/evento/agro' : '/juego';
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -37,7 +39,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [googleError, setGoogleError] = useState('');
-  const google = useGoogleSignIn({ onError: setGoogleError });
+  const google = useGoogleSignIn({ onError: setGoogleError, returnTo });
   const busy = loading || google.pending;
 
   const handleRegister = async (event?: FormEvent) => {
@@ -98,7 +100,11 @@ export default function RegisterPage() {
         }
       });
       await signOut(secondaryAuth).catch(() => {});
-      router.replace('/juego/login?registered=verify');
+      router.replace(
+        returnTo === '/evento/agro'
+          ? '/juego/login?registered=verify&next=%2Fevento%2Fagro'
+          : '/juego/login?registered=verify',
+      );
     } catch (error: unknown) {
       if (createdUser && !profileCreated) {
         await deleteUser(createdUser).catch(() => {});
@@ -208,11 +214,22 @@ export default function RegisterPage() {
 
         <p className="mt-9 text-center text-sm text-white/50">
           ¿Ya tienes cuenta?{' '}
-          <Link href="/juego/login" className="font-semibold text-gold hover:underline">
+          <Link
+            href={returnTo === '/evento/agro' ? '/juego/login?next=%2Fevento%2Fagro' : '/juego/login'}
+            className="font-semibold text-gold hover:underline"
+          >
             Inicia sesión
           </Link>
         </p>
       </div>
     </AuthShell>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }
