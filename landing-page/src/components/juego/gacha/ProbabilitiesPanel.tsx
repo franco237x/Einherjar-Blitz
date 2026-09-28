@@ -21,13 +21,13 @@ export function ProbabilitiesPanel({ rewards }: ProbabilitiesPanelProps) {
   const odds = getRarityOdds(rewards);
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-black/35 px-6 pb-2 pt-4">
+    <div className="rounded-3xl border border-white/[0.07] bg-white/[0.025] px-5 pb-3 pt-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:px-7">
       <div className="mb-2 flex items-center gap-1.5 text-white/70">
         <Icon name="stats-chart" size={14} />
         <span className="text-xs font-bold uppercase tracking-[0.15em]">Probabilidades</span>
       </div>
 
-      <ul className="flex flex-col gap-2 pb-2">
+      <ul className="flex flex-col gap-3.5 pb-2 pt-1">
         {odds.map(({ rarity, percent }) => {
           const cfg = RARITIES[rarity];
           return (
@@ -43,7 +43,7 @@ export function ProbabilitiesPanel({ rewards }: ProbabilitiesPanelProps) {
                 </span>
               </div>
 
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
                 <div
                   className="h-full rounded-full"
                   // Boost very small values so they remain visible.

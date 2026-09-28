@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties } from 'react';
 
-const PARTICLE_COUNT = 30;
+const PARTICLE_COUNT = 16;
 
 interface Particle {
   left: number;
@@ -16,11 +16,11 @@ interface Particle {
 function createParticles(): Particle[] {
   return Array.from({ length: PARTICLE_COUNT }, () => ({
     left: Math.random() * 100,
-    size: Math.random() * 4 + 2, // 2px to 6px
+    size: Math.random() * 2.5 + 1.5, // 1.5px to 4px
     duration: Math.random() * 5000 + 4000, // 4s to 9s
     delay: Math.random() * 5000,
     sway: (Math.random() - 0.5) * 100,
-    peak: Math.random() * 0.5 + 0.3, // peak opacity 0.3-0.8
+    peak: Math.random() * 0.35 + 0.2, // peak opacity 0.2-0.55
   }));
 }
 

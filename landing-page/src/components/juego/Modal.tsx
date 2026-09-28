@@ -55,7 +55,7 @@ export function Modal({ visible, onClose, children, label, className, variant = 
   return createPortal(
     <div
       className={cn(
-        'juego-fade-in fixed inset-0 z-[70] flex bg-black/80',
+        'juego-fade-in fixed inset-0 z-[70] flex bg-black/75 backdrop-blur-sm',
         variant === 'center' && 'items-center justify-center p-6',
         variant === 'sheet' && 'items-end justify-center sm:items-center sm:p-6',
         variant === 'fullscreen' && 'items-stretch justify-stretch'
@@ -73,9 +73,9 @@ export function Modal({ visible, onClose, children, label, className, variant = 
         className={cn(
           'outline-none',
           variant === 'center' &&
-            'max-h-[calc(100dvh-3rem)] w-full max-w-[400px] overflow-y-auto rounded-2xl border border-gold/30 bg-ink-card p-6',
+            'juego-pop-in max-h-[calc(100dvh-3rem)] w-full max-w-[400px] overflow-y-auto rounded-3xl border border-white/[0.09] bg-[linear-gradient(180deg,#1a1714,#110f0d)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_40px_80px_-20px_rgba(0,0,0,0.9)]',
           variant === 'sheet' &&
-            'juego-scroll flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-2xl border border-gold/30 bg-ink sm:rounded-2xl',
+            'juego-scroll flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-white/[0.09] bg-[linear-gradient(180deg,#171411,#0e0c0a)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_40px_80px_-20px_rgba(0,0,0,0.9)] sm:rounded-3xl',
           variant === 'fullscreen' && 'relative h-dvh w-full overflow-hidden',
           className
         )}
