@@ -20,8 +20,8 @@ import {
   getApps,
   initializeApp,
 } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { createRemoteJWKSet, errors as joseErrors, jwtVerify } from 'jose';
 import type { NextRequest } from 'next/server';
 import {
   applyFarmAction,
@@ -34,6 +34,11 @@ import {
 } from './agroGame';
 
 const DATA_DIR = path.join(process.cwd(), '.agro-data');
+const FIREBASE_SIGNING_KEYS = createRemoteJWKSet(
+  new URL(
+    'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com',
+  ),
+);
 export const AGRO_COOKIE = 'agro-session-v2';
 export const VOUCHER_PATTERN = /^AGRO-\d{8}-[A-F0-9]{24}$/;
 interface FarmRecord {
@@ -97,40 +102,44 @@ function firestore() {
     );
   return getFirestore(app, databaseId);
 }
-function playerAuth() {
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  if (!projectId)
-    throw new GameError('El acceso con cuenta todavía está en preparación.', 503);
-  const existing = getApps().find((app) => app.name === 'agro-player-auth');
-  const serviceAccount = process.env.AGRO_FIREBASE_SERVICE_ACCOUNT_JSON;
-  const app =
-    existing ||
-    initializeApp(
-      {
-        projectId,
-        credential: serviceAccount
-          ? cert(JSON.parse(serviceAccount))
-          : applicationDefault(),
-      },
-      'agro-player-auth',
-    );
-  return getAuth(app);
-}
 export async function requireAgroUser(request: NextRequest): Promise<string> {
   const authorization = request.headers.get('authorization') || '';
   const token = /^Bearer ([A-Za-z0-9._-]{100,8192})$/.exec(authorization)?.[1];
   if (!token)
     throw new GameError('Inicia sesión para abrir tu huerto.', 401);
-  const auth = playerAuth();
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  if (!projectId)
+    throw new GameError('El acceso con cuenta todavía está en preparación.', 503);
+  let verified: Awaited<ReturnType<typeof jwtVerify>>;
   try {
-    const decoded = await auth.verifyIdToken(token);
-    if (decoded.email_verified !== true)
-      throw new GameError('Verifica tu correo antes de abrir el huerto.', 403);
-    return decoded.uid;
+    verified = await jwtVerify(token, FIREBASE_SIGNING_KEYS, {
+      algorithms: ['RS256'],
+      audience: projectId,
+      issuer: `https://securetoken.google.com/${projectId}`,
+    });
   } catch (error) {
-    if (error instanceof GameError) throw error;
+    if (error instanceof joseErrors.JWKSTimeout)
+      throw new GameError('No pudimos validar tu sesión. Intenta de nuevo.', 503);
     throw new GameError('Tu sesión venció. Vuelve a iniciar sesión.', 401);
   }
+  const { payload, protectedHeader } = verified;
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    !protectedHeader.kid ||
+    payload.aud !== projectId ||
+    typeof payload.sub !== 'string' ||
+    payload.sub.length < 1 ||
+    typeof payload.exp !== 'number' ||
+    payload.exp <= now ||
+    typeof payload.iat !== 'number' ||
+    payload.iat > now ||
+    typeof payload.auth_time !== 'number' ||
+    payload.auth_time > now
+  )
+    throw new GameError('Tu sesión venció. Vuelve a iniciar sesión.', 401);
+  if (payload.email_verified !== true)
+    throw new GameError('Verifica tu correo antes de abrir el huerto.', 403);
+  return payload.sub;
 }
 async function localTransaction<T>(
   run: (store: StoreTransaction) => Promise<T>,

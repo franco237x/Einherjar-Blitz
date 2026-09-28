@@ -41,7 +41,7 @@ Referencias: [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup),
 
 ## Integridad del saldo y del canje
 
-El navegador envía el token de Firebase Auth, acciones, una revisión y un identificador de petición. La API verifica el token contra el proyecto del login y obtiene el UID; nunca acepta un UID enviado como dato del juego. Después determina tiempo, azar, inventario y saldo. Una transacción guarda partida y vale juntos, reserva hasta el cupo diario de emisión y conserva un recibo para reintentos. Una revisión evita gastar dos veces desde pestañas desactualizadas. Los últimos 40 recibos se conservan; peticiones más antiguas quedan rechazadas por su revisión.
+El navegador envía el token de Firebase Auth, acciones, una revisión y un identificador de petición. La API verifica su firma con las claves públicas de Firebase Secure Token, además del proyecto emisor, la fecha y el correo verificado; después obtiene el UID. Nunca acepta un UID enviado como dato del juego. Después determina tiempo, azar, inventario y saldo. Una transacción guarda partida y vale juntos, reserva hasta el cupo diario de emisión y conserva un recibo para reintentos. Una revisión evita gastar dos veces desde pestañas desactualizadas. Los últimos 40 recibos se conservan; peticiones más antiguas quedan rechazadas por su revisión.
 
 El PDF acepta únicamente un folio existente. No acepta nombre, importe ni fechas como autoridad. El folio contiene 96 bits aleatorios y su enlace permite consultar el registro actual. El PDF por sí solo no sustituye esa consulta: puede copiarse o editarse, por lo que el administrador debe utilizar los datos guardados. Una segunda acreditación del mismo folio se rechaza transaccionalmente.
 
