@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { auth } from '@/config/firebase';
 import { Background } from '@/components/juego/Background';
@@ -166,6 +167,32 @@ export default function DashboardPage() {
             No se pudieron sincronizar tus datos. Comprueba tu conexión antes de operar.
           </p>
         ) : null}
+
+        <Link
+          href="/evento/agro"
+          className="group relative mb-4 flex min-h-[148px] items-center gap-3 overflow-hidden rounded-2xl border border-[#a7bb76]/45 bg-[linear-gradient(115deg,#1b2b20_0%,#15221b_60%,#111914_100%)] p-4 transition-colors hover:border-[#cfdb9c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:p-6"
+        >
+          <span className="pointer-events-none absolute -right-12 -top-20 h-56 w-56 rounded-full bg-[#a7bb76]/10 blur-3xl" aria-hidden="true" />
+          <span className="relative z-10 min-w-0 flex-1">
+            <span className="block text-[10px] font-bold tracking-[0.16em] text-[#d1dda3]">EVENTO AGROPECUARIO</span>
+            <span className="mt-1 block font-title text-[21px] leading-tight text-white/95 sm:text-[26px]">El Huerto de Yggdrasil</span>
+            <span className="mt-2 block max-w-xl text-xs leading-5 text-white/70 sm:text-sm">
+              Planta, riega y fusiona. Cosecha monedas y genera tu vale PDF.
+            </span>
+            <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#e5ce96]">
+              Entrar al Huerto
+              <Icon name="chevron-forward" size={17} className="transition-transform group-hover:translate-x-1" />
+            </span>
+          </span>
+          <Image
+            src="/evento-agro/arbol-alba.png"
+            alt=""
+            width={160}
+            height={160}
+            sizes="(max-width: 640px) 96px, 160px"
+            className="relative z-10 h-24 w-24 shrink-0 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.4)] sm:h-40 sm:w-40"
+          />
+        </Link>
 
         {/* Player showcase */}
         <Link
