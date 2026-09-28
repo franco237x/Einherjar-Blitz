@@ -1,0 +1,5 @@
+{
+  "firestore": [
+    { "database": "agro", "rules": "firestore.agro.rules" }
+  ]
+}

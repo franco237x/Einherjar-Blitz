@@ -1,0 +1,66 @@
+🌱 EL HUERTO DE YGGDRASIL · EINHERJAR BLITZ
+
+¡Cultiva, fusiona y completa tu colección de plantas!
+
+🌿 PARA EMPEZAR
+Tienes 6 parcelas, una semilla común de cada linaje y 5 de polen.
+Elige un linaje, selecciona una semilla y toca una parcela vacía.
+Da 3 riegos, separados por 8 segundos, para que la planta madure.
+
+🪙 COSECHA Y POLEN
+Las plantas maduras producen monedas. Pulsa Cosechar o Cosechar todo.
+El polen sirve para invocar semillas; las monedas se reservan para el canje.
+Una cosecha puede dar 1 polen por parcela cada minuto. El tiempo ausente no acumula polen.
+También tienes un regalo de 5 polen al día, que se renueva a las 00:00 de Argentina.
+
+✨ INVOCACIONES
+Elige qué linaje quieres conseguir. Hay una invocación gratis cada minuto.
+Las adicionales cuestan 1 polen; diez invocaciones cuestan 10 polen.
+Rarezas base: común 56 %, rara 29 %, épica 11 %, legendaria 3,5 % y mítica 0,5 %.
+Garantías: como máximo 10 tiradas para rara o superior, 30 para épica o superior,
+45 para legendaria o superior y 120 para mítica.
+Los contadores se comparten entre linajes, incluyen las tiradas gratis y se reinician
+al obtener su rareza o una superior. Las garantías pueden mejorar las probabilidades base.
+
+🌞 TRES LINAJES
+• Alba: cosecha más rápida, cada 60 segundos. Reserva de hasta 2 horas.
+• Escarcha: cosecha cada 75 segundos y reserva de hasta 10 horas.
+• Brasas: cosecha cada 75 segundos, reserva de 2 horas y media y doble bono de riego.
+Según la rareza, cada ciclo produce 1, 2, 5, 12 o 28 monedas.
+Una planta madura admite un riego por minuto. El bono guarda hasta 3 riegos.
+Las plantas no se marchitan: producen con la página cerrada hasta llenar su reserva.
+
+🔀 FUSIONES
+Dos plantas maduras de la MISMA especie crean una de la rareza siguiente del mismo linaje.
+La fusión recoge las monedas pendientes, consume las dos plantas y libera una parcela.
+La nueva planta necesita 3 riegos. Revisa el resultado antes de confirmar.
+Dos míticas idénticas permiten crear un sello decorativo: conservas una mítica madura.
+Puedes ganar un sello por linaje.
+
+📖 EL ÁLBUM
+Hay 15 especies: 5 por linaje.
+Conseguir una semilla revela su lámina. Madurarla la cuenta como cultivada.
+Cosechar una especie 3 veces le da un sello de maestría.
+Las láminas permanecen aunque fusiones o retires plantas.
+Premios por especies distintas cultivadas:
+3 → marco de bronce.
+6 → 3 polen para invocar.
+9 → fondos botánicos para elegir.
+12 → una semilla épica del linaje que elijas.
+15 → portada y título «Guardián de Yggdrasil».
+Recoge los premios desde el álbum. Cada premio se obtiene una sola vez.
+
+📄 CANJEAR EN EL GRUPO
+1. Cosecha tus monedas y entra en Canje.
+2. Escribe el nombre con el que te conocen en Messenger.
+3. Confirma el vale: todo tu saldo disponible queda reservado en un folio.
+4. Descarga el PDF y envíalo al grupo.
+5. El administrador consulta el folio, registra el canje y acredita las monedas manualmente.
+Puedes descargar el mismo PDF otra vez desde el historial. Cada folio vale una sola vez.
+Los PDF de demostración local NO son canjeables.
+
+💡 CONSERVA TU PARTIDA
+Usa el mismo navegador y evita borrar sus cookies. El navegador interno de Messenger
+puede abrir una partida diferente: conviene jugar siempre desde tu navegador habitual.
+Si se corta la conexión, actualiza el huerto y revisa tu saldo e historial antes de repetir un canje.
+No hay compras con dinero real ni rachas que perder por ausentarte.

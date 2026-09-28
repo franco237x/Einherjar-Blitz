@@ -14,6 +14,7 @@ export const SECTIONS = [
   { id: 'personajes', label: 'Personajes' },
   { id: 'invocaciones', label: 'Invocaciones' },
   { id: 'progresion', label: 'Progresión' },
+  { id: 'evento', label: 'Evento' },
 ] as const;
 
 export function SiteHeader({ activeSection }: { activeSection: string }) {
