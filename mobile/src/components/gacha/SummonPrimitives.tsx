@@ -26,7 +26,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
-import { RARITIES, type RewardItem } from '@/constants/gachaData';
+import { RARITIES, REWARD_TYPE_LABELS, type RewardItem } from '@/constants/gachaData';
 
 const { width: SCREEN_W, height: SCREEN_H } = require('react-native').Dimensions.get('window');
 
@@ -427,8 +427,7 @@ export const FlipCard3D = ({
     };
   });
 
-  const typeLabel =
-    item.type === 'persona' ? 'Persona' : item.type === 'invocacion' ? 'Invocación' : 'Recurso';
+  const typeLabel = REWARD_TYPE_LABELS[item.type] ?? 'Recurso';
 
   return (
     <View

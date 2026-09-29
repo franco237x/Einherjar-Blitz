@@ -5,7 +5,7 @@
  * - Local image with fallback icon when image is null or fails to load.
  * - Rarity-colored border and glow.
  * - Star rating based on rarity.
- * - Type badge (Persona / Invocación / Recurso).
+ * - Type badge (Persona / Invocación / Poder / ...).
  * - Staggered entrance animation (fade + spring scale).
  */
 
@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
-import { RARITIES, type RewardItem } from '@/constants/gachaData';
+import { RARITIES, REWARD_TYPE_LABELS, type RewardItem } from '@/constants/gachaData';
 
 interface RewardCardProps {
   item: RewardItem;
@@ -55,12 +55,7 @@ export const RewardCard = ({ item, index }: RewardCardProps) => {
     ]).start();
   }, []);
 
-  const typeLabel =
-    item.type === 'persona'
-      ? 'Persona'
-      : item.type === 'invocacion'
-      ? 'Invocación'
-      : 'Recurso';
+  const typeLabel = REWARD_TYPE_LABELS[item.type] ?? 'Recurso';
 
   return (
     <Animated.View

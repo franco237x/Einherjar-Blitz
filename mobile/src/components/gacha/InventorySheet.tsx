@@ -25,7 +25,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
-import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
+import { ALL_REWARDS, RARITIES, REWARD_TYPE_LABELS, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
 import { markInventoryItemsClaimed } from '@/services/inventory';
 import { auth } from '@/config/firebase';
@@ -37,8 +37,8 @@ const NUM_COLUMNS = 2;
 const CARD_GAP = Spacing.md;
 
 // Build a name → reward lookup so we can resolve the local image & fallback icon.
-const REWARD_BY_NAME = new Map<string, (typeof REWARDS_TABLE)[number]>();
-for (const r of REWARDS_TABLE) {
+const REWARD_BY_NAME = new Map<string, (typeof ALL_REWARDS)[number]>();
+for (const r of ALL_REWARDS) {
   REWARD_BY_NAME.set(r.name, r);
 }
 
@@ -137,7 +137,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
         return `
           <tr>
             <td>${item.name}</td>
-            <td style="text-transform: capitalize;">${item.type}</td>
+            <td>${REWARD_TYPE_LABELS[item.type] ?? item.type}</td>
             <td style="color: ${rarity.color}; font-weight: bold;">${rarity.label}</td>
             <td>${'★'.repeat(rarity.stars)}</td>
             <td>${item.obtainedAt ? item.obtainedAt.toLocaleDateString('es-ES') : 'N/A'}</td>
@@ -242,7 +242,7 @@ export const InventorySheet = ({ visible, onClose }: InventorySheetProps) => {
         const obtained = item.obtainedAt
           ? item.obtainedAt.toLocaleDateString('es-ES')
           : 'N/A';
-        return `${idx + 1}. ${item.name} — ${item.type} — ${rarity.label} ${stars}\n   Obtenido: ${obtained}`;
+        return `${idx + 1}. ${item.name} — ${REWARD_TYPE_LABELS[item.type] ?? item.type} — ${rarity.label} ${stars}\n   Obtenido: ${obtained}`;
       }).join('\n\n');
 
       const text = [

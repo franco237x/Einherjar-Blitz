@@ -5,7 +5,8 @@ import { BANNERS, RARITIES, getRarityOdds } from '@/constants/gachaData';
 import { Reveal, SectionHeading } from './primitives';
 import { RewardsGallery } from './RewardsGallery';
 
-const banner = BANNERS[0];
+// The landing showcases the Persona banner specifically.
+const banner = BANNERS.find((b) => b.id === 'persona') ?? BANNERS[0];
 const ODDS = getRarityOdds(banner.rewards);
 
 function formatPercent(p: number) {

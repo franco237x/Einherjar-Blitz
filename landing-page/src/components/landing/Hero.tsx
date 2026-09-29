@@ -5,12 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Sprout } from 'lucide-react';
-import { REWARDS_TABLE } from '@/constants/gachaData';
+import { ALL_REWARDS } from '@/constants/gachaData';
 import { EASE_OUT, Eyebrow } from './primitives';
 
 const FACTS = [
   { value: '5', label: 'Rarezas' },
-  { value: String(REWARDS_TABLE.length), label: 'Recompensas' },
+  { value: String(ALL_REWARDS.length), label: 'Recompensas' },
   { value: '6', label: 'Rangos' },
 ];
 

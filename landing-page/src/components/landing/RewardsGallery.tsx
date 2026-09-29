@@ -6,7 +6,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { BANNERS, RARITIES } from '@/constants/gachaData';
 import { Eyebrow } from './primitives';
 
-const banner = BANNERS[0];
+// The landing showcases the Persona banner specifically.
+const banner = BANNERS.find((b) => b.id === 'persona') ?? BANNERS[0];
 const TOTAL_WEIGHT = banner.rewards.reduce((sum, item) => sum + item.weight, 0);
 // Characters and personas only; skip the generic resource drop.
 const REWARDS = banner.rewards.filter((item) => item.image && !(item.type === 'otros' && item.rarity === 'common'));

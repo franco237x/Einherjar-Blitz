@@ -5,12 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Star } from 'lucide-react';
-import { BANNERS, RARITIES, type RewardItem } from '@/constants/gachaData';
+import { BANNERS, RARITIES, REWARD_TYPE_LABELS, type RewardItem } from '@/constants/gachaData';
 import { cn } from '@/lib/utils';
 import { EASE_OUT, Reveal, SectionHeading } from './primitives';
 
 const AUTOPLAY_SECONDS = 7;
-const banner = BANNERS[0];
+// The landing showcases the Persona banner specifically.
+const banner = BANNERS.find((b) => b.id === 'persona') ?? BANNERS[0];
 const TOTAL_WEIGHT = banner.rewards.reduce((sum, item) => sum + item.weight, 0);
 
 // The rarest rewards with artwork large enough for a full-height frame.
@@ -20,8 +21,7 @@ const FEATURED = FEATURED_NAMES.map((name) => banner.rewards.find((r) => r.name 
 );
 
 const TYPE_LABELS: Record<RewardItem['type'], string> = {
-  persona: 'Persona',
-  invocacion: 'Invocación',
+  ...REWARD_TYPE_LABELS,
   otros: 'Carta especial',
 };
 

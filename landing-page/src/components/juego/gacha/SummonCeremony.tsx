@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { RARITIES, type RarityKey, type RewardItem } from '@/constants/gachaData';
+import { RARITIES, REWARD_TYPE_LABELS, type RarityKey, type RewardItem } from '@/constants/gachaData';
 import { Icon } from '../Icon';
 import { cn } from '@/lib/utils';
 
@@ -624,7 +624,7 @@ function FlipCard({
 }) {
   const rarity = RARITIES[item.rarity];
   const [imageError, setImageError] = useState(false);
-  const typeLabel = item.type === 'persona' ? 'Persona' : item.type === 'invocacion' ? 'Invocación' : 'Recurso';
+  const typeLabel = REWARD_TYPE_LABELS[item.type] ?? 'Recurso';
   const transition = reduceMotion
     ? { duration: 0.08 }
     : { delay: delayMs / 1000, type: 'spring' as const, damping: 14, stiffness: 120, mass: 0.6 };

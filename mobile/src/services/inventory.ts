@@ -6,7 +6,7 @@
  *
  * Schema (validated by firestore.rules):
  *   - name: string (1-80 chars)
- *   - type: 'persona' | 'invocacion' | 'otros'
+ *   - type: RewardType (see constants/gachaData)
  *   - rarity: 'mythic' | 'legendary' | 'epic' | 'rare' | 'common'
  *   - obtainedAt: timestamp (serverTimestamp)
  *   - bannerId?: string
@@ -25,13 +25,13 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import type { RarityKey } from '@/constants/gachaData';
+import type { RarityKey, RewardType } from '@/constants/gachaData';
 import { createOperationId } from '@/services/economy';
 
 export interface InventoryItem {
   id: string;
   name: string;
-  type: 'persona' | 'invocacion' | 'otros';
+  type: RewardType;
   rarity: RarityKey;
   obtainedAt: Date | null;
   bannerId?: string;

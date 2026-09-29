@@ -58,9 +58,32 @@ export const RARITIES: Record<RarityKey, RarityConfig> = {
 };
 
 // ─── Reward Item ────────────────────────────────────────────────────
+export type RewardType =
+  | 'persona'
+  | 'invocacion'
+  | 'poder'
+  | 'objeto'
+  | 'herencia'
+  | 'libro'
+  | 'arma'
+  | 'cupon'
+  | 'otros';
+
+export const REWARD_TYPE_LABELS: Record<RewardType, string> = {
+  persona: 'Persona',
+  invocacion: 'Invocación',
+  poder: 'Poder',
+  objeto: 'Objeto',
+  herencia: 'Herencia',
+  libro: 'Libro',
+  arma: 'Arma',
+  cupon: 'Cupón',
+  otros: 'Recurso',
+};
+
 export interface RewardItem {
   name: string;
-  type: 'persona' | 'invocacion' | 'otros';
+  type: RewardType;
   rarity: RarityKey;
   weight: number;
   image: string | null; // null = no image, use fallback
@@ -93,7 +116,23 @@ const PERSONA_IMAGES = {
   esencias: '/juego/gacha/rewards/persona/esencias_azules.avif',
 };
 
+const VOLUNTAD_IMAGES = {
+  comandanteSupremo: '/juego/gacha/rewards/voluntad/comandante_supremo.jpg',
+  kyleRayner: '/juego/gacha/rewards/voluntad/kyle_rayner_white.jpg',
+  halJordan: '/juego/gacha/rewards/voluntad/hal_jordan.jpg',
+  laEsperanza: '/juego/gacha/rewards/voluntad/la_esperanza.jpg',
+  supermanAllStar: '/juego/gacha/rewards/voluntad/superman_all_star.jpg',
+  anilloLinternaVerde: '/juego/gacha/rewards/voluntad/anillo_linterna_verde.jpg',
+  allMight: '/juego/gacha/rewards/voluntad/all_might.jpg',
+  voluntadDeFuego: '/juego/gacha/rewards/voluntad/voluntad_de_fuego.jpg',
+  libroAllMight: '/juego/gacha/rewards/voluntad/libro_all_might.jpg',
+  pantheon: '/juego/gacha/rewards/voluntad/pantheon.jpg',
+  libroPantheon: '/juego/gacha/rewards/voluntad/libro_pantheon.jpg',
+  matadragones: '/juego/gacha/rewards/voluntad/matadragones.jpg',
+};
+
 const BANNER_IMAGES = {
+  voluntad: '/juego/gacha/banners/voluntad_banner.jpg',
   persona: '/juego/gacha/banners/persona_banner.jpg',
 };
 
@@ -261,6 +300,134 @@ export const REWARDS_TABLE: RewardItem[] = [
   },
 ];
 
+// ═══════════════════════════════════════════════════════════════════════
+// VOLUNTAD INDOMABLE — Legendary boosted to 4.5 %, common 60 % (total 1000).
+// ═══════════════════════════════════════════════════════════════════════
+
+export const VOLUNTAD_REWARDS_TABLE: RewardItem[] = [
+  // ── MÍTICO — 0.5 % ────────────────────────────────────────────────
+  {
+    name: 'Comandante Supremo',
+    type: 'poder',
+    rarity: 'mythic',
+    weight: 3,
+    image: VOLUNTAD_IMAGES.comandanteSupremo,
+    fallbackIcon: 'trophy',
+  },
+  {
+    name: 'Kyle Rayner (Linterna Blanco)',
+    type: 'invocacion',
+    rarity: 'mythic',
+    weight: 2,
+    image: VOLUNTAD_IMAGES.kyleRayner,
+    fallbackIcon: 'sparkles',
+  },
+
+  // ── LEGENDARIO — 4.5 % ───────────────────────────────────────────
+  {
+    name: 'Hal Jordan',
+    type: 'invocacion',
+    rarity: 'legendary',
+    weight: 15,
+    image: VOLUNTAD_IMAGES.halJordan,
+    fallbackIcon: 'person',
+  },
+  {
+    name: 'La Esperanza',
+    type: 'poder',
+    rarity: 'legendary',
+    weight: 15,
+    image: VOLUNTAD_IMAGES.laEsperanza,
+    fallbackIcon: 'sunny',
+  },
+  {
+    name: 'Superman (All-Star Superman)',
+    type: 'invocacion',
+    rarity: 'legendary',
+    weight: 15,
+    image: VOLUNTAD_IMAGES.supermanAllStar,
+    fallbackIcon: 'person',
+  },
+
+  // ── ÉPICO — 10 % ─────────────────────────────────────────────────
+  {
+    name: 'Anillo de Linterna Verde',
+    type: 'objeto',
+    rarity: 'epic',
+    weight: 25,
+    image: VOLUNTAD_IMAGES.anilloLinternaVerde,
+    fallbackIcon: 'diamond',
+  },
+  {
+    name: 'All Might',
+    type: 'invocacion',
+    rarity: 'epic',
+    weight: 25,
+    image: VOLUNTAD_IMAGES.allMight,
+    fallbackIcon: 'person',
+  },
+  {
+    name: 'Voluntad de Fuego',
+    type: 'herencia',
+    rarity: 'epic',
+    weight: 25,
+    image: VOLUNTAD_IMAGES.voluntadDeFuego,
+    fallbackIcon: 'flame',
+  },
+  {
+    name: 'Libro de All Might',
+    type: 'libro',
+    rarity: 'epic',
+    weight: 25,
+    image: VOLUNTAD_IMAGES.libroAllMight,
+    fallbackIcon: 'document-text',
+  },
+
+  // ── RARO — 25 % ─────────────────────────────────────────────────
+  {
+    name: 'Pantheon',
+    type: 'invocacion',
+    rarity: 'rare',
+    weight: 80,
+    image: VOLUNTAD_IMAGES.pantheon,
+    fallbackIcon: 'shield',
+  },
+  {
+    name: 'Libro de Pantheon',
+    type: 'libro',
+    rarity: 'rare',
+    weight: 80,
+    image: VOLUNTAD_IMAGES.libroPantheon,
+    fallbackIcon: 'document-text',
+  },
+  {
+    name: 'Cupón: 100 Puntos de Fama',
+    type: 'cupon',
+    rarity: 'rare',
+    weight: 90,
+    image: null,
+    fallbackIcon: 'pricetag',
+  },
+
+  // ── COMÚN — 60 % ─────────────────────────────────────────────────
+  {
+    name: '150 Esencias Azules',
+    type: 'otros',
+    rarity: 'common',
+    weight: 400,
+    image: PERSONA_IMAGES.esencias,
+    fallbackIcon: 'water',
+  },
+  {
+    name: 'Matadragones',
+    type: 'arma',
+    rarity: 'common',
+    weight: 200,
+    image: VOLUNTAD_IMAGES.matadragones,
+    fallbackIcon: 'skull',
+  },
+];
+
 // ─── Banner Definitions ─────────────────────────────────────────────
 export interface BannerDef {
   id: string;
@@ -276,6 +443,17 @@ export interface BannerDef {
 
 export const BANNERS: BannerDef[] = [
   {
+    id: 'voluntad',
+    title: 'Voluntad Indomable',
+    subtitle: 'Poderes · Invocaciones · Reliquias',
+    costType: 'keys',
+    costAmount: 1,
+    accentColor: '#f97316',
+    bannerImage: BANNER_IMAGES.voluntad,
+    iconName: 'flame',
+    rewards: VOLUNTAD_REWARDS_TABLE,
+  },
+  {
     id: 'persona',
     title: 'Habitación Terciopelo',
     subtitle: 'Personas · Invocaciones · Artefactos',
@@ -287,6 +465,12 @@ export const BANNERS: BannerDef[] = [
     rewards: REWARDS_TABLE,
   },
 ];
+
+// Every reward across all banners, deduplicated by name. Used to resolve
+// images/icons for inventory items regardless of the banner they came from.
+export const ALL_REWARDS: RewardItem[] = Array.from(
+  new Map(BANNERS.flatMap((b) => b.rewards).map((r) => [r.name, r])).values()
+);
 
 // ─── Pull Logic (Weighted RNG) ──────────────────────────────────────
 export function pullReward(rewards: RewardItem[]): RewardItem {

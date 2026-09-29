@@ -40,7 +40,10 @@ service cloud.firestore {
       return r is string && r in ['mythic', 'legendary', 'epic', 'rare', 'common'];
     }
     function validItemType(t) {
-      return t is string && t in ['persona', 'invocacion', 'otros'];
+      return t is string && t in [
+        'persona', 'invocacion', 'poder', 'objeto', 'herencia', 'libro',
+        'arma', 'cupon', 'otros'
+      ];
     }
 
     // Battle reward constants — must match battleService.ts VICTORY_REWARDS.
@@ -461,7 +464,7 @@ service cloud.firestore {
           'amount', 'itemIds', 'createdAt'
         ])
         && request.resource.data.operationId == pullId
-        && request.resource.data.bannerId == 'persona'
+        && request.resource.data.bannerId in ['persona', 'voluntad']
         && request.resource.data.currency == 'keys'
         && request.resource.data.unitCost == 1
         && request.resource.data.amount in [1, 10]

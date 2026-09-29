@@ -10,7 +10,7 @@
 
 import { useMemo, useState } from 'react';
 import { auth } from '@/config/firebase';
-import { RARITIES, REWARDS_TABLE, type RarityKey } from '@/constants/gachaData';
+import { ALL_REWARDS, RARITIES, REWARD_TYPE_LABELS, type RarityKey } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
 import { markInventoryItemsClaimed, type InventoryItem } from '@/services/inventory';
 import { downloadTextFile, escapeHtml, printHtml } from '@/services/fileExport';
@@ -22,7 +22,7 @@ import { MiniLoader } from '../MiniLoader';
 import { Modal } from '../Modal';
 
 // Build a name → reward lookup so we can resolve the local image & fallback icon.
-const REWARD_BY_NAME = new Map(REWARDS_TABLE.map((reward) => [reward.name, reward]));
+const REWARD_BY_NAME = new Map(ALL_REWARDS.map((reward) => [reward.name, reward]));
 
 const RARITY_ORDER: RarityKey[] = ['mythic', 'legendary', 'epic', 'rare', 'common'];
 
@@ -48,7 +48,7 @@ function buildCertificateHtml(items: InventoryItem[]) {
       return `
           <tr>
             <td>${escapeHtml(item.name)}</td>
-            <td style="text-transform: capitalize;">${item.type}</td>
+            <td>${REWARD_TYPE_LABELS[item.type] ?? item.type}</td>
             <td style="color: ${rarity.color}; font-weight: bold;">${rarity.label}</td>
             <td>${'★'.repeat(rarity.stars)}</td>
             <td>${item.obtainedAt ? item.obtainedAt.toLocaleDateString('es-ES') : 'N/A'}</td>
@@ -109,7 +109,7 @@ function buildCertificateText(items: InventoryItem[]) {
       const rarity = RARITIES[item.rarity];
       const stars = '★'.repeat(rarity.stars);
       const obtained = item.obtainedAt ? item.obtainedAt.toLocaleDateString('es-ES') : 'N/A';
-      return `${idx + 1}. ${item.name} — ${item.type} — ${rarity.label} ${stars}\n   Obtenido: ${obtained}`;
+      return `${idx + 1}. ${item.name} — ${REWARD_TYPE_LABELS[item.type] ?? item.type} — ${rarity.label} ${stars}\n   Obtenido: ${obtained}`;
     })
     .join('\n\n');
 
