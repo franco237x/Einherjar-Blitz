@@ -5,10 +5,11 @@ import { Inter } from 'next/font/google';
 import { MotionConfig } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FinalCta, SiteFooter } from './ClosingSections';
-import { FeaturedCharacters } from './FeaturedCharacters';
+import { Champions } from './Champions';
 import { GachaFeature } from './GachaFeature';
+import { GamePillars } from './GamePillars';
 import { Hero } from './Hero';
-import { PortalPillars } from './PortalPillars';
+import { LatestNews } from './LatestNews';
 import { Progression } from './Progression';
 import { SECTIONS, SiteHeader } from './SiteHeader';
 import { startSmoothScroll } from './smoothScroll';
@@ -43,10 +44,11 @@ export function LandingPage() {
         <SiteHeader activeSection={activeSection} />
         <main>
           <Hero />
-          <PortalPillars />
-          <FeaturedCharacters />
+          <GamePillars />
+          <Champions />
           <GachaFeature />
           <Progression />
+          <LatestNews />
           <FinalCta />
         </main>
         <SiteFooter />

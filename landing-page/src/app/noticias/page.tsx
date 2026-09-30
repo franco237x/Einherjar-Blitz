@@ -3,60 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, GitCommit } from "lucide-react";
+import { ArrowLeft, GitCommit, Megaphone, Sprout } from "lucide-react";
+import { NEWS, type NewsType } from "@/constants/news";
+
+const ICONS: Record<NewsType, typeof GitCommit> = {
+  Anuncio: Megaphone,
+  Actualización: GitCommit,
+  Parche: GitCommit,
+  Evento: Sprout,
+};
 
 export default function Noticias() {
-  const news = [
-    {
-      id: 0,
-      title: "Actualización v1.1.7 - Una nueva base para Einherjar Blitz",
-      date: "24 de Julio, 2026",
-      type: "Actualización",
-      content: "Renovamos la experiencia visual de la aplicación, desde el acceso y la navegación hasta el perfil, la tienda y el sistema de invocaciones. El gacha ahora cuenta con una ceremonia más cuidada, resultados claros, probabilidades e inventario integrado. También reforzamos la economía, las compras, las recompensas, las transferencias y la búsqueda de jugadores para lograr una sincronización más confiable. El modo combate permanece temporalmente cerrado mientras completamos la arena, las animaciones y el balance del primer enfrentamiento.",
-      icon: <GitCommit className="w-5 h-5" />,
-    },
-    {
-      id: 1,
-      title: "Actualización v1.1.3 - Foto de Perfil, Transferencias y Conversión",
-      date: "26 de Junio, 2026",
-      type: "Parche",
-      content: "Gran actualización de funcionalidades. Ahora puedes personalizar tu foto de perfil subiendo una imagen desde tu galería. Implementamos el sistema de transferencia de llaves entre jugadores por email. Agregamos la conversión de llaves a esferas (1 llave = 50 esferas). También mejoramos el sistema de reclamo de recompensas: los archivos PDF y TXT ahora se guardan directamente en tu dispositivo, y sincronizamos en tiempo real las llaves y esferas entre todas las pestañas de la app.",
-      icon: <GitCommit className="w-5 h-5" />,
-    },
-    {
-      id: 2,
-      title: "Panel de Administración Remota",
-      date: "26 de Junio, 2026",
-      type: "Anuncio",
-      content: "Hemos implementado un panel web de administración que nos permite gestionar las llaves y esferas de los jugadores de forma remota. Esto nos ayuda a dar soporte rápido a la comunidad y realizar ajustes de balance sin necesidad de actualizar la app.",
-      icon: <Calendar className="w-5 h-5" />,
-    },
-    {
-      id: 3,
-      title: "¡Lanzamiento Oficial de Einherjar Blitz!",
-      date: "25 de Junio, 2026",
-      type: "Anuncio",
-      content: "Es oficial. Después de meses de desarrollo, Einherjar Blitz por fin ha visto la luz del día. Ya puedes descargar el APK e iniciar tu aventura épica. Domina el gacha, forma tu equipo táctico y conquista la arena. ¡Nos vemos en el campo de batalla!",
-      icon: <Calendar className="w-5 h-5" />,
-    },
-    {
-      id: 4,
-      title: "Actualización v1.1.2 - Mejoras en Interfaz y Recompensas",
-      date: "25 de Junio, 2026",
-      type: "Parche",
-      content: "Hemos solucionado diversos problemas de diseño en la pantalla de inventario. Ahora, el botón de 'Reclamar' en el sistema de gacha siempre es visible y respeta el flujo de la pantalla en cualquier resolución de móvil. Además, pulimos las 'Safe Areas' para que no haya solapamientos.",
-      icon: <GitCommit className="w-5 h-5" />,
-    },
-    {
-      id: 5,
-      title: "Actualización v1.1.0 - Autenticación Nativa con Google",
-      date: "Reciente",
-      type: "Parche",
-      content: "Se integró completamente el inicio de sesión nativo con Google OAuth, mejorando la seguridad y fluidez del acceso. También agregamos el 'Immersive Mode' para una experiencia a pantalla completa ininterrumpida y se corrigieron bugs menores en el formulario de registro y la Firebase Config.",
-      icon: <GitCommit className="w-5 h-5" />,
-    }
-  ];
-
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
       {/* Background ambient glow */}
@@ -98,7 +55,9 @@ export default function Noticias() {
           </h1>
 
           <div className="space-y-8">
-            {news.map((item, index) => (
+            {NEWS.map((item, index) => {
+              const Icon = ICONS[item.type];
+              return (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -111,7 +70,7 @@ export default function Noticias() {
                 
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`p-2 rounded-full ${item.type === 'Anuncio' || item.type === 'Actualización' ? 'bg-primary/20 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>
-                    {item.icon}
+                    <Icon className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="text-xs font-bold tracking-wider uppercase text-primary mb-1">
@@ -131,7 +90,8 @@ export default function Noticias() {
                   {item.content}
                 </p>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         </motion.div>
       </main>

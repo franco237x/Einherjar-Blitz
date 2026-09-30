@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, Barlow } from "next/font/google";
 import "./globals.css";
 
@@ -14,8 +14,14 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  title: "Einherjar Blitz | Portal del Guerrero",
-  description: "Juega Einherjar Blitz desde el navegador: invocaciones gacha, tienda, economía de llaves y esferas y rangos, con la misma cuenta de la app.",
+  title: "Einherjar Blitz | RPG de colección",
+  description: "Einherjar Blitz es un RPG de colección en el Valhalla. Invoca guerreros, administra tu economía de llaves y esferas y prepárate para la arena, desde el navegador.",
+  applicationName: "Einherjar Blitz",
+  appleWebApp: { capable: true, title: "Einherjar", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0a09",
 };
 
 export default function RootLayout({
