@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Award, Crown, Skull, Star, Trophy } from 'lucide-react';
-import type { VictoryRewards } from '@/services/battleService';
+import type { VictoryRewards } from '@/constants/battleRewards';
 import { cn } from '@/lib/utils';
 import { Spinner } from '../Spinner';
 

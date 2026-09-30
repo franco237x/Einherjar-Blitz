@@ -46,22 +46,6 @@ service cloud.firestore {
       ];
     }
 
-    // Battle reward constants — must match battleService.ts VICTORY_REWARDS.
-    function VICTORY_COPAS() { return 10; }
-    function VICTORY_SPHERES() { return 5; }
-    function VICTORY_XP() { return 15; }
-
-    // Validates that a rank string is consistent with a copas value.
-    // Used to prevent clients from writing an arbitrary rank.
-    function rankForCopas(copas) {
-      return copas >= 800 ? 'Einherjar'
-        : copas >= 500 ? 'Elite'
-        : copas >= 300 ? 'Veterano'
-        : copas >= 150 ? 'Guerrero'
-        : copas >= 50 ? 'Recluta'
-        : 'Iniciado';
-    }
-
     // Minimal directory used by transfers. Sensitive balances, email and
     // private avatar data remain under users/{uid}.
     match /publicUsers/{userId} {
@@ -93,25 +77,13 @@ service cloud.firestore {
     // Private user profiles are readable only by their owner or an admin.
     // Transfer discovery uses the minimal publicUsers directory above.
     //
-    // ─── SPARK PLAN SECURITY MODEL ─────────────────────────────────────
-    // The project is on the Spark (free) plan — no Cloud Functions are
-    // available. Without a server-side validator we cannot prove a battle
-    // actually occurred. The defenses below are the maximum possible in
-    // Spark:
-    //
-    // 1. FIXED INCREMENTS — battle reward updates must change economy
-    //    fields by EXACTLY the hardcoded deltas. A client cannot inject
-    //    `copas: 999999`; the rules reject any other delta.
-    // 2. ANTI-REPLAY (BEST-EFFORT) — a battle reward update that touches
-    //    `victorias` or `derrotas` is only allowed if a corresponding
-    //    battle record exists at users/{uid}/game/battles/{battleId}.
-    //    The battle record collection is create-only, so the same
-    //    battleId cannot be reused. A determined attacker can still farm
-    //    by generating fresh battleIds; this is the inherent Spark limit.
-    // 3. RANK CONSISTENCY — `rango` must match `rankForCopas(newCopas)`.
-    //
-    // TODO: upgrade to Blaze and deploy the Cloud Function in
-    // mobile/functions/ to close the farm-by-fresh-battleId hole.
+    // ─── SERVER-AUTHORITATIVE ECONOMY ─────────────────────────────────
+    // Gacha pulls and battle rewards are written only by the Next.js API
+    // (/api/juego/*) with the Admin SDK, which bypasses these rules. The
+    // server rolls the gacha with a CSPRNG and replays every battle from
+    // its own seed before granting rewards, so browsers cannot write
+    // inventory, pull records, battle records or battle counters.
+    // No Cloud Functions are needed: this works on the Spark plan.
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       // New accounts may only be initialized with the known profile schema
@@ -143,10 +115,7 @@ service cloud.firestore {
       // and that would bypass every economy restriction below.
       allow update: if isAdmin();
 
-      // ─── Owner profile updates (username, frase, avatar, economy) ───
-      // Allows the owner to update profile + economy fields (gacha, store,
-      // index tabs) EXCEPT the battle-only counters, which have a dedicated
-      // rule below that enforces fixed increments + anti-replay.
+      // ─── Owner profile updates ──────────────────────────────────────
       // Cosmetic profile fields only. Economy has dedicated rules below.
       allow update: if isOwner(userId)
         && request.resource.data.diff(resource.data).affectedKeys()
@@ -190,47 +159,6 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
             == request.resource.data.keys;
 
-      // Gacha debit. The pull, operation and inventory documents must be
-      // committed together; interruption cannot charge without recording it.
-      allow update: if isOwner(userId)
-        && hasVerifiedEmail()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'keys', 'spheres', 'lastOperationId', 'lastOperationType',
-          'lastOperationAt'
-        ])
-        && request.resource.data.lastOperationType == 'gacha'
-        && request.resource.data.lastOperationId is string
-        && request.resource.data.lastOperationAt == request.time
-        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.type
-            == 'gacha'
-        && getAfter(/databases/$(database)/documents/users/$(userId)/gachaPulls/$(request.resource.data.lastOperationId)).data.operationId
-            == request.resource.data.lastOperationId
-        && (
-          (
-            getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.currency == 'keys'
-            && request.resource.data.keys is int
-            && request.resource.data.keys >= 0
-            && request.resource.data.keys < keysOrZero(resource.data)
-            && spheresOrZero(request.resource.data) == spheresOrZero(resource.data)
-            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceBefore
-                == keysOrZero(resource.data)
-            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
-                == request.resource.data.keys
-          )
-          ||
-          (
-            getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.currency == 'spheres'
-            && request.resource.data.spheres is int
-            && request.resource.data.spheres >= 0
-            && request.resource.data.spheres < spheresOrZero(resource.data)
-            && keysOrZero(request.resource.data) == keysOrZero(resource.data)
-            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceBefore
-                == spheresOrZero(resource.data)
-            && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(request.resource.data.lastOperationId)).data.balanceAfter
-                == request.resource.data.spheres
-          )
-        );
-
       // Store purchase debit, linked to its purchase and product stock write.
       allow update: if isOwner(userId)
         && hasVerifiedEmail()
@@ -251,43 +179,6 @@ service cloud.firestore {
             == request.resource.data.spheres
         && getAfter(/databases/$(database)/documents/users/$(userId)/purchases/$(request.resource.data.lastOperationId)).data.operationId
             == request.resource.data.lastOperationId;
-
-      // ─── Battle victory reward update ───────────────────────────────
-      // Triggered by battleService.saveBattleVictory. Validates:
-      //  - Only the expected fields change.
-      //  - Each economy field increments by exactly the hardcoded delta.
-      //  - `rango` is consistent with the new copas total.
-      //  - A battle record exists at the provided battleId path.
-      //    NOTE: Firestore Rules cannot read the battleId from the update
-      //    payload, so the anti-replay check uses a wildcard match on the
-      //    battles subcollection — any existing battle record satisfies
-      //    this rule. The create-only semantics on battles/{battleId}
-      //    prevent reusing the same battleId, which is the actual
-      //    anti-replay mechanism.
-      allow update: if isOwner(userId)
-        && hasVerifiedEmail()
-        && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['copas', 'victorias', 'jefes_derrotados', 'spheres', 'experiencia', 'rango'])
-        && request.resource.data.copas
-            == (('copas' in resource.data ? resource.data.copas : 0) + VICTORY_COPAS())
-        && request.resource.data.victorias
-            == (('victorias' in resource.data ? resource.data.victorias : 0) + 1)
-        && request.resource.data.jefes_derrotados
-            == (('jefes_derrotados' in resource.data ? resource.data.jefes_derrotados : 0) + 1)
-        && request.resource.data.spheres
-            == (('spheres' in resource.data ? resource.data.spheres : 0) + VICTORY_SPHERES())
-        && request.resource.data.experiencia
-            == (('experiencia' in resource.data ? resource.data.experiencia : 0) + VICTORY_XP())
-        && request.resource.data.rango == rankForCopas(
-            ('copas' in resource.data ? resource.data.copas : 0) + VICTORY_COPAS());
-
-      // ─── Battle defeat reward update ────────────────────────────────
-      // Only `derrotas` may change, and only by +1.
-      allow update: if isOwner(userId)
-        && hasVerifiedEmail()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['derrotas'])
-        && request.resource.data.derrotas
-            == (('derrotas' in resource.data ? resource.data.derrotas : 0) + 1);
 
       // Transfers are atomic. The recipient gain is allowed only when the
       // sender loses exactly the same amount in this transaction.
@@ -354,34 +245,15 @@ service cloud.firestore {
             == request.resource.data.lastIncomingTransferAmount;
     }
 
-    // ─── Battle records (anti-replay ledger) ───────────────────────────
-    // One doc per completed battle. CREATE-ONLY: the owner may create a
-    // doc here, but never update or delete it. Firestore rejects a create
-    // if the doc already exists, which is the anti-replay mechanism.
-    // Schema is validated on create to match battleService.createBattleRecord.
-    match /users/{userId}/game/battles/{battleId} {
+    // ─── Battle records ────────────────────────────────────────────────
+    // Created and completed by the server (seed, actions count, outcome).
+    // The owner may read them; clients never write.
+    match /users/{userId}/battles/{battleId} {
       allow read: if isOwner(userId);
-      allow create: if isOwner(userId)
-        && hasVerifiedEmail()
-        && request.resource.data.result is string
-        && request.resource.data.result in ['victory', 'defeat']
-        && request.resource.data.charId is string
-        && request.resource.data.charId.size() > 0
-        && request.resource.data.charId.size() <= 40
-        && request.resource.data.bossId is string
-        && request.resource.data.bossId.size() > 0
-        && request.resource.data.bossId.size() <= 80
-        && request.resource.data.turns is int
-        && request.resource.data.turns >= 1
-        && request.resource.data.turns <= 200
-        && request.resource.data.completedAt is timestamp;
-      allow update, delete: if false;
+      allow write: if false;
     }
 
-    // ─── Game module profile (isolated progression, future use) ───────
-    // Reserved for future battle-only progression fields when the Cloud
-    // Function is deployed. Currently unused (jefes_derrotados stays on
-    // the user doc for Spark compatibility). Owner read-only.
+    // Daily battle counters, maintained by the server. Owner read-only.
     match /users/{userId}/game/profile {
       allow read: if isOwner(userId);
       allow write: if false;
@@ -398,7 +270,7 @@ service cloud.firestore {
           'relatedId', 'status', 'createdAt'
         ])
         && request.resource.data.type in [
-          'conversion', 'gacha', 'purchase', 'transfer_sent'
+          'conversion', 'purchase', 'transfer_sent'
         ]
         && request.resource.data.currency in ['keys', 'spheres']
         && request.resource.data.delta is int
@@ -455,56 +327,19 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Written by the server together with the debit and inventory items.
     match /users/{userId}/gachaPulls/{pullId} {
       allow read: if isOwner(userId);
-      allow create: if isOwner(userId)
-        && hasVerifiedEmail()
-        && request.resource.data.keys().hasOnly([
-          'operationId', 'bannerId', 'currency', 'unitCost', 'totalCost',
-          'amount', 'itemIds', 'createdAt'
-        ])
-        && request.resource.data.operationId == pullId
-        && request.resource.data.bannerId in ['persona', 'voluntad']
-        && request.resource.data.currency == 'keys'
-        && request.resource.data.unitCost == 1
-        && request.resource.data.amount in [1, 10]
-        && request.resource.data.totalCost
-            == request.resource.data.unitCost * request.resource.data.amount
-        && request.resource.data.itemIds is list
-        && request.resource.data.itemIds.size() == request.resource.data.amount
-        && request.resource.data.createdAt == request.time
-        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(pullId)).data.type
-            == 'gacha'
-        && getAfter(/databases/$(database)/documents/users/$(userId)/operations/$(pullId)).data.delta
-            == -request.resource.data.totalCost;
-      allow update, delete: if false;
+      allow write: if false;
     }
 
     // ─── Inventory (gacha rewards) ─────────────────────────────────────
-    // Each pull writes one doc. Schema is strictly validated on create.
-    // Owner can delete an item when claiming it via PDF (no updates allowed).
+    // The owner may only mark an active item as claimed (PDF claim).
     match /users/{userId}/inventory/{itemId} {
       allow read: if isOwner(userId);
 
-      allow create: if isOwner(userId)
-        && hasVerifiedEmail()
-        && request.resource.data.keys().hasOnly([
-          'name', 'type', 'rarity', 'obtainedAt', 'bannerId', 'sourceType',
-          'sourceId', 'status'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() > 0
-        && request.resource.data.name.size() <= 80
-        && validItemType(request.resource.data.type)
-        && validRarity(request.resource.data.rarity)
-        && request.resource.data.obtainedAt == request.time
-        && request.resource.data.bannerId is string
-        && request.resource.data.sourceType == 'gacha'
-        && request.resource.data.sourceId is string
-        && request.resource.data.status == 'active'
-        && getAfter(/databases/$(database)/documents/users/$(userId)/gachaPulls/$(request.resource.data.sourceId)).data.bannerId
-            == request.resource.data.bannerId
-        && itemId in getAfter(/databases/$(database)/documents/users/$(userId)/gachaPulls/$(request.resource.data.sourceId)).data.itemIds;
+      // Items are created only by the server's gacha transaction.
+      allow create: if false;
 
       allow update: if isOwner(userId)
         && hasVerifiedEmail()

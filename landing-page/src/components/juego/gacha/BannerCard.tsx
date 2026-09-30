@@ -14,7 +14,7 @@ import { Icon } from '../Icon';
 
 interface BannerCardProps {
   banner: BannerDef;
-  onSummon: (amount: number) => void;
+  onSummon: (amount: 1 | 10) => void;
   disabled?: boolean;
 }
 

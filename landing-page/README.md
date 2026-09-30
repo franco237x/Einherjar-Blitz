@@ -18,13 +18,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Web game (`/juego`)
 
-The browser version of the mobile app lives under `/juego` (login, lobby, gacha, store, profile and the battle module). It talks to the same Firebase project as the app, so it needs the Firebase keys:
+The game lives under `/juego` (login, lobby, gacha, store, profile and the battle module). It needs the Firebase keys:
 
 ```bash
 cp .env.example .env.local   # then fill in the NEXT_PUBLIC_FIREBASE_* values
 ```
 
-For Google sign-in to work on a deployed domain, add that domain under **Firebase Console → Authentication → Settings → Authorized domains**. The battle module is still behind `FEATURE_FLAGS.game` in `src/config/featureFlags.ts`, as it is in the app.
+For Google sign-in to work on a deployed domain, add that domain under **Firebase Console → Authentication → Settings → Authorized domains**. The battle module is still behind `FEATURE_FLAGS.game` in `src/config/featureFlags.ts`.
+
+Gacha pulls and battle rewards are decided on the server (`/api/juego/*`) with the Firebase Admin SDK, which needs `GAME_FIREBASE_SERVICE_ACCOUNT_JSON`. Setup, deployment order and the security model are in [`docs/juego-servidor.md`](docs/juego-servidor.md).
+
+Tests: `npm test` (engine, replay, gacha) and `npm run test:rules` (Firestore Rules on the emulator).
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

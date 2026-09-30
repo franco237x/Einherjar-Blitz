@@ -16,7 +16,7 @@ import { BannerCard } from '@/components/juego/gacha/BannerCard';
 import { InventorySheet } from '@/components/juego/gacha/InventorySheet';
 import { ProbabilitiesPanel } from '@/components/juego/gacha/ProbabilitiesPanel';
 import { SummonAnimation } from '@/components/juego/gacha/SummonCeremony';
-import { BANNERS, RARITIES, pullMultiple, type RarityKey, type RewardItem } from '@/constants/gachaData';
+import { BANNERS, RARITIES, type RarityKey, type RewardItem } from '@/constants/gachaData';
 import { auth } from '@/config/firebase';
 import { performGachaPull } from '@/services/gacha';
 import { useUserData } from '@/hooks/useUserData';
@@ -48,7 +48,7 @@ export default function GachaPage() {
     }
   };
 
-  const handleSummon = async (amount: number) => {
+  const handleSummon = async (amount: 1 | 10) => {
     if (summonLockRef.current || summonBusy) return;
     const banner = BANNERS[activeBanner];
     const costKey = banner.costType;
@@ -62,8 +62,7 @@ export default function GachaPage() {
       return;
     }
 
-    const uid = auth.currentUser?.uid;
-    if (!uid) {
+    if (!auth.currentUser) {
       void dialog.alert('Error', 'Debes iniciar sesión para invocar.');
       return;
     }
@@ -71,17 +70,18 @@ export default function GachaPage() {
     summonLockRef.current = true;
     setSummonBusy(true);
     try {
-      // Pull rewards FIRST (pure RNG, no side effects).
-      const results = pullMultiple(banner.rewards, amount);
-      // Balance, pull ledger and every inventory item are committed together.
-      // If any write fails, Firestore rolls the complete transaction back.
-      await performGachaPull(uid, banner, results);
+      // The server rolls the rewards and commits balance, pull ledger and
+      // inventory together; the browser only animates the result.
+      const results = await performGachaPull(banner, amount);
 
       setSummonResults(results);
       setIsSummoning(true);
     } catch (error) {
       console.error('Error during summon:', error);
-      void dialog.alert('Error', 'Hubo un problema de conexión al procesar la invocación.');
+      void dialog.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Hubo un problema de conexión al procesar la invocación.'
+      );
     } finally {
       summonLockRef.current = false;
       setSummonBusy(false);

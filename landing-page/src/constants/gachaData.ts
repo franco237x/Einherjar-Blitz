@@ -473,9 +473,11 @@ export const ALL_REWARDS: RewardItem[] = Array.from(
 );
 
 // ─── Pull Logic (Weighted RNG) ──────────────────────────────────────
-export function pullReward(rewards: RewardItem[]): RewardItem {
+// `rng` returns a float in [0, 1). The server passes a CSPRNG; pulls are never
+// decided in the browser.
+export function pullReward(rewards: RewardItem[], rng: () => number = Math.random): RewardItem {
   const totalWeight = rewards.reduce((sum, item) => sum + item.weight, 0);
-  let random = Math.random() * totalWeight;
+  let random = rng() * totalWeight;
 
   for (const item of rewards) {
     if (random < item.weight) return item;
@@ -485,8 +487,12 @@ export function pullReward(rewards: RewardItem[]): RewardItem {
   return rewards[rewards.length - 1];
 }
 
-export function pullMultiple(rewards: RewardItem[], count: number): RewardItem[] {
-  return Array.from({ length: count }, () => pullReward(rewards));
+export function pullMultiple(
+  rewards: RewardItem[],
+  count: number,
+  rng: () => number = Math.random
+): RewardItem[] {
+  return Array.from({ length: count }, () => pullReward(rewards, rng));
 }
 
 // ─── Drop-rate breakdown ────────────────────────────────────────────

@@ -19,6 +19,32 @@ export type Rng = () => number;
 
 const defaultRng: Rng = () => Math.random();
 
+/**
+ * Deterministic RNG (sfc32) seeded with the 128-bit hex seed the server
+ * issues when a battle starts. The client plays with it and the server
+ * replays the same actions with the same seed to recompute the outcome, so
+ * rewards never depend on a result reported by the browser.
+ */
+export function createSeededRng(seed: string): Rng {
+  if (!/^[a-f0-9]{32}$/.test(seed)) throw new Error('Semilla de batalla inválida.');
+  let a = parseInt(seed.slice(0, 8), 16) | 0;
+  let b = parseInt(seed.slice(8, 16), 16) | 0;
+  let c = parseInt(seed.slice(16, 24), 16) | 0;
+  let d = parseInt(seed.slice(24, 32), 16) | 0;
+  const next = () => {
+    const t = (((a + b) | 0) + d) | 0;
+    d = (d + 1) | 0;
+    a = b ^ (b >>> 9);
+    b = (c + (c << 3)) | 0;
+    c = (c << 21) | (c >>> 11);
+    c = (c + t) | 0;
+    return (t >>> 0) / 4294967296;
+  };
+  // Discard the first outputs so similar seeds diverge immediately.
+  for (let i = 0; i < 12; i++) next();
+  return next;
+}
+
 /** Returns a random integer in [min, max] inclusive using the given rng. */
 function randInt(rng: Rng, min: number, max: number): number {
   return Math.floor(rng() * (max - min + 1)) + min;
@@ -403,4 +429,73 @@ export function executeBossTurn(
     },
     damageDealt: rawDamage,
   };
+}
+
+// ─── Player actions & server replay ─────────────────────────────────────────
+export type BattleAction = 'attack' | 'defend' | 'regen' | 'special';
+
+const BATTLE_ACTIONS: readonly BattleAction[] = ['attack', 'defend', 'regen', 'special'];
+
+export function isBattleAction(value: unknown): value is BattleAction {
+  return typeof value === 'string' && (BATTLE_ACTIONS as readonly string[]).includes(value);
+}
+
+/** Whether the player may take `action` in the current state. */
+export function canPerformAction(state: BattleState, action: BattleAction): boolean {
+  if (state.turnPhase !== 'player_turn') return false;
+  if (action === 'special') {
+    return !state.player.specialUsed && state.player.currentHealth <= state.player.maxHealth * 0.5;
+  }
+  return true;
+}
+
+/**
+ * Resolves the player's half of a turn. `bossTurnPending` tells the caller
+ * whether the boss answers with `executeBossTurn` (the UI does it after a
+ * delay; the replay does it immediately). Both must consume the same rng.
+ */
+export function applyPlayerAction(
+  state: BattleState,
+  action: BattleAction,
+  rng: Rng
+): { state: BattleState; bossTurnPending: boolean } {
+  switch (action) {
+    case 'attack': {
+      const { newState } = executePlayerAttack(state, rng);
+      return { state: newState, bossTurnPending: newState.turnPhase !== 'victory' };
+    }
+    case 'defend':
+      return { state: executePlayerDefend(state), bossTurnPending: true };
+    case 'regen':
+      return { state: executePlayerRegen(state).newState, bossTurnPending: true };
+    case 'special':
+      return { state: executePlayerSpecial(state), bossTurnPending: true };
+  }
+}
+
+export interface BattleReplay {
+  state: BattleState;
+  bossTurns: number;
+}
+
+/**
+ * Replays a whole battle from its seed and the ordered player actions.
+ * Throws if any action was not legal at the moment it was taken.
+ */
+export function replayBattle(charId: string, seed: string, actions: readonly unknown[]): BattleReplay {
+  const rng = createSeededRng(seed);
+  let state = initBattle(charId);
+  let bossTurns = 0;
+  for (const action of actions) {
+    if (!isBattleAction(action) || !canPerformAction(state, action)) {
+      throw new Error('Secuencia de acciones inválida.');
+    }
+    const result = applyPlayerAction(state, action, rng);
+    state = result.state;
+    if (result.bossTurnPending) {
+      state = executeBossTurn(state, rng).newState;
+      bossTurns++;
+    }
+  }
+  return { state, bossTurns };
 }

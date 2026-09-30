@@ -1,5 +1,7 @@
 # ⚔️ Einherjar Blitz — Diseño del Modo Combate (Mobile)
 
+> Documento histórico del diseño original (app Expo en `mobile/`, ya retirada del repositorio). La implementación actual vive en `src/` de esta web; el modelo de seguridad vigente está en [`juego-servidor.md`](./juego-servidor.md).
+
 > **Versión:** 1.1 · **Fecha:** Julio 2026<br>
 > **Objetivo:** Módulo de combate clásico (`game/`) independiente del resto de la app, en **landscape**, con placeholders visuales hasta tener sprites propios.
 
