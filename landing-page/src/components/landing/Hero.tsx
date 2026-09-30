@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { GAME_CHARACTERS } from '@/constants/battleData';
 import { ALL_REWARDS } from '@/constants/gachaData';
-import { ArenaVignette } from './ArenaVignette';
+import { ChampionDeck } from './ChampionDeck';
 import { EASE_OUT, Eyebrow } from './primitives';
 
 const FACTS = [
@@ -88,14 +88,7 @@ export function Hero() {
           transition={{ duration: 1.4, delay: 0.3, ease: EASE_OUT }}
           className="relative mx-auto w-full max-w-[440px]"
         >
-          <span className="absolute -inset-4 border border-primary/20" aria-hidden="true" />
-          <motion.div style={{ y: artY }}>
-            <ArenaVignette />
-          </motion.div>
-          <figcaption className="mt-8 flex items-baseline justify-between gap-4 text-sm">
-            <span className="font-title tracking-[0.15em] text-white/85">GALILEO VS EL REY ESCARLATA</span>
-            <span className="shrink-0 text-white/40">Vista previa</span>
-          </figcaption>
+          <ChampionDeck parallaxY={artY} />
         </motion.figure>
       </div>
     </section>

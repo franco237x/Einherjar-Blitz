@@ -1,15 +1,8 @@
 import Image from 'next/image';
 import { Heart, Zap } from 'lucide-react';
 import { GAME_CHARACTERS } from '@/constants/battleData';
+import { CHAMPION_PORTRAITS } from './portraits';
 import { Reveal, SectionHeading } from './primitives';
-
-// Full-body artwork for the champions that already have it; the rest show a
-// placeholder until their art is ready.
-const PORTRAITS: Record<string, { src: string; focus: string }> = {
-  argos: { src: '/juego/loading_screen/argos.jpg', focus: '50% 20%' },
-  orfevre: { src: '/juego/loading_screen/orfevre.jpg', focus: '50% 15%' },
-  nathan: { src: '/juego/loading_screen/nathan.jpg', focus: '50% 30%' },
-};
 
 const CHAMPIONS = Object.values(GAME_CHARACTERS).filter((character) => character.isPlayableBase);
 
@@ -26,7 +19,8 @@ export function Champions() {
 
       <ul className="mx-auto mt-16 flex max-w-6xl snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-4 [scrollbar-width:none] md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {CHAMPIONS.map((champion, i) => {
-          const portrait = PORTRAITS[champion.id];
+          // Champions without artwork yet show a placeholder.
+          const portrait = CHAMPION_PORTRAITS[champion.id];
           return (
             <li key={champion.id} className="w-[68%] shrink-0 snap-start sm:w-[40%] md:w-auto">
               <Reveal delay={i * 0.06} className="flex h-full flex-col">
