@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { User } from 'firebase/auth';
 import { ArrowLeft, Download } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ALBUM_FAMILIES, ALBUM_MILESTONES, ALBUM_PLANTS } from '@/lib/agroAlbum';
-import { cultivatedCount, type FarmState } from '@/lib/agroGame';
+import { DAILY_COIN_LIMIT, cultivatedCount, type FarmState } from '@/lib/agroGame';
 
 type Status =
   | { kind: 'loading' }
@@ -95,7 +95,7 @@ export function AgroThanks() {
             </button>
           </div>
         ) : status.kind === 'ready' && status.farm ? (
-          <Achievements farm={status.farm} />
+          <Achievements farm={status.farm} user={user} onFarm={(farm) => setStatus({ kind: 'ready', farm })} />
         ) : (
           <p className="agro-thanks-note">
             No encontramos un huerto en tu cuenta. ¡Te esperamos en el próximo evento!
@@ -111,7 +111,15 @@ export function AgroThanks() {
   );
 }
 
-function Achievements({ farm }: { farm: FarmState }) {
+function Achievements({
+  farm,
+  user,
+  onFarm,
+}: {
+  farm: FarmState;
+  user: User;
+  onFarm: (farm: FarmState) => void;
+}) {
   const discovered = ALBUM_PLANTS.filter((plant) => farm.album[plant.id]?.discovered);
   const rarest = discovered.reduce<(typeof ALBUM_PLANTS)[number] | null>(
     (best, plant) => (!best || plant.tier > best.tier ? plant : best),
@@ -170,6 +178,8 @@ function Achievements({ farm }: { farm: FarmState }) {
         </ul>
       </section>
 
+      {farm.coins > 0 ? <FinalVoucher farm={farm} user={user} onFarm={onFarm} /> : null}
+
       {vouchers.length > 0 ? (
         <section aria-labelledby="agro-vouchers">
           <h2 id="agro-vouchers" className="agro-thanks-heading">
@@ -200,5 +210,88 @@ function Achievements({ farm }: { farm: FarmState }) {
         </section>
       ) : null}
     </>
+  );
+}
+
+/** The only action left after the event: turn the harvested balance into a voucher. */
+function FinalVoucher({
+  farm,
+  user,
+  onFarm,
+}: {
+  farm: FarmState;
+  user: User;
+  onFarm: (farm: FarmState) => void;
+}) {
+  const [name, setName] = useState(farm.playerName);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ error: boolean; text: string } | null>(null);
+
+  const issue = async (event: FormEvent) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/agro/partida', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          action: { type: 'voucher', playerName: name },
+          revision: farm.revision,
+          requestId: crypto.randomUUID(),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        // Another tab changed the farm: reload it so the next try uses the new revision.
+        if (response.status === 409) onFarm((await fetchFarm(user)) ?? farm);
+        throw new Error(data.error || 'No se pudo emitir el vale.');
+      }
+      onFarm(data.farm);
+      setMessage({ error: false, text: data.outcome?.message || 'Vale emitido.' });
+    } catch (failure) {
+      setMessage({
+        error: true,
+        text: failure instanceof Error ? failure.message : 'No se pudo emitir el vale.',
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="agro-thanks-final" aria-labelledby="agro-final-voucher">
+      <h2 id="agro-final-voucher" className="agro-thanks-heading">
+        Te quedaron {number(farm.coins)} monedas
+      </h2>
+      <p>
+        Emite un último vale con tu saldo cosechado y preséntalo en el grupo. Se pueden emitir hasta{' '}
+        {number(DAILY_COIN_LIMIT)} monedas por día; si tienes más, el resto queda para mañana.
+      </p>
+      <form onSubmit={issue}>
+        <label htmlFor="agro-final-name">Tu nombre en el grupo</label>
+        <div>
+          <input
+            id="agro-final-name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            minLength={2}
+            maxLength={48}
+            required
+            autoComplete="nickname"
+          />
+          <button type="submit" className="agro-primary-link" disabled={busy}>
+            {busy ? 'Emitiendo…' : 'Emitir vale final'}
+          </button>
+        </div>
+      </form>
+      {message ? (
+        <p role={message.error ? 'alert' : 'status'} className={message.error ? 'agro-inline-error' : 'agro-thanks-small'}>
+          {message.text}
+        </p>
+      ) : null}
+    </section>
   );
 }

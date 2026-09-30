@@ -4,9 +4,9 @@
 
 - `/evento/agro` muestra el agradecimiento y los logros de la cuenta: monedas cosechadas, especies, invocaciones, sellos, premios del herbario y vales.
 - `/evento/agro/album` redirige a `/evento/agro`.
-- `GET /api/agro/partida` solo lee (`readFarm`): no crea, vincula ni migra huertos. `POST` responde 410.
+- `GET /api/agro/partida` solo lee (`readFarm`): no crea, vincula ni migra huertos. `POST` solo acepta la acción `voucher`, para que cada jugador convierta su saldo cosechado en un último vale (con el mismo límite de 2.000 monedas por día); cualquier otra acción responde 410.
 - Los vales ya emitidos siguen funcionando: `/api/agro/vale` descarga el PDF y `/evento/agro/canje` sirve para consultar y canjear.
-- Las monedas que quedaron en un huerto sin pasar a un vale ya no se pueden emitir.
+- Las monedas que siguen en las plantas sin cosechar no cuentan: la cosecha está cerrada.
 - El motor del evento (`src/lib/agroGame.ts`, `performAction` y `loadFarm` en `src/lib/agroServer.ts`) se conserva. Para reabrirlo hay que restaurar la interfaz desde el historial de Git.
 
 ## Estado y rutas

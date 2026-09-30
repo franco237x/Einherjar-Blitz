@@ -485,3 +485,11 @@
   .agro-thanks-plants { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .agro-thanks-featured img { width: 88px; height: 88px; }
 }
+.agro-thanks-final { margin-top: 2.8rem; padding: 1.4rem; border: 1px solid var(--agro-gold); background: radial-gradient(circle at 85% 10%, rgba(211, 183, 114, 0.14), transparent 40%), var(--agro-panel); }
+.agro-thanks-final .agro-thanks-heading { margin-top: 0; }
+.agro-thanks-final > p { margin: 0 0 1.2rem; color: #bfccbb; font-size: 0.92rem; line-height: 1.7; }
+.agro-thanks-final label { display: block; margin-bottom: 0.5rem; font-size: 0.78rem; font-weight: 700; }
+.agro-thanks-final form > div { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+.agro-thanks-final input { flex: 1 1 220px; min-height: 52px; padding: 0.7rem 0.9rem; border: 1px solid rgba(216, 187, 125, 0.38); border-radius: 0; background: #091711; color: var(--agro-cream); font-size: 0.9rem; }
+.agro-thanks-final button:disabled { opacity: 0.6; }
+.agro-thanks-final .agro-inline-error { margin-top: 1rem; }
