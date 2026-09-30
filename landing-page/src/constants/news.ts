@@ -11,6 +11,14 @@ export interface NewsItem {
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'portal-animado',
+    title: 'El portal se mueve: inicio, tienda e invocaciones renovados',
+    date: '30 de Septiembre, 2026',
+    type: 'Actualización',
+    content:
+      'Renovamos las pantallas del portal con animaciones nuevas. El inicio presenta a tu guerrero con su experiencia y estadísticas en vivo, la tesorería muestra cómo cambian tus llaves y esferas, y la conversión tiene su propia celebración. La tienda estrena tarjetas con brillo, filtros fluidos y una compra más clara. En las invocaciones, cada banner tiene vida propia y la ceremonia reparte las cartas y las revela según su rareza.',
+  },
+  {
     id: 'rumbo-al-rpg',
     title: 'Rumbo al RPG: Einherjar Blitz crece',
     date: '30 de Septiembre, 2026',

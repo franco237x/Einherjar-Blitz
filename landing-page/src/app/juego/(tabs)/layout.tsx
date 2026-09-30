@@ -140,6 +140,7 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
                     ) : null}
                     <motion.span
                       className="relative flex"
+                      tabIndex={-1}
                       animate={{ y: active ? -1 : 0, scale: active ? 1.08 : 1 }}
                       whileTap={{ scale: 0.85 }}
                       transition={SPRINGS.bouncy}

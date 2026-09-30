@@ -1,0 +1,146 @@
+/*
+ * Idle loops for the summon altar. They only touch transform and opacity so the
+ * compositor runs them off the main thread; all stop for reduced motion.
+ */
+
+/* Motes drifting up through a banner or the reveal. Position and timing come
+   from inline custom properties (--mote-dur, --mote-delay, --mote-rise...). */
+@keyframes moteRise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.5);
+    opacity: 0;
+  }
+  18% {
+    opacity: var(--mote-peak, 0.9);
+  }
+  72% {
+    opacity: var(--mote-peak, 0.9);
+  }
+  100% {
+    transform: translate3d(var(--mote-sway, 12px), calc(var(--mote-rise, 320px) * -1), 0) scale(1);
+    opacity: 0;
+  }
+}
+
+.mote {
+  position: absolute;
+  bottom: -6px;
+  border-radius: 9999px;
+  animation: moteRise var(--mote-dur, 7s) linear var(--mote-delay, 0s) infinite both;
+  will-change: transform, opacity;
+}
+
+/* Glow that slowly breathes in and out. */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+.breathe {
+  animation: breathe var(--breathe-dur, 3.8s) ease-in-out infinite;
+}
+
+/* Slow camera push on the banner art. */
+@keyframes artDrift {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.085) translate3d(0, -1.2%, 0);
+  }
+}
+
+.artDrift {
+  animation: artDrift 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Holographic foil band that sweeps across legendary and mythic cards. */
+@keyframes holoSweep {
+  0% {
+    transform: translate3d(-140%, 0, 0) skewX(-16deg);
+  }
+  38%,
+  100% {
+    transform: translate3d(330%, 0, 0) skewX(-16deg);
+  }
+}
+
+.holo {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 60%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 4%,
+    rgba(255, 92, 180, 0.34) 22%,
+    rgba(255, 226, 120, 0.46) 38%,
+    rgba(120, 255, 210, 0.4) 54%,
+    rgba(110, 160, 255, 0.4) 70%,
+    transparent 92%
+  );
+  mix-blend-mode: color-dodge;
+  transform: translate3d(-140%, 0, 0) skewX(-16deg);
+  animation: holoSweep var(--holo-every, 5.5s) cubic-bezier(0.45, 0, 0.25, 1) var(--holo-delay, 0.8s) infinite both;
+}
+
+/* "Procesando" light running across a busy button. */
+@keyframes shimmer {
+  from {
+    transform: translate3d(-120%, 0, 0) skewX(-18deg);
+  }
+  to {
+    transform: translate3d(260%, 0, 0) skewX(-18deg);
+  }
+}
+
+.shimmer {
+  animation: shimmer 1.05s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.dot {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+/* Lobby loops hold still (no paint, no blur recompute) while the ceremony or a sheet covers them.
+   Pausing, not removing, so nothing jumps back to its first frame when they resume. */
+.paused *,
+.paused *::before,
+.paused *::after {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mote,
+  .holo,
+  .shimmer {
+    display: none;
+  }
+
+  .breathe,
+  .artDrift,
+  .dot {
+    animation: none;
+  }
+}

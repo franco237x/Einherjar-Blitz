@@ -8,23 +8,22 @@
  * download). Items are marked as claimed only after the file is available.
  */
 
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { auth } from '@/config/firebase';
-import { ALL_REWARDS, RARITIES, REWARD_TYPE_LABELS, type RarityKey } from '@/constants/gachaData';
+import { RARITIES, REWARD_TYPE_LABELS } from '@/constants/gachaData';
 import { useInventory } from '@/hooks/useInventory';
 import { markInventoryItemsClaimed, type InventoryItem } from '@/services/inventory';
 import { downloadTextFile, escapeHtml, printHtml } from '@/services/fileExport';
 import { useDialog } from '@/providers/DialogProvider';
 import { cn } from '@/lib/utils';
+import { AnimatedNumber, ParticleBurst, SPRINGS } from '../motion';
 import { EmptyState } from '../EmptyState';
 import { Icon } from '../Icon';
 import { MiniLoader } from '../MiniLoader';
 import { Modal } from '../Modal';
-
-// Build a name → reward lookup so we can resolve the local image & fallback icon.
-const REWARD_BY_NAME = new Map(ALL_REWARDS.map((reward) => [reward.name, reward]));
-
-const RARITY_ORDER: RarityKey[] = ['mythic', 'legendary', 'epic', 'rare', 'common'];
+import { FOCUS_RING, ProcessingLabel, ProcessingShimmer } from './fx';
+import { InventoryFilters, InventoryGrid, RARITY_ORDER, type InventoryFilter } from './InventoryGrid';
 
 interface InventorySheetProps {
   visible: boolean;
@@ -132,10 +131,11 @@ function buildCertificateText(items: InventoryItem[]) {
   ].join('\n');
 }
 
-export function InventorySheet({ visible, onClose }: InventorySheetProps) {
+export const InventorySheet = memo(function InventorySheet({ visible, onClose }: InventorySheetProps) {
   const dialog = useDialog();
   const { items, grouped, loading, count } = useInventory();
-  const [filter, setFilter] = useState<RarityKey | 'all'>('all');
+  const reduceMotion = useReducedMotion();
+  const [filter, setFilter] = useState<InventoryFilter>('all');
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [savedFileType, setSavedFileType] = useState<'pdf' | 'txt' | null>(null);
@@ -218,109 +218,99 @@ export function InventorySheet({ visible, onClose }: InventorySheetProps) {
 
   return (
     <>
-      <Modal visible={visible} onClose={onClose} label="Inventario" variant="sheet" locked={claiming}>
-        <div className="flex items-start justify-between px-6 pb-3 pt-5">
+      <Modal
+        visible={visible}
+        onClose={onClose}
+        label="Inventario"
+        variant="sheet"
+        locked={claiming}
+        // Fixed height: switching filters or finishing the load never makes the sheet jump.
+        className="h-[88dvh] sm:h-[min(88dvh,760px)]"
+      >
+        <div className="flex items-start justify-between px-6 pb-2 pt-5">
           <div>
             <h2 className="font-title text-2xl tracking-wide text-gold">Inventario</h2>
-            <p className="mt-0.5 text-[13px] text-white/50">{count} objetos obtenidos</p>
+            <p className="mt-0.5 text-[13px] text-white/50">
+              <AnimatedNumber
+                value={count}
+                // Counts up as the sheet opens; reduced motion shows the total straight away.
+                from={reduceMotion ? undefined : 0}
+                duration={0.8}
+                className="tabular-nums"
+              />{' '}
+              objetos obtenidos
+            </p>
           </div>
-          <button
+          <motion.button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/90 hover:bg-white/10"
+            whileTap={{ scale: 0.9, rotate: -90 }}
+            transition={SPRINGS.snappy}
+            className={cn(
+              'flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/90 transition-colors hover:bg-white/10',
+              FOCUS_RING
+            )}
             aria-label="Cerrar inventario"
           >
             <Icon name="close" size={24} />
-          </button>
+          </motion.button>
         </div>
 
-        <div className="flex flex-wrap gap-2 px-6 pb-4" role="group" aria-label="Filtrar por rareza">
-          <FilterChip label="Todos" active={filter === 'all'} onClick={() => setFilter('all')} color="#c9aa71" />
-          {RARITY_ORDER.map((r) => {
-            const cfg = RARITIES[r];
-            const c = countsByRarity[r] || 0;
-            if (c === 0) return null;
-            return (
-              <FilterChip
-                key={r}
-                label={`${cfg.label} · ${c}`}
-                active={filter === r}
-                onClick={() => setFilter(r)}
-                color={cfg.color}
-              />
-            );
-          })}
-        </div>
+        <InventoryFilters filter={filter} onChange={setFilter} countsByRarity={countsByRarity} />
 
-        <div className="juego-scroll min-h-[240px] flex-1 overflow-y-auto px-6 pb-4">
-          {loading ? (
-            <MiniLoader />
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              icon="cube-outline"
-              title="Inventario vacío"
-              description="Invoca en el Altar para obtener tus primeras recompensas."
-            />
-          ) : (
-            <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-              {filtered.map((item) => {
-                const rarity = RARITIES[item.rarity];
-                const reward = REWARD_BY_NAME.get(item.name);
-                return (
-                  <li
-                    key={item.id}
-                    className="overflow-hidden rounded-xl border bg-ink/85"
-                    style={{ borderColor: rarity.color }}
-                  >
-                    <div className="relative aspect-square">
-                      {reward?.image ? (
-                        <img src={reward.image} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center" style={{ backgroundColor: rarity.glowColor }}>
-                          <Icon name={reward?.fallbackIcon || 'cube'} size={40} color={rarity.color} />
-                        </div>
-                      )}
-                      <span className="absolute inset-x-0 bottom-0 h-[30px] opacity-50" style={{ backgroundColor: rarity.glowColor }} />
-                      {item.count > 1 && (
-                        <span className="absolute right-2 top-2 rounded-full border border-white/20 bg-black/75 px-2 py-0.5 text-xs font-bold text-white">
-                          x{item.count}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-center gap-1 p-2 text-center">
-                      <span className="flex gap-0.5">
-                        {Array.from({ length: rarity.stars }).map((_, i) => (
-                          <Icon key={i} name="star" size={9} color={rarity.color} />
-                        ))}
-                      </span>
-                      <span className="line-clamp-2 text-[13px] font-bold leading-4" style={{ color: rarity.color }}>
-                        {item.name}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+        <div className="juego-scroll min-h-[240px] flex-1 overflow-y-auto px-6 pb-4 pt-2">
+          <AnimatePresence mode="wait" initial={false}>
+            {loading ? (
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <MiniLoader />
+              </motion.div>
+            ) : filtered.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={SPRINGS.soft}
+              >
+                <EmptyState
+                  icon="cube-outline"
+                  title="Inventario vacío"
+                  description="Invoca en el Altar para obtener tus primeras recompensas."
+                />
+              </motion.div>
+            ) : (
+              <motion.div key="grid" exit={{ opacity: 0 }}>
+                <InventoryGrid items={filtered} filterKey={filter} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {count > 0 && (
           <div className="border-t border-gold/20 px-6 pb-[max(16px,env(safe-area-inset-bottom))] pt-3">
-            <button
+            <motion.button
               type="button"
               onClick={handleClaimAll}
               disabled={claiming}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gold text-sm font-bold tracking-[0.15em] text-ink-deep transition hover:brightness-110 disabled:opacity-60"
+              whileTap={claiming ? undefined : { scale: 0.97 }}
+              transition={SPRINGS.snappy}
+              className={cn(
+                'juego-sheen relative flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-gold text-sm font-bold tracking-[0.15em] text-ink-deep transition-[filter] hover:brightness-110 disabled:opacity-60',
+                FOCUS_RING
+              )}
             >
+              {claiming ? <ProcessingShimmer /> : null}
               {claiming ? (
-                'RECLAMANDO...'
+                <span className="relative">
+                  <ProcessingLabel text="RECLAMANDO" />
+                </span>
               ) : (
                 <>
                   <Icon name="document-text-outline" size={18} />
                   RECLAMAR TODO
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
         )}
       </Modal>
@@ -358,7 +348,17 @@ export function InventorySheet({ visible, onClose }: InventorySheetProps) {
       {/* ─── Success: certificate saved ─── */}
       <Modal visible={savedFileType !== null} onClose={() => setSavedFileType(null)} label="Certificado guardado">
         <div className="flex flex-col items-center text-center">
-          <Icon name="checkmark-circle" size={56} color="#c9aa71" />
+          <span className="relative flex">
+            <ParticleBurst burstKey={savedFileType ? 1 : null} count={16} distance={[40, 90]} size={[3, 5]} />
+            <motion.span
+              className="relative flex"
+              initial={{ scale: 0.3, rotate: -40, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ ...SPRINGS.bouncy, delay: 0.1 }}
+            >
+              <Icon name="checkmark-circle" size={56} color="#c9aa71" />
+            </motion.span>
+          </span>
           <h2 className="mt-3 font-title text-lg tracking-wide text-gold">¡Certificado guardado!</h2>
           <p className="mt-2 text-[13px] leading-relaxed text-white/60">
             {savedFileType === 'txt'
@@ -379,34 +379,7 @@ export function InventorySheet({ visible, onClose }: InventorySheetProps) {
       </Modal>
     </>
   );
-}
-
-function FilterChip({
-  label,
-  active,
-  onClick,
-  color,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  color: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        'min-h-8 rounded-full border px-3 text-xs font-bold tracking-wide transition',
-        active ? 'text-ink-deep' : 'border-white/15 bg-white/5 text-white/70 hover:bg-white/10'
-      )}
-      style={active ? { backgroundColor: color, borderColor: color } : undefined}
-    >
-      {label}
-    </button>
-  );
-}
+});
 
 function ChoiceOption({
   icon,

@@ -55,6 +55,8 @@ export function TiltCard({ children, className, style, max = 8, glare = true, pr
 
   return (
     <motion.div
+      // whileTap would otherwise make the wrapper an empty tab stop; the focusable content inside keeps focus.
+      tabIndex={-1}
       {...props}
       className={cn('relative', className)}
       style={{ ...style, rotateX, rotateY, transformPerspective: 900 }}

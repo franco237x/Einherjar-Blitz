@@ -9,14 +9,28 @@
  *   pull system, and triggers the cinematic summon animation.
  */
 
-import { useRef, useState, type CSSProperties } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
+import { AnimatePresence, motion, useScroll, type Variants } from 'framer-motion';
 import { Icon } from '@/components/juego/Icon';
 import { LobbyPageHeader } from '@/components/juego/LobbyPageHeader';
 import { BannerCard } from '@/components/juego/gacha/BannerCard';
+import { FeaturedRewards } from '@/components/juego/gacha/FeaturedRewards';
 import { InventorySheet } from '@/components/juego/gacha/InventorySheet';
+import { PAUSE_LOOPS } from '@/components/juego/gacha/fx';
 import { ProbabilitiesPanel } from '@/components/juego/gacha/ProbabilitiesPanel';
 import { SummonAnimation } from '@/components/juego/gacha/SummonCeremony';
-import { BANNERS, RARITIES, type RarityKey, type RewardItem } from '@/constants/gachaData';
+import { SPRINGS } from '@/components/juego/motion';
+import { BANNERS, type BannerDef, type RarityKey, type RewardItem } from '@/constants/gachaData';
 import { auth } from '@/config/firebase';
 import { performGachaPull } from '@/services/gacha';
 import { useUserData } from '@/hooks/useUserData';
@@ -27,6 +41,10 @@ export default function GachaPage() {
   const dialog = useDialog();
   const { userData } = useUserData();
   const [activeBanner, setActiveBanner] = useState(0);
+  // The banner the page is dressed for (spelled title, loops, Destacados/Tasas panel). It catches up
+  // with activeBanner once the carousel settles, so the heavy swap never lands in the middle of a swipe.
+  const [shownBanner, setShownBanner] = useState(0);
+  const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Summon state
   const [isSummoning, setIsSummoning] = useState(false);
@@ -36,8 +54,26 @@ export default function GachaPage() {
 
   const [showInventory, setShowInventory] = useState(false);
   const [showRates, setShowRates] = useState(false);
+  // +1 when the Tasas tab slides in from the right, -1 when Destacados comes back.
+  const [panelDirection, setPanelDirection] = useState(1);
 
   const carouselRef = useRef<HTMLDivElement>(null);
+  // Drives the banner parallax; read by motion values only, never during render.
+  const { scrollXProgress } = useScroll({ container: carouselRef });
+
+  const settleBanner = () => {
+    if (settleTimerRef.current) {
+      clearTimeout(settleTimerRef.current);
+      settleTimerRef.current = null;
+    }
+    const el = carouselRef.current;
+    if (!el) return;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    if (index === shownBanner || index < 0 || index >= BANNERS.length) return;
+    // A new banner crossfades the panel; only the tabs slide it sideways.
+    setPanelDirection(0);
+    setShownBanner(index);
+  };
 
   const handleScroll = () => {
     const el = carouselRef.current;
@@ -46,11 +82,24 @@ export default function GachaPage() {
     if (index !== activeBanner && index >= 0 && index < BANNERS.length) {
       setActiveBanner(index);
     }
+    // `scrollend` settles the banner once the snap is done. Browsers without it settle after a quiet
+    // moment instead (only there: a janky frame mid-swipe must not count as the end of the gesture).
+    if (!('onscrollend' in window)) {
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+      settleTimerRef.current = setTimeout(settleBanner, 160);
+    }
   };
 
-  const handleSummon = async (amount: 1 | 10) => {
+  useEffect(
+    () => () => {
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+    },
+    []
+  );
+
+  // Uses the banner whose button was pressed: mid-swipe, the neighbour's buttons are tappable too.
+  const handleSummon = async (banner: BannerDef, amount: 1 | 10) => {
     if (summonLockRef.current || summonBusy) return;
-    const banner = BANNERS[activeBanner];
     const costKey = banner.costType;
     const totalCost = banner.costAmount * amount;
 
@@ -88,87 +137,101 @@ export default function GachaPage() {
     }
   };
 
-  const banner = BANNERS[activeBanner];
-  const featured = banner.rewards.filter((reward) => FEATURED_RARITIES.includes(reward.rarity));
+  // Stable handle for the (memoized) banner cards, so crossing into the next banner mid-swipe does not
+  // re-render them; it always runs the latest handleSummon.
+  const latestSummonRef = useRef<typeof handleSummon | null>(null);
+  useLayoutEffect(() => {
+    latestSummonRef.current = handleSummon;
+  });
+  const onSummon = useCallback((banner: BannerDef, amount: 1 | 10) => {
+    void latestSummonRef.current?.(banner, amount);
+  }, []);
+  const closeInventory = useCallback(() => setShowInventory(false), []);
+  const inventoryButton = useMemo(
+    () => (
+      <motion.button
+        type="button"
+        onClick={() => setShowInventory(true)}
+        whileHover={{ y: -1 }}
+        whileTap={{ scale: 0.93 }}
+        transition={SPRINGS.snappy}
+        className="flex min-h-11 items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 text-[13px] font-bold text-gold transition-colors hover:bg-gold/15 active:bg-gold/20"
+      >
+        <Icon name="briefcase" size={16} />
+        Inventario
+      </motion.button>
+    ),
+    []
+  );
 
-  const segment = (active: boolean) =>
-    cn(
-      'flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-xs font-bold tracking-[0.12em] transition active:scale-[0.97]',
-      active ? 'bg-white/[0.09] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'text-white/50 hover:text-white/80'
-    );
+  // Nothing in the lobby is visible under the ceremony or the inventory, so its loops hold still.
+  const lobbyCovered = isSummoning || showInventory;
+
+  // Stable, so the memoized details skip the re-render when only the swipe position changes.
+  // Pressing the tab that is already selected changes nothing on screen.
+  const selectRates = useCallback((next: boolean) => {
+    setPanelDirection(next ? 1 : -1);
+    setShowRates(next);
+  }, []);
 
   return (
     <>
-      <main className="relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5">
+      <main className={cn('relative z-10 mx-auto w-full max-w-[520px] px-4 pb-32 pt-5', lobbyCovered && PAUSE_LOOPS)}>
         <LobbyPageHeader
           eyebrow="Cámara Einherjar"
           title="Invocaciones"
-          action={
-            <button
-              type="button"
-              onClick={() => setShowInventory(true)}
-              className="flex min-h-11 items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 text-[13px] font-bold text-gold transition active:scale-95 active:bg-gold/20"
-            >
-              <Icon name="briefcase" size={16} />
-              Inventario
-            </button>
-          }
+          action={inventoryButton}
         />
 
         <div
           ref={carouselRef}
           onScroll={handleScroll}
-          className="juego-rise -mx-4 flex h-[clamp(440px,122vw,600px)] snap-x snap-mandatory overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onScrollEnd={settleBanner}
+          className="juego-rise relative -mx-4 flex h-[clamp(440px,122vw,600px)] snap-x snap-mandatory overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ '--i': 1 } as CSSProperties}
         >
-          {BANNERS.map((item) => (
-            <div key={item.id} className="h-full w-full shrink-0 snap-center">
-              <BannerCard banner={item} onSummon={handleSummon} disabled={summonBusy} />
+          {BANNERS.map((item, index) => (
+            <div key={item.id} className="h-full w-full shrink-0 snap-center px-1">
+              <BannerCard
+                banner={item}
+                onSummon={onSummon}
+                disabled={summonBusy}
+                active={index === shownBanner}
+                progress={scrollXProgress}
+                index={index}
+                count={BANNERS.length}
+                paused={lobbyCovered}
+              />
             </div>
           ))}
         </div>
 
         {BANNERS.length > 1 && (
           <div className="mt-3 flex justify-center">
-            <div className="flex gap-1.5 rounded-full bg-black/40 px-3 py-1.5">
+            <div className="flex gap-1 rounded-full bg-black/40 px-2.5 py-1.5">
               {BANNERS.map((item, i) => (
-                <span
-                  key={item.id}
-                  className={cn('h-1.5 rounded-full transition-all', activeBanner === i ? 'w-5' : 'w-1.5 bg-white/30')}
-                  style={activeBanner === i ? { backgroundColor: item.accentColor } : undefined}
-                />
+                <span key={item.id} className="relative flex h-1.5 w-5 items-center justify-center">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
+                  {activeBanner === i ? (
+                    <motion.span
+                      layoutId="gacha-banner-dot"
+                      className="absolute inset-0 rounded-full"
+                      style={{ backgroundColor: item.accentColor, boxShadow: `0 0 10px ${item.accentColor}` }}
+                      transition={SPRINGS.snappy}
+                    />
+                  ) : null}
+                </span>
               ))}
             </div>
           </div>
         )}
 
-        <div className="juego-rise mt-6" style={{ '--i': 2 } as CSSProperties}>
-          <div className="grid grid-cols-2 rounded-full border border-white/[0.08] bg-black/30 p-1" role="tablist" aria-label="Detalle del banner">
-            <button type="button" role="tab" aria-selected={!showRates} className={segment(!showRates)} onClick={() => setShowRates(false)}>
-              <Icon name="sparkles" size={15} />
-              Destacados
-            </button>
-            <button type="button" role="tab" aria-selected={showRates} className={segment(showRates)} onClick={() => setShowRates(true)}>
-              <Icon name="stats-chart" size={15} />
-              Tasas
-            </button>
-          </div>
-          <h2 className="mt-5 font-title text-xl text-white/95">
-            {showRates ? 'Probabilidades' : 'Recompensas destacadas'}
-          </h2>
-        </div>
-
-        <section className="juego-rise mt-3" style={{ '--i': 3 } as CSSProperties}>
-          {showRates ? (
-            <ProbabilitiesPanel rewards={banner.rewards} />
-          ) : (
-            <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {featured.map((reward) => (
-                <FeaturedReward key={reward.name} reward={reward} />
-              ))}
-            </ul>
-          )}
-        </section>
+        <BannerDetails
+          banner={BANNERS[shownBanner]}
+          showRates={showRates}
+          panelDirection={panelDirection}
+          onSelectRates={selectRates}
+        />
       </main>
 
       <SummonAnimation
@@ -180,54 +243,131 @@ export default function GachaPage() {
         }}
       />
 
-      <InventorySheet visible={showInventory} onClose={() => setShowInventory(false)} />
+      <InventorySheet visible={showInventory} onClose={closeInventory} />
     </>
   );
 }
 
 const FEATURED_RARITIES: RarityKey[] = ['mythic', 'legendary', 'epic'];
 
-function FeaturedReward({ reward }: { reward: RewardItem }) {
-  const [imageError, setImageError] = useState(false);
-  const rarity = RARITIES[reward.rarity];
+/** Destacados/Tasas for the banner the page is dressed for. */
+const BannerDetails = memo(function BannerDetails({
+  banner,
+  showRates,
+  panelDirection,
+  onSelectRates,
+}: {
+  banner: BannerDef;
+  showRates: boolean;
+  panelDirection: number;
+  onSelectRates: (next: boolean) => void;
+}) {
+  const featured = useMemo(
+    () => banner.rewards.filter((reward) => FEATURED_RARITIES.includes(reward.rarity)),
+    [banner]
+  );
   return (
-    <li
-      className="relative w-[138px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-[#0e0d0c]"
-      style={{ borderColor: `${rarity.color}55` }}
-    >
-      <div className="relative aspect-[3/4] overflow-hidden">
-        {reward.image && !imageError ? (
-          <img
-            src={reward.image}
-            alt=""
-            loading="lazy"
-            onError={() => setImageError(true)}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <Icon name={reward.fallbackIcon} size={40} color={rarity.color} />
-          </div>
-        )}
-        <span
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `linear-gradient(180deg, transparent 45%, ${rarity.glowColor} 85%, #0e0d0c 100%)` }}
-        />
-        <span
-          className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-bold tracking-[0.14em] backdrop-blur-md"
-          style={{ color: rarity.color }}
-        >
-          {rarity.label}
-        </span>
-      </div>
-      <div className="px-3 pb-3 pt-2">
-        <p className="truncate text-sm font-bold text-white/95">{reward.name}</p>
-        <div className="mt-1 flex gap-px" aria-label={`${rarity.stars} estrellas`}>
-          {Array.from({ length: rarity.stars }).map((_, i) => (
-            <Icon key={i} name="star" size={10} color={rarity.color} />
-          ))}
+    <>
+      <div className="juego-rise mt-6" style={{ '--i': 2 } as CSSProperties}>
+        <div className="grid grid-cols-2 rounded-full border border-white/[0.08] bg-black/30 p-1" role="tablist" aria-label="Detalle del banner">
+          <SegmentTab active={!showRates} onSelect={() => onSelectRates(false)} icon="sparkles">
+            Destacados
+          </SegmentTab>
+          <SegmentTab active={showRates} onSelect={() => onSelectRates(true)} icon="stats-chart">
+            Tasas
+          </SegmentTab>
+        </div>
+        <div className="relative mt-5 h-7 overflow-hidden">
+          <AnimatePresence initial={false} mode="popLayout" custom={panelDirection}>
+            <motion.h2
+              key={showRates ? 'rates' : 'featured'}
+              className="font-title text-xl text-white/95"
+              custom={panelDirection}
+              variants={titleSwap}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              {showRates ? 'Probabilidades' : 'Recompensas destacadas'}
+            </motion.h2>
+          </AnimatePresence>
         </div>
       </div>
-    </li>
+
+      <section className="juego-rise mt-3" style={{ '--i': 3 } as CSSProperties}>
+        <AnimatePresence initial={false} mode="wait" custom={panelDirection}>
+          <motion.div
+            key={`${showRates ? 'rates' : 'featured'}-${banner.id}`}
+            custom={panelDirection}
+            variants={panelSwap}
+            initial="enter"
+            animate="center"
+            exit="exit"
+          >
+            {showRates ? <ProbabilitiesPanel rewards={banner.rewards} /> : <FeaturedRewards rewards={featured} />}
+          </motion.div>
+        </AnimatePresence>
+      </section>
+    </>
+  );
+});
+
+/** direction: +1 / -1 slide with the tabs, 0 crossfades in place (banner change). */
+const panelSwap: Variants = {
+  enter: (direction: number) => ({ opacity: 0, x: direction * 36 }),
+  center: { opacity: 1, x: 0, transition: { ...SPRINGS.soft, opacity: { duration: 0.2 } } },
+  exit: (direction: number) => ({ opacity: 0, x: direction * -36, transition: { duration: 0.14, ease: 'easeIn' } }),
+};
+
+const titleSwap: Variants = {
+  enter: { opacity: 0, y: 18 },
+  center: { opacity: 1, y: 0, transition: SPRINGS.soft },
+  exit: { opacity: 0, y: -18, transition: { duration: 0.16, ease: 'easeIn' } },
+};
+
+/** Segmented-control tab; the lit pill slides between tabs. */
+function SegmentTab({
+  active,
+  onSelect,
+  icon,
+  children,
+}: {
+  active: boolean;
+  onSelect: () => void;
+  icon: string;
+  children: ReactNode;
+}) {
+  return (
+    <motion.button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onSelect}
+      whileTap={{ scale: 0.96 }}
+      transition={SPRINGS.snappy}
+      className={cn(
+        'relative flex min-h-11 items-center justify-center rounded-full px-4 text-xs font-bold tracking-[0.12em] transition-colors',
+        active ? 'text-white' : 'text-white/50 hover:text-white/80'
+      )}
+    >
+      {active ? (
+        <motion.span
+          layoutId="gacha-segment-pill"
+          aria-hidden="true"
+          className="absolute inset-0 rounded-full border border-gold/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.11),rgba(255,255,255,0.05))] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_6px_18px_-8px_rgba(201,170,113,0.45)]"
+          transition={SPRINGS.snappy}
+        />
+      ) : null}
+      <span className="relative flex items-center gap-2">
+        <motion.span
+          className="flex"
+          animate={{ rotate: active ? 0 : -12, scale: active ? 1.1 : 1 }}
+          transition={SPRINGS.bouncy}
+        >
+          <Icon name={icon} size={15} color={active ? '#e2c68e' : undefined} />
+        </motion.span>
+        {children}
+      </span>
+    </motion.button>
   );
 }
