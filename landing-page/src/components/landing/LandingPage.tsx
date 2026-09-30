@@ -5,7 +5,6 @@ import { Inter } from 'next/font/google';
 import { MotionConfig } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FinalCta, SiteFooter } from './ClosingSections';
-import { AgroEventFeature } from './AgroEventFeature';
 import { FeaturedCharacters } from './FeaturedCharacters';
 import { GachaFeature } from './GachaFeature';
 import { Hero } from './Hero';
@@ -48,7 +47,6 @@ export function LandingPage() {
           <FeaturedCharacters />
           <GachaFeature />
           <Progression />
-          <AgroEventFeature />
           <FinalCta />
         </main>
         <SiteFooter />

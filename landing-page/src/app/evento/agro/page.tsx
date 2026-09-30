@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import { AgroEvent } from '@/components/agro/AgroEvent';
+import { AgroThanks } from '@/components/agro/AgroThanks';
 
 export const metadata: Metadata = {
-  title: 'El Huerto de Yggdrasil | Einherjar Blitz',
-  description:
-    'Invoca semillas, cultiva plantas, fusiona especies y cosecha monedas en el evento agropecuario de Einherjar Blitz.',
+  title: 'Gracias por participar | El Huerto de Yggdrasil',
+  description: 'El evento agropecuario de Einherjar Blitz terminó. Consulta los logros de tu huerto.',
 };
 
 export default function AgroPage() {
-  return <AgroEvent />;
+  return <AgroThanks />;
 }

@@ -261,15 +261,15 @@ export default function DashboardPage() {
           <span className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 rounded-full bg-[#a7bb76]/15 blur-3xl" aria-hidden="true" />
           <span className="relative z-10 min-w-0 flex-1">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#cfdb9c]/30 bg-[#cfdb9c]/10 px-2.5 py-0.5 text-[9px] font-bold tracking-[0.18em] text-[#d1dda3]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#cfdb9c]" />
-              EVENTO ACTIVO
+              <span className="h-1.5 w-1.5 rounded-full bg-[#cfdb9c]/60" />
+              EVENTO FINALIZADO
             </span>
             <span className="mt-2 block font-title text-[20px] leading-tight text-white/95">El Huerto de Yggdrasil</span>
             <span className="mt-1 block text-[12px] leading-[18px] text-white/60">
-              Planta, riega y fusiona. Cosecha monedas y genera tu vale PDF.
+              Gracias por participar. Mira los logros de tu huerto y tus vales.
             </span>
             <span className="mt-2.5 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#e5ce96]">
-              Entrar al Huerto
+              Ver mis logros
               <Icon name="arrow-forward" size={15} />
             </span>
           </span>
