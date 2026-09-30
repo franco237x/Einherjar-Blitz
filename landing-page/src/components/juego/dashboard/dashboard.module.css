@@ -1,0 +1,98 @@
+/*
+ * Idle loops for the lobby home. They only touch transform and opacity so the
+ * compositor runs them off the main thread; all stop for reduced motion.
+ */
+
+/* Slow camera drift on the hero portrait. */
+@keyframes drift {
+  0% { transform: scale(1.06) translate3d(-1.2%, 0.8%, 0); }
+  50% { transform: scale(1.13) translate3d(1.4%, -1.2%, 0); }
+  100% { transform: scale(1.06) translate3d(-1.2%, 0.8%, 0); }
+}
+
+.kenBurns {
+  animation: drift 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Light arc orbiting the avatar. */
+.orbit {
+  animation: spin 7s linear infinite;
+}
+
+/* Glint that runs along the filled part of the EXP bar. */
+@keyframes streak {
+  0% { transform: translateX(-110%); }
+  55%, 100% { transform: translateX(260%); }
+}
+
+.streak {
+  animation: streak 4.2s cubic-bezier(0.65, 0, 0.35, 1) 2.2s infinite both;
+}
+
+/* Tree of the Agro event breathing in the air. */
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+  50% { transform: translate3d(0, -7px, 0) rotate(1.5deg); }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.glow {
+  animation: glow 4.5s ease-in-out infinite;
+}
+
+/* Fireflies rising around the tree: set --fx (sway), --fd (duration), --fdelay. */
+@keyframes firefly {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translate3d(var(--fx, 8px), -44px, 0) scale(1); opacity: 0; }
+}
+
+.firefly {
+  animation: firefly var(--fd, 4s) ease-out var(--fdelay, 0s) infinite both;
+}
+
+/* Energy flowing from the key to the sphere in the convert preview. The
+   element spans the whole track, so 100% is the track width. */
+@keyframes flow {
+  0% { transform: translateX(0); opacity: 0; }
+  20%, 75% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.flow {
+  animation: flow 1.8s cubic-bezier(0.45, 0, 0.55, 1) var(--flow-delay, 0s) infinite both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kenBurns,
+  .orbit,
+  .streak,
+  .float,
+  .glow,
+  .flow {
+    animation: none;
+  }
+
+  .kenBurns {
+    transform: scale(1.06);
+  }
+
+  .streak,
+  .firefly,
+  .flow {
+    display: none;
+  }
+}
