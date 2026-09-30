@@ -18,26 +18,73 @@ export { GameError };
 // server decides gacha results and battle rewards. Works on the Spark plan.
 const APP_NAME = 'game-server';
 
+export type CredentialProblem =
+  | 'falta'
+  | 'json_invalido'
+  | 'no_es_cuenta_de_servicio'
+  | 'proyecto_distinto';
+
+export class CredentialError extends GameError {
+  constructor(public problem: CredentialProblem) {
+    super(
+      problem === 'falta'
+        ? 'El servidor del juego todavía no está configurado. Intenta más tarde.'
+        : 'La credencial del servidor del juego es inválida. Revisa GAME_FIREBASE_SERVICE_ACCOUNT_JSON.',
+      503,
+    );
+  }
+}
+
+/**
+ * Parses the service-account JSON pasted into the hosting panel. Tolerates
+ * the usual copy/paste accidents (surrounding quotes, a `NAME=` prefix,
+ * double-encoded JSON, escaped newlines in the key). Never includes any part
+ * of the value in errors or logs.
+ */
+export function parseServiceAccount(raw: string, projectId: string) {
+  let text = raw.trim().replace(/^GAME_FIREBASE_SERVICE_ACCOUNT_JSON\s*=\s*/, '');
+  if (/^'[\s\S]*'$/.test(text)) text = text.slice(1, -1);
+  let value: unknown;
+  try {
+    value = JSON.parse(text);
+    if (typeof value === 'string') value = JSON.parse(value);
+  } catch {
+    throw new CredentialError('json_invalido');
+  }
+  const account = value as Record<string, unknown> | null;
+  if (
+    !account ||
+    typeof account !== 'object' ||
+    account.type !== 'service_account' ||
+    typeof account.client_email !== 'string' ||
+    typeof account.private_key !== 'string'
+  )
+    throw new CredentialError('no_es_cuenta_de_servicio');
+  if (account.project_id !== projectId)
+    throw new CredentialError('proyecto_distinto');
+  const privateKey = account.private_key.includes('\\n')
+    ? account.private_key.replace(/\\n/g, '\n')
+    : account.private_key;
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----'))
+    throw new CredentialError('no_es_cuenta_de_servicio');
+  return {
+    projectId,
+    clientEmail: account.client_email,
+    privateKey,
+  };
+}
+
 export function gameFirestore(): Firestore {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const serviceAccount = process.env.GAME_FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!projectId || (!serviceAccount && !process.env.GOOGLE_APPLICATION_CREDENTIALS))
-    throw new GameError(
-      'El servidor del juego todavía no está configurado. Intenta más tarde.',
-      503,
-    );
-  const app =
-    getApps().find((existing) => existing.name === APP_NAME) ||
-    initializeApp(
-      {
-        projectId,
-        credential: serviceAccount
-          ? cert(JSON.parse(serviceAccount))
-          : applicationDefault(),
-      },
-      APP_NAME,
-    );
-  return getFirestore(app);
+    throw new CredentialError('falta');
+  const existing = getApps().find((app) => app.name === APP_NAME);
+  if (existing) return getFirestore(existing);
+  const credential = serviceAccount
+    ? cert(parseServiceAccount(serviceAccount, projectId))
+    : applicationDefault();
+  return getFirestore(initializeApp({ projectId, credential }, APP_NAME));
 }
 
 export function requireGameUser(request: NextRequest): Promise<string> {
@@ -54,10 +101,11 @@ export function gameApiError(error: unknown): Response {
       { error: error.message },
       { status: error.status, headers: { 'Cache-Control': 'no-store' } },
     );
-  // Do not leak credentials, request bodies, or database diagnostics.
+  // Log the error class and gRPC/Firebase code only: messages may echo data.
   console.error(
     '[juego] Operation failed:',
     error instanceof Error ? error.name : 'UnknownError',
+    (error as { code?: unknown })?.code ?? '',
   );
   return Response.json(
     {
