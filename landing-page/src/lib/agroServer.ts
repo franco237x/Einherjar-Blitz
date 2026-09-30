@@ -185,6 +185,15 @@ function accountKey(uid: string) {
 function newAccountOwnerId(uid: string) {
   return createHash('sha256').update(`firebase-user:${uid}`).digest('hex');
 }
+/** Read-only lookup for the closed event: never creates, links or migrates a farm. */
+export async function readFarm(uid: string): Promise<FarmState | null> {
+  return transaction(async (store) => {
+    const account = await store.get<AgroAccountRecord>(accountKey(uid));
+    if (!account) return null;
+    const record = await store.get<FarmRecord>(`farms/${account.ownerId}`);
+    return record && record.linkedUid === uid ? record.farm : null;
+  });
+}
 export async function loadFarm(
   uid: string,
   legacyOwner: string | null,

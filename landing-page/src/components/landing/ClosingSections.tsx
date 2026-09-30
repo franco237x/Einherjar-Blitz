@@ -54,7 +54,6 @@ export function SiteFooter() {
           <Link href="/juego" className="transition-colors hover:text-white/80">Portal</Link>
           <Link href="/juego/registro" className="transition-colors hover:text-white/80">Crear cuenta</Link>
           <Link href="/noticias" className="transition-colors hover:text-white/80">Noticias</Link>
-          <Link href="/evento/agro" className="transition-colors hover:text-white/80">Evento agropecuario</Link>
         </nav>
       </div>
     </footer>

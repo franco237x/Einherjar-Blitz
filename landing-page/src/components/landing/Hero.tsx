@@ -1,15 +1,16 @@
 'use client';
 
 import { useRef } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Sprout } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { GAME_CHARACTERS } from '@/constants/battleData';
 import { ALL_REWARDS } from '@/constants/gachaData';
+import { ChampionDeck } from './ChampionDeck';
 import { EASE_OUT, Eyebrow } from './primitives';
 
 const FACTS = [
-  { value: '5', label: 'Rarezas' },
+  { value: String(Object.values(GAME_CHARACTERS).filter((c) => c.isPlayableBase).length), label: 'Campeones' },
   { value: String(ALL_REWARDS.length), label: 'Recompensas' },
   { value: '6', label: 'Rangos' },
 ];
@@ -25,7 +26,7 @@ function enter(delay: number) {
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const artY = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const artY = useTransform(scrollYProgress, [0, 1], [0, 40]);
 
   return (
     <section id="inicio" ref={ref} className="relative overflow-hidden pt-[72px]">
@@ -37,7 +38,7 @@ export function Hero() {
       <div className="relative mx-auto grid min-h-[calc(100svh-72px)] max-w-6xl items-center gap-16 px-6 py-16 md:grid-cols-[1.1fr_0.9fr] md:py-24">
         <div>
           <motion.div {...enter(0.1)}>
-            <Eyebrow>Portal del guerrero</Eyebrow>
+            <Eyebrow>RPG de colección · En desarrollo</Eyebrow>
           </motion.div>
 
           <motion.h1
@@ -50,31 +51,23 @@ export function Hero() {
           </motion.h1>
 
           <motion.p {...enter(0.35)} className="mt-8 max-w-md text-[17px] leading-relaxed text-white/60">
-            Invoca leyendas, administra tu economía y asciende en los rangos del Valhalla. La misma cuenta de la app,
-            ahora desde el navegador.
+            Colecciona guerreros, fusiona sus linajes y lidera un equipo de tres en la arena del Valhalla. El portal ya
+            está abierto: invoca, administra tus llaves y esferas, y prepárate para el primer combate.
           </motion.p>
 
           <motion.div {...enter(0.5)} className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-4">
             <Link
-              href="/evento/agro"
+              href="/juego/registro"
               className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-colors hover:bg-[#d8bd88]"
             >
-              <Sprout className="h-4 w-4" aria-hidden="true" />
-              Jugar al Huerto
+              Crear una cuenta
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
             <Link
               href="/juego"
-              className="group inline-flex items-center gap-2.5 rounded-full border border-primary/50 px-7 py-3.5 text-[15px] font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-            >
-              Entrar al portal
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/juego/registro"
               className="group inline-flex items-center gap-2 text-[15px] text-white/75 transition-colors hover:text-white"
             >
-              Crear una cuenta
+              Entrar al portal
               <span className="h-px w-6 bg-white/40 transition-all duration-300 group-hover:w-9 group-hover:bg-primary" />
             </Link>
           </motion.div>
@@ -93,26 +86,9 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.4, delay: 0.3, ease: EASE_OUT }}
-          className="relative mx-auto w-full max-w-[420px]"
+          className="relative mx-auto w-full max-w-[440px]"
         >
-          <span className="absolute -inset-4 border border-primary/20" aria-hidden="true" />
-          <div className="relative aspect-[3/4] overflow-hidden bg-[#121110]">
-            <motion.div className="absolute inset-[-8%_0]" style={{ y: artY }}>
-              <Image
-                src="/juego/loading_screen/argos.jpg"
-                alt="Argos, el Prodigio de Acero"
-                fill
-                priority
-                sizes="(min-width: 768px) 420px, 90vw"
-                className="object-cover"
-              />
-            </motion.div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0b0a09]/80 via-transparent to-transparent" />
-          </div>
-          <figcaption className="mt-8 flex items-baseline justify-between text-sm">
-            <span className="font-title tracking-[0.15em] text-white/85">ARGOS</span>
-            <span className="text-white/40">El Prodigio de Acero</span>
-          </figcaption>
+          <ChampionDeck parallaxY={artY} />
         </motion.figure>
       </div>
     </section>

@@ -10,11 +10,10 @@ import { scrollToSection } from './smoothScroll';
 
 export const SECTIONS = [
   { id: 'inicio', label: 'Inicio' },
-  { id: 'portal', label: 'El portal' },
-  { id: 'personajes', label: 'Personajes' },
+  { id: 'juego', label: 'El juego' },
+  { id: 'campeones', label: 'Campeones' },
   { id: 'invocaciones', label: 'Invocaciones' },
   { id: 'progresion', label: 'Progresión' },
-  { id: 'evento', label: 'Evento' },
 ] as const;
 
 export function SiteHeader({ activeSection }: { activeSection: string }) {
