@@ -1,6 +1,6 @@
 import { Reveal, SectionHeading } from './primitives';
 
-// Thresholds mirror calculateRank() in src/services/battleService.ts.
+// Thresholds mirror calculateRank() in src/constants/battleRewards.ts.
 const RANKS = [
   { name: 'Iniciado', copas: 0 },
   { name: 'Recluta', copas: 50 },

@@ -20,7 +20,7 @@ export function BattleScreen({ charId, onExit }: BattleScreenProps) {
   const { width, height } = useViewport();
   const compact = height < 400 || width < 740;
   const narrow = width < 620;
-  const { battleState, isProcessing, rewards, savingFirebase, saveError, attack, defend, regen, special } =
+  const { battleState, isProcessing, rewards, savingFirebase, saveError, startError, attack, defend, regen, special } =
     useBattle(charId);
   const { player, boss, turnCount, turnPhase, log } = battleState;
   const canUseSpecial = !player.specialUsed && player.currentHealth <= player.maxHealth * 0.5;
@@ -93,6 +93,14 @@ export function BattleScreen({ charId, onExit }: BattleScreenProps) {
             onRegen={regen}
             onSpecial={special}
           />
+          {startError && (
+            <p
+              role="alert"
+              className="absolute left-1/2 top-[74px] max-w-[min(90%,420px)] -translate-x-1/2 border border-red-400/40 bg-black/80 px-4 py-2 text-center text-xs text-red-300"
+            >
+              {startError}
+            </p>
+          )}
           {battleEnded && (
             <BattleModal
               phase={turnPhase}
