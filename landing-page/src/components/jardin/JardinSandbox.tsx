@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Shovel } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Maximize, Minimize, Pause, Play, Shovel, SlidersHorizontal } from 'lucide-react';
 import {
   LEVEL_WAVES,
   PLANT_ORDER,
@@ -135,6 +135,47 @@ function readHud(state: JardinState): Hud {
   };
 }
 
+const COMPACT_QUERY = '(max-height: 520px) and (orientation: landscape)';
+
+/** Phones in landscape: too short for a top bar of seed packets. */
+function useCompactLayout() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const query = window.matchMedia(COMPACT_QUERY);
+      query.addEventListener('change', onChange);
+      return () => query.removeEventListener('change', onChange);
+    },
+    () => window.matchMedia(COMPACT_QUERY).matches,
+    () => false,
+  );
+}
+
+type LockableOrientation = ScreenOrientation & { lock?: (orientation: string) => Promise<void> };
+
+/** Fullscreen hides the browser bars; on Android it also lets us lock landscape. */
+export function enterFullscreen() {
+  if (typeof document === 'undefined' || !document.fullscreenEnabled || document.fullscreenElement) return;
+  document.documentElement
+    .requestFullscreen({ navigationUI: 'hide' })
+    .then(() => (screen.orientation as LockableOrientation | undefined)?.lock?.('landscape'))
+    .catch(() => undefined);
+}
+
+function subscribeFullscreen(onChange: () => void) {
+  document.addEventListener('fullscreenchange', onChange);
+  return () => document.removeEventListener('fullscreenchange', onChange);
+}
+
+function useFullscreen() {
+  const active = useSyncExternalStore(subscribeFullscreen, () => !!document.fullscreenElement, () => false);
+  const supported = useSyncExternalStore(subscribeFullscreen, () => !!document.fullscreenEnabled, () => false);
+  const toggle = () => {
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    else enterFullscreen();
+  };
+  return { active, supported, toggle };
+}
+
 function BetaBadge() {
   return (
     <span className="rounded-full border border-amber-300/50 bg-amber-300/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
@@ -150,6 +191,8 @@ export function JardinSandbox() {
     return (
       <StartScreen
         onPick={(picked) => {
+          // Must run inside the tap that picks the mode (a user gesture).
+          if (window.matchMedia('(pointer: coarse)').matches) enterFullscreen();
           setMode(picked);
           setRound((value) => value + 1);
         }}
@@ -160,20 +203,20 @@ export function JardinSandbox() {
 
 function StartScreen({ onPick }: { onPick: (mode: GameMode) => void }) {
   return (
-    <main className="fixed inset-0 flex items-center justify-center overflow-y-auto bg-[#0b130d] p-4 text-white">
+    <main className="fixed inset-0 flex overflow-y-auto bg-[#0b130d] p-4 text-white short:p-2">
       <img
         src="/jardin/escenario/jardin.webp"
         alt=""
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30 blur-[2px]"
+        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-30 blur-[2px]"
       />
-      <section className="relative w-full max-w-xl rounded-3xl border border-white/15 bg-black/70 p-6 text-center shadow-2xl backdrop-blur-md short:p-4">
+      <section className="relative m-auto w-full max-w-xl rounded-3xl border border-white/15 bg-black/70 p-6 text-center shadow-2xl backdrop-blur-md short:p-4">
         <BetaBadge />
         <h1 className="mt-3 font-title text-3xl text-amber-100 short:mt-1 short:text-2xl">Jardín de Yggdrasil</h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-white/70">
           Defiende el claro de los zombis con las plantas vivas del próximo evento. Esta beta es una prueba abierta: no da premios y su
           equilibrio puede cambiar.
         </p>
-        <div className="mt-4 flex justify-center gap-1 short:hidden">
+        <div className="mt-4 flex flex-wrap justify-center gap-1 short:hidden">
           {PLANT_ORDER.map((kind) => (
             <img key={kind} src={spriteUrl(kind, 'portrait')} alt={PLANTS[kind].name} title={PLANTS[kind].name} className="h-10 w-10 object-contain" />
           ))}
@@ -229,6 +272,8 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
   const [showPanel, setShowPanel] = useState(false);
   const [zombieKind, setZombieKind] = useState<ZombieKind>('despistado');
   const [portrait, setPortrait] = useState(false);
+  const compact = useCompactLayout();
+  const fullscreen = useFullscreen();
   const [playPortrait, setPlayPortrait] = useState(false);
   const sandbox = mode === 'sandbox';
 
@@ -377,79 +422,136 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
 
   const spawn = (row?: number) => send({ type: 'spawnZombie', row, kind: zombieKind });
 
+  const sunBox = (
+    <div
+      className={`flex flex-col items-center justify-center rounded-xl bg-amber-300/15 ring-1 ring-amber-300/40 ${
+        compact ? 'shrink-0 flex-row gap-1 py-1' : 'min-w-[64px] px-2'
+      }`}
+    >
+      <img src={spriteUrl('solmiel', 'sun')} alt="" className={compact ? 'h-5 w-5 object-contain' : 'h-7 w-7 object-contain'} />
+      <span className="text-sm font-bold tabular-nums text-amber-200">{options.infiniteSun ? '∞' : hud.sun}</span>
+    </div>
+  );
+
+  const cards = PLANT_ORDER.map((kind, index) => {
+    const def = PLANTS[kind];
+    const selected = tool === kind;
+    const ready = hud.placeable[kind];
+    return (
+      <button
+        key={kind}
+        type="button"
+        onClick={() => setTool(selected ? null : kind)}
+        title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
+        aria-label={`${def.name}, ${def.cost} de sol`}
+        aria-pressed={selected}
+        className={`relative flex shrink-0 flex-col items-center justify-center overflow-hidden rounded-xl border bg-[#1d2a1a] transition active:scale-95 ${
+          compact ? 'h-full max-h-[56px] min-h-0 w-full' : 'w-[62px] pb-0.5'
+        } ${selected ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'} ${ready ? '' : 'opacity-60'}`}
+      >
+        <img
+          src={spriteUrl(kind, 'portrait')}
+          alt=""
+          className={compact ? 'h-7 min-h-0 w-7 shrink object-contain' : 'h-10 w-10 object-contain'}
+        />
+        {!compact && (
+          <span className="w-full truncate px-0.5 text-center text-[10px] font-semibold leading-tight text-white/85">{def.name}</span>
+        )}
+        <span className="text-[11px] font-bold leading-tight tabular-nums text-amber-200">{options.infiniteSun ? '—' : def.cost}</span>
+        {hud.cooldowns[kind] > 0 && (
+          <span className="pointer-events-none absolute inset-x-0 top-0 bg-black/60" style={{ height: `${hud.cooldowns[kind] * 100}%` }} />
+        )}
+      </button>
+    );
+  });
+
+  const round = compact ? 'h-11 w-11' : 'h-10 w-10';
+  const shovelButton = (
+    <button
+      type="button"
+      onClick={() => setTool(tool === 'shovel' ? null : 'shovel')}
+      title="Pala (Q)"
+      aria-label="Pala"
+      aria-pressed={tool === 'shovel'}
+      className={`flex shrink-0 flex-col items-center justify-center rounded-xl border bg-[#2a2219] transition active:scale-95 ${
+        compact ? 'h-11 w-11' : 'w-[52px]'
+      } ${tool === 'shovel' ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'}`}
+    >
+      <Shovel size={22} className="text-amber-100" aria-hidden />
+      {!compact && <span className="text-[10px] font-semibold text-white/80">Pala</span>}
+    </button>
+  );
+  const pauseButton = (
+    <button
+      type="button"
+      onClick={togglePause}
+      className={`${round} flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10`}
+      aria-label={paused ? 'Reanudar' : 'Pausar'}
+    >
+      {paused ? <Play size={18} aria-hidden /> : <Pause size={18} aria-hidden />}
+    </button>
+  );
+  const menuButton = (
+    <button
+      type="button"
+      onClick={() => setShowPanel((open) => !open)}
+      className={`flex shrink-0 items-center justify-center rounded-full border text-xs font-bold ${compact ? 'h-11 w-11' : 'h-10 px-3'} ${
+        showPanel ? 'border-amber-300 bg-amber-300/20 text-amber-100' : 'border-white/20 bg-white/10'
+      }`}
+      aria-expanded={showPanel}
+      aria-label={sandbox ? 'Opciones del sandbox' : 'Menú'}
+    >
+      {compact ? <SlidersHorizontal size={18} aria-hidden /> : sandbox ? 'Sandbox' : 'Menú'}
+    </button>
+  );
+  const fullscreenButton = fullscreen.supported && (
+    <button
+      type="button"
+      onClick={fullscreen.toggle}
+      className={`${round} flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10`}
+      aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+      title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+    >
+      {fullscreen.active ? <Minimize size={18} aria-hidden /> : <Maximize size={18} aria-hidden />}
+    </button>
+  );
+
   return (
-    <main className="fixed inset-0 flex select-none flex-col overflow-hidden bg-[#0b130d] text-white">
-      <header className="relative z-10 flex items-stretch gap-2 border-b border-white/10 bg-black/45 px-2 py-1.5 backdrop-blur-md short:py-1">
-        <div className="flex min-w-[64px] flex-col items-center justify-center rounded-xl bg-amber-300/15 px-2 ring-1 ring-amber-300/40">
-          <img src={spriteUrl('solmiel', 'sun')} alt="" className="h-7 w-7 object-contain short:h-5 short:w-5" />
-          <span className="text-sm font-bold tabular-nums text-amber-200">{options.infiniteSun ? '∞' : hud.sun}</span>
-        </div>
-
-        <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none]">
-          {PLANT_ORDER.map((kind, index) => {
-            const def = PLANTS[kind];
-            const selected = tool === kind;
-            const ready = hud.placeable[kind];
-            return (
-              <button
-                key={kind}
-                type="button"
-                onClick={() => setTool(selected ? null : kind)}
-                title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
-                aria-pressed={selected}
-                className={`relative flex w-[62px] shrink-0 flex-col items-center overflow-hidden rounded-xl border bg-[#1d2a1a] pb-0.5 transition active:scale-95 short:w-[50px] ${
-                  selected ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'
-                } ${ready ? '' : 'opacity-60'}`}
-              >
-                <img src={spriteUrl(kind, 'portrait')} alt="" className="h-10 w-10 object-contain short:h-8 short:w-8" />
-                <span className="w-full truncate px-0.5 text-center text-[10px] font-semibold leading-tight text-white/85 short:hidden">
-                  {def.name}
-                </span>
-                <span className="text-[11px] font-bold tabular-nums text-amber-200">{options.infiniteSun ? '—' : def.cost}</span>
-                {hud.cooldowns[kind] > 0 && (
-                  <span className="pointer-events-none absolute inset-x-0 top-0 bg-black/60" style={{ height: `${hud.cooldowns[kind] * 100}%` }} />
-                )}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => setTool(tool === 'shovel' ? null : 'shovel')}
-            title="Pala (Q)"
-            aria-pressed={tool === 'shovel'}
-            className={`flex w-[52px] shrink-0 flex-col items-center justify-center rounded-xl border bg-[#2a2219] transition active:scale-95 short:w-[44px] ${
-              tool === 'shovel' ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'
-            }`}
-          >
-            <Shovel size={22} className="text-amber-100" aria-hidden />
-            <span className="text-[10px] font-semibold text-white/80 short:hidden">Pala</span>
-          </button>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1.5">
-          <button
-            type="button"
-            onClick={togglePause}
-            className="h-10 w-10 rounded-full border border-white/20 bg-white/10 text-lg"
-            aria-label={paused ? 'Reanudar' : 'Pausar'}
-          >
-            {paused ? '▶' : '⏸'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowPanel((open) => !open)}
-            className={`h-10 rounded-full border px-3 text-xs font-bold ${
-              showPanel ? 'border-amber-300 bg-amber-300/20 text-amber-100' : 'border-white/20 bg-white/10'
-            }`}
-            aria-expanded={showPanel}
-          >
-            {sandbox ? 'Sandbox' : 'Menú'}
-          </button>
-        </div>
-      </header>
+    <main
+      className={`fixed inset-0 flex select-none overflow-hidden bg-[#0b130d] text-white ${compact ? 'flex-row' : 'flex-col'}`}
+    >
+      {compact ? (
+        // Low landscape screens (phones): seed packets in a side rail so the
+        // garden can use the full height.
+        <nav
+          className="relative z-10 flex w-[104px] shrink-0 flex-col gap-1 border-r border-white/10 bg-black/50 py-1 pr-1"
+          style={{ paddingLeft: 'max(4px, env(safe-area-inset-left))' }}
+          aria-label="Plantas"
+        >
+          {sunBox}
+          <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-5 gap-1">{cards}</div>
+        </nav>
+      ) : (
+        <header className="relative z-10 flex items-stretch gap-2 border-b border-white/10 bg-black/45 px-2 py-1.5 backdrop-blur-md">
+          {sunBox}
+          <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none]">
+            {cards}
+            {shovelButton}
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {fullscreenButton}
+            {pauseButton}
+            {menuButton}
+          </div>
+        </header>
+      )}
 
       {showPanel && (
-        <aside className="absolute right-2 top-[78px] z-20 max-h-[calc(100%-86px)] w-[min(92vw,300px)] overflow-y-auto rounded-2xl border border-white/15 bg-black/85 p-3 text-sm shadow-2xl backdrop-blur-md short:top-[58px] short:max-h-[calc(100%-64px)]">
+        <aside
+          className={`absolute z-20 w-[min(92vw,300px)] overflow-y-auto rounded-2xl border border-white/15 bg-black/85 p-3 text-sm shadow-2xl backdrop-blur-md ${
+            compact ? 'right-[64px] top-2 max-h-[calc(100%-16px)]' : 'right-2 top-[78px] max-h-[calc(100%-86px)]'
+          }`}
+        >
           <div className="mb-2 flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-amber-200/80">{sandbox ? 'Modo sandbox' : 'Oleadas'}</p>
             <BetaBadge />
@@ -632,6 +734,20 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
           </div>
         )}
       </div>
+
+      {compact && (
+        <nav
+          className="relative z-10 flex w-[56px] shrink-0 flex-col items-center gap-1.5 border-l border-white/10 bg-black/50 py-1.5"
+          style={{ paddingRight: 'env(safe-area-inset-right)' }}
+          aria-label="Controles"
+        >
+          {shovelButton}
+          <div className="flex-1" />
+          {fullscreenButton}
+          {pauseButton}
+          {menuButton}
+        </nav>
+      )}
 
       {portrait && !playPortrait && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-black/85 p-6 text-center">
