@@ -3,7 +3,8 @@
 // The pack (branch codex/plantas-zombis-assets) ships PNG atlases, GIF/WebP
 // previews and sources (~340 MB). The game only needs a few clips per
 // character, so this script converts those atlases to WebP and writes them to
-// public/jardin/. Usage:
+// public/jardin/, together with the garden background and the lane mower.
+// Usage:
 //
 //   git archive origin/codex/plantas-zombis-assets landing-page/public \
 //     | tar -x -C /tmp/pack
@@ -51,5 +52,21 @@ for (const [id, { dir, clips, extra = {} }] of Object.entries(CHARACTERS)) {
       .toFile(path.join(to, name));
   }
 }
+// Garden background and lane mower (public/jardin-yggdrasil in the pack).
+const garden = path.join(source, 'jardin-yggdrasil');
+await mkdir(path.join(out, 'escenario'), { recursive: true });
+await sharp(path.join(garden, 'background', 'jardin-yggdrasil.webp'))
+  .webp({ quality: 84, effort: 5 })
+  .toFile(path.join(out, 'escenario', 'jardin.webp'));
+await mkdir(path.join(out, 'podadora'), { recursive: true });
+summary.podadora = {};
+for (const clip of ['idle', 'start', 'run']) {
+  const meta = JSON.parse(await readFile(path.join(garden, 'podadora', 'sprites', `${clip}.json`), 'utf8'));
+  await sharp(path.join(garden, 'podadora', 'sprites', `${clip}.png`))
+    .webp({ quality: 82, alphaQuality: 90, effort: 5 })
+    .toFile(path.join(out, 'podadora', `${clip}.webp`));
+  summary.podadora[clip] = { frames: meta.frames.length, loop: meta.meta.animation.loop };
+}
+
 // Paste into src/lib/jardin/sprites.ts when clips change.
 console.log(JSON.stringify(summary, null, 2));

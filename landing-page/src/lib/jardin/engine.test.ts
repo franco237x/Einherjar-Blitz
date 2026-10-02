@@ -134,12 +134,44 @@ describe('zombies', () => {
     expect(['damaged', 'critical']).toContain(wall.clip);
   });
 
-  it('count a breach when they reach the house', () => {
+  it('count a breach when they reach a lane whose mower is spent', () => {
     const game = createGame(SEED, quiet);
+    step(game, [{ type: 'spawnZombie', row: 0 }]);
+    run(game, 70 * TICKS_PER_SECOND);
+    expect(game.stats.breaches).toBe(0);
     step(game, [{ type: 'spawnZombie', row: 0 }]);
     run(game, 70 * TICKS_PER_SECOND);
     expect(game.stats.breaches).toBe(1);
     expect(game.zombies).toHaveLength(0);
+  });
+});
+
+describe('mowers', () => {
+  it('start when a zombie reaches the house and sweep the whole lane once', () => {
+    const game = createGame(SEED, quiet);
+    for (let i = 0; i < 3; i++) run(game, 2 * TICKS_PER_SECOND, { [game.tick]: [{ type: 'spawnZombie', row: 2 }] });
+    step(game, [{ type: 'spawnZombie', row: 3 }]);
+    while (game.mowers[2].clip === 'idle') step(game);
+    expect(game.mowers[2].used).toBe(true);
+    expect(game.mowers[3].used).toBe(false);
+    run(game, TIMING.mowerStart + 1);
+    expect(game.mowers[2].clip).toBe('run');
+    run(game, 5 * TICKS_PER_SECOND);
+    const lane2 = game.zombies.filter((zombie) => zombie.row === 2);
+    expect(lane2.every((zombie) => zombie.clip === 'fall')).toBe(true);
+    expect(game.stats.killed).toBe(3);
+    expect(game.stats.mowersUsed).toBe(1);
+    expect(game.zombies.some((zombie) => zombie.row === 3 && zombie.clip !== 'fall')).toBe(true);
+    expect(game.mowers[2].gone).toBe(true);
+    expect(game.stats.breaches).toBe(0);
+  });
+
+  it('can be refilled from the sandbox', () => {
+    const game = createGame(SEED, quiet);
+    game.mowers[1].used = true;
+    game.mowers[1].gone = true;
+    step(game, [{ type: 'resetMowers' }]);
+    expect(game.mowers[1]).toMatchObject({ used: false, gone: false, clip: 'idle' });
   });
 });
 

@@ -20,6 +20,7 @@ const s = (seconds: number) => Math.round(seconds * TICKS_PER_SECOND);
 export type PlantKind = 'solmiel' | 'nabu' | 'cortezon' | 'granadin';
 export type PlantClip = 'spawn' | 'idle' | 'attack' | 'damaged' | 'critical';
 export type ZombieClip = 'spawn' | 'walk' | 'bite' | 'fall';
+export type MowerClip = 'idle' | 'start' | 'run';
 
 export interface PlantDef {
   kind: PlantKind;
@@ -58,6 +59,7 @@ export const TIMING = {
   skySunInterval: s(10),
   sunLifetime: s(10),
   autoWaveInterval: s(9),
+  mowerStart: s(0.4),
 } as const;
 
 export const BALANCE = {
@@ -71,6 +73,11 @@ export const BALANCE = {
   zombieSpeed: 0.178 / TICKS_PER_SECOND,
   biteDamage: 40,
   skySunFallSpeed: 0.9 / TICKS_PER_SECOND,
+  mowerSpeed: 4 / TICKS_PER_SECOND,
+  /** Parked mowers sit in the middle of the house strip. */
+  mowerParkX: -0.45,
+  /** A zombie that reaches this x sets off its lane's mower. */
+  mowerTriggerX: 0.05,
 } as const;
 
 export interface Plant {
@@ -97,6 +104,18 @@ export interface Zombie {
   clipStart: number;
   target: number | null;
   lastHit: number;
+}
+
+/** One per lane; single use until the garden is reset. */
+export interface Mower {
+  row: number;
+  x: number;
+  prevX: number;
+  clip: MowerClip;
+  clipStart: number;
+  used: boolean;
+  /** Left the board after its sweep. */
+  gone: boolean;
 }
 
 export interface Projectile {
@@ -138,13 +157,14 @@ export interface JardinState {
   sun: number;
   plants: Plant[];
   zombies: Zombie[];
+  mowers: Mower[];
   projectiles: Projectile[];
   suns: Sun[];
   blasts: Blast[];
   cooldowns: Record<PlantKind, number>;
   nextSkySun: number;
   nextWave: number;
-  stats: { killed: number; breaches: number; sunCollected: number };
+  stats: { killed: number; breaches: number; sunCollected: number; mowersUsed: number };
   options: SandboxOptions;
 }
 
@@ -153,6 +173,7 @@ export type Command =
   | { type: 'shovel'; row: number; col: number }
   | { type: 'collect'; sunId: number }
   | { type: 'spawnZombie'; row?: number }
+  | { type: 'resetMowers' }
   | { type: 'options'; options: Partial<SandboxOptions> };
 
 export const DEFAULT_OPTIONS: SandboxOptions = {
@@ -171,15 +192,28 @@ export function createGame(seed: string, options: Partial<SandboxOptions> = {}):
     sun: BALANCE.startingSun,
     plants: [],
     zombies: [],
+    mowers: freshMowers(0),
     projectiles: [],
     suns: [],
     blasts: [],
     cooldowns: { solmiel: 0, nabu: 0, cortezon: 0, granadin: 0 },
     nextSkySun: s(4),
     nextWave: s(12),
-    stats: { killed: 0, breaches: 0, sunCollected: 0 },
+    stats: { killed: 0, breaches: 0, sunCollected: 0, mowersUsed: 0 },
     options: { ...DEFAULT_OPTIONS, ...options },
   };
+}
+
+function freshMowers(tick: number): Mower[] {
+  return Array.from({ length: ROWS }, (_, row) => ({
+    row,
+    x: BALANCE.mowerParkX,
+    prevX: BALANCE.mowerParkX,
+    clip: 'idle' as const,
+    clipStart: tick,
+    used: false,
+    gone: false,
+  }));
 }
 
 // ─── Queries ────────────────────────────────────────────────────────────────
@@ -258,6 +292,13 @@ function apply(state: JardinState, command: Command) {
       spawnZombie(state, row);
       return;
     }
+    case 'resetMowers':
+      // Keep a mower that is still sweeping; refill every other lane.
+      state.mowers = freshMowers(state.tick).map((fresh) => {
+        const current = state.mowers[fresh.row];
+        return current.used && !current.gone ? current : fresh;
+      });
+      return;
     case 'options':
       state.options = { ...state.options, ...command.options };
       return;
@@ -458,6 +499,33 @@ function updateZombies(state: JardinState) {
   }
 }
 
+function updateMowers(state: JardinState) {
+  for (const mower of state.mowers) {
+    mower.prevX = mower.x;
+    if (mower.gone) continue;
+    if (!mower.used) {
+      const arrived = state.zombies.some(
+        (zombie) => alive(zombie) && zombie.row === mower.row && zombie.x <= BALANCE.mowerTriggerX,
+      );
+      if (!arrived) continue;
+      mower.used = true;
+      mower.clip = 'start';
+      mower.clipStart = state.tick;
+      state.stats.mowersUsed++;
+    }
+    if (mower.clip === 'start' && state.tick - mower.clipStart >= TIMING.mowerStart) {
+      mower.clip = 'run';
+      mower.clipStart = state.tick;
+    }
+    if (mower.clip === 'run') mower.x += BALANCE.mowerSpeed;
+    for (const zombie of state.zombies) {
+      if (zombie.row === mower.row && Math.abs(zombie.x - mower.x) < 0.55)
+        damageZombie(state, zombie, Number.POSITIVE_INFINITY);
+    }
+    if (mower.x > COLS + 2) mower.gone = true;
+  }
+}
+
 function updateSuns(state: JardinState) {
   for (const sun of [...state.suns]) {
     sun.prevY = sun.y;
@@ -491,6 +559,7 @@ export function step(state: JardinState, commands: readonly Command[] = []): Jar
   updatePlants(state);
   updateProjectiles(state);
   updateZombies(state);
+  updateMowers(state);
   updateSuns(state);
   updateSpawners(state);
   state.tick++;

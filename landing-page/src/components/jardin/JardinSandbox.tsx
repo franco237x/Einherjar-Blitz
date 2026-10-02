@@ -397,9 +397,18 @@ export function JardinSandbox() {
               {hud.zombies} zombis · {hud.seconds}s · eliminados {hud.killed} · brechas {hud.breaches}
             </span>
           </div>
-          <button type="button" onClick={restart} className="mt-2 w-full rounded-lg border border-white/20 py-1.5 text-xs">
-            Reiniciar jardín
-          </button>
+          <div className="mt-2 grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onClick={() => send({ type: 'resetMowers' })}
+              className="rounded-lg border border-white/20 py-1.5 text-xs"
+            >
+              Reponer podadoras
+            </button>
+            <button type="button" onClick={restart} className="rounded-lg border border-white/20 py-1.5 text-xs">
+              Reiniciar jardín
+            </button>
+          </div>
         </aside>
       )}
 

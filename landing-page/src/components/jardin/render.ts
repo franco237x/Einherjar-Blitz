@@ -9,6 +9,9 @@ import {
 } from '@/lib/jardin/engine';
 import {
   ATLAS_COLUMNS,
+  BACKGROUND_URL,
+  MOWER_CLIPS,
+  MOWER_PIVOT,
   FRAME_PX_PER_CELL,
   FRAME_SIZE,
   PLANT_CLIPS,
@@ -22,6 +25,7 @@ import {
 } from '@/lib/jardin/sprites';
 
 // World layout in cell units: house strip, 9 lawn columns, zombie entry.
+// One cell unit is 200 px of the 2320×1390 garden background.
 const LEFT = 0.9;
 const RIGHT = 1.7;
 const TOP = 0.95;
@@ -94,8 +98,8 @@ function drawFrame(
 
 let lawnCache: { key: string; canvas: HTMLCanvasElement } | null = null;
 
-function drawLawn(ctx: CanvasRenderingContext2D, v: Viewport, dpr: number) {
-  const key = `${v.width}x${v.height}@${dpr}`;
+function drawLawn(ctx: CanvasRenderingContext2D, v: Viewport, dpr: number, background?: HTMLImageElement) {
+  const key = `${v.width}x${v.height}@${dpr}:${background ? 'art' : 'flat'}`;
   if (!lawnCache || lawnCache.key !== key) {
     const canvas = document.createElement('canvas');
     canvas.width = Math.round(v.width * dpr);
@@ -107,6 +111,13 @@ function drawLawn(ctx: CanvasRenderingContext2D, v: Viewport, dpr: number) {
     sky.addColorStop(1, '#0b130d');
     c.fillStyle = sky;
     c.fillRect(0, 0, v.width, v.height);
+    if (background) {
+      c.imageSmoothingQuality = 'high';
+      c.drawImage(background, v.ox, v.oy, WORLD_W * v.scale, WORLD_H * v.scale);
+      lawnCache = { key, canvas };
+      ctx.drawImage(canvas, 0, 0, v.width, v.height);
+      return;
+    }
     // House strip and entry path.
     c.fillStyle = '#3a2a1d';
     c.fillRect(v.ox, screenY(v, 0), LEFT * v.scale, ROWS * CELL_H * v.scale);
@@ -164,7 +175,7 @@ export function drawScene(
   const t = state.tick + alpha;
   const spriteSize = SPRITE_SCALE * v.scale;
   ctx.clearRect(0, 0, v.width, v.height);
-  drawLawn(ctx, v, dpr);
+  drawLawn(ctx, v, dpr, images.get(BACKGROUND_URL));
 
   if (hover) {
     ctx.fillStyle = hover.valid ? 'rgba(255,255,255,0.18)' : 'rgba(255,60,60,0.22)';
@@ -172,6 +183,21 @@ export function drawScene(
   }
 
   for (let row = 0; row < ROWS; row++) {
+    const mower = state.mowers[row];
+    if (mower && !mower.gone) {
+      const x = screenX(v, mower.prevX + (mower.x - mower.prevX) * alpha);
+      const clip = MOWER_CLIPS[mower.clip];
+      drawFrame(
+        ctx,
+        images.get(spriteUrl('podadora', mower.clip)),
+        frameIndex(clip, t - mower.clipStart),
+        x,
+        groundY(v, row),
+        spriteSize,
+        MOWER_PIVOT,
+      );
+    }
+
     for (const plant of state.plants) {
       if (plant.row !== row) continue;
       const x = screenX(v, plant.col + 0.5);
