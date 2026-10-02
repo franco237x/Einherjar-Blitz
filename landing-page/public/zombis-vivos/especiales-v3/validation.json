@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-02",
+  "characters": [
+    {
+      "id": "bruton",
+      "clips": 6,
+      "frames": 198,
+      "variantClips": 0,
+      "variantFrames": 0,
+      "alpha": "verified",
+      "clipping": "none",
+      "uniformPoseScale": "verified",
+      "encodedDuration": "exact"
+    },
+    {
+      "id": "rafago",
+      "clips": 7,
+      "frames": 192,
+      "variantClips": 5,
+      "variantFrames": 156,
+      "alpha": "verified",
+      "clipping": "none",
+      "uniformPoseScale": "verified",
+      "encodedDuration": "exact"
+    }
+  ]
+}

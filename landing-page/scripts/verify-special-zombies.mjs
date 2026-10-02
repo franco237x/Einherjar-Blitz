@@ -104,7 +104,7 @@ try {
   const page = await context.newPage();
   page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) failedRequests.push(`${response.status()} ${response.url()}`); });
-  const url = 'http://127.0.0.1:8765/zombis-vivos/especiales-v2/index.html';
+  const url = 'http://127.0.0.1:8765/zombis-vivos/especiales-v2/legacy.html';
   await page.goto(url, { waitUntil: 'networkidle' });
   const snapshot = () => page.evaluate(async () => (await import('./viewer.mjs')).zombieSnapshot());
   const hash = async () => createHash('sha256').update(await page.locator('canvas').evaluate(element => element.toDataURL())).digest('hex');

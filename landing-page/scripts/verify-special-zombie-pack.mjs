@@ -11,8 +11,10 @@ const argument = (key, fallback) => { const at = process.argv.indexOf(key); retu
 const { chromium } = require(argument('--playwright-module', 'playwright'));
 const python = argument('--python', 'python');
 const project = fileURLToPath(new URL('../', import.meta.url));
-const assets = path.join(project, 'public', 'zombis-vivos', 'especiales-v2');
-const archive = path.join(project, 'public', 'zombis-vivos', 'zombis-especiales-v2.zip');
+const version = argument('--version', '2');
+assert(['2', '3'].includes(version));
+const assets = path.join(project, 'public', 'zombis-vivos', `especiales-v${version}`);
+const archive = path.join(project, 'public', 'zombis-vivos', `zombis-especiales-v${version}.zip`);
 const staging = path.resolve(project, 'asset-drafts');
 await mkdir(staging, { recursive: true });
 const extracted = await mkdtemp(path.join(staging, 'special-zombies-portable-'));
@@ -61,7 +63,7 @@ try {
   }
   assert.deepEqual(errors, []); assert.deepEqual(failedRequests, []);
   const manifest = JSON.parse(await readFile(path.join(extracted, 'manifest.json'), 'utf8'));
-  const report = { date: '2026-10-02', archive: 'zombis-especiales-v2.zip', crc: 'verified', characters: manifest.characters.length,
+  const report = { date: '2026-10-02', archive: `zombis-especiales-v${version}.zip`, crc: 'verified', characters: manifest.characters.length,
     primaryClips: 13, variantClips: 5, standaloneViewer: 'verified', smashContact: 'verified', armorDropAndContinuedRun: 'verified',
     allViewerLinks: 'HTTP 200', javascriptErrors: errors, failedRequests };
   await writeFile(path.join(assets, 'pack-validation.json'), JSON.stringify(report, null, 2) + '\n');

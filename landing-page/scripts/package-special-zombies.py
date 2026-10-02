@@ -18,7 +18,8 @@ with ZipFile(destination, 'w', compression=ZIP_DEFLATED, compresslevel=6) as arc
             continue
         relative = file.relative_to(asset_root).as_posix()
         if relative == 'index.html':
-            source = file.read_text(encoding='utf-8')
+            original = asset_root / 'legacy.html'
+            source = (original if original.exists() else file).read_text(encoding='utf-8')
             source = source.replace('href="../../plantas-vivas/estetica-v7/index.html">Ver plantas', 'href="./README.md">Guía del pack')
             source = source.replace('href="../zombis-especiales-v2.zip" download>Descargar pack <span aria-hidden="true">↓</span>', 'href="./preview/movimientos.gif" download>Descargar muestra <span aria-hidden="true">↓</span>')
             archive.writestr(relative, source)

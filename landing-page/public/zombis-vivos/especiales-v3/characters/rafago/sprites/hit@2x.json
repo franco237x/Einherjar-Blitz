@@ -1,0 +1,385 @@
+{
+  "frames": [
+    {
+      "filename": "rafago-hit-000",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 2
+      }
+    },
+    {
+      "filename": "rafago-hit-001",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 34,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 2
+      }
+    },
+    {
+      "filename": "rafago-hit-002",
+      "frame": {
+        "x": 1024,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 2
+      }
+    },
+    {
+      "filename": "rafago-hit-003",
+      "frame": {
+        "x": 1536,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 3
+      }
+    },
+    {
+      "filename": "rafago-hit-004",
+      "frame": {
+        "x": 2048,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 34,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 3
+      }
+    },
+    {
+      "filename": "rafago-hit-005",
+      "frame": {
+        "x": 2560,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 3
+      }
+    },
+    {
+      "filename": "rafago-hit-006",
+      "frame": {
+        "x": 3072,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 4
+      }
+    },
+    {
+      "filename": "rafago-hit-007",
+      "frame": {
+        "x": 3584,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 34,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 4
+      }
+    },
+    {
+      "filename": "rafago-hit-008",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 4
+      }
+    },
+    {
+      "filename": "rafago-hit-009",
+      "frame": {
+        "x": 512,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 4
+      }
+    },
+    {
+      "filename": "rafago-hit-010",
+      "frame": {
+        "x": 1024,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 34,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 5
+      }
+    },
+    {
+      "filename": "rafago-hit-011",
+      "frame": {
+        "x": 1536,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "duration": 33,
+      "paintedPose": {
+        "sheet": "states",
+        "frame": 5
+      }
+    }
+  ],
+  "meta": {
+    "app": "Einherjar Blitz / Painted zombies",
+    "image": "hit@2x.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 4096,
+      "h": 1024
+    },
+    "pixelRatio": 2,
+    "animation": {
+      "label": "Recibir golpe",
+      "duration": 0.4,
+      "frames": 12,
+      "fps": 30,
+      "loop": false,
+      "after": "run",
+      "facing": "left",
+      "armorVisible": true,
+      "events": []
+    }
+  }
+}

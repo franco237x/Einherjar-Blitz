@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-02",
+  "checked": {
+    "characters": 2,
+    "primaryClips": 13,
+    "primaryFrames": 390,
+    "variantClips": 5,
+    "variantFrames": 156,
+    "paintedPoses": 108,
+    "uniformPoseScaleAndAspect": "verified",
+    "distinctPaintedPoses": "verified",
+    "standardAndHDAtlases": "verified",
+    "combatTimingAndInterruption": "verified",
+    "armorOverflowAndContinuedRun": "verified",
+    "deathAndRespawn": "verified",
+    "slowAndFreeze": "verified",
+    "previousViewerRedirect": "verified",
+    "responsiveWidths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "browserClips": "all 13 animate",
+    "pauseAndFrameStep": "verified",
+    "armorVariants": "verified",
+    "reducedMotion": "starts paused",
+    "javascriptErrors": [],
+    "failedRequests": []
+  }
+}

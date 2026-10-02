@@ -1,0 +1,1645 @@
+{
+  "id": "rafago",
+  "name": "Ráfago",
+  "role": "Corredor acorazado",
+  "color": "#337c81",
+  "description": "Un corredor de fútbol americano con casco y hombreras. Piernas en extensión y codos bombeando al correr.",
+  "motion": "Carrera y ataque dibujados por poses completas. Continúa corriendo al perder el casco y las hombreras.",
+  "clips": [
+    "idle",
+    "run",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "locomotion": "run",
+  "health": 140,
+  "armor": 300,
+  "speed": 77.77777777777777,
+  "recommendedScale": 1,
+  "sheets": [
+    "run",
+    "bite",
+    "states",
+    "run-unarmored",
+    "bite-unarmored",
+    "states-unarmored"
+  ],
+  "biteTime": 0.4,
+  "biteDamage": 16,
+  "portrait": "characters/rafago/portrait.png",
+  "moveSpeed": 77.77777777777777,
+  "poseSheets": {
+    "run": {
+      "image": "characters/rafago/poses/run.png",
+      "grid": [
+        8,
+        2
+      ],
+      "frameSize": [
+        512,
+        512
+      ],
+      "paintedPoses": 12,
+      "source": "source/rafago-run.png",
+      "sourceGrid": [
+        4,
+        3
+      ],
+      "rowCuts": [
+        326.6086921135947,
+        659.8331556586833
+      ],
+      "registration": [
+        {
+          "frame": 0,
+          "sourceBounds": {
+            "x": 50,
+            "y": 20,
+            "w": 302,
+            "h": 309
+          },
+          "scale": 0.45307443365695793,
+          "x": 66.66548526702591,
+          "y": 90.4,
+          "width": 136.82847896440128,
+          "height": 140,
+          "flight": 0
+        },
+        {
+          "frame": 1,
+          "sourceBounds": {
+            "x": 415,
+            "y": 19,
+            "w": 322,
+            "h": 300
+          },
+          "scale": 0.45307443365695793,
+          "x": 68.29464774707493,
+          "y": 94.47766990291262,
+          "width": 145.88996763754045,
+          "height": 135.92233009708738,
+          "flight": 0
+        },
+        {
+          "frame": 2,
+          "sourceBounds": {
+            "x": 787,
+            "y": 19,
+            "w": 325,
+            "h": 306
+          },
+          "scale": 0.45307443365695793,
+          "x": 64.86459878457386,
+          "y": 89.75922330097089,
+          "width": 147.24919093851133,
+          "height": 138.64077669902912,
+          "flight": 2
+        },
+        {
+          "frame": 3,
+          "sourceBounds": {
+            "x": 1180,
+            "y": 19,
+            "w": 296,
+            "h": 304
+          },
+          "scale": 0.45307443365695793,
+          "x": 65.59937135555131,
+          "y": 83.66537216828479,
+          "width": 134.11003236245955,
+          "height": 137.73462783171522,
+          "flight": 9
+        },
+        {
+          "frame": 4,
+          "sourceBounds": {
+            "x": 37,
+            "y": 359,
+            "w": 321,
+            "h": 305
+          },
+          "scale": 0.45307443365695793,
+          "x": 65.78147751649911,
+          "y": 87.21229773462784,
+          "width": 145.4368932038835,
+          "height": 138.18770226537217,
+          "flight": 5
+        },
+        {
+          "frame": 5,
+          "sourceBounds": {
+            "x": 429,
+            "y": 358,
+            "w": 301,
+            "h": 306
+          },
+          "scale": 0.45307443365695793,
+          "x": 62.77369810050833,
+          "y": 91.75922330097089,
+          "width": 136.37540453074433,
+          "height": 138.64077669902912,
+          "flight": 0
+        },
+        {
+          "frame": 6,
+          "sourceBounds": {
+            "x": 786,
+            "y": 358,
+            "w": 368,
+            "h": 297
+          },
+          "scale": 0.45307443365695793,
+          "x": 58.751187569787476,
+          "y": 86.8368932038835,
+          "width": 166.73139158576052,
+          "height": 134.5631067961165,
+          "flight": 9
+        },
+        {
+          "frame": 7,
+          "sourceBounds": {
+            "x": 1198,
+            "y": 359,
+            "w": 295,
+            "h": 306
+          },
+          "scale": 0.45307443365695793,
+          "x": 65.72850556829624,
+          "y": 87.75922330097089,
+          "width": 133.6569579288026,
+          "height": 138.64077669902912,
+          "flight": 4
+        },
+        {
+          "frame": 8,
+          "sourceBounds": {
+            "x": 48,
+            "y": 692,
+            "w": 329,
+            "h": 290
+          },
+          "scale": 0.45307443365695793,
+          "x": 63.14077772989957,
+          "y": 99.00841423948219,
+          "width": 149.06148867313917,
+          "height": 131.3915857605178,
+          "flight": 0
+        },
+        {
+          "frame": 9,
+          "sourceBounds": {
+            "x": 438,
+            "y": 690,
+            "w": 321,
+            "h": 299
+          },
+          "scale": 0.45307443365695793,
+          "x": 68.43957049077241,
+          "y": 86.93074433656957,
+          "width": 145.4368932038835,
+          "height": 135.46925566343043,
+          "flight": 8
+        },
+        {
+          "frame": 10,
+          "sourceBounds": {
+            "x": 811,
+            "y": 689,
+            "w": 308,
+            "h": 307
+          },
+          "scale": 0.45307443365695793,
+          "x": 63.123221730984284,
+          "y": 91.30614886731391,
+          "width": 139.54692556634305,
+          "height": 139.0938511326861,
+          "flight": 0
+        },
+        {
+          "frame": 11,
+          "sourceBounds": {
+            "x": 1194,
+            "y": 685,
+            "w": 310,
+            "h": 309
+          },
+          "scale": 0.45307443365695793,
+          "x": 65.47513039789435,
+          "y": 90.4,
+          "width": 140.45307443365695,
+          "height": 140,
+          "flight": 0
+        }
+      ]
+    },
+    "bite": {
+      "image": "characters/rafago/poses/bite.png",
+      "grid": [
+        8,
+        2
+      ],
+      "frameSize": [
+        512,
+        512
+      ],
+      "paintedPoses": 12,
+      "source": "source/rafago-bite.png",
+      "sourceGrid": [
+        3,
+        4
+      ],
+      "rowCuts": [
+        259.64226579169025,
+        519.0514045205673,
+        769.1011988724439
+      ],
+      "registration": [
+        {
+          "frame": 0,
+          "sourceBounds": {
+            "x": 170,
+            "y": 4,
+            "w": 247,
+            "h": 254
+          },
+          "scale": 0.5511811023622047,
+          "x": 76.29210838134723,
+          "y": 90.4,
+          "width": 136.14173228346456,
+          "height": 140,
+          "flight": 0
+        },
+        {
+          "frame": 1,
+          "sourceBounds": {
+            "x": 617,
+            "y": 8,
+            "w": 325,
+            "h": 251
+          },
+          "scale": 0.5511811023622047,
+          "x": 40.140009112362435,
+          "y": 92.05354330708661,
+          "width": 179.13385826771653,
+          "height": 138.3464566929134,
+          "flight": 0
+        },
+        {
+          "frame": 2,
+          "sourceBounds": {
+            "x": 1173,
+            "y": 5,
+            "w": 251,
+            "h": 254
+          },
+          "scale": 0.5511811023622047,
+          "x": 74.31510148887918,
+          "y": 90.4,
+          "width": 138.3464566929134,
+          "height": 140,
+          "flight": 0
+        },
+        {
+          "frame": 3,
+          "sourceBounds": {
+            "x": 111,
+            "y": 265,
+            "w": 331,
+            "h": 259
+          },
+          "scale": 0.5511811023622047,
+          "x": 42.11258354483702,
+          "y": 87.64409448818898,
+          "width": 182.44094488188978,
+          "height": 142.75590551181102,
+          "flight": 0
+        },
+        {
+          "frame": 4,
+          "sourceBounds": {
+            "x": 571,
+            "y": 269,
+            "w": 383,
+            "h": 260
+          },
+          "scale": 0.5511811023622047,
+          "x": 25.221384489101013,
+          "y": 87.09291338582676,
+          "width": 211.10236220472441,
+          "height": 143.30708661417324,
+          "flight": 0
+        },
+        {
+          "frame": 5,
+          "sourceBounds": {
+            "x": 1063,
+            "y": 261,
+            "w": 400,
+            "h": 267
+          },
+          "scale": 0.5511811023622047,
+          "x": 21.600440437212825,
+          "y": 83.23464566929133,
+          "width": 220.4724409448819,
+          "height": 147.16535433070868,
+          "flight": 0
+        },
+        {
+          "frame": 6,
+          "sourceBounds": {
+            "x": 35,
+            "y": 527,
+            "w": 418,
+            "h": 241
+          },
+          "scale": 0.5511811023622047,
+          "x": 5.40648015632982,
+          "y": 97.56535433070866,
+          "width": 230.39370078740157,
+          "height": 132.83464566929135,
+          "flight": 0
+        },
+        {
+          "frame": 7,
+          "sourceBounds": {
+            "x": 580,
+            "y": 541,
+            "w": 390,
+            "h": 227
+          },
+          "scale": 0.5511811023622047,
+          "x": 20.931994077663347,
+          "y": 105.28188976377953,
+          "width": 214.96062992125985,
+          "height": 125.11811023622047,
+          "flight": 0
+        },
+        {
+          "frame": 8,
+          "sourceBounds": {
+            "x": 1112,
+            "y": 524,
+            "w": 336,
+            "h": 244
+          },
+          "scale": 0.5511811023622047,
+          "x": 42.816052444090786,
+          "y": 95.91181102362205,
+          "width": 185.1968503937008,
+          "height": 134.48818897637796,
+          "flight": 0
+        },
+        {
+          "frame": 9,
+          "sourceBounds": {
+            "x": 150,
+            "y": 772,
+            "w": 292,
+            "h": 245
+          },
+          "scale": 0.5511811023622047,
+          "x": 61.245230163537244,
+          "y": 95.36062992125986,
+          "width": 160.9448818897638,
+          "height": 135.03937007874015,
+          "flight": 0
+        },
+        {
+          "frame": 10,
+          "sourceBounds": {
+            "x": 656,
+            "y": 773,
+            "w": 270,
+            "h": 244
+          },
+          "scale": 0.5511811023622047,
+          "x": 76.16631980947885,
+          "y": 95.91181102362205,
+          "width": 148.8188976377953,
+          "height": 134.48818897637796,
+          "flight": 0
+        },
+        {
+          "frame": 11,
+          "sourceBounds": {
+            "x": 1174,
+            "y": 773,
+            "w": 251,
+            "h": 244
+          },
+          "scale": 0.5511811023622047,
+          "x": 79.97203735480112,
+          "y": 95.91181102362205,
+          "width": 138.3464566929134,
+          "height": 134.48818897637796,
+          "flight": 0
+        }
+      ]
+    },
+    "states": {
+      "image": "characters/rafago/poses/states.png",
+      "grid": [
+        8,
+        2
+      ],
+      "frameSize": [
+        512,
+        512
+      ],
+      "paintedPoses": 12,
+      "source": "source/rafago-states.png",
+      "sourceGrid": [
+        3,
+        4
+      ],
+      "rowCuts": [
+        284.7644669777684,
+        580.6345651304136,
+        834.7738239893747
+      ],
+      "registration": [
+        {
+          "frame": 0,
+          "sourceBounds": {
+            "x": 229,
+            "y": 5,
+            "w": 263,
+            "h": 283
+          },
+          "scale": 0.49469964664310956,
+          "x": 75.85874348100732,
+          "y": 90.4,
+          "width": 130.10600706713782,
+          "height": 140,
+          "flight": 0
+        },
+        {
+          "frame": 1,
+          "sourceBounds": {
+            "x": 643,
+            "y": 5,
+            "w": 264,
+            "h": 282
+          },
+          "scale": 0.49469964664310956,
+          "x": 76.05324584747709,
+          "y": 90.89469964664312,
+          "width": 130.60070671378094,
+          "height": 139.5053003533569,
+          "flight": 0
+        },
+        {
+          "frame": 2,
+          "sourceBounds": {
+            "x": 1073,
+            "y": 4,
+            "w": 261,
+            "h": 286
+          },
+          "scale": 0.49469964664310956,
+          "x": 93.65559181293634,
+          "y": 88.91590106007067,
+          "width": 129.1166077738516,
+          "height": 141.48409893992934,
+          "flight": 0
+        },
+        {
+          "frame": 3,
+          "sourceBounds": {
+            "x": 227,
+            "y": 289,
+            "w": 271,
+            "h": 289
+          },
+          "scale": 0.49469964664310956,
+          "x": 100.26477217419271,
+          "y": 87.43180212014136,
+          "width": 134.0636042402827,
+          "height": 142.96819787985865,
+          "flight": 0
+        },
+        {
+          "frame": 4,
+          "sourceBounds": {
+            "x": 648,
+            "y": 294,
+            "w": 269,
+            "h": 283
+          },
+          "scale": 0.49469964664310956,
+          "x": 71.96171206472721,
+          "y": 90.4,
+          "width": 133.07420494699647,
+          "height": 140,
+          "flight": 0
+        },
+        {
+          "frame": 5,
+          "sourceBounds": {
+            "x": 1081,
+            "y": 290,
+            "w": 268,
+            "h": 290
+          },
+          "scale": 0.49469964664310956,
+          "x": 72.90173574017768,
+          "y": 86.93710247349824,
+          "width": 132.57950530035336,
+          "height": 143.46289752650176,
+          "flight": 0
+        },
+        {
+          "frame": 6,
+          "sourceBounds": {
+            "x": 220,
+            "y": 575,
+            "w": 264,
+            "h": 269
+          },
+          "scale": 0.49469964664310956,
+          "x": 78.69964664310953,
+          "y": 97.32579505300353,
+          "width": 130.60070671378094,
+          "height": 133.07420494699647,
+          "flight": 0
+        },
+        {
+          "frame": 7,
+          "sourceBounds": {
+            "x": 606,
+            "y": 597,
+            "w": 323,
+            "h": 246
+          },
+          "scale": 0.49469964664310956,
+          "x": 64.10600706713781,
+          "y": 108.70388692579506,
+          "width": 159.78798586572438,
+          "height": 121.69611307420494,
+          "flight": 0
+        },
+        {
+          "frame": 8,
+          "sourceBounds": {
+            "x": 1001,
+            "y": 653,
+            "w": 452,
+            "h": 185
+          },
+          "scale": 0.49469964664310956,
+          "x": 29.39575971731449,
+          "y": 138.88056537102474,
+          "width": 223.6042402826855,
+          "height": 91.51943462897526,
+          "flight": 0
+        },
+        {
+          "frame": 9,
+          "sourceBounds": {
+            "x": 139,
+            "y": 855,
+            "w": 383,
+            "h": 147
+          },
+          "scale": 0.49469964664310956,
+          "x": 49.26501766784452,
+          "y": 157.6791519434629,
+          "width": 189.46996466431096,
+          "height": 72.72084805653711,
+          "flight": 0
+        },
+        {
+          "frame": 10,
+          "sourceBounds": {
+            "x": 574,
+            "y": 855,
+            "w": 391,
+            "h": 155
+          },
+          "scale": 0.49469964664310956,
+          "x": 47.28621908127208,
+          "y": 153.72155477031802,
+          "width": 193.42756183745584,
+          "height": 76.67844522968198,
+          "flight": 0
+        },
+        {
+          "frame": 11,
+          "sourceBounds": {
+            "x": 1007,
+            "y": 854,
+            "w": 393,
+            "h": 156
+          },
+          "scale": 0.49469964664310956,
+          "x": 46.79151943462897,
+          "y": 153.2268551236749,
+          "width": 194.41696113074207,
+          "height": 77.1731448763251,
+          "flight": 0
+        }
+      ]
+    },
+    "run-unarmored": {
+      "image": "characters/rafago/poses/run-unarmored.png",
+      "grid": [
+        8,
+        2
+      ],
+      "frameSize": [
+        512,
+        512
+      ],
+      "paintedPoses": 12,
+      "source": "source/rafago-run-unarmored.png",
+      "sourceGrid": [
+        4,
+        3
+      ],
+      "rowCuts": [
+        344.81500978277586,
+        677.9119969361223
+      ],
+      "registration": [
+        {
+          "frame": 0,
+          "sourceBounds": {
+            "x": 58,
+            "y": 32,
+            "w": 298,
+            "h": 297
+          },
+          "scale": 0.45307443365695793,
+          "x": 70.1328740218462,
+          "y": 95.8368932038835,
+          "width": 135.01618122977345,
+          "height": 134.5631067961165,
+          "flight": 0
+        },
+        {
+          "frame": 1,
+          "sourceBounds": {
+            "x": 423,
+            "y": 29,
+            "w": 320,
+            "h": 290
+          },
+          "scale": 0.45307443365695793,
+          "x": 68.13834536552983,
+          "y": 99.00841423948219,
+          "width": 144.98381877022655,
+          "height": 131.3915857605178,
+          "flight": 0
+        },
+        {
+          "frame": 2,
+          "sourceBounds": {
+            "x": 813,
+            "y": 31,
+            "w": 308,
+            "h": 297
+          },
+          "scale": 0.45307443365695793,
+          "x": 73.44704418736335,
+          "y": 93.8368932038835,
+          "width": 139.54692556634305,
+          "height": 134.5631067961165,
+          "flight": 2
+        },
+        {
+          "frame": 3,
+          "sourceBounds": {
+            "x": 1199,
+            "y": 32,
+            "w": 285,
+            "h": 294
+          },
+          "scale": 0.45307443365695793,
+          "x": 71.41432134339681,
+          "y": 88.19611650485439,
+          "width": 129.126213592233,
+          "height": 133.20388349514562,
+          "flight": 9
+        },
+        {
+          "frame": 4,
+          "sourceBounds": {
+            "x": 56,
+            "y": 367,
+            "w": 307,
+            "h": 298
+          },
+          "scale": 0.45307443365695793,
+          "x": 71.93655707205728,
+          "y": 90.38381877022655,
+          "width": 139.0938511326861,
+          "height": 135.01618122977345,
+          "flight": 5
+        },
+        {
+          "frame": 5,
+          "sourceBounds": {
+            "x": 442,
+            "y": 369,
+            "w": 285,
+            "h": 302
+          },
+          "scale": 0.45307443365695793,
+          "x": 67.27100035166018,
+          "y": 93.57152103559872,
+          "width": 129.126213592233,
+          "height": 136.82847896440128,
+          "flight": 0
+        },
+        {
+          "frame": 6,
+          "sourceBounds": {
+            "x": 809,
+            "y": 368,
+            "w": 351,
+            "h": 289
+          },
+          "scale": 0.45307443365695793,
+          "x": 67.09336840932656,
+          "y": 90.46148867313917,
+          "width": 159.02912621359224,
+          "height": 130.93851132686083,
+          "flight": 9
+        },
+        {
+          "frame": 7,
+          "sourceBounds": {
+            "x": 1202,
+            "y": 368,
+            "w": 297,
+            "h": 303
+          },
+          "scale": 0.45307443365695793,
+          "x": 65.88010628693192,
+          "y": 89.11844660194174,
+          "width": 134.5631067961165,
+          "height": 137.28155339805826,
+          "flight": 4
+        },
+        {
+          "frame": 8,
+          "sourceBounds": {
+            "x": 63,
+            "y": 699,
+            "w": 319,
+            "h": 288
+          },
+          "scale": 0.45307443365695793,
+          "x": 64.9871155568941,
+          "y": 99.91456310679612,
+          "width": 144.53074433656957,
+          "height": 130.48543689320388,
+          "flight": 0
+        },
+        {
+          "frame": 9,
+          "sourceBounds": {
+            "x": 454,
+            "y": 700,
+            "w": 293,
+            "h": 290
+          },
+          "scale": 0.45307443365695793,
+          "x": 74.23693318838949,
+          "y": 91.00841423948219,
+          "width": 132.75080906148867,
+          "height": 131.3915857605178,
+          "flight": 8
+        },
+        {
+          "frame": 10,
+          "sourceBounds": {
+            "x": 826,
+            "y": 698,
+            "w": 302,
+            "h": 303
+          },
+          "scale": 0.45307443365695793,
+          "x": 69.33827561790437,
+          "y": 93.11844660194174,
+          "width": 136.82847896440128,
+          "height": 137.28155339805826,
+          "flight": 0
+        },
+        {
+          "frame": 11,
+          "sourceBounds": {
+            "x": 1213,
+            "y": 700,
+            "w": 297,
+            "h": 295
+          },
+          "scale": 0.45307443365695793,
+          "x": 71.37334076566975,
+          "y": 96.74304207119741,
+          "width": 134.5631067961165,
+          "height": 133.6569579288026,
+          "flight": 0
+        }
+      ]
+    },
+    "bite-unarmored": {
+      "image": "characters/rafago/poses/bite-unarmored.png",
+      "grid": [
+        8,
+        2
+      ],
+      "frameSize": [
+        512,
+        512
+      ],
+      "paintedPoses": 12,
+      "source": "source/rafago-bite-unarmored.png",
+      "sourceGrid": [
+        3,
+        4
+      ],
+      "rowCuts": [
+        272.84204569645493,
+        532.4292264203659,
+        782.1103628697292
+      ],
+      "registration": [
+        {
+          "frame": 0,
+          "sourceBounds": {
+            "x": 171,
+            "y": 8,
+            "w": 254,
+            "h": 256
+          },
+          "scale": 0.5511811023622047,
+          "x": 74.90907144424757,
+          "y": 89.29763779527559,
+          "width": 140,
+          "height": 141.10236220472441,
+          "flight": 0
+        },
+        {
+          "frame": 1,
+          "sourceBounds": {
+            "x": 615,
+            "y": 8,
+            "w": 331,
+            "h": 256
+          },
+          "scale": 0.5511811023622047,
+          "x": 39.824056475699166,
+          "y": 89.29763779527559,
+          "width": 182.44094488188978,
+          "height": 141.10236220472441,
+          "flight": 0
+        },
+        {
+          "frame": 2,
+          "sourceBounds": {
+            "x": 1194,
+            "y": 8,
+            "w": 239,
+            "h": 256
+          },
+          "scale": 0.5511811023622047,
+          "x": 83.01731749180206,
+          "y": 89.29763779527559,
+          "width": 131.73228346456693,
+          "height": 141.10236220472441,
+          "flight": 0
+        },
+        {
+          "frame": 3,
+          "sourceBounds": {
+            "x": 101,
+            "y": 273,
+            "w": 346,
+            "h": 259
+          },
+          "scale": 0.5511811023622047,
+          "x": 32.86460083876467,
+          "y": 87.64409448818898,
+          "width": 190.70866141732284,
+          "height": 142.75590551181102,
+          "flight": 0
+        },
+        {
+          "frame": 4,
+          "sourceBounds": {
+            "x": 576,
+            "y": 271,
+            "w": 381,
+            "h": 261
+          },
+          "scale": 0.5511811023622047,
+          "x": 24.74818870687369,
+          "y": 86.54173228346457,
+          "width": 210,
+          "height": 143.85826771653544,
+          "flight": 0
+        },
+        {
+          "frame": 5,
+          "sourceBounds": {
+            "x": 1081,
+            "y": 271,
+            "w": 391,
+            "h": 261
+          },
+          "scale": 0.5511811023622047,
+          "x": 22.301170442593587,
+          "y": 86.54173228346457,
+          "width": 215.51181102362204,
+          "height": 143.85826771653544,
+          "flight": 0
+        },
+        {
+          "frame": 6,
+          "sourceBounds": {
+            "x": 33,
+            "y": 535,
+            "w": 425,
+            "h": 237
+          },
+          "scale": 0.5511811023622047,
+          "x": 3.856635128831698,
+          "y": 99.77007874015749,
+          "width": 234.251968503937,
+          "height": 130.62992125984252,
+          "flight": 0
+        },
+        {
+          "frame": 7,
+          "sourceBounds": {
+            "x": 570,
+            "y": 542,
+            "w": 406,
+            "h": 231
+          },
+          "scale": 0.5511811023622047,
+          "x": 13.66713698359959,
+          "y": 103.07716535433072,
+          "width": 223.77952755905514,
+          "height": 127.32283464566929,
+          "flight": 0
+        },
+        {
+          "frame": 8,
+          "sourceBounds": {
+            "x": 1106,
+            "y": 532,
+            "w": 359,
+            "h": 241
+          },
+          "scale": 0.5511811023622047,
+          "x": 35.11712598425197,
+          "y": 97.56535433070866,
+          "width": 197.8740157480315,
+          "height": 132.83464566929135,
+          "flight": 0
+        },
+        {
+          "frame": 9,
+          "sourceBounds": {
+            "x": 155,
+            "y": 779,
+            "w": 296,
+            "h": 244
+          },
+          "scale": 0.5511811023622047,
+          "x": 59.55548224857327,
+          "y": 95.91181102362205,
+          "width": 163.1496062992126,
+          "height": 134.48818897637796,
+          "flight": 0
+        },
+        {
+          "frame": 10,
+          "sourceBounds": {
+            "x": 656,
+            "y": 777,
+            "w": 286,
+            "h": 247
+          },
+          "scale": 0.5511811023622047,
+          "x": 68.77232714672817,
+          "y": 94.25826771653544,
+          "width": 157.63779527559055,
+          "height": 136.14173228346456,
+          "flight": 0
+        },
+        {
+          "frame": 11,
+          "sourceBounds": {
+            "x": 1185,
+            "y": 778,
+            "w": 258,
+            "h": 245
+          },
+          "scale": 0.5511811023622047,
+          "x": 78.71398291103655,
+          "y": 95.36062992125986,
+          "width": 142.20472440944883,
+          "height": 135.03937007874015,
+          "flight": 0
+        }
+      ]
+    },
+    "states-unarmored": {
+      "image": "characters/rafago/poses/states-unarmored.png",
+      "grid": [
+        8,
+        2
+      ],
+      "frameSize": [
+        512,
+        512
+      ],
+      "paintedPoses": 12,
+      "source": "source/rafago-states-unarmored.png",
+      "sourceGrid": [
+        3,
+        4
+      ],
+      "rowCuts": [
+        298.59467295903175,
+        590.7645134203441,
+        839.6553650849237
+      ],
+      "registration": [
+        {
+          "frame": 0,
+          "sourceBounds": {
+            "x": 235,
+            "y": 12,
+            "w": 263,
+            "h": 278
+          },
+          "scale": 0.49469964664310956,
+          "x": 80.77976258325056,
+          "y": 92.87349823321554,
+          "width": 130.10600706713782,
+          "height": 137.52650176678446,
+          "flight": 0
+        },
+        {
+          "frame": 1,
+          "sourceBounds": {
+            "x": 656,
+            "y": 12,
+            "w": 260,
+            "h": 278
+          },
+          "scale": 0.49469964664310956,
+          "x": 80.47770409073277,
+          "y": 92.87349823321554,
+          "width": 128.62190812720848,
+          "height": 137.52650176678446,
+          "flight": 0
+        },
+        {
+          "frame": 2,
+          "sourceBounds": {
+            "x": 1075,
+            "y": 3,
+            "w": 240,
+            "h": 289
+          },
+          "scale": 0.49469964664310956,
+          "x": 96.44370808061555,
+          "y": 87.43180212014136,
+          "width": 118.7279151943463,
+          "height": 142.96819787985865,
+          "flight": 0
+        },
+        {
+          "frame": 3,
+          "sourceBounds": {
+            "x": 220,
+            "y": 287,
+            "w": 245,
+            "h": 295
+          },
+          "scale": 0.49469964664310956,
+          "x": 101.04871878994537,
+          "y": 84.46360424028268,
+          "width": 121.20141342756185,
+          "height": 145.93639575971733,
+          "flight": 0
+        },
+        {
+          "frame": 4,
+          "sourceBounds": {
+            "x": 666,
+            "y": 290,
+            "w": 264,
+            "h": 291
+          },
+          "scale": 0.49469964664310956,
+          "x": 79.02165598918715,
+          "y": 86.44240282685513,
+          "width": 130.60070671378094,
+          "height": 143.95759717314488,
+          "flight": 0
+        },
+        {
+          "frame": 5,
+          "sourceBounds": {
+            "x": 1098,
+            "y": 295,
+            "w": 268,
+            "h": 287
+          },
+          "scale": 0.49469964664310956,
+          "x": 79.09023904103513,
+          "y": 88.42120141342755,
+          "width": 132.57950530035336,
+          "height": 141.97879858657245,
+          "flight": 0
+        },
+        {
+          "frame": 6,
+          "sourceBounds": {
+            "x": 217,
+            "y": 579,
+            "w": 284,
+            "h": 271
+          },
+          "scale": 0.49469964664310956,
+          "x": 73.75265017667844,
+          "y": 96.3363957597173,
+          "width": 140.4946996466431,
+          "height": 134.0636042402827,
+          "flight": 0
+        },
+        {
+          "frame": 7,
+          "sourceBounds": {
+            "x": 605,
+            "y": 591,
+            "w": 338,
+            "h": 253
+          },
+          "scale": 0.49469964664310956,
+          "x": 60.39575971731449,
+          "y": 105.24098939929328,
+          "width": 167.20848056537102,
+          "height": 125.15901060070672,
+          "flight": 0
+        },
+        {
+          "frame": 8,
+          "sourceBounds": {
+            "x": 1003,
+            "y": 652,
+            "w": 460,
+            "h": 190
+          },
+          "scale": 0.49469964664310956,
+          "x": 25.4381625441696,
+          "y": 136.40706713780918,
+          "width": 227.56183745583039,
+          "height": 93.99293286219081,
+          "flight": 0
+        },
+        {
+          "frame": 9,
+          "sourceBounds": {
+            "x": 139,
+            "y": 851,
+            "w": 394,
+            "h": 157
+          },
+          "scale": 0.49469964664310956,
+          "x": 46.54416961130741,
+          "y": 152.73215547703182,
+          "width": 194.91166077738518,
+          "height": 77.6678445229682,
+          "flight": 0
+        },
+        {
+          "frame": 10,
+          "sourceBounds": {
+            "x": 586,
+            "y": 850,
+            "w": 384,
+            "h": 163
+          },
+          "scale": 0.49469964664310956,
+          "x": 49.01766784452296,
+          "y": 149.76395759717315,
+          "width": 189.96466431095408,
+          "height": 80.63604240282686,
+          "flight": 0
+        },
+        {
+          "frame": 11,
+          "sourceBounds": {
+            "x": 1025,
+            "y": 856,
+            "w": 393,
+            "h": 158
+          },
+          "scale": 0.49469964664310956,
+          "x": 46.79151943462897,
+          "y": 152.23745583038868,
+          "width": 194.41696113074207,
+          "height": 78.16254416961131,
+          "flight": 0
+        }
+      ]
+    }
+  },
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "after": "idle",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [],
+      "atlas": "characters/rafago/sprites/idle.png",
+      "data": "characters/rafago/sprites/idle.json",
+      "hdAtlas": "characters/rafago/sprites/idle@2x.png",
+      "hdData": "characters/rafago/sprites/idle@2x.json",
+      "webp": "characters/rafago/animated/idle.webp",
+      "gif": "characters/rafago/animated/idle.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 2
+    },
+    "run": {
+      "label": "Correr",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": true,
+      "after": "run",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [],
+      "atlas": "characters/rafago/sprites/run.png",
+      "data": "characters/rafago/sprites/run.json",
+      "hdAtlas": "characters/rafago/sprites/run@2x.png",
+      "hdData": "characters/rafago/sprites/run@2x.json",
+      "webp": "characters/rafago/animated/run.webp",
+      "gif": "characters/rafago/animated/run.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 12
+    },
+    "bite": {
+      "label": "Morder",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": true,
+      "after": "bite",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [
+        {
+          "type": "bite",
+          "plantTarget": true,
+          "damage": 16,
+          "position": [
+            89,
+            153
+          ],
+          "time": 0.4,
+          "repeat": "once per cycle",
+          "frame": 12
+        }
+      ],
+      "atlas": "characters/rafago/sprites/bite.png",
+      "data": "characters/rafago/sprites/bite.json",
+      "hdAtlas": "characters/rafago/sprites/bite@2x.png",
+      "hdData": "characters/rafago/sprites/bite@2x.json",
+      "webp": "characters/rafago/animated/bite.webp",
+      "gif": "characters/rafago/animated/bite.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 12
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.4,
+      "frames": 12,
+      "fps": 30,
+      "loop": false,
+      "after": "run",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [],
+      "atlas": "characters/rafago/sprites/hit.png",
+      "data": "characters/rafago/sprites/hit.json",
+      "hdAtlas": "characters/rafago/sprites/hit@2x.png",
+      "hdData": "characters/rafago/sprites/hit@2x.json",
+      "webp": "characters/rafago/animated/hit.webp",
+      "gif": "characters/rafago/animated/hit.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 4
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "after": "run",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [],
+      "atlas": "characters/rafago/sprites/spawn.png",
+      "data": "characters/rafago/sprites/spawn.json",
+      "hdAtlas": "characters/rafago/sprites/spawn@2x.png",
+      "hdData": "characters/rafago/sprites/spawn@2x.json",
+      "webp": "characters/rafago/animated/spawn.webp",
+      "gif": "characters/rafago/animated/spawn.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 1
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": false,
+      "after": "dead",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [
+        {
+          "type": "animation-cue",
+          "cue": "ground-impact",
+          "gameplay": false,
+          "time": 0.5,
+          "frame": 15
+        }
+      ],
+      "atlas": "characters/rafago/sprites/fall.png",
+      "data": "characters/rafago/sprites/fall.json",
+      "hdAtlas": "characters/rafago/sprites/fall@2x.png",
+      "hdData": "characters/rafago/sprites/fall@2x.json",
+      "webp": "characters/rafago/animated/fall.webp",
+      "gif": "characters/rafago/animated/fall.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 7
+    },
+    "armor-break": {
+      "label": "Perder protección",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "after": "run",
+      "facing": "left",
+      "armorVisible": true,
+      "events": [
+        {
+          "type": "animation-cue",
+          "cue": "armor-drop",
+          "pieces": [
+            "gear",
+            "pads"
+          ],
+          "gameplay": false,
+          "time": 0.16,
+          "frame": 5
+        }
+      ],
+      "atlas": "characters/rafago/sprites/armor-break.png",
+      "data": "characters/rafago/sprites/armor-break.json",
+      "hdAtlas": "characters/rafago/sprites/armor-break@2x.png",
+      "hdData": "characters/rafago/sprites/armor-break@2x.json",
+      "webp": "characters/rafago/animated/armor-break.webp",
+      "gif": "characters/rafago/animated/armor-break.gif",
+      "frameSize": [
+        256,
+        256
+      ],
+      "hdFrameSize": [
+        512,
+        512
+      ],
+      "columns": 8,
+      "paintedPoses": 4
+    }
+  },
+  "variants": {
+    "unarmored": {
+      "armorVisible": false,
+      "animations": {
+        "idle": {
+          "label": "Reposo",
+          "duration": 2.4,
+          "frames": 72,
+          "fps": 30,
+          "loop": true,
+          "after": "idle",
+          "facing": "left",
+          "armorVisible": false,
+          "events": [],
+          "atlas": "characters/rafago/unarmored/sprites/idle.png",
+          "data": "characters/rafago/unarmored/sprites/idle.json",
+          "hdAtlas": "characters/rafago/unarmored/sprites/idle@2x.png",
+          "hdData": "characters/rafago/unarmored/sprites/idle@2x.json",
+          "webp": "characters/rafago/unarmored/animated/idle.webp",
+          "gif": "characters/rafago/unarmored/animated/idle.gif",
+          "frameSize": [
+            256,
+            256
+          ],
+          "hdFrameSize": [
+            512,
+            512
+          ],
+          "columns": 8,
+          "paintedPoses": 2
+        },
+        "run": {
+          "label": "Correr",
+          "duration": 0.8,
+          "frames": 24,
+          "fps": 30,
+          "loop": true,
+          "after": "run",
+          "facing": "left",
+          "armorVisible": false,
+          "events": [],
+          "atlas": "characters/rafago/unarmored/sprites/run.png",
+          "data": "characters/rafago/unarmored/sprites/run.json",
+          "hdAtlas": "characters/rafago/unarmored/sprites/run@2x.png",
+          "hdData": "characters/rafago/unarmored/sprites/run@2x.json",
+          "webp": "characters/rafago/unarmored/animated/run.webp",
+          "gif": "characters/rafago/unarmored/animated/run.gif",
+          "frameSize": [
+            256,
+            256
+          ],
+          "hdFrameSize": [
+            512,
+            512
+          ],
+          "columns": 8,
+          "paintedPoses": 12
+        },
+        "bite": {
+          "label": "Morder",
+          "duration": 0.8,
+          "frames": 24,
+          "fps": 30,
+          "loop": true,
+          "after": "bite",
+          "facing": "left",
+          "armorVisible": false,
+          "events": [
+            {
+              "type": "bite",
+              "plantTarget": true,
+              "damage": 16,
+              "position": [
+                89,
+                153
+              ],
+              "time": 0.4,
+              "repeat": "once per cycle",
+              "frame": 12
+            }
+          ],
+          "atlas": "characters/rafago/unarmored/sprites/bite.png",
+          "data": "characters/rafago/unarmored/sprites/bite.json",
+          "hdAtlas": "characters/rafago/unarmored/sprites/bite@2x.png",
+          "hdData": "characters/rafago/unarmored/sprites/bite@2x.json",
+          "webp": "characters/rafago/unarmored/animated/bite.webp",
+          "gif": "characters/rafago/unarmored/animated/bite.gif",
+          "frameSize": [
+            256,
+            256
+          ],
+          "hdFrameSize": [
+            512,
+            512
+          ],
+          "columns": 8,
+          "paintedPoses": 12
+        },
+        "hit": {
+          "label": "Recibir golpe",
+          "duration": 0.4,
+          "frames": 12,
+          "fps": 30,
+          "loop": false,
+          "after": "run",
+          "facing": "left",
+          "armorVisible": false,
+          "events": [],
+          "atlas": "characters/rafago/unarmored/sprites/hit.png",
+          "data": "characters/rafago/unarmored/sprites/hit.json",
+          "hdAtlas": "characters/rafago/unarmored/sprites/hit@2x.png",
+          "hdData": "characters/rafago/unarmored/sprites/hit@2x.json",
+          "webp": "characters/rafago/unarmored/animated/hit.webp",
+          "gif": "characters/rafago/unarmored/animated/hit.gif",
+          "frameSize": [
+            256,
+            256
+          ],
+          "hdFrameSize": [
+            512,
+            512
+          ],
+          "columns": 8,
+          "paintedPoses": 4
+        },
+        "fall": {
+          "label": "Caer",
+          "duration": 0.8,
+          "frames": 24,
+          "fps": 30,
+          "loop": false,
+          "after": "dead",
+          "facing": "left",
+          "armorVisible": false,
+          "events": [
+            {
+              "type": "animation-cue",
+              "cue": "ground-impact",
+              "gameplay": false,
+              "time": 0.5,
+              "frame": 15
+            }
+          ],
+          "atlas": "characters/rafago/unarmored/sprites/fall.png",
+          "data": "characters/rafago/unarmored/sprites/fall.json",
+          "hdAtlas": "characters/rafago/unarmored/sprites/fall@2x.png",
+          "hdData": "characters/rafago/unarmored/sprites/fall@2x.json",
+          "webp": "characters/rafago/unarmored/animated/fall.webp",
+          "gif": "characters/rafago/unarmored/animated/fall.gif",
+          "frameSize": [
+            256,
+            256
+          ],
+          "hdFrameSize": [
+            512,
+            512
+          ],
+          "columns": 8,
+          "paintedPoses": 7
+        }
+      }
+    }
+  }
+}
