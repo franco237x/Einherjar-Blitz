@@ -14,6 +14,8 @@ assert primary == 20 and variants == 10
 
 with ZipFile(destination, 'w', compression=ZIP_DEFLATED, compresslevel=6) as archive:
     for file in sorted(asset_root.rglob('*')):
+        if file.relative_to(asset_root).parts[0] == 'especiales-v2':
+            continue
         if file.is_file() and file.suffix != '.zip':
             archive.write(file, file.relative_to(asset_root).as_posix())
     for name in ['build-zombie-assets.mjs', 'render-zombie-preview.mjs', 'verify-zombie-assets.mjs']:

@@ -1,13 +1,16 @@
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { ZOMBIES, clipsFor, CLIPS, renderZombie, animationEvents, afterClip, moveSpeed } from '../public/zombis-vivos/runtime/zombie-rig.mjs';
+const rigFlag = process.argv.indexOf('--rig-module');
+const { ZOMBIES, clipsFor, CLIPS, renderZombie, animationEvents, afterClip, moveSpeed } = await import(
+  rigFlag >= 0 ? pathToFileURL(path.resolve(process.argv[rigFlag + 1])).href : '../public/zombis-vivos/runtime/zombie-rig.mjs');
 
 const require = createRequire(import.meta.url), sharp = require('sharp'), flag = process.argv.indexOf('--canvas-module');
 const { createCanvas, loadImage } = require(flag >= 0 ? process.argv[flag + 1] : '@napi-rs/canvas');
-const root = fileURLToPath(new URL('../public/zombis-vivos/', import.meta.url));
+const rootFlag = process.argv.indexOf('--assets-root');
+const root = rootFlag >= 0 ? path.resolve(process.argv[rootFlag + 1]) : fileURLToPath(new URL('../public/zombis-vivos/', import.meta.url));
 const ids = process.argv.filter(arg => ZOMBIES.some(character => character.id === arg));
 const selection = ZOMBIES.filter(character => !ids.length || ids.includes(character.id));
 const SIZE = 256, COLUMNS = 8, transparent = { r: 0, g: 0, b: 0, alpha: 0 };
@@ -21,11 +24,12 @@ function bounds(data, width, height, threshold = 20) {
 }
 
 // Mechanical extraction keeps source RGBA pixels intact and restores soft edge feathering.
-function cells(data, width, height) {
+function cells(data, width, height, columns = 5, rows = 3) {
   const counts = new Uint32Array(height);
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (data[(y * width + x) * 4 + 3] > 32) counts[y]++;
-  const cuts = [1 / 3, 2 / 3].map(fraction => {
-    const center = height * fraction, first = Math.floor(center - height * 0.2), last = Math.ceil(center + height * 0.2);
+  const cuts = Array.from({ length: rows - 1 }, (_, index) => (index + 1) / rows).map(fraction => {
+    const radius = rows === 3 ? 0.2 : 0.45 / rows;
+    const center = height * fraction, first = Math.floor(center - height * radius), last = Math.ceil(center + height * radius);
     let start = -1; const choices = [];
     for (let y = first; y <= last + 1; y++) {
       if (y <= last && counts[y] < width * 0.003) { if (start < 0) start = y; }
@@ -33,7 +37,7 @@ function cells(data, width, height) {
     }
     choices.sort((a, b) => b.score - a.score); assert(choices.length, 'Transparent gutters are required between rows.'); return choices[0].midpoint;
   });
-  assert(cuts[1] > cuts[0], 'Source row boundaries must remain ordered.');
+  assert(cuts.every((cut, index) => index === 0 || cut > cuts[index - 1]), 'Source row boundaries must remain ordered.');
   const labels = new Int32Array(width * height), queue = new Int32Array(width * height), assignments = [-1];
   let component = 0;
   for (let start = 0; start < labels.length; start++) {
@@ -49,8 +53,9 @@ function cells(data, width, height) {
         if (!labels[candidate] && data[candidate * 4 + 3] > 16) { labels[candidate] = component; queue[count++] = candidate; }
       }
     }
-    const col = Math.max(0, Math.min(4, Math.floor(sumX / count / width * 5))), y = sumY / count;
-    assignments[component] = (y < cuts[0] ? 0 : y < cuts[1] ? 1 : 2) * 5 + col;
+    const col = Math.max(0, Math.min(columns - 1, Math.floor(sumX / count / width * columns))), y = sumY / count;
+    const row = cuts.filter(cut => y >= cut).length;
+    assignments[component] = row * columns + col;
   }
   const visible = new Int32Array(labels);
   for (let index = 0; index < labels.length; index++) {
@@ -61,7 +66,7 @@ function cells(data, width, height) {
       if (nx >= 0 && nx < width && ny >= 0 && ny < height && visible[ny * width + nx]) { labels[index] = visible[ny * width + nx]; break outer; }
     }
   }
-  const regions = Array.from({ length: 15 }, () => ({ left: width, top: height, right: -1, bottom: -1 }));
+  const regions = Array.from({ length: rows * columns }, () => ({ left: width, top: height, right: -1, bottom: -1 }));
   for (let index = 0; index < labels.length; index++) if (labels[index]) {
     const region = regions[assignments[labels[index]]], x = index % width, y = Math.floor(index / width);
     region.left = Math.min(region.left, x); region.right = Math.max(region.right, x); region.top = Math.min(region.top, y); region.bottom = Math.max(region.bottom, y);
@@ -82,7 +87,7 @@ async function extract(character, output) {
   const { data, info } = await sharp(source).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   let clear = 0; for (let i = 3; i < data.length; i += 4) if (!data[i]) clear++;
   assert(clear > info.width * info.height * 0.15, `${character.id}: source must have real alpha.`);
-  const regions = cells(data, info.width, info.height), processed = {};
+  const regions = cells(data, info.width, info.height, ...(character.sourceGrid ?? [5, 3])), processed = {};
   for (const [index, name] of character.partNames.entries()) {
     const item = regions[index], content = bounds(item.pixels, item.width, item.height, 32);
     assert(content, `${character.id}/${name}: missing visible pixels`);
@@ -133,9 +138,9 @@ async function exportClip(character, parts, output, clip, info, options = {}) {
   await input().gif({ colours: 256, dither: 0.15, effort: 3, loop: 0, delay: gifDelay }).toFile(path.join(output, 'animated', `${clip}.gif`));
   await writeFile(path.join(output, 'sprites', `${clip}.json`), JSON.stringify({ frames: entries, meta: { app: 'Einherjar Blitz / Zombis vivos', version: '1.0',
     image: `${clip}.png`, format: 'RGBA8888', size: { w: atlas.width, h: atlas.height }, scale: '1',
-    animation: { ...info, after: afterClip(clip), facing: 'left', armorVisible: character.armor > 0 && options.armorRatio !== 0,
+    animation: { ...info, after: afterClip(clip, character), facing: 'left', armorVisible: character.armor > 0 && options.armorRatio !== 0,
       events: animationEvents(character, clip).map(event => ({ ...event, frame: Math.ceil(event.time * info.fps) })),
-      ...(clip === 'walk' ? { distancePerCycle: 2 * character.stride / 0.6, recommendedSpeed: moveSpeed(character), gaitTempo: character.gaitTempo } : {}) } } }, null, 2) + '\n');
+      ...(['walk', 'run'].includes(clip) ? { distancePerCycle: 2 * character.stride / (character.stance ?? 0.6), recommendedSpeed: moveSpeed(character), gaitTempo: character.gaitTempo } : {}) } } }, null, 2) + '\n');
   const media = await sharp(path.join(output, 'animated', `${clip}.webp`), { animated: true }).metadata();
   // The encoder merges identical held poses; the atlas retains every 30 FPS frame.
   assert(media.pages >= 2 && media.pages <= info.frames); assert(media.hasAlpha);
@@ -162,7 +167,7 @@ for (const character of selection) {
   if (character.armor) {
     const variant = path.join(output, 'unarmored'), alternate = {};
     for (const directory of ['sprites', 'animated']) await mkdir(path.join(variant, directory), { recursive: true });
-    for (const clip of ['idle', 'walk', 'bite', 'hit', 'fall']) {
+    for (const clip of ['idle', character.locomotion ?? 'walk', 'bite', 'hit', 'fall'].filter(clip => character.clips.includes(clip))) {
       alternate[clip] = await exportClip(character, parts, variant, clip, CLIPS[clip], { armorRatio: 0 });
       console.log(`${character.id}/unarmored/${clip}: ${CLIPS[clip].frames} frames, alpha, edges and motion verified.`);
     }
@@ -177,8 +182,8 @@ for (const character of selection) {
 }
 const available = [];
 for (const character of ZOMBIES) { const file = path.join(root, 'characters', character.id, 'manifest.json'); if (await exists(file)) available.push(JSON.parse(await readFile(file, 'utf8'))); }
-await writeFile(path.join(root, 'manifest.json'), JSON.stringify({ name: 'Zombis vivos', version: '1.0.0', created: '2026-10-01', artwork: 'Built-in ImageGen / original cartoon zombies',
+await writeFile(path.join(root, 'manifest.json'), JSON.stringify({ name: 'Zombis vivos', version: rigFlag >= 0 ? '2.0.0' : '1.0.0', created: rigFlag >= 0 ? '2026-10-02' : '2026-10-01', artwork: 'Built-in ImageGen / original cartoon zombies',
   logicalSize: [320, 320], frameSize: [256, 256], anchor: [0.5, 0.9], fps: 30, facing: 'left', flipForRight: true, characters: available }, null, 2) + '\n');
 let prior = []; const reportFile = path.join(root, 'validation.json'); if (await exists(reportFile)) prior = JSON.parse(await readFile(reportFile, 'utf8')).characters;
-await writeFile(reportFile, JSON.stringify({ date: '2026-10-01', characters: [...prior.filter(item => !reports.some(report => item.id === report.id)), ...reports] }, null, 2) + '\n');
+await writeFile(reportFile, JSON.stringify({ date: rigFlag >= 0 ? '2026-10-02' : '2026-10-01', characters: [...prior.filter(item => !reports.some(report => item.id === report.id)), ...reports] }, null, 2) + '\n');
 console.log(`Zombie export complete: ${available.length} characters.`);

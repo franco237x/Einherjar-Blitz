@@ -1,0 +1,304 @@
+{
+  "id": "rafago",
+  "name": "Ráfago",
+  "anatomy": "runner",
+  "role": "Corredor acorazado",
+  "color": "#337c81",
+  "sourceGrid": [
+    4,
+    4
+  ],
+  "description": "Un corredor de fútbol americano con casco y hombreras. Se inclina hacia el jardín y lo cruza a toda velocidad.",
+  "motion": "Rodillas altas, pies en vuelo y brazos bombeando. Casco y hombreras se desprenden juntos; sigue corriendo sin ellos.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect",
+    "pads"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "clips": [
+    "idle",
+    "run",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "locomotion": "run",
+  "health": 140,
+  "armor": 300,
+  "gaitTempo": 1,
+  "stride": 14,
+  "stance": 0.45,
+  "recommendedScale": 1,
+  "biteTime": 0.46,
+  "biteDamage": 16,
+  "layout": {
+    "hips": [
+      188,
+      211
+    ],
+    "head": [
+      133,
+      143
+    ],
+    "headSize": [
+      82,
+      89
+    ],
+    "torsoSize": [
+      96,
+      95
+    ],
+    "shoulders": [
+      [
+        197,
+        139
+      ],
+      [
+        159,
+        144
+      ]
+    ],
+    "arms": [
+      31,
+      35
+    ],
+    "legs": [
+      53,
+      48
+    ],
+    "legInset": 8,
+    "hipOffsets": [
+      9,
+      -9
+    ],
+    "legWidth": 35,
+    "shoeWidth": 49,
+    "armWidths": [
+      26,
+      29
+    ],
+    "gear": [
+      133,
+      145,
+      112,
+      112
+    ],
+    "pads": [
+      179,
+      169,
+      130,
+      77
+    ]
+  },
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    160,
+    288
+  ],
+  "source": "../../source/rafago-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 293,
+      "height": 340,
+      "sourceRegion": {
+        "left": 47,
+        "top": 54,
+        "right": 333,
+        "bottom": 388
+      }
+    },
+    "head": {
+      "file": "parts/head.png",
+      "width": 220,
+      "height": 249,
+      "sourceRegion": {
+        "left": 378,
+        "top": 92,
+        "right": 591,
+        "bottom": 334
+      }
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 220,
+      "height": 249,
+      "sourceRegion": {
+        "left": 683,
+        "top": 89,
+        "right": 887,
+        "bottom": 329
+      }
+    },
+    "head-bite": {
+      "file": "parts/head-bite.png",
+      "width": 220,
+      "height": 249,
+      "sourceRegion": {
+        "left": 983,
+        "top": 87,
+        "right": 1193,
+        "bottom": 330
+      }
+    },
+    "gear": {
+      "file": "parts/gear.png",
+      "width": 252,
+      "height": 235,
+      "sourceRegion": {
+        "left": 55,
+        "top": 433,
+        "right": 300,
+        "bottom": 661
+      }
+    },
+    "torso": {
+      "file": "parts/torso.png",
+      "width": 210,
+      "height": 190,
+      "sourceRegion": {
+        "left": 397,
+        "top": 443,
+        "right": 600,
+        "bottom": 626
+      }
+    },
+    "upper-back": {
+      "file": "parts/upper-back.png",
+      "width": 137,
+      "height": 230,
+      "sourceRegion": {
+        "left": 723,
+        "top": 413,
+        "right": 853,
+        "bottom": 636
+      }
+    },
+    "lower-back": {
+      "file": "parts/lower-back.png",
+      "width": 112,
+      "height": 280,
+      "sourceRegion": {
+        "left": 1045,
+        "top": 403,
+        "right": 1151,
+        "bottom": 676
+      }
+    },
+    "upper-front": {
+      "file": "parts/upper-front.png",
+      "width": 122,
+      "height": 220,
+      "sourceRegion": {
+        "left": 124,
+        "top": 702,
+        "right": 239,
+        "bottom": 915
+      }
+    },
+    "lower-front": {
+      "file": "parts/lower-front.png",
+      "width": 108,
+      "height": 246,
+      "sourceRegion": {
+        "left": 431,
+        "top": 693,
+        "right": 532,
+        "bottom": 932
+      }
+    },
+    "thigh-back": {
+      "file": "parts/thigh-back.png",
+      "width": 153,
+      "height": 230,
+      "sourceRegion": {
+        "left": 715,
+        "top": 698,
+        "right": 861,
+        "bottom": 921
+      }
+    },
+    "shin-back": {
+      "file": "parts/shin-back.png",
+      "width": 179,
+      "height": 243,
+      "sourceRegion": {
+        "left": 1007,
+        "top": 700,
+        "right": 1179,
+        "bottom": 936
+      }
+    },
+    "thigh-front": {
+      "file": "parts/thigh-front.png",
+      "width": 131,
+      "height": 241,
+      "sourceRegion": {
+        "left": 116,
+        "top": 953,
+        "right": 242,
+        "bottom": 1187
+      }
+    },
+    "shin-front": {
+      "file": "parts/shin-front.png",
+      "width": 195,
+      "height": 252,
+      "sourceRegion": {
+        "left": 396,
+        "top": 955,
+        "right": 584,
+        "bottom": 1200
+      }
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 257,
+      "height": 159,
+      "sourceRegion": {
+        "left": 639,
+        "top": 1024,
+        "right": 890,
+        "bottom": 1176
+      }
+    },
+    "pads": {
+      "file": "parts/pads.png",
+      "width": 335,
+      "height": 177,
+      "sourceRegion": {
+        "left": 913,
+        "top": 1002,
+        "right": 1241,
+        "bottom": 1173
+      }
+    }
+  }
+}

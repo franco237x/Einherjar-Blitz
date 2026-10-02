@@ -1,0 +1,207 @@
+{
+  "id": "bruton",
+  "name": "Brutón",
+  "anatomy": "brute",
+  "role": "Gigante sin armadura",
+  "color": "#777e53",
+  "sourceGrid": [
+    4,
+    4
+  ],
+  "description": "Hombros enormes, manos desnudas y una cabeza hundida entre ellos. Aguanta por su masa y descarga un puñetazo pesado.",
+  "motion": "Pasos lentos con peso. Levanta el puño, carga el cuerpo y golpea; cabeza y brazo trasero llegan después.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect",
+    "impact"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "smash",
+    "hit",
+    "spawn",
+    "fall"
+  ],
+  "locomotion": "walk",
+  "health": 800,
+  "armor": 0,
+  "gaitTempo": 0.8,
+  "stride": 10,
+  "stance": 0.6,
+  "recommendedScale": 1.25,
+  "biteTime": 0.52,
+  "smashTime": 0.86,
+  "smashDamage": 80,
+  "contact": [
+    60,
+    191
+  ],
+  "layout": {
+    "hips": [
+      179,
+      224
+    ],
+    "head": [
+      138,
+      121
+    ],
+    "headSize": [
+      103,
+      101
+    ],
+    "torsoSize": [
+      169,
+      150
+    ],
+    "shoulders": [
+      [
+        245,
+        113
+      ],
+      [
+        123,
+        113
+      ]
+    ],
+    "arms": [
+      49,
+      46
+    ],
+    "legs": [
+      32,
+      29
+    ],
+    "legInset": 8,
+    "hipOffsets": [
+      16,
+      -16
+    ],
+    "legWidth": 54,
+    "shoeWidth": 75,
+    "armWidths": [
+      55,
+      71
+    ]
+  },
+  "moveSpeed": 11.111111111111112,
+  "portrait": "characters/bruton/portrait.png",
+  "rig": "characters/bruton/rig.json",
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/bruton/sprites/idle.png",
+      "data": "characters/bruton/sprites/idle.json",
+      "webp": "characters/bruton/animated/idle.webp",
+      "gif": "characters/bruton/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "walk": {
+      "label": "Caminar",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/bruton/sprites/walk.png",
+      "data": "characters/bruton/sprites/walk.json",
+      "webp": "characters/bruton/animated/walk.webp",
+      "gif": "characters/bruton/animated/walk.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "smash": {
+      "label": "Puñetazo pesado",
+      "duration": 1.6,
+      "frames": 48,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/smash.png",
+      "data": "characters/bruton/sprites/smash.json",
+      "webp": "characters/bruton/animated/smash.webp",
+      "gif": "characters/bruton/animated/smash.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/hit.png",
+      "data": "characters/bruton/sprites/hit.json",
+      "webp": "characters/bruton/animated/hit.webp",
+      "gif": "characters/bruton/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 1,
+      "frames": 30,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/spawn.png",
+      "data": "characters/bruton/sprites/spawn.json",
+      "webp": "characters/bruton/animated/spawn.webp",
+      "gif": "characters/bruton/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 1.4,
+      "frames": 42,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/fall.png",
+      "data": "characters/bruton/sprites/fall.json",
+      "webp": "characters/bruton/animated/fall.webp",
+      "gif": "characters/bruton/animated/fall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  },
+  "variants": {}
+}

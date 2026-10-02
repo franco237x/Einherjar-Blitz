@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-02",
+  "checked": {
+    "characters": 2,
+    "clips": 13,
+    "atlasFrames": 528,
+    "variantClips": 5,
+    "variantFrames": 192,
+    "loopSeams": "verified",
+    "worldFootContact": "verified",
+    "slowAndFreeze": "verified",
+    "runnerSpeedVsBasic": 3.5,
+    "smashContactAndInterruption": "verified",
+    "biteCycles": "verified",
+    "armorOverflowAndTwoPieceDrop": "verified",
+    "deathAndRespawn": "verified",
+    "responsiveWidths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "browserCanvas": "13 clips animate",
+    "interactiveArmorAndCombat": "verified",
+    "pauseFlipAndTravel": "verified",
+    "reducedMotion": "starts paused",
+    "javascriptErrors": [],
+    "failedRequests": []
+  }
+}

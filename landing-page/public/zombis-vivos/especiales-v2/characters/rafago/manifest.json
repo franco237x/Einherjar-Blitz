@@ -1,0 +1,317 @@
+{
+  "id": "rafago",
+  "name": "Ráfago",
+  "anatomy": "runner",
+  "role": "Corredor acorazado",
+  "color": "#337c81",
+  "sourceGrid": [
+    4,
+    4
+  ],
+  "description": "Un corredor de fútbol americano con casco y hombreras. Se inclina hacia el jardín y lo cruza a toda velocidad.",
+  "motion": "Rodillas altas, pies en vuelo y brazos bombeando. Casco y hombreras se desprenden juntos; sigue corriendo sin ellos.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect",
+    "pads"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "clips": [
+    "idle",
+    "run",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "locomotion": "run",
+  "health": 140,
+  "armor": 300,
+  "gaitTempo": 1,
+  "stride": 14,
+  "stance": 0.45,
+  "recommendedScale": 1,
+  "biteTime": 0.46,
+  "biteDamage": 16,
+  "layout": {
+    "hips": [
+      188,
+      211
+    ],
+    "head": [
+      133,
+      143
+    ],
+    "headSize": [
+      82,
+      89
+    ],
+    "torsoSize": [
+      96,
+      95
+    ],
+    "shoulders": [
+      [
+        197,
+        139
+      ],
+      [
+        159,
+        144
+      ]
+    ],
+    "arms": [
+      31,
+      35
+    ],
+    "legs": [
+      53,
+      48
+    ],
+    "legInset": 8,
+    "hipOffsets": [
+      9,
+      -9
+    ],
+    "legWidth": 35,
+    "shoeWidth": 49,
+    "armWidths": [
+      26,
+      29
+    ],
+    "gear": [
+      133,
+      145,
+      112,
+      112
+    ],
+    "pads": [
+      179,
+      169,
+      130,
+      77
+    ]
+  },
+  "moveSpeed": 77.77777777777777,
+  "portrait": "characters/rafago/portrait.png",
+  "rig": "characters/rafago/rig.json",
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/rafago/sprites/idle.png",
+      "data": "characters/rafago/sprites/idle.json",
+      "webp": "characters/rafago/animated/idle.webp",
+      "gif": "characters/rafago/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "run": {
+      "label": "Correr",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/rafago/sprites/run.png",
+      "data": "characters/rafago/sprites/run.json",
+      "webp": "characters/rafago/animated/run.webp",
+      "gif": "characters/rafago/animated/run.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "bite": {
+      "label": "Morder",
+      "duration": 1.2,
+      "frames": 36,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/rafago/sprites/bite.png",
+      "data": "characters/rafago/sprites/bite.json",
+      "webp": "characters/rafago/animated/bite.webp",
+      "gif": "characters/rafago/animated/bite.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/rafago/sprites/hit.png",
+      "data": "characters/rafago/sprites/hit.json",
+      "webp": "characters/rafago/animated/hit.webp",
+      "gif": "characters/rafago/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 1,
+      "frames": 30,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/rafago/sprites/spawn.png",
+      "data": "characters/rafago/sprites/spawn.json",
+      "webp": "characters/rafago/animated/spawn.webp",
+      "gif": "characters/rafago/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 1.4,
+      "frames": 42,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/rafago/sprites/fall.png",
+      "data": "characters/rafago/sprites/fall.json",
+      "webp": "characters/rafago/animated/fall.webp",
+      "gif": "characters/rafago/animated/fall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "armor-break": {
+      "label": "Perder protección",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/rafago/sprites/armor-break.png",
+      "data": "characters/rafago/sprites/armor-break.json",
+      "webp": "characters/rafago/animated/armor-break.webp",
+      "gif": "characters/rafago/animated/armor-break.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  },
+  "variants": {
+    "unarmored": {
+      "armorVisible": false,
+      "animations": {
+        "idle": {
+          "label": "Reposo",
+          "duration": 2.4,
+          "frames": 72,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/rafago/unarmored/sprites/idle.png",
+          "data": "characters/rafago/unarmored/sprites/idle.json",
+          "webp": "characters/rafago/unarmored/animated/idle.webp",
+          "gif": "characters/rafago/unarmored/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "run": {
+          "label": "Correr",
+          "duration": 0.8,
+          "frames": 24,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/rafago/unarmored/sprites/run.png",
+          "data": "characters/rafago/unarmored/sprites/run.json",
+          "webp": "characters/rafago/unarmored/animated/run.webp",
+          "gif": "characters/rafago/unarmored/animated/run.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "bite": {
+          "label": "Morder",
+          "duration": 1.2,
+          "frames": 36,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/rafago/unarmored/sprites/bite.png",
+          "data": "characters/rafago/unarmored/sprites/bite.json",
+          "webp": "characters/rafago/unarmored/animated/bite.webp",
+          "gif": "characters/rafago/unarmored/animated/bite.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "label": "Recibir golpe",
+          "duration": 0.6,
+          "frames": 18,
+          "fps": 30,
+          "loop": false,
+          "atlas": "characters/rafago/unarmored/sprites/hit.png",
+          "data": "characters/rafago/unarmored/sprites/hit.json",
+          "webp": "characters/rafago/unarmored/animated/hit.webp",
+          "gif": "characters/rafago/unarmored/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "fall": {
+          "label": "Caer",
+          "duration": 1.4,
+          "frames": 42,
+          "fps": 30,
+          "loop": false,
+          "atlas": "characters/rafago/unarmored/sprites/fall.png",
+          "data": "characters/rafago/unarmored/sprites/fall.json",
+          "webp": "characters/rafago/unarmored/animated/fall.webp",
+          "gif": "characters/rafago/unarmored/animated/fall.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    }
+  }
+}
