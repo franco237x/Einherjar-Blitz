@@ -32,8 +32,6 @@ const PLANTS = {
   cardon: { clips: PLANT_BASE, extra: { 'spine.webp': 'parts/projectile.png' } },
   frigora: { clips: PLANT_BASE, extra: { 'frost.webp': 'parts/projectile.png' } },
   zarzina: { clips: PLANT_BASE },
-  aurelia: { clips: PLANT_BASE, extra: { 'bloom.webp': 'parts/effect.png' } },
-  velaria: { clips: ['idle', 'seal', 'channel', 'recall', 'recover', 'spawn'], extra: { 'sigil.webp': 'parts/sigil.png' } },
 };
 const ZOMBIE_BASE = ['walk', 'bite', 'fall', 'spawn'];
 const ZOMBIES = {

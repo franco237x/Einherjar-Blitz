@@ -30,17 +30,8 @@ export const PLANT_CLIPS: Record<PlantKind, Partial<Record<PlantClip, ClipInfo>>
   cardon: BASE_PLANT,
   frigora: BASE_PLANT,
   zarzina: BASE_PLANT,
-  aurelia: BASE_PLANT,
   cortezon: { idle: clip(72, true), damaged: clip(72, true), critical: clip(72, true), spawn: clip(36, false) },
   granadin: { idle: clip(72, true), attack: clip(36, false) },
-  velaria: {
-    idle: clip(72, true),
-    seal: clip(42, false),
-    channel: clip(72, true),
-    recall: clip(36, false),
-    recover: clip(42, false),
-    spawn: clip(36, false),
-  },
 };
 
 export const ZOMBIE_CLIPS: Record<ZombieClip, ClipInfo> = {
@@ -102,8 +93,6 @@ export function deferredUrls(): string[] {
   return [
     ...Object.values(PROJECTILE_IMAGES).map((image) => image.url),
     spriteUrl('granadin', 'burst'),
-    spriteUrl('aurelia', 'bloom'),
-    spriteUrl('velaria', 'sigil'),
     ...PLANT_ORDER.flatMap(plantSpriteUrls),
     ...zombieSpriteUrls('conero'),
     ...zombieSpriteUrls('balderon'),

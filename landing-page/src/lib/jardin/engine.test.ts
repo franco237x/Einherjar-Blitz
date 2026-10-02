@@ -301,37 +301,6 @@ describe('Zarzina', () => {
   });
 });
 
-describe('Aurélia', () => {
-  it('heals wounded neighbours', () => {
-    const game = createGame(SEED, free);
-    step(game, [
-      { type: 'place', kind: 'cortezon', row: 2, col: 4 },
-      { type: 'place', kind: 'aurelia', row: 2, col: 3 },
-    ]);
-    run(game, TIMING.plantSpawn + 2);
-    game.plants[0].hp = 1000;
-    run(game, 6 * TICKS_PER_SECOND);
-    expect(game.plants[0].hp).toBeGreaterThan(1000);
-  });
-});
-
-describe('Velaria', () => {
-  it('sends the marked zombie back to the anchor after 2 s', () => {
-    const game = createGame(SEED, free);
-    step(game, [{ type: 'spawnZombie', row: 1 }]);
-    while (game.zombies[0].x > 4.4) step(game);
-    step(game, [{ type: 'place', kind: 'velaria', row: 1, col: 0 }]);
-    const velaria = game.plants[0];
-    while (!velaria.mark) step(game);
-    const anchor = velaria.mark.anchorX;
-    run(game, TIMING.velariaDelay + 1);
-    // Back on the anchor; it may already have taken its next step.
-    expect(game.zombies[0].x).toBeCloseTo(anchor, 1);
-    expect(game.zombies[0].rewoundAt).toBeGreaterThan(0);
-    expect(velaria.mark).toBeNull();
-  });
-});
-
 describe('waves mode', () => {
   it('ends in defeat when a zombie gets past a spent mower', () => {
     const game = createGame(SEED, {}, 'waves');

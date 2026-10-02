@@ -244,7 +244,7 @@ function StartScreen({ onPick }: { onPick: (mode: GameMode) => void }) {
           </button>
         </div>
         <p className="mt-4 text-[11px] text-white/45 short:hidden">
-          Atajos: 1–0 plantas · Q pala · P pausa · Esc cancela. Mejor en horizontal.
+          Atajos: 1–8 plantas · Q pala · P pausa · Esc cancela. Mejor en horizontal.
         </p>
       </section>
     </main>

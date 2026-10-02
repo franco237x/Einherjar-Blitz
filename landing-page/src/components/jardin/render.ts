@@ -184,32 +184,6 @@ export function drawScene(
     ctx.fillRect(screenX(v, hover.col), screenY(v, hover.row), v.scale, CELL_H * v.scale);
   }
 
-  // Velaria's link to the marked zombie, drawn under the characters.
-  const sigil = images.get(spriteUrl('velaria', 'sigil'));
-  for (const plant of state.plants) {
-    const mark = plant.mark;
-    if (!mark) continue;
-    const zombie = state.zombies.find((other) => other.id === mark.zombieId);
-    if (!zombie) continue;
-    const y = screenY(v, plant.row + 0.55);
-    const ax = screenX(v, mark.anchorX);
-    const zx = screenX(v, zombie.prevX + (zombie.x - zombie.prevX) * alpha);
-    ctx.save();
-    ctx.strokeStyle = 'rgba(190,140,255,0.75)';
-    ctx.lineWidth = Math.max(1.5, v.scale * 0.03);
-    ctx.setLineDash([v.scale * 0.08, v.scale * 0.06]);
-    ctx.beginPath();
-    ctx.moveTo(ax, y);
-    ctx.lineTo(zx, y);
-    ctx.stroke();
-    if (sigil) {
-      const size = v.scale * (0.5 + Math.sin(t / 5) * 0.04);
-      ctx.globalAlpha = 0.9;
-      ctx.drawImage(sigil, ax - size / 2, y - size / 2, size, size);
-    }
-    ctx.restore();
-  }
-
   for (let row = 0; row < ROWS; row++) {
     const mower = state.mowers[row];
     if (mower && !mower.gone) {
@@ -324,19 +298,11 @@ export function drawScene(
         );
         if (!drawn) drawPortrait(ctx, images.get(spriteUrl(zombie.kind, 'portrait')), x, y, spriteSize);
       });
-      if (t - zombie.rewoundAt < 12) {
-        ctx.globalAlpha = 1 - (t - zombie.rewoundAt) / 12;
-        ctx.fillStyle = 'rgba(190,140,255,0.5)';
-        ctx.beginPath();
-        ctx.ellipse(x, y - 0.6 * v.scale, 0.35 * v.scale, 0.75 * v.scale, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
       ctx.restore();
     }
   }
 
   const burst = images.get(spriteUrl('granadin', 'burst'));
-  const bloom = images.get(spriteUrl('aurelia', 'bloom'));
   for (const effect of state.effects) {
     const p = (t - effect.tick) / TICKS_PER_SECOND;
     const x = screenX(v, effect.col + 0.5);
@@ -354,14 +320,6 @@ export function drawScene(
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
       if (burst) ctx.drawImage(burst, x - r * 0.8, y - r * 0.8, r * 1.6, r * 1.6);
-    } else if (effect.type === 'bloom') {
-      const r = (0.5 + p * 1.1) * v.scale;
-      ctx.strokeStyle = 'rgba(253,224,255,0.9)';
-      ctx.lineWidth = v.scale * 0.05;
-      ctx.beginPath();
-      ctx.ellipse(x, y, r * 1.4, r, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      if (bloom) ctx.drawImage(bloom, x - r * 0.6, y - r * 0.9, r * 1.2, r * 1.2);
     } else if (effect.type === 'chomp') {
       ctx.fillStyle = 'rgba(244,114,182,0.85)';
       ctx.font = `bold ${Math.round(0.32 * v.scale)}px sans-serif`;

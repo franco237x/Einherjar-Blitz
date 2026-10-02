@@ -25,19 +25,13 @@ export type PlantKind =
   | 'mordiseta'
   | 'cardon'
   | 'frigora'
-  | 'zarzina'
-  | 'aurelia'
-  | 'velaria';
+  | 'zarzina';
 export type PlantClip =
   | 'spawn'
   | 'idle'
   | 'attack'
   | 'damaged'
-  | 'critical'
-  | 'seal'
-  | 'channel'
-  | 'recall'
-  | 'recover';
+  | 'critical';
 export type ZombieKind = 'despistado' | 'conero' | 'balderon';
 export type ZombieClip = 'spawn' | 'walk' | 'bite' | 'fall' | 'armor-break';
 export type MowerClip = 'idle' | 'start' | 'run';
@@ -63,8 +57,6 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
   granadin: { kind: 'granadin', name: 'Granadín', role: 'Explota en 3×3', cost: 150, hp: 9999, cooldown: s(50) },
   zarzina: { kind: 'zarzina', name: 'Zarzina', role: 'Devora de un mordisco', cost: 150, hp: 300, cooldown: s(7.5) },
   cardon: { kind: 'cardon', name: 'Cardón', role: 'Espinas que atraviesan', cost: 175, hp: 300, cooldown: s(7.5) },
-  aurelia: { kind: 'aurelia', name: 'Aurélia', role: 'Cura a sus vecinas', cost: 125, hp: 300, cooldown: s(30) },
-  velaria: { kind: 'velaria', name: 'Velaria', role: 'Devuelve al zombi atrás', cost: 125, hp: 300, cooldown: s(20) },
 };
 export const PLANT_ORDER: PlantKind[] = [
   'solmiel',
@@ -75,8 +67,6 @@ export const PLANT_ORDER: PlantKind[] = [
   'granadin',
   'zarzina',
   'cardon',
-  'aurelia',
-  'velaria',
 ];
 
 export interface ZombieDef {
@@ -108,15 +98,6 @@ export const TIMING = {
   granadinFuse: 21,
   zarzinaBite: 14,
   zarzinaDigest: s(15),
-  aureliaBloom: 17,
-  aureliaInterval: s(8),
-  velariaSeal: s(1.4),
-  velariaMark: 22,
-  velariaDelay: s(2),
-  velariaRecallLead: 11,
-  velariaRecall: s(1.2),
-  velariaRecover: s(1.4),
-  velariaCooldown: s(7),
   zombieSpawn: s(1),
   armorBreak: s(0.8),
   biteCycle: 36,
@@ -144,7 +125,6 @@ export const BALANCE = {
   biteDamage: 40,
   skySunFallSpeed: 0.9 / TICKS_PER_SECOND,
   mordisetaRange: 3.5,
-  velariaRange: 4,
   zarzinaReach: 1.6,
   slowFactor: 0.5,
   freezeStacks: 3,
@@ -163,12 +143,6 @@ const PROJECTILES: Record<ProjectileKind, { speed: number; damage: number; pierc
   frost: { speed: 3 / TICKS_PER_SECOND, damage: 0, pierce: false },
 };
 
-export interface ShadowMark {
-  zombieId: number;
-  anchorX: number;
-  tick: number;
-}
-
 export interface Plant {
   id: number;
   kind: PlantKind;
@@ -177,14 +151,12 @@ export interface Plant {
   hp: number;
   clip: PlantClip;
   clipStart: number;
-  /** Tick of the next shot, sun or bloom; for Granadín, the detonation tick. */
+  /** Tick of the next shot or sun; for Granadín, the detonation tick. */
   nextAction: number;
   pendingRelease: number | null;
   lastHit: number;
   /** Zarzina: chewing until this tick. */
   digestUntil: number;
-  /** Velaria: active Eco umbrío. */
-  mark: ShadowMark | null;
 }
 
 export interface Zombie {
@@ -204,8 +176,6 @@ export interface Zombie {
   slowUntil: number;
   freezeUntil: number;
   chill: number;
-  /** Tick of the last Eco umbrío rewind, for the visual trail. */
-  rewoundAt: number;
 }
 
 /** One per lane; single use until the garden is reset. */
@@ -242,7 +212,7 @@ export interface Sun {
 }
 
 export interface Effect {
-  type: 'blast' | 'bloom' | 'chomp' | 'rewind';
+  type: 'blast' | 'chomp';
   row: number;
   col: number;
   tick: number;
@@ -432,13 +402,10 @@ function apply(state: JardinState, command: Command) {
             ? state.tick + TIMING.solmielFirst
             : granadin
               ? state.tick + TIMING.granadinFuse
-              : command.kind === 'aurelia'
-                ? state.tick + s(3)
-                : state.tick + TIMING.plantSpawn,
+              : state.tick + TIMING.plantSpawn,
         pendingRelease: null,
         lastHit: -1,
         digestUntil: 0,
-        mark: null,
       });
       return;
     }
@@ -515,7 +482,6 @@ function spawnZombie(state: JardinState, row: number, kind: ZombieKind) {
     slowUntil: 0,
     freezeUntil: 0,
     chill: 0,
-    rewoundAt: -1,
   });
 }
 
@@ -569,11 +535,6 @@ function dropSun(state: JardinState, x: number, y: number, targetY: number, from
 function hitPlant(state: JardinState, plant: Plant, damage: number) {
   plant.hp -= damage;
   plant.lastHit = state.tick;
-  // A blow to Velaria breaks a link that has not rewound yet.
-  if (plant.kind === 'velaria' && plant.mark) {
-    plant.mark = null;
-    setPlantClip(state, plant, 'idle');
-  }
   if (plant.hp <= 0) removePlant(state, plant);
 }
 
@@ -645,87 +606,6 @@ function updateZarzina(state: JardinState, plant: Plant) {
   }
 }
 
-function updateAurelia(state: JardinState, plant: Plant) {
-  if (plant.clip === 'spawn') return;
-  const neighbours = () =>
-    state.plants.filter(
-      (other) => Math.abs(other.row - plant.row) <= 1 && Math.abs(other.col - plant.col) <= 1,
-    );
-  if (state.tick >= plant.nextAction && plant.clip === 'idle') {
-    const wounded = neighbours().some((other) => other.hp < PLANTS[other.kind].hp);
-    if (wounded) {
-      setPlantClip(state, plant, 'attack');
-      plant.pendingRelease = state.tick + TIMING.aureliaBloom;
-      plant.nextAction = state.tick + TIMING.aureliaInterval;
-    } else {
-      plant.nextAction = state.tick + s(1);
-    }
-  }
-  if (plant.pendingRelease !== null && state.tick >= plant.pendingRelease) {
-    plant.pendingRelease = null;
-    for (const other of neighbours()) {
-      const max = PLANTS[other.kind].hp;
-      other.hp = Math.min(max, other.hp + 120 + max * 0.1);
-    }
-    state.effects.push({ type: 'bloom', row: plant.row, col: plant.col, tick: state.tick });
-  }
-}
-
-function updateVelaria(state: JardinState, plant: Plant) {
-  const age = state.tick - plant.clipStart;
-  const mark = plant.mark;
-  const target = mark ? state.zombies.find((zombie) => zombie.id === mark.zombieId) : undefined;
-  if (mark && (!target || !isAlive(target) || target.row !== plant.row)) {
-    plant.mark = null;
-    if (plant.clip === 'channel' || plant.clip === 'seal') setPlantClip(state, plant, 'idle');
-  }
-
-  switch (plant.clip) {
-    case 'idle': {
-      if (state.tick < plant.nextAction) return;
-      const marked = new Set(state.plants.flatMap((other) => (other.mark ? [other.mark.zombieId] : [])));
-      const candidate = zombiesAhead(state, plant, BALANCE.velariaRange)
-        .filter((zombie) => !marked.has(zombie.id))
-        .sort((a, b) => a.x - b.x)[0];
-      if (candidate) {
-        setPlantClip(state, plant, 'seal');
-        plant.pendingRelease = state.tick + TIMING.velariaMark;
-      }
-      return;
-    }
-    case 'seal': {
-      if (plant.pendingRelease !== null && state.tick >= plant.pendingRelease) {
-        plant.pendingRelease = null;
-        const prey = zombiesAhead(state, plant, BALANCE.velariaRange).sort((a, b) => a.x - b.x)[0];
-        plant.nextAction = state.tick + TIMING.velariaCooldown;
-        if (prey) plant.mark = { zombieId: prey.id, anchorX: prey.x, tick: state.tick };
-      }
-      if (age >= TIMING.velariaSeal) setPlantClip(state, plant, plant.mark ? 'channel' : 'idle');
-      return;
-    }
-    case 'channel': {
-      if (plant.mark && state.tick >= plant.mark.tick + TIMING.velariaDelay - TIMING.velariaRecallLead)
-        setPlantClip(state, plant, 'recall');
-      return;
-    }
-    case 'recall': {
-      if (plant.mark && target && state.tick >= plant.mark.tick + TIMING.velariaDelay) {
-        target.x = plant.mark.anchorX;
-        target.prevX = target.x;
-        target.rewoundAt = state.tick;
-        startWalking(state, target);
-        state.effects.push({ type: 'rewind', row: target.row, col: Math.floor(target.x), tick: state.tick });
-        plant.mark = null;
-      }
-      if (age >= TIMING.velariaRecall) setPlantClip(state, plant, 'recover');
-      return;
-    }
-    case 'recover':
-      if (age >= TIMING.velariaRecover) setPlantClip(state, plant, 'idle');
-      return;
-  }
-}
-
 function updatePlants(state: JardinState) {
   const { rng } = state.rngState;
   for (const plant of [...state.plants]) {
@@ -744,12 +624,6 @@ function updatePlants(state: JardinState) {
         break;
       case 'zarzina':
         updateZarzina(state, plant);
-        break;
-      case 'aurelia':
-        updateAurelia(state, plant);
-        break;
-      case 'velaria':
-        if (plant.clip !== 'spawn') updateVelaria(state, plant);
         break;
       case 'solmiel': {
         if (state.tick >= plant.nextAction) {
