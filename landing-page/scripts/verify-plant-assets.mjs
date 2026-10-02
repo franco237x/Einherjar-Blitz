@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { CHARACTERS, CLIPS, clipsFor, evaluatePose, clipLabel, actionEvent, animationEvents, afterClip, PlantAnimator,
+import { CHARACTERS, ACTIVE_CHARACTERS, CLIPS, clipsFor, evaluatePose, clipLabel, actionEvent, animationEvents, afterClip, PlantAnimator,
   createColdStatus, applyChill, updateColdStatus } from '../public/plantas-vivas/runtime/plant-rig.mjs';
 import { verifyShadowMechanic } from './verify-shadow-mechanic.mjs';
 
@@ -12,9 +12,10 @@ const require = createRequire(import.meta.url), flag = process.argv.indexOf('--p
 const { chromium } = require(flag >= 0 ? process.argv[flag + 1] : 'playwright');
 const root = fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
 const manifest = JSON.parse(await readFile(path.join(root, 'manifest.json'), 'utf8'));
-assert.equal(manifest.characters.length, CHARACTERS.length);
+assert.equal(manifest.characters.length, ACTIVE_CHARACTERS.length);
+assert.equal(manifest.archivedCharacters.length, 2);
 let clipsChecked = 0;
-for (const character of manifest.characters) {
+for (const character of [...manifest.characters, ...manifest.archivedCharacters]) {
   if (character.defenseOnly) {
     assert.equal(character.animations.attack, undefined, 'Pure defense must have no offensive atlas.');
     assert.equal(character.effects.projectile, undefined, 'Pure defense must have no projectile asset.');
@@ -84,11 +85,11 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) failedRequests.push(`${response.status()} ${response.url()}`); });
   await page.goto('http://127.0.0.1:8765/plantas-vivas/index.html', { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Velaria');
+  await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Cilantro');
   const imageLoaded = await page.locator('#roster img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0));
   assert(imageLoaded, 'All character portraits must load.');
   const hash = async () => createHash('sha256').update(await page.locator('canvas').evaluate(element => element.toDataURL())).digest('hex');
-  for (const character of CHARACTERS) {
+  for (const character of ACTIVE_CHARACTERS) {
     await page.locator(`[data-plant="${character.id}"]`).click();
     await page.waitForFunction(name => document.querySelector('#character-name').textContent === name, character.name);
     for (const [clip, data] of Object.entries(clipsFor(character))) {
@@ -98,7 +99,7 @@ try {
       assert.notEqual(before, after, `${character.id}/${clip}: canvas must animate.`);
     }
   }
-  await page.locator('[data-plant="velaria"]').click();
+  await page.goto('http://127.0.0.1:8765/plantas-vivas/index.html?archivo=1', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Velaria');
   await page.locator('#reset-shadow').click();
   const shadowSnapshot = () => page.evaluate(async () => (await import('/plantas-vivas/viewer.mjs')).shadowPracticeSnapshot());
@@ -143,6 +144,7 @@ try {
   await page.locator('#repeat').check(); await page.locator('[data-clip="seal"]').click();
   await page.waitForFunction(() => document.querySelector('#shadow-returns').textContent === '2', null, { timeout: 20000 });
   await page.locator('#repeat').uncheck();
+  await page.goto('http://127.0.0.1:8765/plantas-vivas/index.html', { waitUntil: 'networkidle' });
   await page.locator('[data-plant="cortezon"]').click();
   await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Cortezón');
   assert.equal(await page.locator('[data-clip="attack"]').count(), 0, 'Defender exposes a block button, never attack.');
@@ -174,8 +176,7 @@ try {
   assert.equal(await page.locator('[data-clip="attack"]').isDisabled(), true, 'Consumed explosive must not detonate again.');
   await page.locator('[data-clip="spawn"]').click();
   assert.equal(await page.locator('[data-clip="attack"]').isDisabled(), false, 'Replanting must restore the explosive.');
-  await page.locator('[data-plant="velaria"]').click();
-  await page.locator('#reset-shadow').click();
+  await page.locator('[data-plant="cilantro"]').click();
   await page.locator('[data-clip="idle"]').click();
   await page.locator('#pause').click();
   assert.equal(await page.locator('#pause').textContent(), 'Reproducir');
@@ -186,27 +187,27 @@ try {
   assert.equal(await page.locator('#stage').getAttribute('class'), 'stage alpha');
   await page.locator('[data-background="garden"]').click();
   const preview = path.join(root, 'preview'); await mkdir(preview, { recursive: true });
-  await page.screenshot({ path: path.join(preview, 'visor-desktop-v5.png'), fullPage: true });
+  await page.screenshot({ path: path.join(preview, 'visor-desktop-v6.png'), fullPage: true });
   for (const width of [390, 320]) {
     await page.setViewportSize({ width, height: 844 });
     const dimensions = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
     assert(dimensions[0] <= dimensions[1], `No horizontal overflow at ${width}px.`);
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: path.join(preview, 'visor-mobile-v5.png'), fullPage: true });
+  await page.screenshot({ path: path.join(preview, 'visor-mobile-v6.png'), fullPage: true });
   const download = await page.request.get(await page.locator('#download-animation').getAttribute('href'));
   assert.equal(download.status(), 200, 'Selected animation must download.');
   const motionContext = await browser.newContext({ reducedMotion: 'reduce' });
   const motionPage = await motionContext.newPage();
   await motionPage.goto('http://127.0.0.1:8765/plantas-vivas/index.html', { waitUntil: 'networkidle' });
   assert.equal(await motionPage.locator('#pause').textContent(), 'Reproducir', 'Reduced motion starts paused.');
-  await motionPage.locator('[data-clip="seal"]').click();
+  await motionPage.locator('[data-clip="attack"]').click();
   assert.equal(await motionPage.locator('#pause').textContent(), 'Pausar', 'Explicit action starts playback.');
   assert.deepEqual(errors, [], 'Browser must have no JavaScript errors.');
   assert.deepEqual(failedRequests, [], 'All runtime assets must load successfully.');
-  const report = { date: '2026-10-01', story: 'Select plant → load transparent pieces → play distinct rig actions → download asset',
-    checked: { characters: CHARACTERS.length, clips: clipsChecked, atlasBounds: 'valid', clipDurations: 'exact', idleLoop: 'seamless',
-      browserActions: clipsChecked, sunEvent: '25 energy once', explosion: 'consumed and replantable',
+  const report = { date: '2026-10-02', story: 'Select plant → load transparent pieces → play distinct rig actions → download asset',
+    checked: { characters: ACTIVE_CHARACTERS.length, archivedCharacters: 2, clips: clipsChecked, atlasBounds: 'valid', clipDurations: 'exact', idleLoop: 'seamless',
+      browserActions: ACTIVE_CHARACTERS.reduce((sum, character) => sum + Object.keys(clipsFor(character)).length, 0), sunEvent: '25 energy once', explosion: 'consumed and replantable',
       pureDefense: 'no attack, no projectiles, zero offensive damage', barkIntegrity: 'healthy, damaged, critical',
       frost: '50% speed; 3 impacts freeze for 1.2 s; thaw, expire and reset verified',
       shadowRecall: shadowChecks, shadowBrowser: 'Moving target, fixed anchor, rewind, recovery, cooldown, duplicate rejection, pause, hit interruption, lost target, reset and repeated casts verified',

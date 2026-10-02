@@ -9,8 +9,9 @@ const root = fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url))
 const newOnly = process.argv.includes('--new-only');
 const defenseIce = process.argv.includes('--defense-ice');
 const nocturne = process.argv.includes('--nocturne');
-const selection = nocturne ? CHARACTERS.filter(character => character.id === 'velaria') : defenseIce ? CHARACTERS.filter(character => ['cortezon', 'frigora'].includes(character.id)) : newOnly ? CHARACTERS.filter(character => ['solmiel', 'granadin', 'aurelia'].includes(character.id)) : CHARACTERS;
-const CELL = newOnly || defenseIce || nocturne ? 320 : 224, ROW = CELL + 24;
+const fresh = process.argv.includes('--fresh');
+const selection = fresh ? CHARACTERS.filter(character => ['cilantro', 'limon', 'jengibron'].includes(character.id)) : nocturne ? CHARACTERS.filter(character => character.id === 'velaria') : defenseIce ? CHARACTERS.filter(character => ['cortezon', 'frigora'].includes(character.id)) : newOnly ? CHARACTERS.filter(character => ['solmiel', 'granadin', 'aurelia'].includes(character.id)) : CHARACTERS;
+const CELL = newOnly || defenseIce || nocturne || fresh ? 320 : 224, ROW = CELL + 24;
 const rows = Math.max(...selection.map(character => Object.keys(clipsFor(character)).length));
 const canvas = createCanvas(selection.length * CELL, rows * ROW), ctx = canvas.getContext('2d');
 ctx.fillStyle = '#e8efda'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -25,5 +26,5 @@ for (let col = 0; col < selection.length; col++) {
     ctx.fillText(`${character.name} · ${clipLabel(character, clip)}`, col * CELL + CELL / 2, row * ROW + CELL + 15);
   }
 }
-await writeFile(path.join(root, 'preview', nocturne ? 'action-poses-velaria.png' : defenseIce ? 'action-poses-defensa-hielo.png' : newOnly ? 'action-poses-nuevas.png' : 'action-poses-v5.png'), canvas.toBuffer('image/png'));
+await writeFile(path.join(root, 'preview', fresh ? 'action-poses-cilantro-limon-jengibron.png' : nocturne ? 'action-poses-velaria.png' : defenseIce ? 'action-poses-defensa-hielo.png' : newOnly ? 'action-poses-nuevas.png' : 'action-poses-v6.png'), canvas.toBuffer('image/png'));
 console.log(`${selection.reduce((n, character) => n + Object.keys(clipsFor(character)).length, 0)} exported action poses rendered for visual review.`);

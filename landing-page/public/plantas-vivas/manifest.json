@@ -1,7 +1,7 @@
 {
   "name": "Plantas vivas",
-  "version": "5.0.0",
-  "created": "2026-10-01",
+  "version": "6.0.0",
+  "created": "2026-10-02",
   "artwork": "Built-in ImageGen / original caricature characters",
   "animation": "Continuous cutout rig; deterministic exports at 30 fps",
   "logicalSize": [
@@ -729,124 +729,6 @@
       }
     },
     {
-      "id": "aurelia",
-      "name": "Aurélia",
-      "anatomy": "orchid",
-      "role": "Orquídea aurora · Rara",
-      "color": "#b995d8",
-      "description": "Una flor difícil de encontrar. Sus pétalos de nácar se abren como cintas y liberan rocío luminoso.",
-      "attackStyle": "bloom",
-      "actionLabel": "Floración",
-      "tempo": 0.59,
-      "projectileEvent": 0.56,
-      "muzzle": [
-        169,
-        143
-      ],
-      "projectileSpeed": 0,
-      "rarity": "rare",
-      "partNames": [
-        "reference",
-        "heart",
-        "heart-blink",
-        "heart-action",
-        "fan-left",
-        "fan-right",
-        "stalk",
-        "projectile",
-        "effect"
-      ],
-      "expressions": [
-        "heart",
-        "heart-blink",
-        "heart-action"
-      ],
-      "motion": "Los dos abanicos de pétalos flotan a destiempo; se pliegan y despliegan una floración con destellos.",
-      "portrait": "characters/aurelia/portrait.png",
-      "rig": "characters/aurelia/rig.json",
-      "effects": {
-        "projectile": "characters/aurelia/parts/projectile.png",
-        "burst": "characters/aurelia/parts/effect.png"
-      },
-      "animations": {
-        "idle": {
-          "frames": 72,
-          "fps": 30,
-          "duration": 2.4,
-          "loop": true,
-          "atlas": "characters/aurelia/sprites/idle.png",
-          "data": "characters/aurelia/sprites/idle.json",
-          "webp": "characters/aurelia/animated/idle.webp",
-          "gif": "characters/aurelia/animated/idle.gif",
-          "columns": 8,
-          "frameSize": [
-            256,
-            256
-          ]
-        },
-        "attack": {
-          "frames": 36,
-          "fps": 30,
-          "duration": 1.2,
-          "loop": false,
-          "atlas": "characters/aurelia/sprites/attack.png",
-          "data": "characters/aurelia/sprites/attack.json",
-          "webp": "characters/aurelia/animated/attack.webp",
-          "gif": "characters/aurelia/animated/attack.gif",
-          "columns": 8,
-          "frameSize": [
-            256,
-            256
-          ]
-        },
-        "hit": {
-          "frames": 24,
-          "fps": 30,
-          "duration": 0.8,
-          "loop": false,
-          "atlas": "characters/aurelia/sprites/hit.png",
-          "data": "characters/aurelia/sprites/hit.json",
-          "webp": "characters/aurelia/animated/hit.webp",
-          "gif": "characters/aurelia/animated/hit.gif",
-          "columns": 8,
-          "frameSize": [
-            256,
-            256
-          ]
-        },
-        "spawn": {
-          "frames": 36,
-          "fps": 30,
-          "duration": 1.2,
-          "loop": false,
-          "atlas": "characters/aurelia/sprites/spawn.png",
-          "data": "characters/aurelia/sprites/spawn.json",
-          "webp": "characters/aurelia/animated/spawn.webp",
-          "gif": "characters/aurelia/animated/spawn.gif",
-          "columns": 8,
-          "frameSize": [
-            256,
-            256
-          ]
-        },
-        "celebrate": {
-          "frames": 48,
-          "fps": 30,
-          "duration": 1.6,
-          "loop": false,
-          "atlas": "characters/aurelia/sprites/celebrate.png",
-          "data": "characters/aurelia/sprites/celebrate.json",
-          "webp": "characters/aurelia/animated/celebrate.webp",
-          "gif": "characters/aurelia/animated/celebrate.gif",
-          "columns": 8,
-          "frameSize": [
-            256,
-            256
-          ]
-        }
-      }
-    },
-    {
       "id": "cortezon",
       "name": "Cortezón",
       "anatomy": "bark",
@@ -1140,6 +1022,505 @@
       }
     },
     {
+      "id": "cilantro",
+      "name": "Cilantro",
+      "anatomy": "herb",
+      "role": "Ráfaga aromática",
+      "color": "#75b13c",
+      "description": "Un manojo travieso de hojas recortadas. Su ráfaga aromática corta el mordisco del enemigo sin frenar sus pasos.",
+      "motion": "Inclina los tallos, infla los cachetes y sopla. Las dos ramas siguen el movimiento con un pequeño retraso.",
+      "attackStyle": "aroma",
+      "actionLabel": "Soplar aroma",
+      "tempo": 0.92,
+      "projectileEvent": 0.5,
+      "muzzle": [
+        210,
+        157
+      ],
+      "projectileSpeed": 255,
+      "aroma": {
+        "interruptSeconds": 1.1,
+        "damage": 0,
+        "movementMultiplier": 1
+      },
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "spray-left",
+        "spray-right",
+        "base",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "portrait": "characters/cilantro/portrait.png",
+      "rig": "characters/cilantro/rig.json",
+      "effects": {
+        "projectile": "characters/cilantro/parts/projectile.png",
+        "burst": "characters/cilantro/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/cilantro/sprites/idle.png",
+          "data": "characters/cilantro/sprites/idle.json",
+          "webp": "characters/cilantro/animated/idle.webp",
+          "gif": "characters/cilantro/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/cilantro/sprites/attack.png",
+          "data": "characters/cilantro/sprites/attack.json",
+          "webp": "characters/cilantro/animated/attack.webp",
+          "gif": "characters/cilantro/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/cilantro/sprites/hit.png",
+          "data": "characters/cilantro/sprites/hit.json",
+          "webp": "characters/cilantro/animated/hit.webp",
+          "gif": "characters/cilantro/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/cilantro/sprites/spawn.png",
+          "data": "characters/cilantro/sprites/spawn.json",
+          "webp": "characters/cilantro/animated/spawn.webp",
+          "gif": "characters/cilantro/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/cilantro/sprites/celebrate.png",
+          "data": "characters/cilantro/sprites/celebrate.json",
+          "webp": "characters/cilantro/animated/celebrate.webp",
+          "gif": "characters/cilantro/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "limon",
+      "name": "Limón",
+      "anatomy": "citrus",
+      "role": "Jugo contra armaduras",
+      "color": "#e5b734",
+      "description": "Bajito, ancho y con una sonrisa ácida. Su jugo daña al enemigo y disuelve protección adicional sin convertir ese extra en daño a la vida.",
+      "motion": "Comprime el limón desde atrás, infla un cachete, escupe y recupera su forma con un rebote suave.",
+      "attackStyle": "acid",
+      "actionLabel": "Escupir jugo",
+      "tempo": 0.7,
+      "projectileEvent": 0.5,
+      "muzzle": [
+        233,
+        215
+      ],
+      "projectileSpeed": 330,
+      "acid": {
+        "damage": 16,
+        "armorDamage": 44
+      },
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "crest",
+        "leaf-back",
+        "base",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "portrait": "characters/limon/portrait.png",
+      "rig": "characters/limon/rig.json",
+      "effects": {
+        "projectile": "characters/limon/parts/projectile.png",
+        "burst": "characters/limon/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/limon/sprites/idle.png",
+          "data": "characters/limon/sprites/idle.json",
+          "webp": "characters/limon/animated/idle.webp",
+          "gif": "characters/limon/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/limon/sprites/attack.png",
+          "data": "characters/limon/sprites/attack.json",
+          "webp": "characters/limon/animated/attack.webp",
+          "gif": "characters/limon/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/limon/sprites/hit.png",
+          "data": "characters/limon/sprites/hit.json",
+          "webp": "characters/limon/animated/hit.webp",
+          "gif": "characters/limon/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/limon/sprites/spawn.png",
+          "data": "characters/limon/sprites/spawn.json",
+          "webp": "characters/limon/animated/spawn.webp",
+          "gif": "characters/limon/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/limon/sprites/celebrate.png",
+          "data": "characters/limon/sprites/celebrate.json",
+          "webp": "characters/limon/animated/celebrate.webp",
+          "gif": "characters/limon/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "jengibron",
+      "name": "Jengibrón",
+      "anatomy": "boxer",
+      "role": "Raíz de cuerpo a cuerpo",
+      "color": "#bc874f",
+      "description": "Una raíz de jengibre con enormes puños de hojas. Alterna un jab rápido y un cruzado pesado; cada golpe comprueba su alcance.",
+      "motion": "Guardia elástica, carga de hombro, jab, cambio de peso y cruzado. Los pies permanecen plantados durante el combo.",
+      "attackStyle": "punch",
+      "actionLabel": "Jab y cruzado",
+      "tempo": 1.05,
+      "projectileEvent": 0.4,
+      "muzzle": [
+        266,
+        198
+      ],
+      "projectileSpeed": 0,
+      "melee": {
+        "range": 152,
+        "origin": [
+          150,
+          288
+        ],
+        "hits": [
+          {
+            "time": 0.4,
+            "damage": 22,
+            "hand": "front"
+          },
+          {
+            "time": 0.8,
+            "damage": 34,
+            "hand": "back"
+          }
+        ]
+      },
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "arm-back",
+        "arm-front",
+        "base",
+        "arc",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "portrait": "characters/jengibron/portrait.png",
+      "rig": "characters/jengibron/rig.json",
+      "effects": {
+        "burst": "characters/jengibron/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/jengibron/sprites/idle.png",
+          "data": "characters/jengibron/sprites/idle.json",
+          "webp": "characters/jengibron/animated/idle.webp",
+          "gif": "characters/jengibron/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/jengibron/sprites/attack.png",
+          "data": "characters/jengibron/sprites/attack.json",
+          "webp": "characters/jengibron/animated/attack.webp",
+          "gif": "characters/jengibron/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/jengibron/sprites/hit.png",
+          "data": "characters/jengibron/sprites/hit.json",
+          "webp": "characters/jengibron/animated/hit.webp",
+          "gif": "characters/jengibron/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/jengibron/sprites/spawn.png",
+          "data": "characters/jengibron/sprites/spawn.json",
+          "webp": "characters/jengibron/animated/spawn.webp",
+          "gif": "characters/jengibron/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/jengibron/sprites/celebrate.png",
+          "data": "characters/jengibron/sprites/celebrate.json",
+          "webp": "characters/jengibron/animated/celebrate.webp",
+          "gif": "characters/jengibron/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    }
+  ],
+  "archivedCharacters": [
+    {
+      "id": "aurelia",
+      "name": "Aurélia",
+      "anatomy": "orchid",
+      "role": "Orquídea aurora · Rara",
+      "color": "#b995d8",
+      "description": "Una flor difícil de encontrar. Sus pétalos de nácar se abren como cintas y liberan rocío luminoso.",
+      "attackStyle": "bloom",
+      "actionLabel": "Floración",
+      "tempo": 0.59,
+      "projectileEvent": 0.56,
+      "muzzle": [
+        169,
+        143
+      ],
+      "projectileSpeed": 0,
+      "rarity": "rare",
+      "partNames": [
+        "reference",
+        "heart",
+        "heart-blink",
+        "heart-action",
+        "fan-left",
+        "fan-right",
+        "stalk",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "heart",
+        "heart-blink",
+        "heart-action"
+      ],
+      "motion": "Los dos abanicos de pétalos flotan a destiempo; se pliegan y despliegan una floración con destellos.",
+      "portrait": "characters/aurelia/portrait.png",
+      "rig": "characters/aurelia/rig.json",
+      "effects": {
+        "projectile": "characters/aurelia/parts/projectile.png",
+        "burst": "characters/aurelia/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/aurelia/sprites/idle.png",
+          "data": "characters/aurelia/sprites/idle.json",
+          "webp": "characters/aurelia/animated/idle.webp",
+          "gif": "characters/aurelia/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/attack.png",
+          "data": "characters/aurelia/sprites/attack.json",
+          "webp": "characters/aurelia/animated/attack.webp",
+          "gif": "characters/aurelia/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/hit.png",
+          "data": "characters/aurelia/sprites/hit.json",
+          "webp": "characters/aurelia/animated/hit.webp",
+          "gif": "characters/aurelia/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/spawn.png",
+          "data": "characters/aurelia/sprites/spawn.json",
+          "webp": "characters/aurelia/animated/spawn.webp",
+          "gif": "characters/aurelia/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/celebrate.png",
+          "data": "characters/aurelia/sprites/celebrate.json",
+          "webp": "characters/aurelia/animated/celebrate.webp",
+          "gif": "characters/aurelia/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      },
+      "retired": true
+    },
+    {
       "id": "velaria",
       "name": "Velaria",
       "anatomy": "nocturne",
@@ -1318,7 +1699,8 @@
             256
           ]
         }
-      }
+      },
+      "retired": true
     }
   ]
 }

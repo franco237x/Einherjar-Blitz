@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { CHARACTERS, clipsFor, renderPlant, clipLabel } from '../public/plantas-vivas/runtime/plant-rig.mjs';
+import { CHARACTERS, ACTIVE_CHARACTERS, clipsFor, renderPlant, clipLabel } from '../public/plantas-vivas/runtime/plant-rig.mjs';
 
 const require = createRequire(import.meta.url), sharp = require('sharp');
 const flag = process.argv.indexOf('--canvas-module');
@@ -13,9 +13,10 @@ const cast = [];
 const newOnly = process.argv.includes('--new-only');
 const defenseIce = process.argv.includes('--defense-ice');
 const nocturne = process.argv.includes('--nocturne');
-const focus = defenseIce || newOnly || nocturne;
-const focusIds = nocturne ? ['velaria'] : defenseIce ? ['cortezon', 'frigora'] : ['solmiel', 'granadin', 'aurelia'];
-const selection = focus ? CHARACTERS.filter(character => focusIds.includes(character.id)) : CHARACTERS;
+const fresh = process.argv.includes('--fresh');
+const focus = defenseIce || newOnly || nocturne || fresh;
+const focusIds = fresh ? ['cilantro', 'limon', 'jengibron'] : nocturne ? ['velaria'] : defenseIce ? ['cortezon', 'frigora'] : ['solmiel', 'granadin', 'aurelia'];
+const selection = focus ? CHARACTERS.filter(character => focusIds.includes(character.id)) : ACTIVE_CHARACTERS;
 for (const character of selection) {
   const parts = Object.fromEntries(await Promise.all(character.partNames.filter(name => name !== 'reference').map(async name =>
     [name, await loadImage(path.join(root, 'characters', character.id, 'parts', `${name}.png`))])));
@@ -24,7 +25,7 @@ for (const character of selection) {
 
 const CELL = focus ? 320 : 256, ROW = focus ? 350 : 292, COLUMNS = Math.min(focus ? 4 : 5, cast.length);
 const WIDTH = COLUMNS * CELL, HEIGHT = Math.ceil(cast.length / COLUMNS) * ROW, FPS = 30;
-const suffix = nocturne ? '-velaria' : defenseIce ? '-defensa-hielo' : newOnly ? '-nuevas' : '-v5';
+const suffix = fresh ? '-cilantro-limon-jengibron' : nocturne ? '-velaria' : defenseIce ? '-defensa-hielo' : newOnly ? '-nuevas' : '-v6';
 function scene(clip, time, backdrop = false) {
   const canvas = createCanvas(WIDTH, HEIGHT), ctx = canvas.getContext('2d');
   if (backdrop) {
@@ -41,7 +42,7 @@ function scene(clip, time, backdrop = false) {
     const localClip = clip === 'attack' ? character.primaryClip ?? 'attack' : available[clip] ? clip : 'idle';
     const idleTime = (time + index * 0.45) % 2.4;
     renderPlant(ctx, character, parts, localClip, localClip === 'idle' ? idleTime : Math.min(time, available[localClip].duration - 1 / FPS), { includeEmittedObjects: true });
-    if (localClip === 'attack' && ['seed', 'thorn', 'spore'].includes(character.attackStyle)) {
+    if (localClip === 'attack' && ['seed', 'thorn', 'spore', 'aroma', 'acid'].includes(character.attackStyle)) {
       const elapsed = time - character.projectileEvent;
       if (elapsed >= 0 && elapsed < 0.24) {
         const w = character.attackStyle === 'thorn' ? 42 : 31;
@@ -60,6 +61,7 @@ function scene(clip, time, backdrop = false) {
   return canvas;
 }
 await writeFile(path.join(out, `lineup${suffix}.png`), scene('idle', 0).toBuffer('image/png'));
+if (process.argv.includes('--lineup-only')) process.exit(0);
 const primaryDuration = Math.max(...cast.map(({ character }) => clipsFor(character)[character.primaryClip ?? 'attack'].duration));
 const timeline = nocturne ? [ ['idle', 1.2], ['seal', 1.4], ['channel', 2], ['recall', 1.2], ['recover', 1.4], ['hit', 0.8], ['spawn', 1.2], ['celebrate', 1.6] ]
   : defenseIce ? [ ['idle', 1.2], ['attack', 1.2], ['hit', 0.8], ['damaged', 1.2], ['critical', 1.2], ['spawn', 1.2], ['celebrate', 1.6] ]

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-01",
+  "date": "2026-10-02",
   "characters": [
     {
       "id": "cardon",
@@ -97,6 +97,33 @@
       "clipping": "none",
       "motion": "verified",
       "gameplayEvent": "once per primary action"
+    },
+    {
+      "id": "limon",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per primary action"
+    },
+    {
+      "id": "cilantro",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per primary action"
+    },
+    {
+      "id": "jengibron",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "two distinct hits per combo"
     }
   ]
 }

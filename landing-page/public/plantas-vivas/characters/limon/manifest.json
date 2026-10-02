@@ -1,0 +1,121 @@
+{
+  "id": "limon",
+  "name": "Limón",
+  "anatomy": "citrus",
+  "role": "Jugo contra armaduras",
+  "color": "#e5b734",
+  "description": "Bajito, ancho y con una sonrisa ácida. Su jugo daña al enemigo y disuelve protección adicional sin convertir ese extra en daño a la vida.",
+  "motion": "Comprime el limón desde atrás, infla un cachete, escupe y recupera su forma con un rebote suave.",
+  "attackStyle": "acid",
+  "actionLabel": "Escupir jugo",
+  "tempo": 0.7,
+  "projectileEvent": 0.5,
+  "muzzle": [
+    233,
+    215
+  ],
+  "projectileSpeed": 330,
+  "acid": {
+    "damage": 16,
+    "armorDamage": 44
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "crest",
+    "leaf-back",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "portrait": "characters/limon/portrait.png",
+  "rig": "characters/limon/rig.json",
+  "effects": {
+    "projectile": "characters/limon/parts/projectile.png",
+    "burst": "characters/limon/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/limon/sprites/idle.png",
+      "data": "characters/limon/sprites/idle.json",
+      "webp": "characters/limon/animated/idle.webp",
+      "gif": "characters/limon/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/limon/sprites/attack.png",
+      "data": "characters/limon/sprites/attack.json",
+      "webp": "characters/limon/animated/attack.webp",
+      "gif": "characters/limon/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/limon/sprites/hit.png",
+      "data": "characters/limon/sprites/hit.json",
+      "webp": "characters/limon/animated/hit.webp",
+      "gif": "characters/limon/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/limon/sprites/spawn.png",
+      "data": "characters/limon/sprites/spawn.json",
+      "webp": "characters/limon/animated/spawn.webp",
+      "gif": "characters/limon/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/limon/sprites/celebrate.png",
+      "data": "characters/limon/sprites/celebrate.json",
+      "webp": "characters/limon/animated/celebrate.webp",
+      "gif": "characters/limon/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

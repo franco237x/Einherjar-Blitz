@@ -1,0 +1,154 @@
+{
+  "id": "limon",
+  "name": "Limón",
+  "anatomy": "citrus",
+  "role": "Jugo contra armaduras",
+  "color": "#e5b734",
+  "description": "Bajito, ancho y con una sonrisa ácida. Su jugo daña al enemigo y disuelve protección adicional sin convertir ese extra en daño a la vida.",
+  "motion": "Comprime el limón desde atrás, infla un cachete, escupe y recupera su forma con un rebote suave.",
+  "attackStyle": "acid",
+  "actionLabel": "Escupir jugo",
+  "tempo": 0.7,
+  "projectileEvent": 0.5,
+  "muzzle": [
+    233,
+    215
+  ],
+  "projectileSpeed": 330,
+  "acid": {
+    "damage": 16,
+    "armorDamage": 44
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "crest",
+    "leaf-back",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/limon-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 1,
+      "top": 99,
+      "width": 417,
+      "height": 352
+    },
+    "body": {
+      "left": 455,
+      "top": 178,
+      "width": 376,
+      "height": 252
+    },
+    "body-blink": {
+      "left": 861,
+      "top": 178,
+      "width": 376,
+      "height": 252
+    },
+    "body-action": {
+      "left": 26,
+      "top": 566,
+      "width": 397,
+      "height": 255
+    },
+    "crest": {
+      "left": 565,
+      "top": 586,
+      "width": 175,
+      "height": 172
+    },
+    "leaf-back": {
+      "left": 939,
+      "top": 643,
+      "width": 216,
+      "height": 127
+    },
+    "base": {
+      "left": 46,
+      "top": 1047,
+      "width": 358,
+      "height": 87
+    },
+    "projectile": {
+      "left": 462,
+      "top": 989,
+      "width": 362,
+      "height": 156
+    },
+    "effect": {
+      "left": 901,
+      "top": 939,
+      "width": 299,
+      "height": 230
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 423,
+      "height": 358
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 382,
+      "height": 257
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 382,
+      "height": 257
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 382,
+      "height": 257
+    },
+    "crest": {
+      "file": "parts/crest.png",
+      "width": 181,
+      "height": 178
+    },
+    "leaf-back": {
+      "file": "parts/leaf-back.png",
+      "width": 222,
+      "height": 132
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 364,
+      "height": 93
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 368,
+      "height": 161
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 305,
+      "height": 236
+    }
+  }
+}

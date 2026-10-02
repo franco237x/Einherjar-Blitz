@@ -71,6 +71,7 @@ export const CHARACTERS = [
   },
   {
     id: 'aurelia', name: 'Aurélia', anatomy: 'orchid', role: 'Orquídea aurora · Rara', color: '#b995d8',
+    retired: true,
     description: 'Una flor difícil de encontrar. Sus pétalos de nácar se abren como cintas y liberan rocío luminoso.',
     attackStyle: 'bloom', actionLabel: 'Floración', tempo: 0.59, projectileEvent: 0.56,
     muzzle: [169, 143], projectileSpeed: 0, rarity: 'rare',
@@ -102,6 +103,7 @@ export const CHARACTERS = [
   },
   {
     id: 'velaria', name: 'Velaria', anatomy: 'nocturne', role: 'Cala del eco umbrío', color: '#6e5b94',
+    retired: true,
     description: 'Serena y solemne. Ancla la sombra de un enemigo y, dos segundos después, lo devuelve a esa posición.',
     attackStyle: 'shadow-mark', actionLabel: 'Eco umbrío', primaryClip: 'seal',
     clips: ['idle', 'seal', 'channel', 'recall', 'recover', 'hit', 'spawn', 'celebrate'],
@@ -111,16 +113,44 @@ export const CHARACTERS = [
     expressions: ['body', 'body-blink', 'body-action'],
     motion: 'Abre los pétalos para sellar; sostiene un pulso contenido, cierra el vínculo con un tirón y recupera el aliento.',
   },
+  { id: 'cilantro', name: 'Cilantro', anatomy: 'herb', role: 'Ráfaga aromática', color: '#75b13c',
+    description: 'Un manojo travieso de hojas recortadas. Su ráfaga aromática corta el mordisco del enemigo sin frenar sus pasos.',
+    motion: 'Inclina los tallos, infla los cachetes y sopla. Las dos ramas siguen el movimiento con un pequeño retraso.',
+    attackStyle: 'aroma', actionLabel: 'Soplar aroma', tempo: 0.92, projectileEvent: 0.5,
+    muzzle: [210, 157], projectileSpeed: 255, aroma: { interruptSeconds: 1.1, damage: 0, movementMultiplier: 1 },
+    partNames: ['reference', 'body', 'body-blink', 'body-action', 'spray-left', 'spray-right', 'base', 'projectile', 'effect'],
+    expressions: ['body', 'body-blink', 'body-action'],
+  },
+  { id: 'limon', name: 'Limón', anatomy: 'citrus', role: 'Jugo contra armaduras', color: '#e5b734',
+    description: 'Bajito, ancho y con una sonrisa ácida. Su jugo daña al enemigo y disuelve protección adicional sin convertir ese extra en daño a la vida.',
+    motion: 'Comprime el limón desde atrás, infla un cachete, escupe y recupera su forma con un rebote suave.',
+    attackStyle: 'acid', actionLabel: 'Escupir jugo', tempo: 0.7, projectileEvent: 0.5,
+    muzzle: [233, 215], projectileSpeed: 330, acid: { damage: 16, armorDamage: 44 },
+    partNames: ['reference', 'body', 'body-blink', 'body-action', 'crest', 'leaf-back', 'base', 'projectile', 'effect'],
+    expressions: ['body', 'body-blink', 'body-action'],
+  },
+  { id: 'jengibron', name: 'Jengibrón', anatomy: 'boxer', role: 'Raíz de cuerpo a cuerpo', color: '#bc874f',
+    description: 'Una raíz de jengibre con enormes puños de hojas. Alterna un jab rápido y un cruzado pesado; cada golpe comprueba su alcance.',
+    motion: 'Guardia elástica, carga de hombro, jab, cambio de peso y cruzado. Los pies permanecen plantados durante el combo.',
+    attackStyle: 'punch', actionLabel: 'Jab y cruzado', tempo: 1.05, projectileEvent: 0.4,
+    muzzle: [266, 198], projectileSpeed: 0,
+    melee: { range: 152, origin: [150, 288], hits: [{ time: 0.4, damage: 22, hand: 'front' }, { time: 0.8, damage: 34, hand: 'back' }] },
+    partNames: ['reference', 'body', 'body-blink', 'body-action', 'arm-back', 'arm-front', 'base', 'arc', 'effect'],
+    expressions: ['body', 'body-blink', 'body-action'],
+  },
 ];
+
+export const ACTIVE_CHARACTERS = CHARACTERS.filter(character => !character.retired);
+export const ARCHIVED_CHARACTERS = CHARACTERS.filter(character => character.retired);
 
 export function clipLabel(character, clip, spent = false) {
   if (spent) return 'Consumida · Replantar';
   return clip === (character.primaryClip ?? 'attack') ? character.actionLabel ?? CLIPS[clip].label : CLIPS[clip].label;
 }
 
-/** One gameplay event per action, shared by the live rig and the exported atlas. */
+/** Primary gameplay event, shared by the live rig and the exported atlas. */
 export function actionEvent(character) {
-  const type = ['sun', 'explosion', 'bloom', 'bite', 'block', 'chill', 'shadow-mark'].includes(character.attackStyle) ? character.attackStyle : 'projectile';
+  const type = ['sun', 'explosion', 'bloom', 'bite', 'block', 'chill', 'shadow-mark', 'aroma', 'acid', 'punch'].includes(character.attackStyle) ? character.attackStyle : 'projectile';
   return {
     type, plant: character.id, time: character.projectileEvent, position: [...character.muzzle],
     velocity: [character.projectileSpeed, type === 'sun' ? -94 : 0],
@@ -130,11 +160,15 @@ export function actionEvent(character) {
     ...(type === 'block' ? { passive: true, damage: 0 } : {}),
     ...(type === 'chill' ? { ...character.cold, asset: `characters/${character.id}/parts/projectile.png` } : {}),
     ...(type === 'shadow-mark' ? { ...character.shadow, asset: `characters/${character.id}/parts/sigil.png` } : {}),
+    ...(type === 'aroma' ? { ...character.aroma, asset: `characters/${character.id}/parts/projectile.png` } : {}),
+    ...(type === 'acid' ? { ...character.acid, asset: `characters/${character.id}/parts/projectile.png` } : {}),
+    ...(type === 'punch' ? { ...character.melee.hits[0], range: character.melee.range, origin: [...character.melee.origin], requiresContact: true } : {}),
   };
 }
 
 /** Cue timing and clip transitions are also recorded in every exported atlas. */
 export function animationEvents(character, clip) {
+  if (character.attackStyle === 'punch' && clip === 'attack') return character.melee.hits.map(hit => ({ ...actionEvent(character), ...hit }));
   if (clip === (character.primaryClip ?? 'attack')) return [actionEvent(character)];
   if (character.attackStyle === 'shadow-mark' && clip === 'recall') {
     return [{ type: 'animation-cue', cue: 'rewind', gameplay: false, plant: character.id, time: character.shadow.recallLeadSeconds }];
@@ -264,6 +298,13 @@ export function evaluatePose(character, clip, seconds) {
     pose.actionFace = progress > release - 0.12 && progress < release + 0.23;
     pose.effect = pulse(progress, release, release + 0.09, release + 0.35);
   }
+  if (character.anatomy === 'boxer' && kind === 'attack') {
+    pose.jab = key(seconds, [[0, 0], [0.25, -0.16], [0.4, 1], [0.46, 1], [0.59, 0], [1.2, 0]]);
+    pose.cross = key(seconds, [[0, 0], [0.53, 0], [0.67, -0.2], [0.8, 1], [0.85, 1], [1.08, 0], [1.2, 0]]);
+    pose.sway = -pose.windup * 0.7 + pose.jab * 0.6 + pose.cross * 1.1;
+    pose.actionFace = seconds > 0.23 && seconds < 1.04;
+    pose.effect = Math.max(pulse(seconds, 0.4, 0.46, 0.58), pulse(seconds, 0.8, 0.86, 1.0));
+  }
   if (clip === 'seal') {
     pose.open = key(progress, [[0, 0], [0.2, -0.18], [0.5, 1], [0.78, 0.64], [1, 0.64]]);
     pose.charge = key(progress, [[0, 0], [0.25, 0.08], [0.72 / info.duration, 1], [1, 1]]);
@@ -306,9 +347,13 @@ export function evaluatePose(character, clip, seconds) {
     if (character.anatomy === 'orchid') pose.growX = 1 + (pose.growX - 1) * 0.15;
     if (character.anatomy === 'fern') pose.growX = 1 + (pose.growX - 1) * 0.25;
     if (character.anatomy === 'nocturne') pose.growX = 1 + (pose.growX - 1) * 0.3;
+    if (character.anatomy === 'herb') pose.growX = 1 + (pose.growX - 1) * 0.25;
+    if (character.anatomy === 'boxer') pose.growX = 1 + (pose.growX - 1) * 0.3;
+    if (character.anatomy === 'citrus') pose.growX = 1 + (pose.growX - 1) * 0.25;
     pose.opacity = ease(progress / 0.18);
     pose.sway = (1 - pose.growY) * -0.7;
     pose.follow = (1 - pose.growY) * 2;
+    if (['herb', 'boxer', 'citrus'].includes(character.anatomy)) pose.follow *= 0.4;
     pose.effect = pulse(progress, 0.15, 0.36, 0.7);
   }
   if (clip === 'celebrate') {
@@ -521,6 +566,63 @@ function drawNocturne(ctx, parts, pose) {
   ctx.restore();
 }
 
+function drawHerb(ctx, parts, pose) {
+  draw(ctx, parts.base, 150, 288, 130, 48, 0, 0.5, 1);
+  ctx.save(); ctx.translate(150, 270); ctx.rotate(rad(pose.sway * 4 - pose.recoil * 4));
+  ctx.scale(1 + pose.windup * 0.035, 1 - pose.windup * 0.065); ctx.translate(-150, -270);
+  draw(ctx, parts['spray-left'], 144, 167, 124, 140, -pose.follow * 7 + pose.windup * 6 - pose.strike * 8, 0.94, 0.95);
+  draw(ctx, parts['spray-right'], 150, 167, 137, 170, pose.follow * 8 - pose.windup * 7 + pose.strike * 7, 0.13, 0.96);
+  draw(ctx, face(parts, 'body', pose), 151 + pose.strike * 5, 276, 128, 210, pose.follow * 1.8, 0.5, 1);
+  if (pose.attack && pose.effect > 0) {
+    ctx.save(); ctx.globalAlpha *= pose.effect * 0.8;
+    draw(ctx, parts.effect, 234, 158, 85, 70, -5); ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawCitrus(ctx, parts, pose) {
+  draw(ctx, parts.base, 150, 288, 156, 35, 0, 0.5, 1);
+  ctx.save(); ctx.translate(149 + pose.sway * 4, 277); ctx.rotate(rad(pose.sway * 3.2 - pose.recoil * 6));
+  const rebound = pose.strike * 0.055;
+  ctx.scale(1 - pose.windup * 0.17 + rebound, 1 + pose.windup * 0.12 - rebound * 0.6); ctx.translate(-149, -277);
+  draw(ctx, parts['leaf-back'], 78, 230, 60, 45, -pose.follow * 13, 0.82, 0.66);
+  draw(ctx, face(parts, 'body', pose), 150, 277, 200, 139, 0, 0.5, 1);
+  draw(ctx, parts.crest, 141, 155, 64, 56, pose.follow * 13 + pose.windup * 12, 0.54, 0.95);
+  if (pose.attack && pose.effect > 0) {
+    ctx.save(); ctx.globalAlpha *= pose.effect;
+    draw(ctx, parts.effect, 255, 215, 58, 58, 0); ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawBoxer(ctx, parts, pose) {
+  const jab = pose.jab ?? 0, cross = pose.cross ?? 0;
+  const turn = pose.sway * 3 - pose.recoil * 5;
+  draw(ctx, parts.base, 150, 288, 143, 46, 0, 0.5, 1);
+  ctx.save(); ctx.translate(150 + pose.sway * 4, 273); ctx.rotate(rad(turn)); ctx.translate(-150, -273);
+  draw(ctx, face(parts, 'body', pose), 153, 279, 129, 169, 0, 0.5, 1,
+    1 + pose.windup * 0.045, 1 - pose.windup * 0.05);
+  // Fists stay rigid; green stalks connect the moving cutouts to their shoulders.
+  const arms = [
+    { name: 'arm-back', shoulder: [119, 224], anchor: [0.93, 0.94], x: 119 + cross * 68, y: 224 - cross * 17, w: 98, h: 94, rot: -pose.follow * 5 + cross * 140 - pose.joy * 19 },
+    { name: 'arm-front', shoulder: [181, 226], anchor: [0.08, 0.92], x: 181 + jab * 8, y: 226 - jab * 13, w: 100, h: 101, rot: pose.follow * 6 + jab * 20 + pose.joy * 16 },
+  ];
+  for (const arm of arms) {
+    if (Math.hypot(arm.x - arm.shoulder[0], arm.y - arm.shoulder[1]) > 2) {
+      ctx.save(); ctx.strokeStyle = '#23543b'; ctx.lineWidth = 13; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(...arm.shoulder); ctx.quadraticCurveTo((arm.shoulder[0] + arm.x) / 2, arm.shoulder[1] + 16, arm.x, arm.y); ctx.stroke();
+      ctx.strokeStyle = '#589546'; ctx.lineWidth = 7; ctx.stroke(); ctx.restore();
+    }
+    draw(ctx, parts[arm.name], arm.x, arm.y, arm.w, arm.h, arm.rot, ...arm.anchor);
+  }
+  if (pose.attack && pose.effect > 0) {
+    ctx.save(); ctx.globalAlpha *= pose.effect;
+    draw(ctx, parts.arc, 244, 178, 80, 49, cross > jab ? 10 : -10);
+    draw(ctx, parts.effect, 278, 193, 44, 44, cross > jab ? 20 : 0); ctx.restore();
+  }
+  ctx.restore();
+}
+
 /** The sun's birth trajectory is shared by animated exports and the live viewer. */
 export function sunPosition(position, seconds) {
   const rise = Math.min(seconds, 0.9);
@@ -538,7 +640,7 @@ export function renderPlant(ctx, character, parts, clip = 'idle', seconds = 0, {
   ctx.translate(150, 288 - pose.jump); ctx.scale(pose.growX, pose.growY); ctx.translate(-150, -288);
   ({ root: drawRoot, cactus: drawCactus, mushroom: drawMushroom, maw: drawMaw,
     lantern: drawLantern, bomb: drawBomb, orchid: drawOrchid, bark: drawBark, fern: drawFern,
-    nocturne: drawNocturne })[character.anatomy](ctx, parts, pose);
+    nocturne: drawNocturne, herb: drawHerb, citrus: drawCitrus, boxer: drawBoxer })[character.anatomy](ctx, parts, pose);
   if (includeEmittedObjects && clip === 'attack' && character.attackStyle === 'sun' && seconds >= character.projectileEvent) {
     const elapsed = seconds - character.projectileEvent;
     const [x, y] = sunPosition(character.muzzle, elapsed);
@@ -588,7 +690,7 @@ export async function loadPlant(id, baseURL = new URL('../', import.meta.url)) {
 export class PlantAnimator {
   constructor(character, parts, { onEvent } = {}) {
     this.character = character; this.parts = parts; this.onEvent = onEvent;
-    this.clip = 'idle'; this.seconds = 0; this.released = false; this.spent = false; this.healthRatio = 1;
+    this.clip = 'idle'; this.seconds = 0; this.released = false; this.eventIndex = 0; this.spent = false; this.healthRatio = 1;
   }
   play(clip) {
     if (!CLIPS[clip]) throw new Error(`Unknown animation: ${clip}`);
@@ -598,24 +700,25 @@ export class PlantAnimator {
     if (clip === 'damaged') this.healthRatio = 0.4;
     if (clip === 'critical') this.healthRatio = 0.15;
     this.spent = false;
-    this.clip = clip; this.seconds = 0; this.released = false;
+    this.clip = clip; this.seconds = 0; this.released = false; this.eventIndex = 0;
     return true;
   }
   update(deltaSeconds) {
     if (this.spent) return;
     const delta = clamp(deltaSeconds, 0, 0.1);
     this.seconds += delta * (CLIPS[this.clip].loop && this.clip !== 'channel' ? this.character.tempo : 1);
-    const event = animationEvents(this.character, this.clip)[0];
-    if (event && !this.released && this.seconds >= event.time) {
-      this.released = true;
+    const currentClip = this.clip, events = animationEvents(this.character, currentClip);
+    while (this.eventIndex < events.length && this.seconds >= events[this.eventIndex].time - 1e-10) {
+      const event = events[this.eventIndex++]; this.released = true;
       this.onEvent?.(event);
+      if (this.clip !== currentClip) return;
     }
     const info = CLIPS[this.clip];
     if (this.seconds >= info.duration) {
-      if (info.loop) this.seconds %= info.duration;
+      if (info.loop) { this.seconds %= info.duration; this.eventIndex = 0; this.released = false; }
       else if (this.clip === 'attack' && this.character.consumedOnAction) {
         this.seconds = info.duration; this.spent = true;
-      } else { this.clip = afterClip(this.character, this.clip); this.seconds = 0; this.released = false; }
+      } else { this.clip = afterClip(this.character, this.clip); this.seconds = 0; this.released = false; this.eventIndex = 0; }
     }
   }
   setHealthRatio(ratio) { this.healthRatio = clamp(ratio); }

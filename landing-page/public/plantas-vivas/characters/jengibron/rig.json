@@ -1,0 +1,169 @@
+{
+  "id": "jengibron",
+  "name": "Jengibrón",
+  "anatomy": "boxer",
+  "role": "Raíz de cuerpo a cuerpo",
+  "color": "#bc874f",
+  "description": "Una raíz de jengibre con enormes puños de hojas. Alterna un jab rápido y un cruzado pesado; cada golpe comprueba su alcance.",
+  "motion": "Guardia elástica, carga de hombro, jab, cambio de peso y cruzado. Los pies permanecen plantados durante el combo.",
+  "attackStyle": "punch",
+  "actionLabel": "Jab y cruzado",
+  "tempo": 1.05,
+  "projectileEvent": 0.4,
+  "muzzle": [
+    266,
+    198
+  ],
+  "projectileSpeed": 0,
+  "melee": {
+    "range": 152,
+    "origin": [
+      150,
+      288
+    ],
+    "hits": [
+      {
+        "time": 0.4,
+        "damage": 22,
+        "hand": "front"
+      },
+      {
+        "time": 0.8,
+        "damage": 34,
+        "hand": "back"
+      }
+    ]
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "arm-back",
+    "arm-front",
+    "base",
+    "arc",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/jengibron-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 37,
+      "top": 21,
+      "width": 425,
+      "height": 413
+    },
+    "body": {
+      "left": 527,
+      "top": 51,
+      "width": 248,
+      "height": 382
+    },
+    "body-blink": {
+      "left": 920,
+      "top": 51,
+      "width": 252,
+      "height": 382
+    },
+    "body-action": {
+      "left": 78,
+      "top": 484,
+      "width": 249,
+      "height": 382
+    },
+    "arm-back": {
+      "left": 480,
+      "top": 560,
+      "width": 302,
+      "height": 246
+    },
+    "arm-front": {
+      "left": 869,
+      "top": 521,
+      "width": 363,
+      "height": 291
+    },
+    "base": {
+      "left": 30,
+      "top": 1012,
+      "width": 398,
+      "height": 172
+    },
+    "arc": {
+      "left": 467,
+      "top": 918,
+      "width": 410,
+      "height": 275
+    },
+    "effect": {
+      "left": 947,
+      "top": 919,
+      "width": 278,
+      "height": 280
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 431,
+      "height": 419
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 254,
+      "height": 388
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 254,
+      "height": 388
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 254,
+      "height": 388
+    },
+    "arm-back": {
+      "file": "parts/arm-back.png",
+      "width": 308,
+      "height": 252
+    },
+    "arm-front": {
+      "file": "parts/arm-front.png",
+      "width": 369,
+      "height": 297
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 404,
+      "height": 178
+    },
+    "arc": {
+      "file": "parts/arc.png",
+      "width": 414,
+      "height": 280
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 283,
+      "height": 286
+    }
+  }
+}

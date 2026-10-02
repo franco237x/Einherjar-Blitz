@@ -17,7 +17,7 @@ try {
   });
   const page = await context.newPage(), errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto('http://127.0.0.1:8765/plantas-vivas/index.html', { waitUntil: 'networkidle' });
+  await page.goto('http://127.0.0.1:8765/plantas-vivas/index.html?archivo=1', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Velaria');
   await page.locator('#reset-shadow').click();
   await page.locator('#speed').evaluate(element => { element.value = 1.5; element.dispatchEvent(new Event('input', { bubbles: true })); });

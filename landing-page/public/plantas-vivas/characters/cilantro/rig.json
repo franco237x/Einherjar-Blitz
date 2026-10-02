@@ -1,0 +1,155 @@
+{
+  "id": "cilantro",
+  "name": "Cilantro",
+  "anatomy": "herb",
+  "role": "Ráfaga aromática",
+  "color": "#75b13c",
+  "description": "Un manojo travieso de hojas recortadas. Su ráfaga aromática corta el mordisco del enemigo sin frenar sus pasos.",
+  "motion": "Inclina los tallos, infla los cachetes y sopla. Las dos ramas siguen el movimiento con un pequeño retraso.",
+  "attackStyle": "aroma",
+  "actionLabel": "Soplar aroma",
+  "tempo": 0.92,
+  "projectileEvent": 0.5,
+  "muzzle": [
+    210,
+    157
+  ],
+  "projectileSpeed": 255,
+  "aroma": {
+    "interruptSeconds": 1.1,
+    "damage": 0,
+    "movementMultiplier": 1
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "spray-left",
+    "spray-right",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/cilantro-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 58,
+      "top": 10,
+      "width": 383,
+      "height": 492
+    },
+    "body": {
+      "left": 559,
+      "top": 128,
+      "width": 197,
+      "height": 353
+    },
+    "body-blink": {
+      "left": 953,
+      "top": 128,
+      "width": 204,
+      "height": 356
+    },
+    "body-action": {
+      "left": 123,
+      "top": 575,
+      "width": 209,
+      "height": 352
+    },
+    "spray-left": {
+      "left": 469,
+      "top": 604,
+      "width": 288,
+      "height": 256
+    },
+    "spray-right": {
+      "left": 936,
+      "top": 532,
+      "width": 300,
+      "height": 338
+    },
+    "base": {
+      "left": 83,
+      "top": 1048,
+      "width": 310,
+      "height": 158
+    },
+    "projectile": {
+      "left": 504,
+      "top": 1001,
+      "width": 256,
+      "height": 147
+    },
+    "effect": {
+      "left": 847,
+      "top": 946,
+      "width": 388,
+      "height": 262
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 389,
+      "height": 498
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 203,
+      "height": 359
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 203,
+      "height": 359
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 203,
+      "height": 359
+    },
+    "spray-left": {
+      "file": "parts/spray-left.png",
+      "width": 293,
+      "height": 261
+    },
+    "spray-right": {
+      "file": "parts/spray-right.png",
+      "width": 306,
+      "height": 344
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 316,
+      "height": 164
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 261,
+      "height": 152
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 394,
+      "height": 268
+    }
+  }
+}

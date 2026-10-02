@@ -1,13 +1,14 @@
 {
-  "date": "2026-10-01",
+  "date": "2026-10-02",
   "story": "Select plant → load transparent pieces → play distinct rig actions → download asset",
   "checked": {
-    "characters": 10,
-    "clips": 55,
+    "characters": 11,
+    "archivedCharacters": 2,
+    "clips": 70,
     "atlasBounds": "valid",
     "clipDurations": "exact",
     "idleLoop": "seamless",
-    "browserActions": 55,
+    "browserActions": 57,
     "sunEvent": "25 energy once",
     "explosion": "consumed and replantable",
     "pureDefense": "no attack, no projectiles, zero offensive damage",

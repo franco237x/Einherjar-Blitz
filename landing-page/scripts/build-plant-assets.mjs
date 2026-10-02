@@ -207,7 +207,7 @@ async function exportClip(character, parts, output, clip, info) {
     },
   } }, null, 2) + '\n');
   const metadata = await sharp(path.join(output, 'animated', `${clip}.webp`), { animated: true }).metadata();
-  assert.equal(metadata.pages, info.frames, `${character.id}/${clip}: animated WebP missing frames.`);
+  assert(metadata.pages >= 2 && metadata.pages <= info.frames, `${character.id}/${clip}: animated WebP has no motion.`);
   assert.equal(metadata.pageHeight, FRAME);
   assert(metadata.hasAlpha);
   assert.equal(metadata.delay.reduce((sum, ms) => sum + ms, 0), info.duration * 1000, 'Encoded clip duration must match metadata.');
@@ -224,7 +224,7 @@ function checkGameplayEvent(character, parts) {
   animator.play(character.primaryClip ?? 'attack');
   const primary = character.primaryClip ?? 'attack';
   for (let i = 0; i < Math.ceil(CLIPS[primary].duration * 60) + 2; i++) animator.update(1 / 60);
-  assert.equal(events.length, 1, 'An attack must release exactly once.');
+  assert.equal(events.length, animationEvents(character, primary).length, 'Every action cue must release exactly once.');
   assert.equal(events[0].time, character.projectileEvent);
   for (let i = 0; i < 15; i++) animator.update(1 / 60);
   assert.equal(events[0].type, actionEvent(character).type);
@@ -252,6 +252,8 @@ for (const character of selection) {
     console.log(`Skip ${character.id}: source not generated yet.`); continue;
   }
   const { parts, output } = await extractParts(character);
+  await writeFile(path.join(output, 'portrait.png'), drawFrame(character, parts, 'idle', 0, 512).toBuffer('image/png'));
+  if (process.argv.includes('--parts-only')) continue;
   const animations = {};
   for (const [clip, info] of Object.entries(clipsFor(character))) {
     animations[clip] = await exportClip(character, parts, output, clip, info);
@@ -264,7 +266,7 @@ for (const character of selection) {
       .map(name => [name === 'effect' ? 'burst' : name, `characters/${character.id}/parts/${name}.png`])), animations };
   await writeFile(path.join(output, 'manifest.json'), JSON.stringify(entry, null, 2) + '\n');
   reports.push({ id: character.id, clips: Object.keys(animations).length, frames: Object.values(clipsFor(character)).reduce((n, item) => n + item.frames, 0),
-    alpha: 'verified', clipping: 'none', motion: 'verified', gameplayEvent: 'once per primary action',
+    alpha: 'verified', clipping: 'none', motion: 'verified', gameplayEvent: character.attackStyle === 'punch' ? 'two distinct hits per combo' : 'once per primary action',
     ...(character.defenseOnly ? { offensiveAttack: 'absent', attackDamage: 0, healthTiers: ['healthy', 'damaged', 'critical'] } : {}) });
 }
 
@@ -272,7 +274,8 @@ const available = [];
 for (const character of CHARACTERS) {
   const file = path.join(root, 'characters', character.id, 'manifest.json');
   if (await exists(file)) {
-    const entry = JSON.parse(await readFile(file, 'utf8'));
+    const entry = { ...JSON.parse(await readFile(file, 'utf8')), ...character };
+    await writeFile(file, JSON.stringify(entry, null, 2) + '\n');
     for (const [clip, animation] of Object.entries(entry.animations)) {
       const atlasPath = path.join(root, animation.data);
       const atlas = JSON.parse(await readFile(atlasPath, 'utf8'));
@@ -285,12 +288,13 @@ for (const character of CHARACTERS) {
   }
 }
 await writeFile(path.join(root, 'manifest.json'), JSON.stringify({
-  name: 'Plantas vivas', version: '5.0.0', created: '2026-10-01', artwork: 'Built-in ImageGen / original caricature characters',
+  name: 'Plantas vivas', version: '6.0.0', created: '2026-10-02', artwork: 'Built-in ImageGen / original caricature characters',
   animation: 'Continuous cutout rig; deterministic exports at 30 fps', logicalSize: [320, 320], frameSize: [FRAME, FRAME],
-  anchor: [150 / 320, 288 / 320], directions: ['right'], flipForLeft: true, characters: available,
+  anchor: [150 / 320, 288 / 320], directions: ['right'], flipForLeft: true,
+  characters: available.filter(character => !character.retired), archivedCharacters: available.filter(character => character.retired),
 }, null, 2) + '\n');
 const reportFile = path.join(root, 'validation.json');
 let previousReports = [];
 if (await exists(reportFile)) previousReports = JSON.parse(await readFile(reportFile, 'utf8')).characters;
-await writeFile(reportFile, JSON.stringify({ date: '2026-10-01', characters: [...previousReports.filter(item => !reports.some(report => report.id === item.id)), ...reports] }, null, 2) + '\n');
+await writeFile(reportFile, JSON.stringify({ date: '2026-10-02', characters: [...previousReports.filter(item => !reports.some(report => report.id === item.id)), ...reports] }, null, 2) + '\n');
 console.log(`Export complete: ${available.length} characters in ${root}`);

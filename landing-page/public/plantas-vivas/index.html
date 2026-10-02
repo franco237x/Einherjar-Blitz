@@ -13,12 +13,12 @@
   <a class="skip" href="#workbench">Ir a las animaciones</a>
   <header class="masthead">
     <a href="./index.html" class="brand"><span class="brand-mark" aria-hidden="true">✳</span><span>Plantas vivas<small>Einherjar Blitz · taller de personajes</small></span></a>
-    <a class="pack-link" href="./plantas-vivas-pack-v5.zip" download>Descargar el pack <span aria-hidden="true">↗</span></a>
+    <a class="pack-link" href="./cilantro-limon-jengibron-assets-v6.zip" download>Descargar las tres nuevas <span aria-hidden="true">↗</span></a>
   </header>
   <main>
     <div class="intro">
       <h1>Cada planta,<br>un carácter.</h1>
-      <p>Diez habitantes, diez personalidades. Velaria ancla la sombra de sus enemigos y los devuelve sobre sus propios pasos.</p>
+      <p>Cilantro interrumpe mordiscos. Limón disuelve armaduras. Jengibrón responde con dos puñetazos. Tres siluetas y tres maneras de defender el jardín.</p>
     </div>
     <section id="workbench" class="workbench" aria-label="Visor de personajes animados" tabindex="-1">
       <div class="stage-column">
@@ -76,13 +76,22 @@
           <button id="reset-shadow" type="button">Reiniciar prueba</button>
         </div>
         <p id="motion-note" class="motion-note"></p>
+        <div id="fresh-demo" class="mechanic-panel" hidden>
+          <strong>Prueba de combate</strong>
+          <label for="fresh-target">Objetivo</label>
+          <select id="fresh-target"><option value="conero">Conero · con armadura</option><option value="despistado">Despistado · sin armadura</option></select>
+          <div class="cold-stats"><span>Vida <output id="fresh-health">100</output></span><span>Armadura <output id="fresh-armor">100</output></span></div>
+          <small>Impactos <output id="fresh-hits">0</output> · Mordisco bloqueado <output id="fresh-blocked">—</output></small>
+          <label class="repeat"><input id="fresh-far" type="checkbox"> Alejar objetivo</label>
+          <button id="reset-fresh" type="button">Reiniciar combate</button>
+        </div>
         <div class="downloads"><a id="download-animation" href="./manifest.json" download>Animación WebP <span aria-hidden="true">↓</span></a><a id="download-sprites" href="./manifest.json" download>Hoja de sprites <span aria-hidden="true">↓</span></a></div>
       </aside>
     </section>
-    <div class="roster-heading"><h2>Los habitantes</h2><span>Diez plantas con siluetas y movimientos propios</span></div>
+    <div class="roster-heading"><h2>Los habitantes</h2><span>Once plantas con siluetas y movimientos propios</span></div>
     <div id="roster" class="roster" role="group" aria-label="Elegir personaje"></div>
     <p id="status" class="status" role="status" aria-live="polite"></p>
-    <footer><p>Arte y animación de personajes originales.</p><a href="./README.md">Guía del pack</a><span>PNG transparentes · 30 cuadros por segundo</span></footer>
+    <footer><p>Arte y animación de personajes originales.</p><a href="./README.md">Guía del pack</a><a href="./index.html?archivo=1">Conceptos archivados</a><span>PNG transparentes · 30 cuadros por segundo</span></footer>
   </main>
 </body>
 </html>

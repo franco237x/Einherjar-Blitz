@@ -1,13 +1,24 @@
-import { CHARACTERS, CLIPS, clipsFor, loadPlant, PlantAnimator, clipLabel, sunPosition,
+import { CHARACTERS, ACTIVE_CHARACTERS, ARCHIVED_CHARACTERS, CLIPS, clipsFor, loadPlant, PlantAnimator, clipLabel, sunPosition,
   createColdStatus, applyChill, updateColdStatus, actionEvent,
   createShadowRecall, canMarkShadow, markShadow, interruptShadowRecall, updateShadowRecall } from './runtime/plant-rig.mjs';
 import { createShadowTarget, advanceShadowTarget, drawShadowPractice } from './runtime/shadow-scene.mjs';
+import { loadPracticeTarget, FreshPractice } from './runtime/fresh-scene.mjs';
 
 const $ = selector => document.querySelector(selector);
 const canvas = $('#plant-stage'), ctx = canvas.getContext('2d');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const base = new URL('./', import.meta.url);
 const cache = new Map();
+const archived = new URL(location.href).searchParams.get('archivo') === '1';
+const catalogResponse = await fetch(new URL('manifest.json', base));
+if (!catalogResponse.ok) throw new Error('No se pudo cargar el catálogo de plantas.');
+const catalog = await catalogResponse.json();
+const availableIds = new Set((archived ? catalog.archivedCharacters ?? [] : catalog.characters).map(character => character.id));
+const roster = (archived ? ARCHIVED_CHARACTERS : ACTIVE_CHARACTERS).filter(character => availableIds.has(character.id));
+roster.sort((a, b) => Number(['cilantro', 'limon', 'jengibron'].includes(b.id)) - Number(['cilantro', 'limon', 'jengibron'].includes(a.id)));
+let practice = null;
+const isFresh = character => ['aroma', 'acid', 'punch'].includes(character?.attackStyle);
+export const freshPracticeSnapshot = () => practice?.snapshot() ?? null;
 let animator = null, selected = null, requestedClip = 'idle';
 let paused = reducedMotion.matches, frameId = null, previousTime = null, speed = 1;
 let particles = [], selectionRevision = 0;
@@ -25,7 +36,7 @@ function pauseLabel() {
 }
 
 function receiveEvent(event) {
-  if (event.type === 'projectile' || event.type === 'chill') {
+  if (['projectile', 'chill', 'aroma', 'acid'].includes(event.type)) {
     particles.push({ x: event.position[0], y: event.position[1], vx: event.velocity[0], life: 0, image: animator.parts.projectile,
       kind: animator.character.attackStyle, event });
   }
@@ -37,12 +48,25 @@ function receiveEvent(event) {
   if (event.type === 'explosion') $('#status').textContent = 'Explosión · Replanta a Granadín para usarlo otra vez.';
   if (event.type === 'bloom') $('#status').textContent = 'Aurélia despliega su floración de nácar.';
   if (event.type === 'block') $('#status').textContent = 'Cortezón absorbe el impacto. Daño ofensivo: 0.';
+  if (event.type === 'punch' && practice) {
+    const result = practice.receive(event);
+    $('#status').textContent = result.hit ? `${event.hand === 'front' ? 'Jab' : 'Cruzado'} · ${event.damage} de daño.` : 'El golpe quedó fuera de alcance.';
+    freshReadout();
+  }
   if (event.type === 'shadow-mark') {
     shadowMarkCreated = markShadow(shadowState, event, shadowTarget);
     if (shadowMarkCreated) $('#status').textContent = 'Sombra anclada. El objetivo sigue avanzando durante 2 s.';
     else { shadowManaged = false; animator.play('recover'); $('#status').textContent = 'No hay un objetivo válido para la marca.'; }
     updateActionAvailability();
   }
+}
+
+function freshReadout() {
+  if (!practice) return;
+  const state = practice.snapshot();
+  const values = { 'fresh-health': state.health, 'fresh-armor': state.armor, 'fresh-hits': state.hits,
+    'fresh-blocked': state.blocked > 0 ? `${state.blocked.toFixed(1)} s` : '—' };
+  for (const [id, value] of Object.entries(values)) if ($(`#${id}`).textContent !== String(value)) $(`#${id}`).textContent = value;
 }
 
 function shadowReadout() {
@@ -126,7 +150,7 @@ function drawScene() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   if (!animator) return;
   const isShadow = selected.attackStyle === 'shadow-mark';
-  const originX = isShadow ? 48 : OFFSET_X, mirrorX = isShadow ? 460 : 300;
+  const originX = isShadow || isFresh(selected) ? 48 : OFFSET_X, mirrorX = isShadow || isFresh(selected) ? 460 : 300;
   if (background === 'garden') {
     ctx.fillStyle = '#476b3430';
     ctx.beginPath(); ctx.ellipse(originX + (flipped ? mirrorX - 150 : 150) * SCALE, OFFSET_Y + 288 * SCALE, 72, 11, 0, 0, Math.PI * 2); ctx.fill();
@@ -135,6 +159,7 @@ function drawScene() {
   ctx.translate(originX + (flipped ? mirrorX * SCALE : 0), OFFSET_Y);
   ctx.scale(flipped ? -SCALE : SCALE, SCALE);
   animator.draw(ctx);
+  if (isFresh(selected) && practice) practice.draw(ctx, animator.parts, background === 'dark');
   if (isShadow) drawShadowPractice(ctx, animator.parts, shadowState, shadowTarget,
     { clock: shadowClock, flash: shadowFlash, dark: background === 'dark' });
   if (selected.attackStyle === 'chill') {
@@ -155,7 +180,7 @@ function drawScene() {
     ctx.save();
     const lifetime = particle.kind === 'sun' ? 3.0 : 1.4;
     ctx.globalAlpha = Math.min(1, (lifetime - particle.life) / 0.25);
-    const width = particle.kind === 'sun' ? Math.min(1, particle.life / 0.12) * 45 : particle.kind === 'thorn' ? 56 : 39;
+    const width = particle.kind === 'aroma' ? 64 : particle.kind === 'sun' ? Math.min(1, particle.life / 0.12) * 45 : particle.kind === 'thorn' ? 56 : 39;
     const height = width * particle.image.height / particle.image.width;
     ctx.drawImage(particle.image, particle.x - width * 0.5, particle.y - height * 0.5, width, height);
     ctx.restore();
@@ -170,6 +195,7 @@ function tick(time) {
   const delta = previousTime === null ? 0 : Math.min((time - previousTime) / 1000 * speed, 0.1);
   previousTime = time;
   if (!paused && animator) {
+    if (isFresh(selected) && practice) practice.update(delta);
     const previousClip = animator.clip;
     const previousShadowPhase = shadowState.phase;
     shadowMarkCreated = false;
@@ -202,9 +228,17 @@ function tick(time) {
         $('#status').textContent = froze ? 'Tres impactos: objetivo congelado durante 1,2 s.' : 'Impacto de escarcha: velocidad al 50% durante 3 s.';
         particle.life = 1.4;
       }
+      if (['aroma', 'acid'].includes(particle.kind) && practice && particle.x >= practice.target.x) {
+        const result = practice.receive(particle.event);
+        $('#status').textContent = !result.hit ? 'El objetivo ya cayó.' : particle.kind === 'aroma'
+          ? 'El aroma interrumpe el mordisco durante 1,1 s. La velocidad se conserva.'
+          : `Jugo ácido · protección −${result.armorLost}, vida −${result.healthLost}.`;
+        particle.life = 1.4;
+      }
     }
     particles = particles.filter(particle => particle.life < (particle.kind === 'sun' ? 3 : 1.4));
     if (selected.attackStyle === 'chill') coldReadout();
+    if (isFresh(selected)) freshReadout();
   }
   drawScene();
   if (!paused && !document.hidden) frameId = requestAnimationFrame(tick);
@@ -239,8 +273,11 @@ async function choosePlant(character) {
   try {
     if (!cache.has(character.id)) cache.set(character.id, loadPlant(character.id));
     const data = await cache.get(character.id);
+    const target = isFresh(character) ? await loadPracticeTarget($('#fresh-target').value) : null;
     if (revision !== selectionRevision) return;
     selected = character;
+    practice = target ? new FreshPractice(target, character) : null;
+    $('#fresh-far').checked = false;
     animator = new PlantAnimator(data.character, data.parts, { onEvent: receiveEvent });
     $('#character-name').textContent = character.name;
     $('#character-role').textContent = character.role;
@@ -253,6 +290,8 @@ async function choosePlant(character) {
     $('#integrity-controls').hidden = !character.defenseOnly;
     $('#cold-demo').hidden = character.attackStyle !== 'chill';
     $('#shadow-demo').hidden = character.attackStyle !== 'shadow-mark';
+    $('#fresh-demo').hidden = !isFresh(character);
+    freshReadout();
     resetCold();
     resetShadow();
     canvas.setAttribute('aria-label', `${character.name}: ${character.description}`);
@@ -266,7 +305,7 @@ async function choosePlant(character) {
   }
 }
 
-for (const character of CHARACTERS) {
+for (const character of roster) {
   const card = document.createElement('button');
   card.type = 'button'; card.className = 'plant-card'; card.dataset.plant = character.id;
   card.setAttribute('aria-pressed', 'false');
@@ -298,6 +337,13 @@ $('#integrity').addEventListener('input', event => {
   chooseClip('idle');
 });
 $('#reset-cold').addEventListener('click', resetCold);
+$('#reset-fresh').addEventListener('click', () => {
+  if (!practice) return;
+  practice.reset(); practice.setFar($('#fresh-far').checked); particles = [];
+  chooseClip('idle'); freshReadout();
+});
+$('#fresh-target').addEventListener('change', () => { if (isFresh(selected)) choosePlant(selected); });
+$('#fresh-far').addEventListener('change', event => { practice?.setFar(event.target.checked); refresh(); });
 $('#reset-shadow').addEventListener('click', () => { resetShadow(); $('#status').textContent = 'Prueba del eco reiniciada.'; });
 $('#toggle-shadow-target').addEventListener('click', () => {
   shadowTarget.alive = !shadowTarget.alive;
@@ -320,4 +366,9 @@ reducedMotion.addEventListener('change', event => {
   }
 });
 pauseLabel();
-await choosePlant(CHARACTERS.find(character => character.id === 'velaria') ?? CHARACTERS[0]);
+if (archived) {
+  $('.intro p').textContent = 'Archivo de Aurélia y Velaria. Sus piezas y animaciones siguen disponibles para revisar conceptos anteriores.';
+  $('.roster-heading span').textContent = 'Dos conceptos archivados';
+}
+else $('.roster-heading span').textContent = `${roster.length} plantas con siluetas y movimientos propios`;
+await choosePlant(roster.find(character => character.id === (archived ? 'velaria' : 'cilantro')) ?? roster[0]);

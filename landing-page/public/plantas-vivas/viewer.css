@@ -58,6 +58,9 @@ input[type='checkbox'] { accent-color: var(--leaf); inline-size: 16px; block-siz
 .mechanic-panel label, .cold-stats { display: flex; justify-content: space-between; gap: 8px; }
 .mechanic-panel small { color: var(--muted); }
 .mechanic-panel input { inline-size: 100%; accent-color: var(--leaf); }
+.mechanic-panel input[type='checkbox'] { inline-size: 16px; }
+.mechanic-panel .repeat { justify-content: start; }
+.mechanic-panel select { font: inherit; color: var(--ink); background: #f8faf5; border: 1px solid #7a9a90; border-radius: 4px; padding: 7px; inline-size: 100%; }
 .mechanic-panel button { justify-self: start; padding: 6px 9px; border: 1px solid #7a9a90; border-radius: 4px; color: var(--ink); background: #f8faf5; font-size: 0.68rem; }
 .shadow-demo { background: #ede8f1; border-color: #aa9ab8; color: #51405f; }
 .shadow-demo small { color: #5b4e66; }
