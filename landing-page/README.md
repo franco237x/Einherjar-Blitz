@@ -30,6 +30,10 @@ Gacha pulls and battle rewards are decided on the server (`/api/juego/*`) with t
 
 Tests: `npm test` (engine, replay, gacha) and `npm run test:rules` (Firestore Rules on the emulator).
 
+## Jardín de Yggdrasil (`/evento/jardin`, beta pre-evento)
+
+Lane defense game in the style of Plants vs. Zombies, with a waves level and a sandbox. The deterministic engine lives in `src/lib/jardin/engine.ts` (30 ticks/s, seeded RNG, replayable on a server later) and is covered by `src/lib/jardin/engine.test.ts`. Sprites in `public/jardin/` are generated from the art pack on the `codex/plantas-zombis-assets` branch with `scripts/build-jardin-assets.mjs`. The beta grants no rewards.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
