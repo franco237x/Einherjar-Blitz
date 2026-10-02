@@ -1,0 +1,5 @@
+Use case: precise-object-edit.
+Input image is the EDIT TARGET, our original Nordic garden battlefield.
+Change ONLY this: remove the entire hanging lantern in the upper-left that hangs over the playable grass, including its chain and projecting support beam. Restore the sky/forest and bare short grass behind it. Do not replace it with any other object.
+Keep the massive tree trunk on the extreme left, its inset round window, the vertical wooden porch with carved decorative motifs, right path and broken fence, sky, colors, style, overall composition and nine-column/five-row grass board exactly the same. No other changes.
+There must be no foreground decoration extending over the playable lawn; all foreground house decoration is confined to the extreme left porch strip. Output an opaque landscape game background, no characters, no labels or UI.

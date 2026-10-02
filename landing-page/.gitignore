@@ -49,6 +49,7 @@ next-env.d.ts
 /asset-drafts/
 /public/plantas-vivas/*.zip
 /public/zombis-vivos/*.zip
+/public/jardin-yggdrasil/*.zip
 
 # Superseded plant previews retained locally
 /public/plantas-vivas/preview/*-v3.*

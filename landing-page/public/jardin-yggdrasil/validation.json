@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-02",
+  "background": {
+    "dimensions": [
+      2320,
+      1390
+    ],
+    "opaque": true,
+    "cells": 45,
+    "lawnPixels": "all 45 rectangles pixel-identical to their generated texture tile",
+    "cellSize": [
+      200,
+      230
+    ],
+    "origin": [
+      180,
+      190
+    ],
+    "strongPerspective": false,
+    "charactersOrPropsOnLawn": false
+  },
+  "mower": [
+    {
+      "clip": "idle",
+      "frames": 36,
+      "widthRange": [
+        126,
+        127
+      ],
+      "groundY": 230,
+      "alpha": "verified",
+      "loopSeam": "pixel-identical",
+      "motion": "verified"
+    },
+    {
+      "clip": "start",
+      "frames": 12,
+      "widthRange": [
+        124,
+        129
+      ],
+      "groundY": 230,
+      "alpha": "verified",
+      "loopSeam": "one-shot",
+      "motion": "verified"
+    },
+    {
+      "clip": "run",
+      "frames": 24,
+      "widthRange": [
+        125,
+        127
+      ],
+      "groundY": 230,
+      "alpha": "verified",
+      "loopSeam": "pixel-identical",
+      "motion": "verified"
+    }
+  ]
+}

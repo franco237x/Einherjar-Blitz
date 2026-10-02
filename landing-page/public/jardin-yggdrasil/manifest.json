@@ -1,0 +1,121 @@
+{
+  "name": "Jardín de Yggdrasil",
+  "version": "1.0.0",
+  "created": "2026-10-02",
+  "artwork": "Built-in ImageGen; original raster environment, generated grass textures and articulated mower cutouts",
+  "background": {
+    "image": "background/jardin-yggdrasil.webp",
+    "width": 2320,
+    "height": 1390,
+    "opaque": true,
+    "lawn": {
+      "x": 180,
+      "y": 190,
+      "width": 1800,
+      "height": 1150,
+      "columns": 9,
+      "rows": 5,
+      "cellWidth": 200,
+      "cellHeight": 230
+    },
+    "zones": {
+      "home": {
+        "x": 0,
+        "y": 190,
+        "width": 180,
+        "height": 1150
+      },
+      "entrance": {
+        "x": 1980,
+        "y": 190,
+        "width": 340,
+        "height": 1150
+      },
+      "sky": {
+        "x": 0,
+        "y": 0,
+        "width": 2320,
+        "height": 190
+      },
+      "bottom": {
+        "x": 0,
+        "y": 1340,
+        "width": 2320,
+        "height": 50
+      }
+    },
+    "cellCount": 45,
+    "meanGreens": [
+      [
+        158,
+        194,
+        78
+      ],
+      [
+        132,
+        167,
+        71
+      ]
+    ],
+    "contrast": 61.56454347826086
+  },
+  "mower": {
+    "manifest": "podadora/manifest.json",
+    "frameSize": [
+      256,
+      256
+    ],
+    "columns": 8,
+    "fps": 30,
+    "pivot": {
+      "x": 0.47,
+      "y": 0.9
+    },
+    "groundY": 230,
+    "facing": "right",
+    "nominalWidth": 126,
+    "oncePerLane": true,
+    "movement": "external",
+    "animations": {
+      "idle": {
+        "label": "Reposo",
+        "frames": 36,
+        "duration": 1.2,
+        "loop": true,
+        "after": "idle",
+        "fps": 30,
+        "atlas": "podadora/sprites/idle.png",
+        "data": "podadora/sprites/idle.json",
+        "webp": "podadora/animated/idle.webp",
+        "gif": "podadora/animated/idle.gif"
+      },
+      "start": {
+        "label": "Arranque",
+        "frames": 12,
+        "duration": 0.4,
+        "loop": false,
+        "after": "run",
+        "fps": 30,
+        "atlas": "podadora/sprites/start.png",
+        "data": "podadora/sprites/start.json",
+        "webp": "podadora/animated/start.webp",
+        "gif": "podadora/animated/start.gif"
+      },
+      "run": {
+        "label": "En marcha",
+        "frames": 24,
+        "duration": 0.8,
+        "loop": true,
+        "after": "run",
+        "fps": 30,
+        "atlas": "podadora/sprites/run.png",
+        "data": "podadora/sprites/run.json",
+        "webp": "podadora/animated/run.webp",
+        "gif": "podadora/animated/run.gif"
+      }
+    }
+  },
+  "effects": {
+    "sweepDust": "effects/sweep-dust.png"
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "id": "podadora-nordica",
+  "facing": "right",
+  "frameSize": [
+    256,
+    256
+  ],
+  "groundY": 230,
+  "pivot": {
+    "x": 0.47,
+    "y": 0.9
+  },
+  "nominalWidth": 126,
+  "transform": {
+    "centerX": 110,
+    "scale": 1.0327868852459017,
+    "bounds": {
+      "left": 49,
+      "top": 131,
+      "right": 170,
+      "bottom": 229,
+      "width": 122,
+      "height": 99
+    }
+  },
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "regions": [
+    {
+      "name": "reference",
+      "sourceRegion": {
+        "left": 46,
+        "top": 110,
+        "right": 530,
+        "bottom": 497,
+        "width": 485,
+        "height": 388
+      }
+    },
+    {
+      "name": "chassis",
+      "sourceRegion": {
+        "left": 555,
+        "top": 265,
+        "right": 898,
+        "bottom": 483,
+        "width": 344,
+        "height": 219
+      }
+    },
+    {
+      "name": "wheel-back",
+      "sourceRegion": {
+        "left": 893,
+        "top": 242,
+        "right": 1135,
+        "bottom": 482,
+        "width": 243,
+        "height": 241
+      }
+    },
+    {
+      "name": "wheel-front",
+      "sourceRegion": {
+        "left": 1198,
+        "top": 203,
+        "right": 1485,
+        "bottom": 490,
+        "width": 288,
+        "height": 288
+      }
+    },
+    {
+      "name": "handle",
+      "sourceRegion": {
+        "left": 62,
+        "top": 551,
+        "right": 423,
+        "bottom": 913,
+        "width": 362,
+        "height": 363
+      }
+    },
+    {
+      "name": "glint",
+      "sourceRegion": {
+        "left": 590,
+        "top": 689,
+        "right": 712,
+        "bottom": 832,
+        "width": 123,
+        "height": 144
+      }
+    },
+    {
+      "name": "smoke",
+      "sourceRegion": {
+        "left": 929,
+        "top": 677,
+        "right": 1136,
+        "bottom": 882,
+        "width": 208,
+        "height": 206
+      }
+    },
+    {
+      "name": "dust",
+      "sourceRegion": {
+        "left": 1264,
+        "top": 735,
+        "right": 1472,
+        "bottom": 882,
+        "width": 209,
+        "height": 148
+      }
+    }
+  ],
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "frames": 36,
+      "duration": 1.2,
+      "loop": true,
+      "after": "idle",
+      "fps": 30,
+      "atlas": "podadora/sprites/idle.png",
+      "data": "podadora/sprites/idle.json",
+      "webp": "podadora/animated/idle.webp",
+      "gif": "podadora/animated/idle.gif"
+    },
+    "start": {
+      "label": "Arranque",
+      "frames": 12,
+      "duration": 0.4,
+      "loop": false,
+      "after": "run",
+      "fps": 30,
+      "atlas": "podadora/sprites/start.png",
+      "data": "podadora/sprites/start.json",
+      "webp": "podadora/animated/start.webp",
+      "gif": "podadora/animated/start.gif"
+    },
+    "run": {
+      "label": "En marcha",
+      "frames": 24,
+      "duration": 0.8,
+      "loop": true,
+      "after": "run",
+      "fps": 30,
+      "atlas": "podadora/sprites/run.png",
+      "data": "podadora/sprites/run.json",
+      "webp": "podadora/animated/run.webp",
+      "gif": "podadora/animated/run.gif"
+    }
+  }
+}

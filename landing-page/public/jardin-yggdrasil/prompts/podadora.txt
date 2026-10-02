@@ -1,0 +1,17 @@
+Use case: stylized-concept.
+Asset type: professional transparent 2D game prop animation cutout kit, original Nordic lawn mower.
+Input image 1 is STYLE REFERENCE ONLY: our original cartoon plant characters. Match their warm dark colored outlines, clean broad hand-painted/cel shadows, polished playful shapes and readable silhouette. No plants from the reference in the output.
+Primary request: create a small sturdy push lawn mower for an Yggdrasil clearing in a Plants vs Zombies inspired lane-defense game. It faces RIGHT and has no operator or face. Charming round toy-like proportions, broad red-copper/bronze motor casing, honey-colored wood inset with one small carved Nordic decorative rune, dark iron edging and metal front cutter guard. A tall but compact curved handle rises toward the BACK LEFT, wheel tread dark slate, warm wooden wheel hubs and FOUR strongly visible asymmetrical brass spokes in each round wheel. Nose and cutter clearly point RIGHT. Not a chariot, vehicle with occupant, plant or creature.
+Composition: ONE square transparent master containing EXACTLY EIGHT separate assets in an invisible FOUR COLUMN by TWO ROW grid. One asset in each cell. Plenty of truly transparent margins, at least 12%, on every side, and broad transparent gutters between cells. No asset crosses cells.
+View: consistent TRUE SIDE PROFILE facing RIGHT, slightly stylized, not strongly foreshortened; wheels must be genuinely circular and side-on so they can rotate about their centers without changing shape. No ground shadow, backdrop, lettering, labels or numbers.
+ROW ONE, left to right:
+1. Complete assembled Nordic mower reference. Compact right-facing chassis, left/rear handle and two clearly visible round wheels. Include every detail from detached pieces.
+2. ONLY the chassis/motor casing and front cutter guard, profile facing right, from top of engine to bottom of deck. NO wheels, NO handle, NO ground shadow. Motor housing with honey wood inset and a tiny brass rune fitting. Broad body should be wider than tall.
+3. ONLY the rear/back wheel, round dark rubber tread, wooden center and four distinct bronze spokes, isolated front-on circle, no chassis. Center perfectly aligned with the geometric center.
+4. ONLY the front/near wheel, matching round dark tread and bronze spokes, slightly larger than the rear wheel, isolated front-on circle. Center perfectly aligned.
+ROW TWO, left to right:
+5. ONLY the curved compact handle and its wooden grip, as seen in the reference: upper grip toward upper LEFT and chassis attachment toward lower RIGHT. No attached wheel, body or person. Warm wood and iron.
+6. ONLY one small soft warm-white cartoon metal glint/star with four points, subtle gold rim, isolated, no hard broad glow and no object.
+7. ONLY one compact soft gray-beige cartoon exhaust smoke puff, short curling rounded shapes, dark warm outline, isolated. NO large cloud, fire, face or vehicle.
+8. ONLY a tiny isolated beige earth dust puff with three tiny clipped green grass flecks, a clear readable sweep effect, no characters.
+Constraints: true alpha transparency everywhere outside the eight cutouts; NO painted checkerboard, no white or color backdrop, no ground shadow. Exact same costume/materials across assembled reference and detached parts. The chassis and wheel/handle assets must genuinely be separate for continuous animation. Do not duplicate wheels or handle inside the chassis cell. All mower assets RIGHT-facing; no gore or harm depiction.

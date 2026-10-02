@@ -1,0 +1,8 @@
+Use case: stylized-concept.
+Asset type: original opaque painterly grass texture swatches for a cartoon tower-defense board.
+Primary request: one landscape image consisting of EXACTLY TWO solid rectangular grass texture panels side by side, left and right equal width, each filling its half completely with no margin or white gutter. This is texture art, not a scene.
+LEFT HALF: short mown grass in a soft light yellow-green, target base color approximately #9ABD6C.
+RIGHT HALF: the same short mown grass style in a slightly darker soft moss-green, target base color approximately #8DAF60. Keep the two green colors visibly distinguishable with gentle contrast.
+Texture: broad subtle painted tonal patches, a few very tiny low-contrast grass strokes and softly mottled paint grain, calm flat overhead surface. Very restrained variation so each panel stays essentially one green tone. Seamless-looking edges, no lighting gradient, no vignette, no highlights or shadows from objects.
+Style: clean simplified hand-painted 2D cartoon game ground like the quiet lawn in Plants vs Zombies 2, colorful but gentle, supporting expressive character sprites placed above it.
+No grid within either panel, no checkerboard within either panel, no bevels, no outlines around the panels, no paths, soil, plants, flowers, mushrooms, rocks, roots, leaves, text, decorative symbols, scattered objects, faces or characters. No perspective. Full bleed and fully opaque. Only the two softly textured greens.

@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-02",
+  "background": {
+    "size": [
+      2320,
+      1390
+    ],
+    "opaque": true,
+    "cells": 45,
+    "actualPixelGeometry": "verified",
+    "lawnOrigin": [
+      180,
+      190
+    ],
+    "cellSize": [
+      200,
+      230
+    ]
+  },
+  "mower": {
+    "facing": "right",
+    "pivot": [
+      0.47,
+      0.9
+    ],
+    "groundY": 230,
+    "mainFrames": 72,
+    "states": [
+      {
+        "clip": "idle",
+        "atlasSize": [
+          2048,
+          1280
+        ],
+        "frames": 36,
+        "fps": 30,
+        "widthRange": [
+          126,
+          127
+        ],
+        "groundY": 230,
+        "homeStrip": "fits",
+        "alpha": true,
+        "motion": true
+      },
+      {
+        "clip": "start",
+        "atlasSize": [
+          2048,
+          512
+        ],
+        "frames": 12,
+        "fps": 30,
+        "widthRange": [
+          124,
+          129
+        ],
+        "groundY": 230,
+        "homeStrip": "fits",
+        "alpha": true,
+        "motion": true
+      },
+      {
+        "clip": "run",
+        "atlasSize": [
+          2048,
+          768
+        ],
+        "frames": 24,
+        "fps": 30,
+        "widthRange": [
+          125,
+          127
+        ],
+        "groundY": 230,
+        "homeStrip": "fits",
+        "alpha": true,
+        "motion": true
+      }
+    ],
+    "start": "one-shot → run",
+    "movement": "external",
+    "oncePerLane": true
+  }
+}
