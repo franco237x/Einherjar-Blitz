@@ -1,0 +1,155 @@
+{
+  "id": "limon",
+  "name": "Limón Acordeón",
+  "anatomy": "accordion",
+  "rigVersion": 7,
+  "role": "Cáscara elástica y jugo ácido",
+  "color": "#d5ab23",
+  "description": "Su cáscara forma un fuelle. Lo comprime con un gesto agrio y dispara jugo contra la armadura.",
+  "motion": "El fuelle se comprime desde atrás, la punta se proyecta hacia delante y la cola de cáscara rebota después.",
+  "attackStyle": "acid",
+  "actionLabel": "Exprimir el fuelle",
+  "tempo": 0.74,
+  "projectileEvent": 0.5,
+  "muzzle": [
+    249,
+    232
+  ],
+  "projectileSpeed": 330,
+  "acid": {
+    "damage": 16,
+    "armorDamage": 44
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "bellows",
+    "peel-tail",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/limon-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 28,
+      "top": 102,
+      "width": 559,
+      "height": 335
+    },
+    "body": {
+      "left": 608,
+      "top": 179,
+      "width": 259,
+      "height": 251
+    },
+    "body-blink": {
+      "left": 954,
+      "top": 182,
+      "width": 273,
+      "height": 250
+    },
+    "body-action": {
+      "left": 57,
+      "top": 572,
+      "width": 281,
+      "height": 255
+    },
+    "bellows": {
+      "left": 429,
+      "top": 555,
+      "width": 442,
+      "height": 289
+    },
+    "peel-tail": {
+      "left": 930,
+      "top": 500,
+      "width": 289,
+      "height": 339
+    },
+    "base": {
+      "left": 38,
+      "top": 1011,
+      "width": 482,
+      "height": 146
+    },
+    "projectile": {
+      "left": 605,
+      "top": 999,
+      "width": 239,
+      "height": 126
+    },
+    "effect": {
+      "left": 979,
+      "top": 940,
+      "width": 254,
+      "height": 237
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 565,
+      "height": 341
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 265,
+      "height": 256
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 265,
+      "height": 256
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 265,
+      "height": 256
+    },
+    "bellows": {
+      "file": "parts/bellows.png",
+      "width": 448,
+      "height": 295
+    },
+    "peel-tail": {
+      "file": "parts/peel-tail.png",
+      "width": 295,
+      "height": 345
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 488,
+      "height": 152
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 245,
+      "height": 132
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 260,
+      "height": 243
+    }
+  }
+}

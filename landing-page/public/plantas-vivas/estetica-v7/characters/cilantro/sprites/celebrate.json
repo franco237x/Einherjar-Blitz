@@ -1,0 +1,1280 @@
+{
+  "frames": [
+    {
+      "filename": "cilantro-celebrate-000",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-001",
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-002",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-003",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-004",
+      "frame": {
+        "x": 1024,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-005",
+      "frame": {
+        "x": 1280,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-006",
+      "frame": {
+        "x": 1536,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-007",
+      "frame": {
+        "x": 1792,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-008",
+      "frame": {
+        "x": 0,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-009",
+      "frame": {
+        "x": 256,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-010",
+      "frame": {
+        "x": 512,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-011",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-012",
+      "frame": {
+        "x": 1024,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-013",
+      "frame": {
+        "x": 1280,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-014",
+      "frame": {
+        "x": 1536,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-015",
+      "frame": {
+        "x": 1792,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-016",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-017",
+      "frame": {
+        "x": 256,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-018",
+      "frame": {
+        "x": 512,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-019",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-020",
+      "frame": {
+        "x": 1024,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-021",
+      "frame": {
+        "x": 1280,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-022",
+      "frame": {
+        "x": 1536,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-023",
+      "frame": {
+        "x": 1792,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-024",
+      "frame": {
+        "x": 0,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-025",
+      "frame": {
+        "x": 256,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-026",
+      "frame": {
+        "x": 512,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-027",
+      "frame": {
+        "x": 768,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-028",
+      "frame": {
+        "x": 1024,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-029",
+      "frame": {
+        "x": 1280,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-030",
+      "frame": {
+        "x": 1536,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-031",
+      "frame": {
+        "x": 1792,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-032",
+      "frame": {
+        "x": 0,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-033",
+      "frame": {
+        "x": 256,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-034",
+      "frame": {
+        "x": 512,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-035",
+      "frame": {
+        "x": 768,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-036",
+      "frame": {
+        "x": 1024,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-037",
+      "frame": {
+        "x": 1280,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-038",
+      "frame": {
+        "x": 1536,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-039",
+      "frame": {
+        "x": 1792,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-040",
+      "frame": {
+        "x": 0,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-041",
+      "frame": {
+        "x": 256,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-042",
+      "frame": {
+        "x": 512,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-043",
+      "frame": {
+        "x": 768,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-044",
+      "frame": {
+        "x": 1024,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-045",
+      "frame": {
+        "x": 1280,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-046",
+      "frame": {
+        "x": 1536,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-celebrate-047",
+      "frame": {
+        "x": 1792,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    }
+  ],
+  "meta": {
+    "app": "Einherjar Blitz / Plantas vivas",
+    "version": "1.0",
+    "image": "celebrate.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2048,
+      "h": 1536
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "celebrate",
+        "from": 0,
+        "to": 47,
+        "direction": "forward"
+      }
+    ],
+    "animation": {
+      "label": "Celebrar",
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "emittedObjectIncluded": false,
+      "after": "idle",
+      "events": []
+    }
+  }
+}

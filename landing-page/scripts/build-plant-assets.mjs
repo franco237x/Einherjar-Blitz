@@ -1,15 +1,18 @@
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { CHARACTERS, CLIPS, clipsFor, renderPlant, PlantAnimator, actionEvent, animationEvents, afterClip, clipLabel } from '../public/plantas-vivas/runtime/plant-rig.mjs';
+const rigFlag = process.argv.indexOf('--rig-module');
+const { CHARACTERS, CLIPS, clipsFor, renderPlant, PlantAnimator, actionEvent, animationEvents, afterClip, clipLabel } = await import(
+  rigFlag >= 0 ? pathToFileURL(path.resolve(process.argv[rigFlag + 1])).href : '../public/plantas-vivas/runtime/plant-rig.mjs');
 
 const require = createRequire(import.meta.url);
 const sharp = require('sharp');
 const moduleFlag = process.argv.indexOf('--canvas-module');
 const { createCanvas, loadImage } = require(moduleFlag >= 0 ? process.argv[moduleFlag + 1] : '@napi-rs/canvas');
-const root = fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
+const rootFlag = process.argv.indexOf('--assets-root');
+const root = rootFlag >= 0 ? path.resolve(process.argv[rootFlag + 1]) : fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
 const requested = process.argv.filter(arg => CHARACTERS.some(item => item.id === arg));
 const selection = CHARACTERS.filter(item => requested.length === 0 || requested.includes(item.id));
 const FRAME = 256, COLUMNS = 8;
@@ -288,7 +291,7 @@ for (const character of CHARACTERS) {
   }
 }
 await writeFile(path.join(root, 'manifest.json'), JSON.stringify({
-  name: 'Plantas vivas', version: '6.0.0', created: '2026-10-02', artwork: 'Built-in ImageGen / original caricature characters',
+  name: 'Plantas vivas', version: available.some(character => character.rigVersion === 7) ? '7.0.0' : '6.0.0', created: '2026-10-02', artwork: 'Built-in ImageGen / original caricature characters',
   animation: 'Continuous cutout rig; deterministic exports at 30 fps', logicalSize: [320, 320], frameSize: [FRAME, FRAME],
   anchor: [150 / 320, 288 / 320], directions: ['right'], flipForLeft: true,
   characters: available.filter(character => !character.retired), archivedCharacters: available.filter(character => character.retired),

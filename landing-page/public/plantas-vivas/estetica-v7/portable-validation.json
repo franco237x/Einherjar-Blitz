@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-02",
+  "archive": "plantas-redisenadas-v7.zip",
+  "status": "passed",
+  "plants": 3,
+  "clips": 15,
+  "portableRuntime": "Extracted ZIP served over HTTP with bundled zombie practice parts",
+  "combat": [
+    "aroma interrupts bite",
+    "acid removes 60 armor",
+    "two root contacts remove 56 health"
+  ],
+  "downloads": "GIF, WebP and atlas return HTTP 200",
+  "javascriptErrors": [],
+  "missingAssets": []
+}

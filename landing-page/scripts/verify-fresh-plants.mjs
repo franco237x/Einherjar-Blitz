@@ -1,13 +1,18 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { readFile, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { CHARACTERS, CLIPS, PlantAnimator, animationEvents, evaluatePose } from '../public/plantas-vivas/runtime/plant-rig.mjs';
+const rigFlag = process.argv.indexOf('--rig-module');
+const { CHARACTERS, CLIPS, PlantAnimator, animationEvents, evaluatePose } = await import(
+  rigFlag >= 0 ? pathToFileURL(path.resolve(process.argv[rigFlag + 1])).href : '../public/plantas-vivas/runtime/plant-rig.mjs');
 import { createAromaStatus, applyAroma, updateAroma, applyAcid, applyPunch } from '../public/plantas-vivas/runtime/fresh-mechanics.mjs';
 import { ZOMBIES, ZombieAnimator } from '../public/zombis-vivos/runtime/zombie-rig.mjs';
 
-const root = fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
+const rootFlag = process.argv.indexOf('--assets-root'), urlFlag = process.argv.indexOf('--viewer-url');
+const root = rootFlag >= 0 ? path.resolve(process.argv[rootFlag + 1]) : fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
+const viewerURL = urlFlag >= 0 ? process.argv[urlFlag + 1] : 'http://127.0.0.1:8765/plantas-vivas/index.html';
+const catalog = JSON.parse(await readFile(path.join(root, 'manifest.json'), 'utf8'));
 const require = createRequire(import.meta.url), sharp = require('sharp');
 const flag = process.argv.indexOf('--playwright-module');
 const { chromium } = require(flag >= 0 ? process.argv[flag + 1] : 'playwright');
@@ -82,18 +87,20 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
   page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
-  await page.goto('http://127.0.0.1:8765/plantas-vivas/index.html', { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Cilantro');
-  assert.equal(await page.locator('[data-plant]').count(), 11);
+  await page.goto(viewerURL, { waitUntil: 'networkidle' });
+  await page.waitForFunction(name => document.querySelector('#character-name').textContent === name, find('cilantro').name);
+  assert.equal(await page.locator('[data-plant]').count(), catalog.characters.length);
   assert.equal(await page.locator('[data-plant="aurelia"], [data-plant="velaria"]').count(), 0);
-  const snapshot = () => page.evaluate(async () => (await import('/plantas-vivas/viewer.mjs')).freshPracticeSnapshot());
+  const snapshot = () => page.evaluate(async () => (await import(new URL('viewer.mjs', location.href))).freshPracticeSnapshot());
   await page.locator('[data-clip="attack"]').click();
   await page.waitForFunction(() => document.querySelector('#fresh-hits').textContent === '1');
   const interrupted = await snapshot(); assert(interrupted.blocked > 0); assert.equal(interrupted.health, 100);
   await page.locator('#pause').click(); const stopped = await snapshot(); await page.waitForTimeout(180); assert.deepEqual(await snapshot(), stopped);
   await page.locator('#pause').click();
   await page.waitForFunction(() => document.querySelector('#fresh-blocked').textContent === '—');
-  await page.locator('[data-plant="limon"]').click(); await page.locator('[data-clip="attack"]').click();
+  await page.locator('[data-plant="limon"]').click();
+  await page.waitForFunction(name => document.querySelector('#character-name').textContent === name, find('limon').name);
+  await page.locator('[data-clip="attack"]').click();
   await page.waitForFunction(() => document.querySelector('#fresh-hits').textContent === '1');
   assert.equal((await snapshot()).armor, 40); assert.equal((await snapshot()).health, 100);
   await page.waitForFunction(() => document.querySelector('#now-playing').textContent === 'Reposo');
@@ -105,7 +112,7 @@ try {
   await page.locator('[data-clip="attack"]').click();
   await page.waitForFunction(() => document.querySelector('#fresh-health').textContent === '84');
   await page.locator('[data-plant="jengibron"]').click();
-  await page.waitForFunction(() => document.querySelector('#character-name').textContent === 'Jengibrón');
+  await page.waitForFunction(name => document.querySelector('#character-name').textContent === name, find('jengibron').name);
   await page.locator('[data-clip="attack"]').click();
   await page.waitForFunction(() => document.querySelector('#fresh-hits').textContent === '2');
   assert.equal((await snapshot()).health, 44);
@@ -123,7 +130,24 @@ try {
   await page.setViewportSize({ width: 1280, height: 1000 });
   await page.locator('#fresh-target').selectOption('conero');
   await page.waitForFunction(() => document.querySelector('#fresh-armor').textContent === '100');
-  await page.screenshot({ path: path.join(root, 'preview', 'combate-v6.png'), fullPage: true });
+  if (rigFlag >= 0) {
+    for (const character of cast) {
+      await page.locator(`[data-plant="${character.id}"]`).click();
+      await page.waitForFunction(name => document.querySelector('#character-name').textContent === name, character.name);
+      for (const clip of ['idle', 'attack', 'hit', 'spawn', 'celebrate']) {
+        await page.locator(`[data-clip="${clip}"]`).click();
+        assert((await page.locator('#download-sprites').getAttribute('href')).endsWith(`/sprites/${clip}.png`));
+        await page.waitForTimeout(70);
+      }
+    }
+    await page.locator('[data-clip="idle"]').click();
+    await page.locator('#flip').check(); await page.locator('#flip').uncheck();
+    const reducedPage = await browser.newPage({ reducedMotion: 'reduce' });
+    await reducedPage.goto(viewerURL, { waitUntil: 'networkidle' });
+    assert.equal(await reducedPage.locator('#pause').getAttribute('aria-pressed'), 'true');
+    await reducedPage.close();
+  }
+  await page.screenshot({ path: path.join(root, 'preview', rigFlag >= 0 ? 'combate-v7.png' : 'combate-v6.png'), fullPage: true });
   assert.deepEqual(errors, []); assert.deepEqual(failures, []);
   const report = { date: '2026-10-02', plants: 3, clips: 15, frames: exportedFrames,
     atlas: '256×256, 8 columns, 30 fps, real alpha, no cropping',

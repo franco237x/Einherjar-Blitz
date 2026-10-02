@@ -1,13 +1,16 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { CHARACTERS, ACTIVE_CHARACTERS, clipsFor, renderPlant, clipLabel } from '../public/plantas-vivas/runtime/plant-rig.mjs';
+const rigFlag = process.argv.indexOf('--rig-module');
+const { CHARACTERS, ACTIVE_CHARACTERS, clipsFor, renderPlant, clipLabel } = await import(
+  rigFlag >= 0 ? pathToFileURL(path.resolve(process.argv[rigFlag + 1])).href : '../public/plantas-vivas/runtime/plant-rig.mjs');
 
 const require = createRequire(import.meta.url), sharp = require('sharp');
 const flag = process.argv.indexOf('--canvas-module');
 const { createCanvas, loadImage } = require(flag >= 0 ? process.argv[flag + 1] : '@napi-rs/canvas');
-const root = fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
+const rootFlag = process.argv.indexOf('--assets-root');
+const root = rootFlag >= 0 ? path.resolve(process.argv[rootFlag + 1]) : fileURLToPath(new URL('../public/plantas-vivas/', import.meta.url));
 const out = path.join(root, 'preview'); await mkdir(out, { recursive: true });
 const cast = [];
 const newOnly = process.argv.includes('--new-only');
@@ -65,6 +68,7 @@ if (process.argv.includes('--lineup-only')) process.exit(0);
 const primaryDuration = Math.max(...cast.map(({ character }) => clipsFor(character)[character.primaryClip ?? 'attack'].duration));
 const timeline = nocturne ? [ ['idle', 1.2], ['seal', 1.4], ['channel', 2], ['recall', 1.2], ['recover', 1.4], ['hit', 0.8], ['spawn', 1.2], ['celebrate', 1.6] ]
   : defenseIce ? [ ['idle', 1.2], ['attack', 1.2], ['hit', 0.8], ['damaged', 1.2], ['critical', 1.2], ['spawn', 1.2], ['celebrate', 1.6] ]
+  : fresh && rigFlag >= 0 ? [ ['idle', 1.2], ['attack', primaryDuration], ['hit', 0.8], ['spawn', 1.2], ['idle', 0.4], ['celebrate', 1.6] ]
   : [ ['idle', 1.2], ['attack', primaryDuration], ['spawn', 1.2], ['idle', 0.4], ['celebrate', 1.6] ];
 const frames = [];
 for (const [clip, duration] of timeline) for (let index = 0; index < Math.round(duration * FPS); index++) {

@@ -1,0 +1,987 @@
+{
+  "frames": [
+    {
+      "filename": "cilantro-attack-000",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-001",
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-002",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-003",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-004",
+      "frame": {
+        "x": 1024,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-005",
+      "frame": {
+        "x": 1280,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-006",
+      "frame": {
+        "x": 1536,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-007",
+      "frame": {
+        "x": 1792,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-008",
+      "frame": {
+        "x": 0,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-009",
+      "frame": {
+        "x": 256,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-010",
+      "frame": {
+        "x": 512,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-011",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-012",
+      "frame": {
+        "x": 1024,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-013",
+      "frame": {
+        "x": 1280,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-014",
+      "frame": {
+        "x": 1536,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-015",
+      "frame": {
+        "x": 1792,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-016",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-017",
+      "frame": {
+        "x": 256,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-018",
+      "frame": {
+        "x": 512,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-019",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-020",
+      "frame": {
+        "x": 1024,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-021",
+      "frame": {
+        "x": 1280,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-022",
+      "frame": {
+        "x": 1536,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-023",
+      "frame": {
+        "x": 1792,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-024",
+      "frame": {
+        "x": 0,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-025",
+      "frame": {
+        "x": 256,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-026",
+      "frame": {
+        "x": 512,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-027",
+      "frame": {
+        "x": 768,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-028",
+      "frame": {
+        "x": 1024,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-029",
+      "frame": {
+        "x": 1280,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-030",
+      "frame": {
+        "x": 1536,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-031",
+      "frame": {
+        "x": 1792,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-032",
+      "frame": {
+        "x": 0,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-033",
+      "frame": {
+        "x": 256,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-034",
+      "frame": {
+        "x": 512,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-attack-035",
+      "frame": {
+        "x": 768,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    }
+  ],
+  "meta": {
+    "app": "Einherjar Blitz / Plantas vivas",
+    "version": "1.0",
+    "image": "attack.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2048,
+      "h": 1280
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "attack",
+        "from": 0,
+        "to": 35,
+        "direction": "forward"
+      }
+    ],
+    "animation": {
+      "label": "Ráfaga del coro",
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "emittedObjectIncluded": false,
+      "after": "idle",
+      "events": [
+        {
+          "type": "aroma",
+          "plant": "cilantro",
+          "time": 0.5,
+          "position": [
+            221,
+            234
+          ],
+          "velocity": [
+            255,
+            0
+          ],
+          "interruptSeconds": 1.1,
+          "damage": 0,
+          "movementMultiplier": 1,
+          "asset": "characters/cilantro/parts/projectile.png",
+          "frame": 15
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-02",
+  "plants": 3,
+  "clips": 15,
+  "frames": 648,
+  "atlas": "256×256, 8 columns, 30 fps, real alpha, no cropping",
+  "mechanics": {
+    "cilantro": "interrupts biting for 1.1 s without changing movement, armor or health",
+    "limon": "16 normal damage + 44 armor-only corrosion; no bonus overflow; armor-break and death verified",
+    "jengibron": "22 + 34 damage at 0.4 / 0.8 s; same lane, forward distance, per-hit range and interruption verified"
+  },
+  "runtime": "each cue exactly once under irregular steps; interrupted attacks cancel future cues",
+  "browser": "actual zombie rigs; acid versus armored and bare targets; pause, reset, far target, interrupted combo and portrait catalog verified",
+  "responsiveWidths": [
+    1280,
+    768,
+    390,
+    320
+  ],
+  "javascriptErrors": [],
+  "assetFailures": []
+}

@@ -1,0 +1,156 @@
+{
+  "id": "cilantro",
+  "name": "Cilantro Coro",
+  "anatomy": "choir",
+  "rigVersion": 7,
+  "role": "Tres voces, una ráfaga",
+  "color": "#7da827",
+  "description": "Un coro de hojas: una voz grave con sueño, una chillona y una solista con un ojo enorme. Soplan juntas para interrumpir mordiscos.",
+  "motion": "Las tres caras se balancean a destiempo y se agrupan antes de soplar. La cara está dibujada en cada hoja.",
+  "attackStyle": "aroma",
+  "actionLabel": "Ráfaga del coro",
+  "tempo": 0.9,
+  "projectileEvent": 0.5,
+  "muzzle": [
+    221,
+    234
+  ],
+  "projectileSpeed": 255,
+  "aroma": {
+    "interruptSeconds": 1.1,
+    "damage": 0,
+    "movementMultiplier": 1
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "voice-low",
+    "voice-high",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/cilantro-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 22,
+      "top": 28,
+      "width": 439,
+      "height": 455
+    },
+    "body": {
+      "left": 472,
+      "top": 90,
+      "width": 361,
+      "height": 384
+    },
+    "body-blink": {
+      "left": 869,
+      "top": 97,
+      "width": 354,
+      "height": 380
+    },
+    "body-action": {
+      "left": 17,
+      "top": 508,
+      "width": 375,
+      "height": 378
+    },
+    "voice-low": {
+      "left": 537,
+      "top": 550,
+      "width": 259,
+      "height": 304
+    },
+    "voice-high": {
+      "left": 969,
+      "top": 477,
+      "width": 234,
+      "height": 378
+    },
+    "base": {
+      "left": 85,
+      "top": 977,
+      "width": 302,
+      "height": 218
+    },
+    "projectile": {
+      "left": 491,
+      "top": 981,
+      "width": 327,
+      "height": 185
+    },
+    "effect": {
+      "left": 862,
+      "top": 992,
+      "width": 366,
+      "height": 184
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 445,
+      "height": 461
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 367,
+      "height": 390
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 367,
+      "height": 390
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 367,
+      "height": 390
+    },
+    "voice-low": {
+      "file": "parts/voice-low.png",
+      "width": 265,
+      "height": 310
+    },
+    "voice-high": {
+      "file": "parts/voice-high.png",
+      "width": 240,
+      "height": 384
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 308,
+      "height": 224
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 333,
+      "height": 190
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 372,
+      "height": 190
+    }
+  }
+}

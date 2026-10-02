@@ -1,0 +1,172 @@
+{
+  "id": "jengibron",
+  "name": "Rizomazo",
+  "anatomy": "gavel",
+  "rigVersion": 7,
+  "role": "El cuerpo entero golpea",
+  "color": "#b77a40",
+  "description": "Una masa de jengibre demasiado grande para su tallo. Parece dormido hasta que carga todo su peso y golpea con la raíz.",
+  "motion": "Un toque para tantear, carga hacia atrás y un mazazo pesado. El tallo se arquea y la hoja compensa el movimiento.",
+  "attackStyle": "punch",
+  "actionLabel": "Tanteo y mazazo",
+  "tempo": 0.67,
+  "projectileEvent": 0.4,
+  "muzzle": [
+    275,
+    141
+  ],
+  "projectileSpeed": 0,
+  "melee": {
+    "range": 152,
+    "origin": [
+      150,
+      288
+    ],
+    "hits": [
+      {
+        "time": 0.4,
+        "damage": 22,
+        "hand": "front",
+        "label": "Tanteo"
+      },
+      {
+        "time": 0.8,
+        "damage": 34,
+        "hand": "back",
+        "label": "Mazazo"
+      }
+    ]
+  },
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-action",
+    "stem",
+    "leaf",
+    "base",
+    "arc",
+    "effect"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-action"
+  ],
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/jengibron-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 15,
+      "top": 52,
+      "width": 437,
+      "height": 439
+    },
+    "head": {
+      "left": 463,
+      "top": 124,
+      "width": 402,
+      "height": 270
+    },
+    "head-blink": {
+      "left": 863,
+      "top": 125,
+      "width": 391,
+      "height": 271
+    },
+    "head-action": {
+      "left": 26,
+      "top": 547,
+      "width": 420,
+      "height": 264
+    },
+    "stem": {
+      "left": 538,
+      "top": 551,
+      "width": 266,
+      "height": 315
+    },
+    "leaf": {
+      "left": 936,
+      "top": 637,
+      "width": 241,
+      "height": 174
+    },
+    "base": {
+      "left": 48,
+      "top": 1057,
+      "width": 334,
+      "height": 143
+    },
+    "arc": {
+      "left": 434,
+      "top": 899,
+      "width": 412,
+      "height": 324
+    },
+    "effect": {
+      "left": 902,
+      "top": 906,
+      "width": 327,
+      "height": 312
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 443,
+      "height": 445
+    },
+    "head": {
+      "file": "parts/head.png",
+      "width": 407,
+      "height": 276
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 407,
+      "height": 276
+    },
+    "head-action": {
+      "file": "parts/head-action.png",
+      "width": 407,
+      "height": 276
+    },
+    "stem": {
+      "file": "parts/stem.png",
+      "width": 272,
+      "height": 320
+    },
+    "leaf": {
+      "file": "parts/leaf.png",
+      "width": 247,
+      "height": 180
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 340,
+      "height": 149
+    },
+    "arc": {
+      "file": "parts/arc.png",
+      "width": 416,
+      "height": 330
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 333,
+      "height": 318
+    }
+  }
+}

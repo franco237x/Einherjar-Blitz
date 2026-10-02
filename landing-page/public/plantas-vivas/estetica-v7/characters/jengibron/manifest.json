@@ -1,0 +1,138 @@
+{
+  "id": "jengibron",
+  "name": "Rizomazo",
+  "anatomy": "gavel",
+  "rigVersion": 7,
+  "role": "El cuerpo entero golpea",
+  "color": "#b77a40",
+  "description": "Una masa de jengibre demasiado grande para su tallo. Parece dormido hasta que carga todo su peso y golpea con la raíz.",
+  "motion": "Un toque para tantear, carga hacia atrás y un mazazo pesado. El tallo se arquea y la hoja compensa el movimiento.",
+  "attackStyle": "punch",
+  "actionLabel": "Tanteo y mazazo",
+  "tempo": 0.67,
+  "projectileEvent": 0.4,
+  "muzzle": [
+    275,
+    141
+  ],
+  "projectileSpeed": 0,
+  "melee": {
+    "range": 152,
+    "origin": [
+      150,
+      288
+    ],
+    "hits": [
+      {
+        "time": 0.4,
+        "damage": 22,
+        "hand": "front",
+        "label": "Tanteo"
+      },
+      {
+        "time": 0.8,
+        "damage": 34,
+        "hand": "back",
+        "label": "Mazazo"
+      }
+    ]
+  },
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-action",
+    "stem",
+    "leaf",
+    "base",
+    "arc",
+    "effect"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-action"
+  ],
+  "portrait": "characters/jengibron/portrait.png",
+  "rig": "characters/jengibron/rig.json",
+  "effects": {
+    "burst": "characters/jengibron/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/jengibron/sprites/idle.png",
+      "data": "characters/jengibron/sprites/idle.json",
+      "webp": "characters/jengibron/animated/idle.webp",
+      "gif": "characters/jengibron/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/jengibron/sprites/attack.png",
+      "data": "characters/jengibron/sprites/attack.json",
+      "webp": "characters/jengibron/animated/attack.webp",
+      "gif": "characters/jengibron/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/jengibron/sprites/hit.png",
+      "data": "characters/jengibron/sprites/hit.json",
+      "webp": "characters/jengibron/animated/hit.webp",
+      "gif": "characters/jengibron/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/jengibron/sprites/spawn.png",
+      "data": "characters/jengibron/sprites/spawn.json",
+      "webp": "characters/jengibron/animated/spawn.webp",
+      "gif": "characters/jengibron/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/jengibron/sprites/celebrate.png",
+      "data": "characters/jengibron/sprites/celebrate.json",
+      "webp": "characters/jengibron/animated/celebrate.webp",
+      "gif": "characters/jengibron/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

@@ -82,6 +82,8 @@ excluded = {'art-direction-reference.webp', 'lineup-reference.png', 'zarzina-par
             'lineup.png', 'movimientos.gif', 'movimientos.webp', 'action-poses.png', 'visor-desktop.png', 'visor-mobile.png'}
 with ZipFile(complete, 'w', ZIP_DEFLATED, compresslevel=6) as archive:
     for file in sorted(root.rglob('*')):
+        if file.relative_to(root).parts[0] == 'estetica-v7':
+            continue
         if not file.is_file() or file.suffix == '.zip' or file.name in excluded:
             continue
         if file.parent.name == 'preview' and any(version in file.stem for version in ['-v3', '-v4', '-v5']):

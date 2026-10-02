@@ -1,0 +1,123 @@
+{
+  "id": "cilantro",
+  "name": "Cilantro Coro",
+  "anatomy": "choir",
+  "rigVersion": 7,
+  "role": "Tres voces, una ráfaga",
+  "color": "#7da827",
+  "description": "Un coro de hojas: una voz grave con sueño, una chillona y una solista con un ojo enorme. Soplan juntas para interrumpir mordiscos.",
+  "motion": "Las tres caras se balancean a destiempo y se agrupan antes de soplar. La cara está dibujada en cada hoja.",
+  "attackStyle": "aroma",
+  "actionLabel": "Ráfaga del coro",
+  "tempo": 0.9,
+  "projectileEvent": 0.5,
+  "muzzle": [
+    221,
+    234
+  ],
+  "projectileSpeed": 255,
+  "aroma": {
+    "interruptSeconds": 1.1,
+    "damage": 0,
+    "movementMultiplier": 1
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "voice-low",
+    "voice-high",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "portrait": "characters/cilantro/portrait.png",
+  "rig": "characters/cilantro/rig.json",
+  "effects": {
+    "projectile": "characters/cilantro/parts/projectile.png",
+    "burst": "characters/cilantro/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/cilantro/sprites/idle.png",
+      "data": "characters/cilantro/sprites/idle.json",
+      "webp": "characters/cilantro/animated/idle.webp",
+      "gif": "characters/cilantro/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/cilantro/sprites/attack.png",
+      "data": "characters/cilantro/sprites/attack.json",
+      "webp": "characters/cilantro/animated/attack.webp",
+      "gif": "characters/cilantro/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/cilantro/sprites/hit.png",
+      "data": "characters/cilantro/sprites/hit.json",
+      "webp": "characters/cilantro/animated/hit.webp",
+      "gif": "characters/cilantro/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/cilantro/sprites/spawn.png",
+      "data": "characters/cilantro/sprites/spawn.json",
+      "webp": "characters/cilantro/animated/spawn.webp",
+      "gif": "characters/cilantro/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/cilantro/sprites/celebrate.png",
+      "data": "characters/cilantro/sprites/celebrate.json",
+      "webp": "characters/cilantro/animated/celebrate.webp",
+      "gif": "characters/cilantro/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

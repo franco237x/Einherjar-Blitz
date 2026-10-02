@@ -1,0 +1,1904 @@
+{
+  "frames": [
+    {
+      "filename": "cilantro-idle-000",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-001",
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-002",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-003",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-004",
+      "frame": {
+        "x": 1024,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-005",
+      "frame": {
+        "x": 1280,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-006",
+      "frame": {
+        "x": 1536,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-007",
+      "frame": {
+        "x": 1792,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-008",
+      "frame": {
+        "x": 0,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-009",
+      "frame": {
+        "x": 256,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-010",
+      "frame": {
+        "x": 512,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-011",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-012",
+      "frame": {
+        "x": 1024,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-013",
+      "frame": {
+        "x": 1280,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-014",
+      "frame": {
+        "x": 1536,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-015",
+      "frame": {
+        "x": 1792,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-016",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-017",
+      "frame": {
+        "x": 256,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-018",
+      "frame": {
+        "x": 512,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-019",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-020",
+      "frame": {
+        "x": 1024,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-021",
+      "frame": {
+        "x": 1280,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-022",
+      "frame": {
+        "x": 1536,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-023",
+      "frame": {
+        "x": 1792,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-024",
+      "frame": {
+        "x": 0,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-025",
+      "frame": {
+        "x": 256,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-026",
+      "frame": {
+        "x": 512,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-027",
+      "frame": {
+        "x": 768,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-028",
+      "frame": {
+        "x": 1024,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-029",
+      "frame": {
+        "x": 1280,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-030",
+      "frame": {
+        "x": 1536,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-031",
+      "frame": {
+        "x": 1792,
+        "y": 768,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-032",
+      "frame": {
+        "x": 0,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-033",
+      "frame": {
+        "x": 256,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-034",
+      "frame": {
+        "x": 512,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-035",
+      "frame": {
+        "x": 768,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-036",
+      "frame": {
+        "x": 1024,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-037",
+      "frame": {
+        "x": 1280,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-038",
+      "frame": {
+        "x": 1536,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-039",
+      "frame": {
+        "x": 1792,
+        "y": 1024,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-040",
+      "frame": {
+        "x": 0,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-041",
+      "frame": {
+        "x": 256,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-042",
+      "frame": {
+        "x": 512,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-043",
+      "frame": {
+        "x": 768,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-044",
+      "frame": {
+        "x": 1024,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-045",
+      "frame": {
+        "x": 1280,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-046",
+      "frame": {
+        "x": 1536,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-047",
+      "frame": {
+        "x": 1792,
+        "y": 1280,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-048",
+      "frame": {
+        "x": 0,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-049",
+      "frame": {
+        "x": 256,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-050",
+      "frame": {
+        "x": 512,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-051",
+      "frame": {
+        "x": 768,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-052",
+      "frame": {
+        "x": 1024,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-053",
+      "frame": {
+        "x": 1280,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-054",
+      "frame": {
+        "x": 1536,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-055",
+      "frame": {
+        "x": 1792,
+        "y": 1536,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-056",
+      "frame": {
+        "x": 0,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-057",
+      "frame": {
+        "x": 256,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-058",
+      "frame": {
+        "x": 512,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-059",
+      "frame": {
+        "x": 768,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-060",
+      "frame": {
+        "x": 1024,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-061",
+      "frame": {
+        "x": 1280,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-062",
+      "frame": {
+        "x": 1536,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-063",
+      "frame": {
+        "x": 1792,
+        "y": 1792,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-064",
+      "frame": {
+        "x": 0,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-065",
+      "frame": {
+        "x": 256,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-066",
+      "frame": {
+        "x": 512,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-067",
+      "frame": {
+        "x": 768,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-068",
+      "frame": {
+        "x": 1024,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-069",
+      "frame": {
+        "x": 1280,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-070",
+      "frame": {
+        "x": 1536,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 34,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    },
+    {
+      "filename": "cilantro-idle-071",
+      "frame": {
+        "x": 1792,
+        "y": 2048,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
+      },
+      "duration": 33,
+      "pivot": {
+        "x": 0.46875,
+        "y": 0.9
+      }
+    }
+  ],
+  "meta": {
+    "app": "Einherjar Blitz / Plantas vivas",
+    "version": "1.0",
+    "image": "idle.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2048,
+      "h": 2304
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 71,
+        "direction": "forward"
+      }
+    ],
+    "animation": {
+      "label": "Reposo",
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "emittedObjectIncluded": false,
+      "after": "idle",
+      "events": []
+    }
+  }
+}
