@@ -46,13 +46,19 @@ export interface Viewport {
   oy: number;
 }
 
-export function computeViewport(width: number, height: number): Viewport {
-  const scale = Math.min(width / WORLD_W, height / WORLD_H);
+/**
+ * Fits the garden inside the canvas minus `insetLeft` (the seed packet
+ * column, drawn over the scenery as in PvZ 2). The rest of the canvas shows
+ * the background extended to the edges.
+ */
+export function computeViewport(width: number, height: number, insetLeft = 0): Viewport {
+  const room = Math.max(1, width - insetLeft);
+  const scale = Math.min(room / WORLD_W, height / WORLD_H);
   return {
     width,
     height,
     scale,
-    ox: (width - WORLD_W * scale) / 2,
+    ox: insetLeft + (room - WORLD_W * scale) / 2,
     oy: (height - WORLD_H * scale) / 2,
   };
 }
@@ -72,7 +78,7 @@ export function cellAt(v: Viewport, px: number, py: number) {
 
 /** Sun under a screen point (generous radius for touch). */
 export function sunAt(v: Viewport, state: JardinState, px: number, py: number) {
-  const radius = 0.5 * v.scale;
+  const radius = 0.6 * v.scale;
   for (let i = state.suns.length - 1; i >= 0; i--) {
     const sun = state.suns[i];
     const dx = screenX(v, sun.x) - px;
@@ -124,7 +130,20 @@ function drawLawn(ctx: CanvasRenderingContext2D, v: Viewport, dpr: number, backg
     c.fillRect(0, 0, v.width, v.height);
     if (background) {
       c.imageSmoothingQuality = 'high';
+      // Extend the scenery to the screen edges: the same art, scaled to
+      // cover and darkened, behind the exact garden.
+      const cover = Math.max(v.width / background.width, v.height / background.height);
+      const cw = background.width * cover;
+      const ch = background.height * cover;
+      c.save();
+      c.filter = 'blur(6px) brightness(0.55)';
+      c.drawImage(background, (v.width - cw) / 2, (v.height - ch) / 2, cw, ch);
+      c.restore();
+      c.save();
+      c.shadowColor = 'rgba(0,0,0,0.6)';
+      c.shadowBlur = 24;
       c.drawImage(background, v.ox, v.oy, WORLD_W * v.scale, WORLD_H * v.scale);
+      c.restore();
     } else {
       c.fillStyle = '#3a2a1d';
       c.fillRect(v.ox, screenY(v, 0), LEFT * v.scale, ROWS * CELL_H * v.scale);
@@ -334,12 +353,23 @@ export function drawScene(
     if (!sunImage) break;
     const age = t - sun.bornAt;
     const fadeOut = Math.max(0, (age - (TIMING.sunLifetime - TICKS_PER_SECOND * 2)) / (TICKS_PER_SECOND * 2));
-    const pulse = 1 + Math.sin(age / 6) * 0.05;
-    const size = 0.7 * v.scale * pulse;
+    const pulse = 1 + Math.sin(age / 6) * 0.06;
+    const size = 0.88 * v.scale * pulse;
     const x = screenX(v, sun.x);
     const y = screenY(v, sun.prevY + (sun.y - sun.prevY) * alpha);
     ctx.save();
     ctx.globalAlpha = 1 - fadeOut * 0.7;
+    // Bright halo so the sun reads against yellow flowers and light grass.
+    const halo = ctx.createRadialGradient(x, y, size * 0.15, x, y, size * 0.85);
+    halo.addColorStop(0, 'rgba(255,255,220,0.95)');
+    halo.addColorStop(0.45, 'rgba(255,214,80,0.55)');
+    halo.addColorStop(1, 'rgba(255,170,0,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.85, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = 'rgba(120,60,0,0.65)';
+    ctx.shadowBlur = size * 0.12;
     ctx.drawImage(sunImage, x - size / 2, y - size / 2, size, (size * sunImage.height) / sunImage.width);
     ctx.restore();
   }

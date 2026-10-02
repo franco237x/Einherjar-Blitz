@@ -48,15 +48,18 @@ export interface PlantDef {
   cooldown: number;
 }
 
+/** Attackers are fragile: a zombie eats one in four bites (~5 s). */
+const ATTACKER_HP = 160;
+
 export const PLANTS: Record<PlantKind, PlantDef> = {
   solmiel: { kind: 'solmiel', name: 'Solmiel', role: 'Produce 25 de sol', cost: 50, hp: 300, cooldown: s(7.5) },
-  nabu: { kind: 'nabu', name: 'Nabú', role: 'Escupe semillas', cost: 100, hp: 300, cooldown: s(7.5) },
-  mordiseta: { kind: 'mordiseta', name: 'Mordiseta', role: 'Esporas de corto alcance', cost: 25, hp: 300, cooldown: s(7.5) },
+  nabu: { kind: 'nabu', name: 'Nabú', role: 'Escupe semillas', cost: 100, hp: ATTACKER_HP, cooldown: s(7.5) },
+  mordiseta: { kind: 'mordiseta', name: 'Mordiseta', role: 'Esporas de corto alcance', cost: 25, hp: ATTACKER_HP, cooldown: s(7.5) },
   cortezon: { kind: 'cortezon', name: 'Cortezón', role: 'Muro resistente', cost: 50, hp: 4000, cooldown: s(30) },
-  frigora: { kind: 'frigora', name: 'Frígora', role: 'Ralentiza y congela', cost: 100, hp: 300, cooldown: s(7.5) },
-  granadin: { kind: 'granadin', name: 'Granadín', role: 'Explota en 3×3', cost: 150, hp: 9999, cooldown: s(50) },
-  zarzina: { kind: 'zarzina', name: 'Zarzina', role: 'Devora de un mordisco', cost: 150, hp: 300, cooldown: s(7.5) },
-  cardon: { kind: 'cardon', name: 'Cardón', role: 'Espinas que atraviesan', cost: 175, hp: 300, cooldown: s(7.5) },
+  frigora: { kind: 'frigora', name: 'Frígora', role: 'Ralentiza y congela', cost: 100, hp: ATTACKER_HP, cooldown: s(7.5) },
+  granadin: { kind: 'granadin', name: 'Granadín', role: 'Explota en 3×3', cost: 200, hp: 9999, cooldown: s(50) },
+  zarzina: { kind: 'zarzina', name: 'Zarzina', role: 'Devora de un mordisco', cost: 150, hp: ATTACKER_HP, cooldown: s(7.5) },
+  cardon: { kind: 'cardon', name: 'Cardón', role: 'Espinas que atraviesan', cost: 175, hp: ATTACKER_HP, cooldown: s(7.5) },
 };
 export const PLANT_ORDER: PlantKind[] = [
   'solmiel',
@@ -633,8 +636,9 @@ function updatePlants(state: JardinState) {
         }
         if (plant.pendingRelease !== null && state.tick >= plant.pendingRelease) {
           plant.pendingRelease = null;
-          const x = plant.col + 0.35 + rng() * 0.3;
-          dropSun(state, x, plant.row + 0.25, plant.row + 0.55, true);
+          // Drop it on the grass to the right of the flower so it stands out.
+          const x = plant.col + 0.8 + rng() * 0.12;
+          dropSun(state, x, plant.row + 0.3, plant.row + 0.78, true);
         }
         break;
       }

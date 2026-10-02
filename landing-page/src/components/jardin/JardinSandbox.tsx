@@ -255,6 +255,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
   const { imagesRef, load, progress, ready, failed } = useSprites();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLElement>(null);
   const [initialGame] = useState(() => createGame(randomSeed(), {}, mode));
   const gameRef = useRef<JardinState>(initialGame);
   const queueRef = useRef<Command[]>([]);
@@ -322,11 +323,14 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
-      viewportRef.current = computeViewport(width, height);
+      // The seed column sits over the scenery; keep the lawn clear of it.
+      const rail = railRef.current?.getBoundingClientRect().width ?? 0;
+      viewportRef.current = computeViewport(width, height, rail + 4);
     };
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(board);
+    if (railRef.current) observer.observe(railRef.current);
 
     let raf = 0;
     let last = performance.now();
@@ -422,134 +426,196 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
 
   const spawn = (row?: number) => send({ type: 'spawnZombie', row, kind: zombieKind });
 
-  const sunBox = (
-    <div
-      className={`flex flex-col items-center justify-center rounded-xl bg-amber-300/15 ring-1 ring-amber-300/40 ${
-        compact ? 'shrink-0 flex-row gap-1 py-1' : 'min-w-[64px] px-2'
-      }`}
-    >
-      <img src={spriteUrl('solmiel', 'sun')} alt="" className={compact ? 'h-5 w-5 object-contain' : 'h-7 w-7 object-contain'} />
-      <span className="text-sm font-bold tabular-nums text-amber-200">{options.infiniteSun ? '∞' : hud.sun}</span>
-    </div>
-  );
+  // Flags on the progress bar for the big and final waves.
+  const lastWave = LEVEL_WAVES[LEVEL_WAVES.length - 1].at;
+  const flags = LEVEL_WAVES.filter((wave) => wave.flag).map((wave) => wave.at / lastWave);
 
-  const cards = PLANT_ORDER.map((kind, index) => {
-    const def = PLANTS[kind];
-    const selected = tool === kind;
-    const ready = hud.placeable[kind];
-    return (
-      <button
-        key={kind}
-        type="button"
-        onClick={() => setTool(selected ? null : kind)}
-        title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
-        aria-label={`${def.name}, ${def.cost} de sol`}
-        aria-pressed={selected}
-        className={`relative flex shrink-0 flex-col items-center justify-center overflow-hidden rounded-xl border bg-[#1d2a1a] transition active:scale-95 ${
-          compact ? 'h-full max-h-[56px] min-h-0 w-full' : 'w-[62px] pb-0.5'
-        } ${selected ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'} ${ready ? '' : 'opacity-60'}`}
-      >
-        <img
-          src={spriteUrl(kind, 'portrait')}
-          alt=""
-          className={compact ? 'h-7 min-h-0 w-7 shrink object-contain' : 'h-10 w-10 object-contain'}
-        />
-        {!compact && (
-          <span className="w-full truncate px-0.5 text-center text-[10px] font-semibold leading-tight text-white/85">{def.name}</span>
-        )}
-        <span className="text-[11px] font-bold leading-tight tabular-nums text-amber-200">{options.infiniteSun ? '—' : def.cost}</span>
-        {hud.cooldowns[kind] > 0 && (
-          <span className="pointer-events-none absolute inset-x-0 top-0 bg-black/60" style={{ height: `${hud.cooldowns[kind] * 100}%` }} />
-        )}
-      </button>
-    );
-  });
-
-  const round = compact ? 'h-11 w-11' : 'h-10 w-10';
-  const shovelButton = (
-    <button
-      type="button"
-      onClick={() => setTool(tool === 'shovel' ? null : 'shovel')}
-      title="Pala (Q)"
-      aria-label="Pala"
-      aria-pressed={tool === 'shovel'}
-      className={`flex shrink-0 flex-col items-center justify-center rounded-xl border bg-[#2a2219] transition active:scale-95 ${
-        compact ? 'h-11 w-11' : 'w-[52px]'
-      } ${tool === 'shovel' ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'}`}
-    >
-      <Shovel size={22} className="text-amber-100" aria-hidden />
-      {!compact && <span className="text-[10px] font-semibold text-white/80">Pala</span>}
-    </button>
-  );
-  const pauseButton = (
-    <button
-      type="button"
-      onClick={togglePause}
-      className={`${round} flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10`}
-      aria-label={paused ? 'Reanudar' : 'Pausar'}
-    >
-      {paused ? <Play size={18} aria-hidden /> : <Pause size={18} aria-hidden />}
-    </button>
-  );
-  const menuButton = (
-    <button
-      type="button"
-      onClick={() => setShowPanel((open) => !open)}
-      className={`flex shrink-0 items-center justify-center rounded-full border text-xs font-bold ${compact ? 'h-11 w-11' : 'h-10 px-3'} ${
-        showPanel ? 'border-amber-300 bg-amber-300/20 text-amber-100' : 'border-white/20 bg-white/10'
-      }`}
-      aria-expanded={showPanel}
-      aria-label={sandbox ? 'Opciones del sandbox' : 'Menú'}
-    >
-      {compact ? <SlidersHorizontal size={18} aria-hidden /> : sandbox ? 'Sandbox' : 'Menú'}
-    </button>
-  );
-  const fullscreenButton = fullscreen.supported && (
-    <button
-      type="button"
-      onClick={fullscreen.toggle}
-      className={`${round} flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10`}
-      aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
-      title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
-    >
-      {fullscreen.active ? <Minimize size={18} aria-hidden /> : <Maximize size={18} aria-hidden />}
-    </button>
-  );
+  const roundButton = `flex shrink-0 items-center justify-center rounded-full border-2 border-[#f5d68a]/70 bg-gradient-to-b from-[#5b3b1d] to-[#2f1d0d] text-amber-50 shadow-[0_3px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
+    compact ? 'h-10 w-10' : 'h-12 w-12'
+  }`;
 
   return (
-    <main
-      className={`fixed inset-0 flex select-none overflow-hidden bg-[#0b130d] text-white ${compact ? 'flex-row' : 'flex-col'}`}
-    >
-      {compact ? (
-        // Low landscape screens (phones): seed packets in a side rail so the
-        // garden can use the full height.
-        <nav
-          className="relative z-10 flex w-[104px] shrink-0 flex-col gap-1 border-r border-white/10 bg-black/50 py-1 pr-1"
-          style={{ paddingLeft: 'max(4px, env(safe-area-inset-left))' }}
-          aria-label="Plantas"
+    <main className="fixed inset-0 select-none overflow-hidden bg-[#0b130d] text-white">
+      <div ref={boardRef} className="absolute inset-0">
+        <canvas
+          ref={canvasRef}
+          className={`absolute inset-0 touch-none ${tool ? 'cursor-crosshair' : 'cursor-pointer'}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            pointerRef.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+          }}
+          onPointerLeave={() => (pointerRef.current = null)}
+          onContextMenu={(event) => event.preventDefault()}
+          aria-label="Jardín: toca una casilla para plantar o un sol para recogerlo"
+        />
+      </div>
+
+      {/* Seed packets, PvZ 2 style: sun counter on top, one column below. */}
+      <nav
+        ref={railRef}
+        className={`absolute bottom-0 left-0 top-0 z-10 flex flex-col gap-1 ${compact ? 'w-[86px] py-1' : 'w-[112px] py-2'}`}
+        style={{ paddingLeft: 'max(6px, env(safe-area-inset-left))' }}
+        aria-label="Plantas"
+      >
+        <div
+          className={`flex shrink-0 items-center gap-1 rounded-full border-2 border-[#f5d68a]/70 bg-gradient-to-b from-[#3d2a14]/95 to-[#1e1408]/95 pr-3 shadow-[0_3px_0_rgba(0,0,0,0.45)] ${
+            compact ? 'h-9' : 'h-12'
+          }`}
+          aria-label={`Sol: ${options.infiniteSun ? 'infinito' : hud.sun}`}
         >
-          {sunBox}
-          <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-5 gap-1">{cards}</div>
-        </nav>
-      ) : (
-        <header className="relative z-10 flex items-stretch gap-2 border-b border-white/10 bg-black/45 px-2 py-1.5 backdrop-blur-md">
-          {sunBox}
-          <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none]">
-            {cards}
-            {shovelButton}
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {fullscreenButton}
-            {pauseButton}
-            {menuButton}
-          </div>
-        </header>
+          <img
+            src={spriteUrl('solmiel', 'sun')}
+            alt=""
+            className={`-ml-1 object-contain drop-shadow-[0_0_6px_rgba(255,220,90,0.9)] ${compact ? 'h-9 w-9' : 'h-12 w-12'}`}
+          />
+          <span className={`font-black tabular-nums text-white [text-shadow:0_2px_0_#000] ${compact ? 'text-base' : 'text-xl'}`}>
+            {options.infiniteSun ? '∞' : hud.sun}
+          </span>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-1">
+          {PLANT_ORDER.map((kind, index) => {
+            const def = PLANTS[kind];
+            const selected = tool === kind;
+            const ready = hud.placeable[kind];
+            const affordable = options.infiniteSun || hud.sun >= def.cost;
+            return (
+              <button
+                key={kind}
+                type="button"
+                onClick={() => setTool(selected ? null : kind)}
+                title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
+                aria-label={`${def.name}, ${def.cost} de sol`}
+                aria-pressed={selected}
+                className={`relative flex min-h-0 flex-1 items-center overflow-hidden rounded-lg border-2 bg-gradient-to-b from-[#9fd46a] to-[#4f8a2c] shadow-[0_3px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
+                  compact ? 'max-h-[52px]' : 'max-h-[66px]'
+                } ${selected ? 'translate-x-2 border-amber-200 ring-2 ring-amber-200' : 'border-[#2b4a17]'} ${ready ? '' : 'saturate-50'}`}
+              >
+                <img
+                  src={spriteUrl(kind, 'portrait')}
+                  alt=""
+                  className="h-full max-h-full min-h-0 w-auto shrink-0 object-contain drop-shadow-[0_2px_1px_rgba(0,0,0,0.5)]"
+                />
+                <span
+                  className={`ml-auto pr-1.5 font-black tabular-nums [text-shadow:0_2px_0_#000,0_0_3px_#000] ${compact ? 'text-sm' : 'text-lg'} ${
+                    affordable ? 'text-white' : 'text-red-400'
+                  }`}
+                >
+                  {options.infiniteSun ? '—' : def.cost}
+                </span>
+                {hud.cooldowns[kind] > 0 && (
+                  <span className="pointer-events-none absolute inset-x-0 top-0 bg-black/55" style={{ height: `${hud.cooldowns[kind] * 100}%` }} />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Level progress, top centre. */}
+      {ready && (
+        <div
+          className="pointer-events-none absolute top-4 z-10 flex -translate-x-1/2 flex-col items-center"
+          style={{ left: `calc(50% + ${compact ? 43 : 56}px)` }}
+        >
+          {!sandbox ? (
+            <>
+              <div
+                className={`relative rounded-full border-2 border-[#f5d68a]/70 bg-[#1e1408]/90 p-[3px] shadow-[0_3px_0_rgba(0,0,0,0.45)] ${
+                  compact ? 'h-4 w-44' : 'h-5 w-64'
+                }`}
+                role="progressbar"
+                aria-label="Progreso del nivel"
+                aria-valuenow={Math.round(hud.progress * 100)}
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-full bg-black/50">
+                  {/* Zombies advance from the right, like in PvZ 2. */}
+                  <div
+                    className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-lime-300 to-lime-600"
+                    style={{ width: `${hud.progress * 100}%` }}
+                  />
+                </div>
+                {flags.map((at) => (
+                  <span
+                    key={at}
+                    className={`absolute top-1/2 -translate-y-[80%] leading-none ${compact ? 'text-sm' : 'text-base'}`}
+                    style={{ right: `calc(${at * 100}% - 6px)` }}
+                    aria-hidden
+                  >
+                    🚩
+                  </span>
+                ))}
+                <img
+                  src={spriteUrl('despistado', 'portrait')}
+                  alt=""
+                  className={`absolute top-1/2 -translate-y-1/2 object-contain drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] ${
+                    compact ? 'h-7 w-7' : 'h-9 w-9'
+                  }`}
+                  style={{ right: `calc(${hud.progress * 100}% - ${compact ? 14 : 18}px)` }}
+                />
+              </div>
+              <p className={`mt-0.5 font-title font-bold text-amber-100 [text-shadow:0_2px_0_#000] ${compact ? 'text-[11px]' : 'text-sm'}`}>
+                Claro de Yggdrasil · Oleada {Math.min(hud.wave, LEVEL_WAVES.length)}/{LEVEL_WAVES.length}
+              </p>
+            </>
+          ) : (
+            <p className={`font-title font-bold text-amber-100 [text-shadow:0_2px_0_#000] ${compact ? 'text-xs' : 'text-base'}`}>
+              Sandbox · Beta
+            </p>
+          )}
+        </div>
       )}
+
+      {/* Pause, options and fullscreen, top right. */}
+      <div
+        className="absolute right-0 top-0 z-10 flex gap-1.5 p-1.5"
+        style={{ paddingRight: 'max(6px, env(safe-area-inset-right))' }}
+      >
+        {fullscreen.supported && (
+          <button
+            type="button"
+            onClick={fullscreen.toggle}
+            className={roundButton}
+            aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+          >
+            {fullscreen.active ? <Minimize size={18} aria-hidden /> : <Maximize size={18} aria-hidden />}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setShowPanel((open) => !open)}
+          className={`${roundButton} ${showPanel ? 'ring-2 ring-amber-200' : ''}`}
+          aria-expanded={showPanel}
+          aria-label={sandbox ? 'Opciones del sandbox' : 'Menú'}
+          title={sandbox ? 'Opciones del sandbox' : 'Menú'}
+        >
+          <SlidersHorizontal size={18} aria-hidden />
+        </button>
+        <button type="button" onClick={togglePause} className={roundButton} aria-label={paused ? 'Reanudar' : 'Pausar'}>
+          {paused ? <Play size={20} aria-hidden /> : <Pause size={20} aria-hidden />}
+        </button>
+      </div>
+
+      {/* Shovel, bottom right. */}
+      <button
+        type="button"
+        onClick={() => setTool(tool === 'shovel' ? null : 'shovel')}
+        title="Pala (Q)"
+        aria-label="Pala"
+        aria-pressed={tool === 'shovel'}
+        className={`absolute bottom-2 z-10 flex items-center justify-center rounded-full border-[3px] bg-gradient-to-b from-[#6a4a25] to-[#2f1d0d] shadow-[0_4px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
+          compact ? 'h-12 w-12' : 'h-16 w-16'
+        } ${tool === 'shovel' ? 'border-amber-200 ring-2 ring-amber-200' : 'border-[#f5d68a]/70'}`}
+        style={{ right: 'max(8px, env(safe-area-inset-right))' }}
+      >
+        <Shovel size={compact ? 22 : 28} className="text-amber-50" aria-hidden />
+      </button>
 
       {showPanel && (
         <aside
-          className={`absolute z-20 w-[min(92vw,300px)] overflow-y-auto rounded-2xl border border-white/15 bg-black/85 p-3 text-sm shadow-2xl backdrop-blur-md ${
-            compact ? 'right-[64px] top-2 max-h-[calc(100%-16px)]' : 'right-2 top-[78px] max-h-[calc(100%-86px)]'
+          className={`absolute right-2 z-20 w-[min(92vw,300px)] overflow-y-auto rounded-2xl border border-white/15 bg-black/85 p-3 text-sm shadow-2xl backdrop-blur-md ${
+            compact ? 'top-[52px] max-h-[calc(100%-60px)]' : 'top-[64px] max-h-[calc(100%-72px)]'
           }`}
         >
           <div className="mb-2 flex items-center justify-between">
@@ -653,100 +719,60 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
         </aside>
       )}
 
-      <div ref={boardRef} className="relative min-h-0 flex-1">
-        <canvas
-          ref={canvasRef}
-          className={`absolute inset-0 touch-none ${tool ? 'cursor-crosshair' : 'cursor-pointer'}`}
-          onPointerDown={onPointerDown}
-          onPointerMove={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-            pointerRef.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-          }}
-          onPointerLeave={() => (pointerRef.current = null)}
-          onContextMenu={(event) => event.preventDefault()}
-          aria-label="Jardín: toca una casilla para plantar o un sol para recogerlo"
-        />
+      {hud.announcement && (
+        <p className="pointer-events-none absolute left-1/2 top-1/3 z-10 -translate-x-1/2 animate-pulse whitespace-nowrap font-title text-3xl font-bold text-red-200 [text-shadow:0_3px_0_#000,0_0_12px_#000] short:text-2xl">
+          {hud.announcement}
+        </p>
+      )}
 
-        {!sandbox && ready && (
-          <div className="pointer-events-none absolute bottom-2 right-3 flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 text-xs">
-            <span className="text-white/75">
-              Oleada {Math.min(hud.wave, LEVEL_WAVES.length)}/{LEVEL_WAVES.length}
-            </span>
-            <span className="relative h-2 w-28 overflow-hidden rounded-full bg-white/15 short:w-20">
-              <span className="absolute inset-y-0 left-0 bg-gradient-to-r from-lime-400 to-red-500" style={{ width: `${hud.progress * 100}%` }} />
-            </span>
-          </div>
-        )}
-
-        {hud.announcement && (
-          <p className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 animate-pulse whitespace-nowrap font-title text-3xl text-red-200 drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)] short:text-2xl">
-            {hud.announcement}
-          </p>
-        )}
-
-        {!ready && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            {failed ? (
-              <p className="text-sm text-red-300">No se pudieron cargar los sprites. Recarga la página.</p>
-            ) : (
-              <>
-                <p className="font-title text-lg text-amber-100">Preparando el jardín…</p>
-                <div className="h-2 w-56 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full bg-amber-300 transition-[width]" style={{ width: `${Math.round(progress * 100)}%` }} />
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {tool && !hud.outcome && (
-          <p className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs text-white/85 short:hidden">
-            {tool === 'shovel' ? 'Toca una planta para quitarla' : `Toca una casilla para plantar ${PLANTS[tool].name}`} · Esc o clic
-            derecho para cancelar
-          </p>
-        )}
-
-        {hud.outcome && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/85 p-6 text-center shadow-2xl short:p-4">
-              <p className={`font-title text-3xl ${hud.outcome === 'victory' ? 'text-amber-200' : 'text-red-300'}`}>
-                {hud.outcome === 'victory' ? '¡Jardín a salvo!' : 'Los zombis entraron'}
-              </p>
-              <p className="mt-2 text-sm text-white/70">
-                {hud.outcome === 'victory'
-                  ? `Resististe las ${LEVEL_WAVES.length} oleadas.`
-                  : `Llegaste a la oleada ${Math.min(hud.wave, LEVEL_WAVES.length)} de ${LEVEL_WAVES.length}.`}
-              </p>
-              <p className="mt-1 text-xs text-white/55">
-                {hud.killed} zombis eliminados · {hud.mowersUsed} podadoras usadas · {Math.floor(hud.seconds / 60)}:
-                {String(hud.seconds % 60).padStart(2, '0')}
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button type="button" onClick={onRestart} className="rounded-full bg-amber-300 py-2 text-sm font-bold text-black">
-                  Jugar otra vez
-                </button>
-                <button type="button" onClick={onExit} className="rounded-full border border-white/25 py-2 text-sm">
-                  Menú
-                </button>
+      {!ready && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-[#0b130d]">
+          {failed ? (
+            <p className="text-sm text-red-300">No se pudieron cargar los sprites. Recarga la página.</p>
+          ) : (
+            <>
+              <p className="font-title text-lg text-amber-100">Preparando el jardín…</p>
+              <div className="h-2 w-56 overflow-hidden rounded-full bg-white/10">
+                <div className="h-full bg-amber-300 transition-[width]" style={{ width: `${Math.round(progress * 100)}%` }} />
               </div>
-              <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-white/40">Beta · sin premios</p>
-            </div>
-          </div>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
 
-      {compact && (
-        <nav
-          className="relative z-10 flex w-[56px] shrink-0 flex-col items-center gap-1.5 border-l border-white/10 bg-black/50 py-1.5"
-          style={{ paddingRight: 'env(safe-area-inset-right)' }}
-          aria-label="Controles"
-        >
-          {shovelButton}
-          <div className="flex-1" />
-          {fullscreenButton}
-          {pauseButton}
-          {menuButton}
-        </nav>
+      {tool && !hud.outcome && (
+        <p className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs text-white/85 short:hidden">
+          {tool === 'shovel' ? 'Toca una planta para quitarla' : `Toca una casilla para plantar ${PLANTS[tool].name}`} · Esc o clic derecho
+          para cancelar
+        </p>
+      )}
+
+      {hud.outcome && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/85 p-6 text-center shadow-2xl short:p-4">
+            <p className={`font-title text-3xl ${hud.outcome === 'victory' ? 'text-amber-200' : 'text-red-300'}`}>
+              {hud.outcome === 'victory' ? '¡Jardín a salvo!' : 'Los zombis entraron'}
+            </p>
+            <p className="mt-2 text-sm text-white/70">
+              {hud.outcome === 'victory'
+                ? `Resististe las ${LEVEL_WAVES.length} oleadas.`
+                : `Llegaste a la oleada ${Math.min(hud.wave, LEVEL_WAVES.length)} de ${LEVEL_WAVES.length}.`}
+            </p>
+            <p className="mt-1 text-xs text-white/55">
+              {hud.killed} zombis eliminados · {hud.mowersUsed} podadoras usadas · {Math.floor(hud.seconds / 60)}:
+              {String(hud.seconds % 60).padStart(2, '0')}
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" onClick={onRestart} className="rounded-full bg-amber-300 py-2 text-sm font-bold text-black">
+                Jugar otra vez
+              </button>
+              <button type="button" onClick={onExit} className="rounded-full border border-white/25 py-2 text-sm">
+                Menú
+              </button>
+            </div>
+            <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-white/40">Beta · sin premios</p>
+          </div>
+        </div>
       )}
 
       {portrait && !playPortrait && (

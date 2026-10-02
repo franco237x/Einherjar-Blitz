@@ -45,11 +45,11 @@ describe('planting', () => {
       { type: 'place', kind: 'cortezon', row: -1, col: 0 },
       { type: 'place', kind: 'cortezon', row: 1.5, col: 0 },
       { type: 'place', kind: 'granadin', row: 0, col: 0 },
-      { type: 'place', kind: 'granadin', row: 1, col: 0 },
     ]);
-    // Only the first Granadín fits the starting 150 sun.
-    expect(game.plants).toHaveLength(1);
-    expect(game.sun).toBe(0);
+    // Granadín costs more than the starting sun.
+    expect(PLANTS.granadin.cost).toBeGreaterThan(BALANCE.startingSun);
+    expect(game.plants).toHaveLength(0);
+    expect(game.sun).toBe(BALANCE.startingSun);
   });
 
   it('sandbox options skip cost and cooldown', () => {
