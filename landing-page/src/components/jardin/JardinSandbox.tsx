@@ -487,24 +487,32 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
                 title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
                 aria-label={`${def.name}, ${def.cost} de sol`}
                 aria-pressed={selected}
-                className={`relative flex min-h-0 flex-1 items-center overflow-hidden rounded-lg border-2 bg-gradient-to-b from-[#9fd46a] to-[#4f8a2c] shadow-[0_3px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
+                className={`relative min-h-0 flex-1 overflow-hidden rounded-[6px] border-2 border-[#2a1c0c] bg-gradient-to-b from-[#fbf3d6] to-[#dccb94] shadow-[0_3px_0_rgba(0,0,0,0.5)] transition active:translate-y-0.5 ${
                   compact ? 'max-h-[52px]' : 'max-h-[66px]'
-                } ${selected ? 'translate-x-2 border-amber-200 ring-2 ring-amber-200' : 'border-[#2b4a17]'} ${ready ? '' : 'saturate-50'}`}
+                } ${selected ? 'translate-x-2 ring-2 ring-amber-300 shadow-[0_0_12px_rgba(255,214,90,0.8)]' : ''} ${
+                  ready ? '' : '[filter:grayscale(0.55)_brightness(0.85)]'
+                }`}
               >
+                {/* Seed packet: perforated paper flap and a green window. */}
+                <span className="pointer-events-none absolute inset-x-[5px] top-[3px] border-t-2 border-dashed border-[#a2824a]/70" />
+                <span className="pointer-events-none absolute inset-x-[4px] bottom-[4px] top-[8px] rounded-[3px] border border-[#4f7a2e]/70 bg-[radial-gradient(circle_at_32%_38%,#effcdc_0%,#b5df8a_50%,#6fa84b_100%)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)]" />
                 <img
                   src={spriteUrl(kind, 'portrait')}
                   alt=""
-                  className="h-full max-h-full min-h-0 w-auto shrink-0 object-contain drop-shadow-[0_2px_1px_rgba(0,0,0,0.5)]"
+                  className="pointer-events-none absolute -bottom-[10%] left-0 h-[128%] w-auto object-contain drop-shadow-[0_2px_1px_rgba(0,0,0,0.55)]"
                 />
                 <span
-                  className={`ml-auto pr-1.5 font-black tabular-nums [text-shadow:0_2px_0_#000,0_0_3px_#000] ${compact ? 'text-sm' : 'text-lg'} ${
-                    affordable ? 'text-white' : 'text-red-400'
-                  }`}
+                  className={`absolute bottom-[3px] right-[3px] rounded-[3px] border border-[#2a1c0c] bg-[#fbf6e1] px-1 font-black leading-[1.15] tabular-nums shadow-[0_1px_0_rgba(0,0,0,0.4)] ${
+                    compact ? 'text-[11px]' : 'text-sm'
+                  } ${affordable ? 'text-[#2a1c0c]' : 'text-red-600'}`}
                 >
                   {options.infiniteSun ? '—' : def.cost}
                 </span>
                 {hud.cooldowns[kind] > 0 && (
-                  <span className="pointer-events-none absolute inset-x-0 top-0 bg-black/55" style={{ height: `${hud.cooldowns[kind] * 100}%` }} />
+                  <span
+                    className="pointer-events-none absolute inset-x-0 top-0 bg-[#1b130a]/60"
+                    style={{ height: `${hud.cooldowns[kind] * 100}%` }}
+                  />
                 )}
               </button>
             );
