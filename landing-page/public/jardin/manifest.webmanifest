@@ -1,0 +1,12 @@
+{
+  "name": "Jardín de Yggdrasil · Beta",
+  "short_name": "Jardín",
+  "description": "Defiende el jardín de los zombis con las plantas vivas de Einherjar Blitz.",
+  "start_url": "/evento/jardin",
+  "scope": "/evento/jardin",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b130d",
+  "theme_color": "#0b130d",
+  "icons": [{ "src": "/jardin/solmiel/portrait.webp", "sizes": "256x256", "type": "image/webp" }]
+}
