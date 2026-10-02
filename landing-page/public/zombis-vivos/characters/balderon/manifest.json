@@ -1,0 +1,297 @@
+{
+  "id": "balderon",
+  "name": "Balderón",
+  "role": "Zombi con balde",
+  "color": "#738ea0",
+  "description": "Ancho, pesado y sin ninguna prisa. Su balde abollado aguanta más golpes antes de desprenderse.",
+  "motion": "Pisadas pesadas, torso con inercia y brazos bajos. El balde cae con un giro corto y un golpe seco.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "health": 100,
+  "armor": 240,
+  "gaitTempo": 0.82,
+  "stride": 13,
+  "biteTime": 0.52,
+  "biteDamage": 10,
+  "layout": {
+    "hips": [
+      174,
+      221
+    ],
+    "head": [
+      150,
+      166
+    ],
+    "headSize": [
+      96,
+      89
+    ],
+    "torsoSize": [
+      108,
+      83
+    ],
+    "shoulders": [
+      [
+        166,
+        168
+      ],
+      [
+        196,
+        166
+      ]
+    ],
+    "arms": [
+      30,
+      34
+    ],
+    "legs": [
+      36,
+      40
+    ],
+    "hipOffsets": [
+      12,
+      -12
+    ],
+    "legWidth": 45,
+    "shoeWidth": 55,
+    "gear": [
+      152,
+      112,
+      100,
+      65
+    ]
+  },
+  "moveSpeed": 14.805555555555555,
+  "portrait": "characters/balderon/portrait.png",
+  "rig": "characters/balderon/rig.json",
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/balderon/sprites/idle.png",
+      "data": "characters/balderon/sprites/idle.json",
+      "webp": "characters/balderon/animated/idle.webp",
+      "gif": "characters/balderon/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "walk": {
+      "label": "Caminar",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/balderon/sprites/walk.png",
+      "data": "characters/balderon/sprites/walk.json",
+      "webp": "characters/balderon/animated/walk.webp",
+      "gif": "characters/balderon/animated/walk.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "bite": {
+      "label": "Morder",
+      "duration": 1.2,
+      "frames": 36,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/balderon/sprites/bite.png",
+      "data": "characters/balderon/sprites/bite.json",
+      "webp": "characters/balderon/animated/bite.webp",
+      "gif": "characters/balderon/animated/bite.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/balderon/sprites/hit.png",
+      "data": "characters/balderon/sprites/hit.json",
+      "webp": "characters/balderon/animated/hit.webp",
+      "gif": "characters/balderon/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 1,
+      "frames": 30,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/balderon/sprites/spawn.png",
+      "data": "characters/balderon/sprites/spawn.json",
+      "webp": "characters/balderon/animated/spawn.webp",
+      "gif": "characters/balderon/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 1.4,
+      "frames": 42,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/balderon/sprites/fall.png",
+      "data": "characters/balderon/sprites/fall.json",
+      "webp": "characters/balderon/animated/fall.webp",
+      "gif": "characters/balderon/animated/fall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "armor-break": {
+      "label": "Perder protección",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/balderon/sprites/armor-break.png",
+      "data": "characters/balderon/sprites/armor-break.json",
+      "webp": "characters/balderon/animated/armor-break.webp",
+      "gif": "characters/balderon/animated/armor-break.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  },
+  "variants": {
+    "unarmored": {
+      "armorVisible": false,
+      "animations": {
+        "idle": {
+          "label": "Reposo",
+          "duration": 2.4,
+          "frames": 72,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/balderon/unarmored/sprites/idle.png",
+          "data": "characters/balderon/unarmored/sprites/idle.json",
+          "webp": "characters/balderon/unarmored/animated/idle.webp",
+          "gif": "characters/balderon/unarmored/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "walk": {
+          "label": "Caminar",
+          "duration": 2.4,
+          "frames": 72,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/balderon/unarmored/sprites/walk.png",
+          "data": "characters/balderon/unarmored/sprites/walk.json",
+          "webp": "characters/balderon/unarmored/animated/walk.webp",
+          "gif": "characters/balderon/unarmored/animated/walk.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "bite": {
+          "label": "Morder",
+          "duration": 1.2,
+          "frames": 36,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/balderon/unarmored/sprites/bite.png",
+          "data": "characters/balderon/unarmored/sprites/bite.json",
+          "webp": "characters/balderon/unarmored/animated/bite.webp",
+          "gif": "characters/balderon/unarmored/animated/bite.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "label": "Recibir golpe",
+          "duration": 0.6,
+          "frames": 18,
+          "fps": 30,
+          "loop": false,
+          "atlas": "characters/balderon/unarmored/sprites/hit.png",
+          "data": "characters/balderon/unarmored/sprites/hit.json",
+          "webp": "characters/balderon/unarmored/animated/hit.webp",
+          "gif": "characters/balderon/unarmored/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "fall": {
+          "label": "Caer",
+          "duration": 1.4,
+          "frames": 42,
+          "fps": 30,
+          "loop": false,
+          "atlas": "characters/balderon/unarmored/sprites/fall.png",
+          "data": "characters/balderon/unarmored/sprites/fall.json",
+          "webp": "characters/balderon/unarmored/animated/fall.webp",
+          "gif": "characters/balderon/unarmored/animated/fall.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "id": "mordiseta",
+  "name": "Mordiseta",
+  "anatomy": "mushroom",
+  "role": "Hongo de esporas",
+  "color": "#c86440",
+  "description": "Tiene sueño hasta que toca defender el jardín. Infla el sombrero y libera esporas.",
+  "attackStyle": "spore",
+  "tempo": 0.8,
+  "projectileEvent": 0.6,
+  "muzzle": [
+    220,
+    207
+  ],
+  "projectileSpeed": 180,
+  "partNames": [
+    "reference",
+    "cap",
+    "stalk",
+    "stalk-blink",
+    "stalk-action",
+    "base",
+    "projectile",
+    "effect",
+    "cap-action"
+  ],
+  "expressions": [
+    "stalk",
+    "stalk-blink",
+    "stalk-action"
+  ],
+  "extraExpressions": [
+    [
+      "cap",
+      "cap-action"
+    ]
+  ],
+  "motion": "El sombrero pesa y se hunde; el tallo cabecea con los ojos medio cerrados.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/mordiseta-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 9,
+      "top": 170,
+      "width": 470,
+      "height": 311
+    },
+    "cap": {
+      "left": 449,
+      "top": 191,
+      "width": 513,
+      "height": 246
+    },
+    "stalk": {
+      "left": 968,
+      "top": 201,
+      "width": 240,
+      "height": 273
+    },
+    "stalk-blink": {
+      "left": 88,
+      "top": 555,
+      "width": 253,
+      "height": 283
+    },
+    "stalk-action": {
+      "left": 509,
+      "top": 555,
+      "width": 256,
+      "height": 283
+    },
+    "base": {
+      "left": 901,
+      "top": 719,
+      "width": 291,
+      "height": 113
+    },
+    "projectile": {
+      "left": 37,
+      "top": 1012,
+      "width": 344,
+      "height": 123
+    },
+    "effect": {
+      "left": 472,
+      "top": 942,
+      "width": 253,
+      "height": 236
+    },
+    "cap-action": {
+      "left": 757,
+      "top": 938,
+      "width": 479,
+      "height": 213
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 476,
+      "height": 316
+    },
+    "cap": {
+      "file": "parts/cap.png",
+      "width": 519,
+      "height": 252
+    },
+    "stalk": {
+      "file": "parts/stalk.png",
+      "width": 245,
+      "height": 279
+    },
+    "stalk-blink": {
+      "file": "parts/stalk-blink.png",
+      "width": 245,
+      "height": 279
+    },
+    "stalk-action": {
+      "file": "parts/stalk-action.png",
+      "width": 245,
+      "height": 279
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 297,
+      "height": 119
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 349,
+      "height": 129
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 259,
+      "height": 242
+    },
+    "cap-action": {
+      "file": "parts/cap-action.png",
+      "width": 519,
+      "height": 252
+    }
+  }
+}

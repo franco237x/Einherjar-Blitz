@@ -1,0 +1,15 @@
+Use case: stylized-concept.
+Asset type: 2D carnivorous plant game sprite cutout rig kit, articulated jaw.
+Input image: IDENTITY REFERENCE. Develop ONLY ZARZINA, fourth creature from reference: asymmetrical huge violet-coral upper jaw with tiny mischievous amber side-eyes, green lower jaw, goofy rounded plant teeth, long thin curling green vine neck with tiny rooted rosette. Keep original grin and angular caricature, no round face mask.
+CRITICAL: square actual transparent canvas, EXACT 3x3 equal-cell grid, ONE isolated asset per cell, 16 percent empty padding on EVERY side. Keep complete mouth INSIDE its cell, no clipping! No text, grid, labels, backdrop, pots, ground or shadows.
+Cells reading order:
+1. COMPLETE assembled ZARZINA, full original purple-green toothy flower mouth and long thin vine neck/root rosette/small hooked leaf. She is a goofy mischievous cute carnivorous plant, NOT a dinosaur. Faces RIGHT.
+2. ONLY UPPER JAW, purple outer blossom, coral inner mouth, TWO large rounded cream teeth pointing down, tiny amber narrowed side-eyes and purple eyebrow on upper jaw. JAW HINGE at the LEFT end, mouth front at the RIGHT end. Upper lip is fairly horizontal with angular front point. No lower jaw, neck, body or root.
+3. EXACT SAME UPPER JAW as cell 2, same lip outline angle size teeth positions, but eyes CLOSED in a playful blink.
+4. EXACT SAME UPPER JAW as cell 2, same silhouette and teeth, mischievous eyes widened with focused eyebrows for a bite; no neck/lower jaw.
+5. ONLY LOWER JAW, long broad GREEN leaf-shaped mandible with coral inside and TWO rounded cream teeth pointing UP. LEFT end is hinge attachment, RIGHT end is front of mouth. No upper jaw, eyes, neck or roots.
+6. ONLY LONG THIN CURVING GREEN VINE NECK joined to a small rooted leaf ROSETTE at the bottom. Neck curves to the RIGHT at top where mouth hinge attaches. NO jaw, head, eyes or side leaf.
+7. ONLY one small HOOKED GREEN SIDE LEAF with short vine connection at its lower LEFT end.
+8. ONLY one small lime-green acid seed droplet projectile pointing RIGHT with tiny short violet trail, no body.
+9. ONLY one compact pink-violet comic bite-impact burst of three angular spark shapes, transparent between them.
+Heads 2,3,4 MUST be identical geometry except eyes/expression; four total teeth are shared across detached jaws: TWO upper teeth and TWO lower teeth. Independent upper/lower jaw cutouts ready to pivot. Restrained simple 2D shading, strong colored cartoon lines matching reference, tiny amber side eyes with narrow pupils, no cute anime face or universal leaf arms. Original plant character, transparent alpha, no text or watermark.

@@ -1,0 +1,118 @@
+{
+  "id": "solmiel",
+  "name": "Solmiel",
+  "anatomy": "lantern",
+  "role": "Productora de soles",
+  "color": "#d8a13e",
+  "description": "Un farol de miel, cálido y soñoliento. Aprieta su fruto y deja escapar un sol dorado.",
+  "attackStyle": "sun",
+  "actionLabel": "Producir sol",
+  "tempo": 0.72,
+  "projectileEvent": 0.58,
+  "muzzle": [
+    132,
+    187
+  ],
+  "projectileSpeed": 16,
+  "sunValue": 25,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "calyx",
+    "stalk",
+    "leaf",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "El farol cuelga y se balancea; se comprime, brilla y suelta un sol que flota hacia arriba.",
+  "portrait": "characters/solmiel/portrait.png",
+  "rig": "characters/solmiel/rig.json",
+  "effects": {
+    "projectile": "characters/solmiel/parts/projectile.png",
+    "burst": "characters/solmiel/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/solmiel/sprites/idle.png",
+      "data": "characters/solmiel/sprites/idle.json",
+      "webp": "characters/solmiel/animated/idle.webp",
+      "gif": "characters/solmiel/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/solmiel/sprites/attack.png",
+      "data": "characters/solmiel/sprites/attack.json",
+      "webp": "characters/solmiel/animated/attack.webp",
+      "gif": "characters/solmiel/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/solmiel/sprites/hit.png",
+      "data": "characters/solmiel/sprites/hit.json",
+      "webp": "characters/solmiel/animated/hit.webp",
+      "gif": "characters/solmiel/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/solmiel/sprites/spawn.png",
+      "data": "characters/solmiel/sprites/spawn.json",
+      "webp": "characters/solmiel/animated/spawn.webp",
+      "gif": "characters/solmiel/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/solmiel/sprites/celebrate.png",
+      "data": "characters/solmiel/sprites/celebrate.json",
+      "webp": "characters/solmiel/animated/celebrate.webp",
+      "gif": "characters/solmiel/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

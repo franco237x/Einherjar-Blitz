@@ -1,0 +1,169 @@
+{
+  "id": "velaria",
+  "name": "Velaria",
+  "anatomy": "nocturne",
+  "role": "Cala del eco umbrío",
+  "color": "#6e5b94",
+  "description": "Serena y solemne. Ancla la sombra de un enemigo y, dos segundos después, lo devuelve a esa posición.",
+  "attackStyle": "shadow-mark",
+  "actionLabel": "Eco umbrío",
+  "primaryClip": "seal",
+  "clips": [
+    "idle",
+    "seal",
+    "channel",
+    "recall",
+    "recover",
+    "hit",
+    "spawn",
+    "celebrate"
+  ],
+  "shadow": {
+    "delaySeconds": 2,
+    "recallLeadSeconds": 0.36,
+    "cooldownSeconds": 7,
+    "maxRange": 260,
+    "damage": 0,
+    "targets": 1
+  },
+  "tempo": 0.64,
+  "projectileEvent": 0.72,
+  "muzzle": [
+    207,
+    184
+  ],
+  "projectileSpeed": 0,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "mantle-left",
+    "mantle-right",
+    "base",
+    "sigil",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "Abre los pétalos para sellar; sostiene un pulso contenido, cierra el vínculo con un tirón y recupera el aliento.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/velaria-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 65,
+      "top": 24,
+      "width": 320,
+      "height": 427
+    },
+    "body": {
+      "left": 512,
+      "top": 62,
+      "width": 295,
+      "height": 360
+    },
+    "body-blink": {
+      "left": 906,
+      "top": 61,
+      "width": 296,
+      "height": 361
+    },
+    "body-action": {
+      "left": 92,
+      "top": 488,
+      "width": 296,
+      "height": 362
+    },
+    "mantle-left": {
+      "left": 517,
+      "top": 508,
+      "width": 235,
+      "height": 328
+    },
+    "mantle-right": {
+      "left": 968,
+      "top": 547,
+      "width": 215,
+      "height": 209
+    },
+    "base": {
+      "left": 56,
+      "top": 904,
+      "width": 339,
+      "height": 301
+    },
+    "sigil": {
+      "left": 490,
+      "top": 890,
+      "width": 295,
+      "height": 345
+    },
+    "effect": {
+      "left": 863,
+      "top": 883,
+      "width": 375,
+      "height": 318
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 326,
+      "height": 433
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 301,
+      "height": 366
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 301,
+      "height": 366
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 301,
+      "height": 366
+    },
+    "mantle-left": {
+      "file": "parts/mantle-left.png",
+      "width": 241,
+      "height": 334
+    },
+    "mantle-right": {
+      "file": "parts/mantle-right.png",
+      "width": 221,
+      "height": 215
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 345,
+      "height": 307
+    },
+    "sigil": {
+      "file": "parts/sigil.png",
+      "width": 292,
+      "height": 342
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 374,
+      "height": 315
+    }
+  }
+}

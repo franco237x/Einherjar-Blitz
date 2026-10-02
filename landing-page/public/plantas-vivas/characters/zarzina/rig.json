@@ -1,0 +1,149 @@
+{
+  "id": "zarzina",
+  "name": "Zarzina",
+  "anatomy": "maw",
+  "role": "Flor mordedora",
+  "color": "#a75aba",
+  "source": "../../source/zarzina-parts-v2.png",
+  "description": "Traviesa y hambrienta. Se echa hacia atrás y cierra sus enormes mandíbulas.",
+  "attackStyle": "bite",
+  "tempo": 1,
+  "projectileEvent": 0.46,
+  "muzzle": [
+    271,
+    147
+  ],
+  "projectileSpeed": 0,
+  "partNames": [
+    "reference",
+    "upper-jaw",
+    "upper-jaw-blink",
+    "upper-jaw-action",
+    "lower-jaw",
+    "neck",
+    "leaf",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "upper-jaw",
+    "upper-jaw-blink",
+    "upper-jaw-action"
+  ],
+  "motion": "El cuello serpentea y las dos mandíbulas se abren y cierran de forma independiente.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 83,
+      "top": 24,
+      "width": 304,
+      "height": 448
+    },
+    "upper-jaw": {
+      "left": 439,
+      "top": 125,
+      "width": 384,
+      "height": 231
+    },
+    "upper-jaw-blink": {
+      "left": 850,
+      "top": 127,
+      "width": 377,
+      "height": 226
+    },
+    "upper-jaw-action": {
+      "left": 27,
+      "top": 561,
+      "width": 376,
+      "height": 227
+    },
+    "lower-jaw": {
+      "left": 470,
+      "top": 606,
+      "width": 364,
+      "height": 225
+    },
+    "neck": {
+      "left": 939,
+      "top": 497,
+      "width": 269,
+      "height": 386
+    },
+    "leaf": {
+      "left": 84,
+      "top": 961,
+      "width": 287,
+      "height": 180
+    },
+    "projectile": {
+      "left": 447,
+      "top": 1012,
+      "width": 353,
+      "height": 124
+    },
+    "effect": {
+      "left": 942,
+      "top": 926,
+      "width": 231,
+      "height": 276
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 310,
+      "height": 454
+    },
+    "upper-jaw": {
+      "file": "parts/upper-jaw.png",
+      "width": 389,
+      "height": 237
+    },
+    "upper-jaw-blink": {
+      "file": "parts/upper-jaw-blink.png",
+      "width": 389,
+      "height": 237
+    },
+    "upper-jaw-action": {
+      "file": "parts/upper-jaw-action.png",
+      "width": 389,
+      "height": 237
+    },
+    "lower-jaw": {
+      "file": "parts/lower-jaw.png",
+      "width": 370,
+      "height": 230
+    },
+    "neck": {
+      "file": "parts/neck.png",
+      "width": 275,
+      "height": 392
+    },
+    "leaf": {
+      "file": "parts/leaf.png",
+      "width": 293,
+      "height": 186
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 359,
+      "height": 130
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 237,
+      "height": 282
+    }
+  }
+}

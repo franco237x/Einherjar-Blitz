@@ -44,3 +44,23 @@ next-env.d.ts
 *.apk
 /.agro-data/
 /tmp/
+
+# Local asset experiments and reproducible download archives
+/asset-drafts/
+/public/plantas-vivas/*.zip
+/public/zombis-vivos/*.zip
+
+# Superseded plant previews retained locally
+/public/plantas-vivas/preview/*-v3.*
+/public/plantas-vivas/preview/*-v4.*
+/public/plantas-vivas/preview/lineup.png
+/public/plantas-vivas/preview/movimientos.gif
+/public/plantas-vivas/preview/movimientos.webp
+/public/plantas-vivas/preview/action-poses.png
+/public/plantas-vivas/preview/visor-desktop.png
+/public/plantas-vivas/preview/visor-mobile.png
+
+# Art references and the replaced Zarzina source
+/public/plantas-vivas/source/art-direction-reference.webp
+/public/plantas-vivas/source/lineup-reference.png
+/public/plantas-vivas/source/zarzina-parts.png

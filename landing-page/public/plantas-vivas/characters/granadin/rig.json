@@ -1,0 +1,151 @@
+{
+  "id": "granadin",
+  "name": "Granadín",
+  "anatomy": "bomb",
+  "role": "Granada explosiva",
+  "color": "#d9515b",
+  "description": "Rechoncho y nervioso. Infla la panza, enciende su tallito y estalla en una lluvia de semillas.",
+  "attackStyle": "explosion",
+  "actionLabel": "Explotar",
+  "tempo": 1.22,
+  "projectileEvent": 0.7,
+  "muzzle": [
+    153,
+    177
+  ],
+  "projectileSpeed": 0,
+  "consumedOnAction": true,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "fuse",
+    "base",
+    "remnant",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "Se agacha, tiembla e infla el fruto. La explosión deja una pequeña cáscara: hay que replantarlo.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/granadin-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 34,
+      "top": 46,
+      "width": 358,
+      "height": 432
+    },
+    "body": {
+      "left": 466,
+      "top": 137,
+      "width": 354,
+      "height": 309
+    },
+    "body-blink": {
+      "left": 879,
+      "top": 137,
+      "width": 354,
+      "height": 306
+    },
+    "body-action": {
+      "left": 32,
+      "top": 529,
+      "width": 361,
+      "height": 311
+    },
+    "fuse": {
+      "left": 531,
+      "top": 590,
+      "width": 176,
+      "height": 227
+    },
+    "base": {
+      "left": 874,
+      "top": 672,
+      "width": 347,
+      "height": 144
+    },
+    "remnant": {
+      "left": 51,
+      "top": 926,
+      "width": 346,
+      "height": 281
+    },
+    "projectile": {
+      "left": 557,
+      "top": 977,
+      "width": 163,
+      "height": 158
+    },
+    "effect": {
+      "left": 836,
+      "top": 852,
+      "width": 406,
+      "height": 377
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 364,
+      "height": 438
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 360,
+      "height": 315
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 360,
+      "height": 315
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 360,
+      "height": 315
+    },
+    "fuse": {
+      "file": "parts/fuse.png",
+      "width": 182,
+      "height": 233
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 353,
+      "height": 150
+    },
+    "remnant": {
+      "file": "parts/remnant.png",
+      "width": 352,
+      "height": 287
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 168,
+      "height": 164
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 412,
+      "height": 383
+    }
+  }
+}

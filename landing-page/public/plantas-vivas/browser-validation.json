@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-01",
+  "story": "Select plant → load transparent pieces → play distinct rig actions → download asset",
+  "checked": {
+    "characters": 10,
+    "clips": 55,
+    "atlasBounds": "valid",
+    "clipDurations": "exact",
+    "idleLoop": "seamless",
+    "browserActions": 55,
+    "sunEvent": "25 energy once",
+    "explosion": "consumed and replantable",
+    "pureDefense": "no attack, no projectiles, zero offensive damage",
+    "barkIntegrity": "healthy, damaged, critical",
+    "frost": "50% speed; 3 impacts freeze for 1.2 s; thaw, expire and reset verified",
+    "shadowRecall": "Timed mark, independent anchor, single rewind, unchanged health/speed, cooldown, interruption, lost target, range, lane, coarse deltas, animation cues and transitions verified",
+    "shadowBrowser": "Moving target, fixed anchor, rewind, recovery, cooldown, duplicate rejection, pause, hit interruption, lost target, reset and repeated casts verified",
+    "pause": "verified",
+    "flip": "verified",
+    "backgrounds": "verified",
+    "reducedMotion": "verified",
+    "responsiveWidths": [
+      1280,
+      390,
+      320
+    ],
+    "downloads": "HTTP 200",
+    "javascriptErrors": [],
+    "assetFailures": [],
+    "shadowClock": "Simulated 120 ms frame gaps at 1.5× playback: world rewind and animated pull align at 0.36 s"
+  }
+}

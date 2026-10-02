@@ -1,0 +1,274 @@
+{
+  "id": "conero",
+  "name": "Conero",
+  "role": "Zombi con cono",
+  "color": "#c88943",
+  "description": "Bajo, testarudo y confundido. Su cono torcido absorbe los primeros golpes.",
+  "motion": "Pasos cortos y codos inquietos. El cono se bambolea y sale despedido cuando pierde su protección.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "health": 100,
+  "armor": 100,
+  "gaitTempo": 1.08,
+  "stride": 14,
+  "biteTime": 0.52,
+  "biteDamage": 10,
+  "layout": {
+    "hips": [
+      171,
+      218
+    ],
+    "head": [
+      146,
+      168
+    ],
+    "headSize": [
+      94,
+      83
+    ],
+    "torsoSize": [
+      91,
+      81
+    ],
+    "torsoOffset": 11,
+    "shoulders": [
+      [
+        153,
+        165
+      ],
+      [
+        184,
+        167
+      ]
+    ],
+    "arms": [
+      27,
+      31
+    ],
+    "legs": [
+      37,
+      40
+    ],
+    "hipOffsets": [
+      10,
+      -10
+    ],
+    "legWidth": 40,
+    "shoeWidth": 52,
+    "gear": [
+      147,
+      107,
+      81,
+      75
+    ]
+  },
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    160,
+    288
+  ],
+  "source": "../../source/conero-parts.png",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 292,
+      "height": 468,
+      "sourceRegion": {
+        "left": 67,
+        "top": 6,
+        "right": 353,
+        "bottom": 467
+      }
+    },
+    "head": {
+      "file": "parts/head.png",
+      "width": 244,
+      "height": 242,
+      "sourceRegion": {
+        "left": 384,
+        "top": 170,
+        "right": 622,
+        "bottom": 406
+      }
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 244,
+      "height": 242,
+      "sourceRegion": {
+        "left": 670,
+        "top": 168,
+        "right": 909,
+        "bottom": 406
+      }
+    },
+    "head-bite": {
+      "file": "parts/head-bite.png",
+      "width": 244,
+      "height": 242,
+      "sourceRegion": {
+        "left": 966,
+        "top": 167,
+        "right": 1202,
+        "bottom": 405
+      }
+    },
+    "gear": {
+      "file": "parts/gear.png",
+      "width": 279,
+      "height": 282,
+      "sourceRegion": {
+        "left": 1232,
+        "top": 130,
+        "right": 1504,
+        "bottom": 405
+      }
+    },
+    "torso": {
+      "file": "parts/torso.png",
+      "width": 252,
+      "height": 235,
+      "sourceRegion": {
+        "left": 70,
+        "top": 493,
+        "right": 315,
+        "bottom": 721
+      }
+    },
+    "upper-back": {
+      "file": "parts/upper-back.png",
+      "width": 124,
+      "height": 207,
+      "sourceRegion": {
+        "left": 466,
+        "top": 497,
+        "right": 583,
+        "bottom": 697
+      }
+    },
+    "lower-back": {
+      "file": "parts/lower-back.png",
+      "width": 143,
+      "height": 225,
+      "sourceRegion": {
+        "left": 719,
+        "top": 496,
+        "right": 855,
+        "bottom": 715
+      }
+    },
+    "upper-front": {
+      "file": "parts/upper-front.png",
+      "width": 133,
+      "height": 195,
+      "sourceRegion": {
+        "left": 993,
+        "top": 501,
+        "right": 1119,
+        "bottom": 689
+      }
+    },
+    "lower-front": {
+      "file": "parts/lower-front.png",
+      "width": 141,
+      "height": 230,
+      "sourceRegion": {
+        "left": 1294,
+        "top": 502,
+        "right": 1428,
+        "bottom": 725
+      }
+    },
+    "thigh-back": {
+      "file": "parts/thigh-back.png",
+      "width": 149,
+      "height": 234,
+      "sourceRegion": {
+        "left": 108,
+        "top": 750,
+        "right": 250,
+        "bottom": 977
+      }
+    },
+    "shin-back": {
+      "file": "parts/shin-back.png",
+      "width": 231,
+      "height": 243,
+      "sourceRegion": {
+        "left": 360,
+        "top": 752,
+        "right": 584,
+        "bottom": 988
+      }
+    },
+    "thigh-front": {
+      "file": "parts/thigh-front.png",
+      "width": 154,
+      "height": 237,
+      "sourceRegion": {
+        "left": 714,
+        "top": 746,
+        "right": 861,
+        "bottom": 976
+      }
+    },
+    "shin-front": {
+      "file": "parts/shin-front.png",
+      "width": 235,
+      "height": 248,
+      "sourceRegion": {
+        "left": 938,
+        "top": 752,
+        "right": 1166,
+        "bottom": 993
+      }
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 213,
+      "height": 203,
+      "sourceRegion": {
+        "left": 1292,
+        "top": 781,
+        "right": 1498,
+        "bottom": 979
+      }
+    }
+  }
+}

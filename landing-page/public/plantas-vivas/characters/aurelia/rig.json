@@ -1,0 +1,151 @@
+{
+  "id": "aurelia",
+  "name": "Aurélia",
+  "anatomy": "orchid",
+  "role": "Orquídea aurora · Rara",
+  "color": "#b995d8",
+  "description": "Una flor difícil de encontrar. Sus pétalos de nácar se abren como cintas y liberan rocío luminoso.",
+  "attackStyle": "bloom",
+  "actionLabel": "Floración",
+  "tempo": 0.59,
+  "projectileEvent": 0.56,
+  "muzzle": [
+    169,
+    143
+  ],
+  "projectileSpeed": 0,
+  "rarity": "rare",
+  "partNames": [
+    "reference",
+    "heart",
+    "heart-blink",
+    "heart-action",
+    "fan-left",
+    "fan-right",
+    "stalk",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "heart",
+    "heart-blink",
+    "heart-action"
+  ],
+  "motion": "Los dos abanicos de pétalos flotan a destiempo; se pliegan y despliegan una floración con destellos.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/aurelia-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 45,
+      "top": 36,
+      "width": 422,
+      "height": 424
+    },
+    "heart": {
+      "left": 618,
+      "top": 146,
+      "width": 135,
+      "height": 249
+    },
+    "heart-blink": {
+      "left": 1004,
+      "top": 145,
+      "width": 137,
+      "height": 250
+    },
+    "heart-action": {
+      "left": 145,
+      "top": 569,
+      "width": 138,
+      "height": 244
+    },
+    "fan-left": {
+      "left": 455,
+      "top": 456,
+      "width": 340,
+      "height": 420
+    },
+    "fan-right": {
+      "left": 900,
+      "top": 478,
+      "width": 302,
+      "height": 388
+    },
+    "stalk": {
+      "left": 104,
+      "top": 896,
+      "width": 238,
+      "height": 312
+    },
+    "projectile": {
+      "left": 593,
+      "top": 990,
+      "width": 90,
+      "height": 167
+    },
+    "effect": {
+      "left": 961,
+      "top": 960,
+      "width": 186,
+      "height": 208
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 428,
+      "height": 430
+    },
+    "heart": {
+      "file": "parts/heart.png",
+      "width": 141,
+      "height": 255
+    },
+    "heart-blink": {
+      "file": "parts/heart-blink.png",
+      "width": 141,
+      "height": 255
+    },
+    "heart-action": {
+      "file": "parts/heart-action.png",
+      "width": 141,
+      "height": 255
+    },
+    "fan-left": {
+      "file": "parts/fan-left.png",
+      "width": 346,
+      "height": 426
+    },
+    "fan-right": {
+      "file": "parts/fan-right.png",
+      "width": 308,
+      "height": 394
+    },
+    "stalk": {
+      "file": "parts/stalk.png",
+      "width": 244,
+      "height": 318
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 96,
+      "height": 173
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 192,
+      "height": 214
+    }
+  }
+}

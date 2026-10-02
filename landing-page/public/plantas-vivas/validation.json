@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-01",
+  "characters": [
+    {
+      "id": "cardon",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "mordiseta",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "zarzina",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "nabu",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "solmiel",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "aurelia",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "granadin",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per attack"
+    },
+    {
+      "id": "frigora",
+      "clips": 5,
+      "frames": 216,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per primary action"
+    },
+    {
+      "id": "cortezon",
+      "clips": 7,
+      "frames": 360,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per primary action",
+      "offensiveAttack": "absent",
+      "attackDamage": 0,
+      "healthTiers": [
+        "healthy",
+        "damaged",
+        "critical"
+      ]
+    },
+    {
+      "id": "velaria",
+      "clips": 8,
+      "frames": 372,
+      "alpha": "verified",
+      "clipping": "none",
+      "motion": "verified",
+      "gameplayEvent": "once per primary action"
+    }
+  ]
+}

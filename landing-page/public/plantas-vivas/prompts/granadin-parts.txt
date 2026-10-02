@@ -1,0 +1,18 @@
+Use case: stylized-concept.
+Asset type: professional 2D game character cutout rig, transparent 3-by-3 parts sheet.
+Primary request: Create GRANADIN, an ORIGINAL explosive pomegranate plant for a humorous plant tower-defense game.
+Input image: STYLE reference only — bold colored cartoon contours, irregular silhouette, broad hand-painted cel shadows, diverse botanical caricature and simple expressive eyes. Do not reuse the reference characters.
+Character identity: a squat, lopsided scarlet pomegranate with a chunky subtly faceted pear-shaped fruit body, one swollen side, a dark magenta underside, a tiny partly opened rind notch exposing a couple of juicy ruby seeds, two tiny asymmetrical slightly cross-eyed black eyes, arched worried brows and a short mischievous toothy grimace. Its face is directly on the fruit, no head and no tall stalk. A short bent dry-green stem fuse with tiny calyx tips rises from its top. Two stubby gnarled dark roots below. Silhouette broad and low, ridiculous and lovable. It inflates, trembles, then detonates in a big cartoon orange blast.
+Style: highly varied caricature game art in the playful Plants vs Zombies 2 visual family, crisp bold colored outline, broad controlled two-tone shadow planes, scarlet/coral, burgundy and earthy green, strong shape language and squashable mass. Flat hand-illustrated 2D. No 3D render, no huge shiny anime eyes, no military object, no metal grenade, no human limbs.
+Production layout: square image, exactly nine equally sized invisible cells in a 3x3 grid. Each asset centered and entirely INSIDE its own cell, with 15% truly transparent padding on all sides. No text, grid lines, ground shadow, floor or pot. No overlap across cells. Expressions MUST share identical body contour and scale.
+Cell order, left-to-right top-to-bottom:
+1 complete assembled character reference with fruit body, short bent stem fuse and two root feet;
+2 ONLY the isolated fruit body and neutral worried face, no stem fuse, no roots, no attached effect;
+3 EXACT same isolated body silhouette/shading, eyes tightly closed and teeth clenched;
+4 EXACT same isolated body silhouette/shading, anxious tiny cross-eyed look with cheeks puffed and mouth tiny O, visibly under pressure, no effect attached;
+5 ONLY the short bent plant-stem fuse with tiny green/brown calyx fingers at its bottom; clear bottom attachment point, no fruit, no sparks baked onto it;
+6 ONLY the pair of two squat gnarled dark green-brown root feet, one connected small root base, no fruit body;
+7 ONLY a little charred botanical husk/remnant, a torn small burgundy fruit-rind cup and one smoking dark stem stub, no face and no smoke background;
+8 ONLY one ruby pomegranate seed/shard, a simple glossy red chunky angular seed readable as an emitted blast particle;
+9 ONLY one large energetic cartoon explosion shape, cream-hot irregular center, orange and coral flame lobes forming a bold jagged radial burst, dark orange contour, no black cloud, no text, no plant parts. Fits with clean transparent border.
+Constraints: exactly these nine assets, genuinely transparent exterior, original character, no cloned chibi seedling, no shadows outside the parts, no part cropped or touching a neighbor.

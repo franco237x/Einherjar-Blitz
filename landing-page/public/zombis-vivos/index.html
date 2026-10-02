@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3ecdf">
+  <title>Zombis vivos · Taller de personajes</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./viewer.css">
+  <script type="module" src="./viewer.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#workbench">Ir a las animaciones</a>
+  <header class="masthead">
+    <a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true">Z</span><span>Zombis vivos<small>Einherjar Blitz · taller de personajes</small></span></a>
+    <nav aria-label="Colecciones"><a href="../plantas-vivas/index.html">Ver plantas</a><a class="pack-link" href="./zombis-vivos-pack-v1.zip" download>Descargar pack <span aria-hidden="true">↓</span></a></nav>
+  </header>
+  <main>
+    <div class="intro"><span class="eyebrow">Los primeros invasores</span><h1>Tres pasos hacia<br>el jardín.</h1><p>Un despistado, un testarudo y un peso pesado. Cada uno con su cara, su silueta y su manera de avanzar.</p></div>
+    <div id="roster" class="roster" role="group" aria-label="Elegir zombi"></div>
+    <section id="workbench" class="workbench" aria-label="Visor de zombis animados" tabindex="-1">
+      <div class="stage-column">
+        <div id="stage" class="stage garden">
+          <div class="stage-toolbar" role="group" aria-label="Fondo de la vista"><button type="button" data-background="garden" aria-pressed="true">Jardín</button><button type="button" data-background="alpha" aria-pressed="false">Transparencia</button><button type="button" data-background="dark" aria-pressed="false">Oscuro</button></div>
+          <canvas id="zombie-stage" width="720" height="420" role="img" aria-label="Zombi seleccionado">Selecciona un zombi y una acción. Las animaciones también están disponibles como descargas.</canvas>
+          <span id="now-playing" class="now-playing">Cargando…</span><span class="stage-caption">Personajes originales</span>
+        </div>
+        <div class="transport"><button id="pause" type="button" aria-pressed="false">Pausar</button><label for="speed">Velocidad <output id="speed-value" for="speed">1×</output></label><input id="speed" type="range" min="0.25" max="1.5" step="0.25" value="1"><label class="check"><input id="flip" type="checkbox"> Mirar a la derecha</label><label class="check"><input id="travel" type="checkbox"> Mostrar avance</label></div>
+      </div>
+      <aside class="character-panel">
+        <span id="character-role" class="role">Preparando el elenco</span><h2 id="character-name">Zombis vivos</h2><p id="character-description">Cargando las piezas y las animaciones.</p>
+        <div id="actions" class="actions" role="group" aria-label="Acción del zombi"></div>
+        <div class="damage-panel"><div class="stat"><label for="health">Vida</label><output id="health-value">100 / 100</output></div><meter id="health" min="0" max="100" value="100">100</meter><div id="armor-stat"><div class="stat"><label for="armor">Protección</label><output id="armor-value">0 / 0</output></div><meter id="armor" min="0" max="100" value="0">0</meter></div><div class="stat bites"><span>Mordidas</span><output id="bite-count">0</output></div><button id="damage" type="button">Aplicar 25 de daño</button><small id="damage-note">El daño alcanza primero la protección.</small></div>
+        <p id="motion-note" class="motion-note"></p><div class="downloads"><a id="download-animation" href="./manifest.json" download>Animación WebP ↓</a><a id="download-sprites" href="./manifest.json" download>Hoja PNG ↓</a></div>
+      </aside>
+    </section>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <footer><p>Arte y animación de personajes originales.</p><a href="./README.md">Guía del pack</a><span>PNG transparentes · 30 cuadros por segundo</span></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,118 @@
+{
+  "id": "aurelia",
+  "name": "Aurélia",
+  "anatomy": "orchid",
+  "role": "Orquídea aurora · Rara",
+  "color": "#b995d8",
+  "description": "Una flor difícil de encontrar. Sus pétalos de nácar se abren como cintas y liberan rocío luminoso.",
+  "attackStyle": "bloom",
+  "actionLabel": "Floración",
+  "tempo": 0.59,
+  "projectileEvent": 0.56,
+  "muzzle": [
+    169,
+    143
+  ],
+  "projectileSpeed": 0,
+  "rarity": "rare",
+  "partNames": [
+    "reference",
+    "heart",
+    "heart-blink",
+    "heart-action",
+    "fan-left",
+    "fan-right",
+    "stalk",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "heart",
+    "heart-blink",
+    "heart-action"
+  ],
+  "motion": "Los dos abanicos de pétalos flotan a destiempo; se pliegan y despliegan una floración con destellos.",
+  "portrait": "characters/aurelia/portrait.png",
+  "rig": "characters/aurelia/rig.json",
+  "effects": {
+    "projectile": "characters/aurelia/parts/projectile.png",
+    "burst": "characters/aurelia/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/aurelia/sprites/idle.png",
+      "data": "characters/aurelia/sprites/idle.json",
+      "webp": "characters/aurelia/animated/idle.webp",
+      "gif": "characters/aurelia/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/aurelia/sprites/attack.png",
+      "data": "characters/aurelia/sprites/attack.json",
+      "webp": "characters/aurelia/animated/attack.webp",
+      "gif": "characters/aurelia/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/aurelia/sprites/hit.png",
+      "data": "characters/aurelia/sprites/hit.json",
+      "webp": "characters/aurelia/animated/hit.webp",
+      "gif": "characters/aurelia/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/aurelia/sprites/spawn.png",
+      "data": "characters/aurelia/sprites/spawn.json",
+      "webp": "characters/aurelia/animated/spawn.webp",
+      "gif": "characters/aurelia/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/aurelia/sprites/celebrate.png",
+      "data": "characters/aurelia/sprites/celebrate.json",
+      "webp": "characters/aurelia/animated/celebrate.webp",
+      "gif": "characters/aurelia/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

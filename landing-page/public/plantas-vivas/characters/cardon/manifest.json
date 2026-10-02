@@ -1,0 +1,116 @@
+{
+  "id": "cardon",
+  "name": "Cardón",
+  "anatomy": "cactus",
+  "role": "Cactus de precisión",
+  "color": "#319b87",
+  "description": "Alto, desgarbado y muy serio. Tensa la columna antes de soltar una espina.",
+  "attackStyle": "thorn",
+  "tempo": 0.68,
+  "projectileEvent": 0.45,
+  "muzzle": [
+    170,
+    113
+  ],
+  "projectileSpeed": 390,
+  "partNames": [
+    "reference",
+    "column",
+    "column-blink",
+    "column-action",
+    "base",
+    "arm-left",
+    "arm-right",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "column",
+    "column-blink",
+    "column-action"
+  ],
+  "motion": "La columna se arquea, los brazos reaccionan a destiempo y vuelve como un resorte.",
+  "portrait": "characters/cardon/portrait.png",
+  "rig": "characters/cardon/rig.json",
+  "effects": {
+    "projectile": "characters/cardon/parts/projectile.png",
+    "burst": "characters/cardon/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/cardon/sprites/idle.png",
+      "data": "characters/cardon/sprites/idle.json",
+      "webp": "characters/cardon/animated/idle.webp",
+      "gif": "characters/cardon/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/cardon/sprites/attack.png",
+      "data": "characters/cardon/sprites/attack.json",
+      "webp": "characters/cardon/animated/attack.webp",
+      "gif": "characters/cardon/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/cardon/sprites/hit.png",
+      "data": "characters/cardon/sprites/hit.json",
+      "webp": "characters/cardon/animated/hit.webp",
+      "gif": "characters/cardon/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/cardon/sprites/spawn.png",
+      "data": "characters/cardon/sprites/spawn.json",
+      "webp": "characters/cardon/animated/spawn.webp",
+      "gif": "characters/cardon/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/cardon/sprites/celebrate.png",
+      "data": "characters/cardon/sprites/celebrate.json",
+      "webp": "characters/cardon/animated/celebrate.webp",
+      "gif": "characters/cardon/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

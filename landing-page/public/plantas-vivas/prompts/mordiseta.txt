@@ -1,0 +1,15 @@
+Use case: stylized-concept.
+Asset type: original 2D game mushroom separated cutout rig parts atlas.
+Input image: IDENTITY REFERENCE ONLY. Develop ONLY MORDISETA, the THIRD creature: low wide asymmetric red-ochre mushroom cap with irregular cream patches, curved ivory stalk with heavy half-lidded sleepy eyes, small crooked toothy smile, purple root toes. Preserve this original character and simple cartoon shading.
+CRITICAL layout: square transparent canvas, EXACT 3 columns and 3 rows of equal cells; ONE part per cell, ample 14 percent transparent margin on every cell edge, no text/grid/borders/environment/floor/cast shadows.
+Cells left-right top-bottom:
+1. COMPLETE assembled MORDISETA mushroom, very wide low red cap umbrella, skinny short curved ivory stalk, sleepy face ON THE STALK under cap, tiny purple root toes. No leaf arms.
+2. ONLY detached big RED-OCHRE CAP, broad nearly flat drooping asymmetrical umbrella with three large irregular cream patches and dark maroon gills underside. NO stalk, NO face, no eyes, no feet.
+3. ONLY curved IVORY STALK with neutral sleepy HALF-LIDDED EYES and small crooked toothy smile; no cap, root toes, arms or round face mask. Stalk has slightly wider top beneath cap and narrower curved lower end.
+4. EXACT SAME STALK as cell 3, same proportions geometry shading, eyes fully CLOSED in a blink, same mouth.
+5. EXACT SAME STALK as cell 3, eyes more awake/concentrated and little round O mouth puffing spores. NO spores touching the stalk. Keep exact outline scale.
+6. ONLY a compact rooted BASE of small chunky purple root toes with a short central connection stump, no stalk/face/cap.
+7. ONLY one small floating dusty lavender spore cluster projectile with a short ochre motion tail, facing RIGHT.
+8. ONLY compact little ochre-lavender spore puff burst, actual transparency between particles.
+9. ONLY CAP action variant, EXACT SAME umbrella cap and cream patches as cell 2, same size and outline, but broad warm ochre light glowing under the dark gills; no body or face, no detached puff around it.
+This is a separated parts atlas, not full-body animation frames. Stalks 3,4,5 consistent shape with face-only changes; caps 2,9 consistent shape. Preserve character's horizontal mushroom anatomy and bored tiny half-lidded eyes. No big anime irises, no glossy chibi toy, no generic leaf hands. Clean confident colored outlines, broad simple shadow planes matching reference, readable original game art. Alpha transparent, no text or watermark.

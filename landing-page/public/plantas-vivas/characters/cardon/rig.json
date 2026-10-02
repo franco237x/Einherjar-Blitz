@@ -1,0 +1,149 @@
+{
+  "id": "cardon",
+  "name": "Cardón",
+  "anatomy": "cactus",
+  "role": "Cactus de precisión",
+  "color": "#319b87",
+  "description": "Alto, desgarbado y muy serio. Tensa la columna antes de soltar una espina.",
+  "attackStyle": "thorn",
+  "tempo": 0.68,
+  "projectileEvent": 0.45,
+  "muzzle": [
+    170,
+    113
+  ],
+  "projectileSpeed": 390,
+  "partNames": [
+    "reference",
+    "column",
+    "column-blink",
+    "column-action",
+    "base",
+    "arm-left",
+    "arm-right",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "column",
+    "column-blink",
+    "column-action"
+  ],
+  "motion": "La columna se arquea, los brazos reaccionan a destiempo y vuelve como un resorte.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/cardon-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 105,
+      "top": 19,
+      "width": 239,
+      "height": 466
+    },
+    "column": {
+      "left": 557,
+      "top": 18,
+      "width": 130,
+      "height": 467
+    },
+    "column-blink": {
+      "left": 973,
+      "top": 19,
+      "width": 131,
+      "height": 465
+    },
+    "column-action": {
+      "left": 161,
+      "top": 509,
+      "width": 134,
+      "height": 425
+    },
+    "base": {
+      "left": 513,
+      "top": 794,
+      "width": 239,
+      "height": 83
+    },
+    "arm-left": {
+      "left": 928,
+      "top": 588,
+      "width": 198,
+      "height": 234
+    },
+    "arm-right": {
+      "left": 174,
+      "top": 959,
+      "width": 150,
+      "height": 260
+    },
+    "projectile": {
+      "left": 464,
+      "top": 1051,
+      "width": 338,
+      "height": 91
+    },
+    "effect": {
+      "left": 956,
+      "top": 978,
+      "width": 178,
+      "height": 232
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 245,
+      "height": 472
+    },
+    "column": {
+      "file": "parts/column.png",
+      "width": 136,
+      "height": 472
+    },
+    "column-blink": {
+      "file": "parts/column-blink.png",
+      "width": 136,
+      "height": 472
+    },
+    "column-action": {
+      "file": "parts/column-action.png",
+      "width": 136,
+      "height": 472
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 245,
+      "height": 87
+    },
+    "arm-left": {
+      "file": "parts/arm-left.png",
+      "width": 204,
+      "height": 240
+    },
+    "arm-right": {
+      "file": "parts/arm-right.png",
+      "width": 156,
+      "height": 266
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 343,
+      "height": 97
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 184,
+      "height": 238
+    }
+  }
+}

@@ -1,0 +1,1324 @@
+{
+  "name": "Plantas vivas",
+  "version": "5.0.0",
+  "created": "2026-10-01",
+  "artwork": "Built-in ImageGen / original caricature characters",
+  "animation": "Continuous cutout rig; deterministic exports at 30 fps",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "frameSize": [
+    256,
+    256
+  ],
+  "anchor": [
+    0.46875,
+    0.9
+  ],
+  "directions": [
+    "right"
+  ],
+  "flipForLeft": true,
+  "characters": [
+    {
+      "id": "nabu",
+      "name": "Nabú",
+      "anatomy": "root",
+      "role": "Nabo lanzasemillas",
+      "color": "#ac81b5",
+      "description": "Rechoncho, impulsivo y un poco torpe. Se planta sobre sus raíces y escupe una semilla.",
+      "attackStyle": "seed",
+      "tempo": 1.15,
+      "projectileEvent": 0.43,
+      "muzzle": [
+        211,
+        212
+      ],
+      "projectileSpeed": 310,
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "tuft",
+        "foot-left",
+        "foot-right",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "motion": "El cuerpo se comprime; la cresta llega tarde y las raíces dan pequeños pasos.",
+      "portrait": "characters/nabu/portrait.png",
+      "rig": "characters/nabu/rig.json",
+      "effects": {
+        "projectile": "characters/nabu/parts/projectile.png",
+        "burst": "characters/nabu/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/nabu/sprites/idle.png",
+          "data": "characters/nabu/sprites/idle.json",
+          "webp": "characters/nabu/animated/idle.webp",
+          "gif": "characters/nabu/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/nabu/sprites/attack.png",
+          "data": "characters/nabu/sprites/attack.json",
+          "webp": "characters/nabu/animated/attack.webp",
+          "gif": "characters/nabu/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/nabu/sprites/hit.png",
+          "data": "characters/nabu/sprites/hit.json",
+          "webp": "characters/nabu/animated/hit.webp",
+          "gif": "characters/nabu/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/nabu/sprites/spawn.png",
+          "data": "characters/nabu/sprites/spawn.json",
+          "webp": "characters/nabu/animated/spawn.webp",
+          "gif": "characters/nabu/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/nabu/sprites/celebrate.png",
+          "data": "characters/nabu/sprites/celebrate.json",
+          "webp": "characters/nabu/animated/celebrate.webp",
+          "gif": "characters/nabu/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "cardon",
+      "name": "Cardón",
+      "anatomy": "cactus",
+      "role": "Cactus de precisión",
+      "color": "#319b87",
+      "description": "Alto, desgarbado y muy serio. Tensa la columna antes de soltar una espina.",
+      "attackStyle": "thorn",
+      "tempo": 0.68,
+      "projectileEvent": 0.45,
+      "muzzle": [
+        170,
+        113
+      ],
+      "projectileSpeed": 390,
+      "partNames": [
+        "reference",
+        "column",
+        "column-blink",
+        "column-action",
+        "base",
+        "arm-left",
+        "arm-right",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "column",
+        "column-blink",
+        "column-action"
+      ],
+      "motion": "La columna se arquea, los brazos reaccionan a destiempo y vuelve como un resorte.",
+      "portrait": "characters/cardon/portrait.png",
+      "rig": "characters/cardon/rig.json",
+      "effects": {
+        "projectile": "characters/cardon/parts/projectile.png",
+        "burst": "characters/cardon/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/cardon/sprites/idle.png",
+          "data": "characters/cardon/sprites/idle.json",
+          "webp": "characters/cardon/animated/idle.webp",
+          "gif": "characters/cardon/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/cardon/sprites/attack.png",
+          "data": "characters/cardon/sprites/attack.json",
+          "webp": "characters/cardon/animated/attack.webp",
+          "gif": "characters/cardon/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/cardon/sprites/hit.png",
+          "data": "characters/cardon/sprites/hit.json",
+          "webp": "characters/cardon/animated/hit.webp",
+          "gif": "characters/cardon/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/cardon/sprites/spawn.png",
+          "data": "characters/cardon/sprites/spawn.json",
+          "webp": "characters/cardon/animated/spawn.webp",
+          "gif": "characters/cardon/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/cardon/sprites/celebrate.png",
+          "data": "characters/cardon/sprites/celebrate.json",
+          "webp": "characters/cardon/animated/celebrate.webp",
+          "gif": "characters/cardon/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "mordiseta",
+      "name": "Mordiseta",
+      "anatomy": "mushroom",
+      "role": "Hongo de esporas",
+      "color": "#c86440",
+      "description": "Tiene sueño hasta que toca defender el jardín. Infla el sombrero y libera esporas.",
+      "attackStyle": "spore",
+      "tempo": 0.8,
+      "projectileEvent": 0.6,
+      "muzzle": [
+        220,
+        207
+      ],
+      "projectileSpeed": 180,
+      "partNames": [
+        "reference",
+        "cap",
+        "stalk",
+        "stalk-blink",
+        "stalk-action",
+        "base",
+        "projectile",
+        "effect",
+        "cap-action"
+      ],
+      "expressions": [
+        "stalk",
+        "stalk-blink",
+        "stalk-action"
+      ],
+      "extraExpressions": [
+        [
+          "cap",
+          "cap-action"
+        ]
+      ],
+      "motion": "El sombrero pesa y se hunde; el tallo cabecea con los ojos medio cerrados.",
+      "portrait": "characters/mordiseta/portrait.png",
+      "rig": "characters/mordiseta/rig.json",
+      "effects": {
+        "projectile": "characters/mordiseta/parts/projectile.png",
+        "burst": "characters/mordiseta/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/mordiseta/sprites/idle.png",
+          "data": "characters/mordiseta/sprites/idle.json",
+          "webp": "characters/mordiseta/animated/idle.webp",
+          "gif": "characters/mordiseta/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/mordiseta/sprites/attack.png",
+          "data": "characters/mordiseta/sprites/attack.json",
+          "webp": "characters/mordiseta/animated/attack.webp",
+          "gif": "characters/mordiseta/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/mordiseta/sprites/hit.png",
+          "data": "characters/mordiseta/sprites/hit.json",
+          "webp": "characters/mordiseta/animated/hit.webp",
+          "gif": "characters/mordiseta/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/mordiseta/sprites/spawn.png",
+          "data": "characters/mordiseta/sprites/spawn.json",
+          "webp": "characters/mordiseta/animated/spawn.webp",
+          "gif": "characters/mordiseta/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/mordiseta/sprites/celebrate.png",
+          "data": "characters/mordiseta/sprites/celebrate.json",
+          "webp": "characters/mordiseta/animated/celebrate.webp",
+          "gif": "characters/mordiseta/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "zarzina",
+      "name": "Zarzina",
+      "anatomy": "maw",
+      "role": "Flor mordedora",
+      "color": "#a75aba",
+      "source": "zarzina-parts-v2.png",
+      "description": "Traviesa y hambrienta. Se echa hacia atrás y cierra sus enormes mandíbulas.",
+      "attackStyle": "bite",
+      "tempo": 1,
+      "projectileEvent": 0.46,
+      "muzzle": [
+        271,
+        147
+      ],
+      "projectileSpeed": 0,
+      "partNames": [
+        "reference",
+        "upper-jaw",
+        "upper-jaw-blink",
+        "upper-jaw-action",
+        "lower-jaw",
+        "neck",
+        "leaf",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "upper-jaw",
+        "upper-jaw-blink",
+        "upper-jaw-action"
+      ],
+      "motion": "El cuello serpentea y las dos mandíbulas se abren y cierran de forma independiente.",
+      "portrait": "characters/zarzina/portrait.png",
+      "rig": "characters/zarzina/rig.json",
+      "effects": {
+        "projectile": "characters/zarzina/parts/projectile.png",
+        "burst": "characters/zarzina/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/zarzina/sprites/idle.png",
+          "data": "characters/zarzina/sprites/idle.json",
+          "webp": "characters/zarzina/animated/idle.webp",
+          "gif": "characters/zarzina/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/zarzina/sprites/attack.png",
+          "data": "characters/zarzina/sprites/attack.json",
+          "webp": "characters/zarzina/animated/attack.webp",
+          "gif": "characters/zarzina/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/zarzina/sprites/hit.png",
+          "data": "characters/zarzina/sprites/hit.json",
+          "webp": "characters/zarzina/animated/hit.webp",
+          "gif": "characters/zarzina/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/zarzina/sprites/spawn.png",
+          "data": "characters/zarzina/sprites/spawn.json",
+          "webp": "characters/zarzina/animated/spawn.webp",
+          "gif": "characters/zarzina/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/zarzina/sprites/celebrate.png",
+          "data": "characters/zarzina/sprites/celebrate.json",
+          "webp": "characters/zarzina/animated/celebrate.webp",
+          "gif": "characters/zarzina/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "solmiel",
+      "name": "Solmiel",
+      "anatomy": "lantern",
+      "role": "Productora de soles",
+      "color": "#d8a13e",
+      "description": "Un farol de miel, cálido y soñoliento. Aprieta su fruto y deja escapar un sol dorado.",
+      "attackStyle": "sun",
+      "actionLabel": "Producir sol",
+      "tempo": 0.72,
+      "projectileEvent": 0.58,
+      "muzzle": [
+        132,
+        187
+      ],
+      "projectileSpeed": 16,
+      "sunValue": 25,
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "calyx",
+        "stalk",
+        "leaf",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "motion": "El farol cuelga y se balancea; se comprime, brilla y suelta un sol que flota hacia arriba.",
+      "portrait": "characters/solmiel/portrait.png",
+      "rig": "characters/solmiel/rig.json",
+      "effects": {
+        "projectile": "characters/solmiel/parts/projectile.png",
+        "burst": "characters/solmiel/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/solmiel/sprites/idle.png",
+          "data": "characters/solmiel/sprites/idle.json",
+          "webp": "characters/solmiel/animated/idle.webp",
+          "gif": "characters/solmiel/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/solmiel/sprites/attack.png",
+          "data": "characters/solmiel/sprites/attack.json",
+          "webp": "characters/solmiel/animated/attack.webp",
+          "gif": "characters/solmiel/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/solmiel/sprites/hit.png",
+          "data": "characters/solmiel/sprites/hit.json",
+          "webp": "characters/solmiel/animated/hit.webp",
+          "gif": "characters/solmiel/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/solmiel/sprites/spawn.png",
+          "data": "characters/solmiel/sprites/spawn.json",
+          "webp": "characters/solmiel/animated/spawn.webp",
+          "gif": "characters/solmiel/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/solmiel/sprites/celebrate.png",
+          "data": "characters/solmiel/sprites/celebrate.json",
+          "webp": "characters/solmiel/animated/celebrate.webp",
+          "gif": "characters/solmiel/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "granadin",
+      "name": "Granadín",
+      "anatomy": "bomb",
+      "role": "Granada explosiva",
+      "color": "#d9515b",
+      "description": "Rechoncho y nervioso. Infla la panza, enciende su tallito y estalla en una lluvia de semillas.",
+      "attackStyle": "explosion",
+      "actionLabel": "Explotar",
+      "tempo": 1.22,
+      "projectileEvent": 0.7,
+      "muzzle": [
+        153,
+        177
+      ],
+      "projectileSpeed": 0,
+      "consumedOnAction": true,
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "fuse",
+        "base",
+        "remnant",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "motion": "Se agacha, tiembla e infla el fruto. La explosión deja una pequeña cáscara: hay que replantarlo.",
+      "portrait": "characters/granadin/portrait.png",
+      "rig": "characters/granadin/rig.json",
+      "effects": {
+        "projectile": "characters/granadin/parts/projectile.png",
+        "burst": "characters/granadin/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/granadin/sprites/idle.png",
+          "data": "characters/granadin/sprites/idle.json",
+          "webp": "characters/granadin/animated/idle.webp",
+          "gif": "characters/granadin/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/granadin/sprites/attack.png",
+          "data": "characters/granadin/sprites/attack.json",
+          "webp": "characters/granadin/animated/attack.webp",
+          "gif": "characters/granadin/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/granadin/sprites/hit.png",
+          "data": "characters/granadin/sprites/hit.json",
+          "webp": "characters/granadin/animated/hit.webp",
+          "gif": "characters/granadin/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/granadin/sprites/spawn.png",
+          "data": "characters/granadin/sprites/spawn.json",
+          "webp": "characters/granadin/animated/spawn.webp",
+          "gif": "characters/granadin/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/granadin/sprites/celebrate.png",
+          "data": "characters/granadin/sprites/celebrate.json",
+          "webp": "characters/granadin/animated/celebrate.webp",
+          "gif": "characters/granadin/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "aurelia",
+      "name": "Aurélia",
+      "anatomy": "orchid",
+      "role": "Orquídea aurora · Rara",
+      "color": "#b995d8",
+      "description": "Una flor difícil de encontrar. Sus pétalos de nácar se abren como cintas y liberan rocío luminoso.",
+      "attackStyle": "bloom",
+      "actionLabel": "Floración",
+      "tempo": 0.59,
+      "projectileEvent": 0.56,
+      "muzzle": [
+        169,
+        143
+      ],
+      "projectileSpeed": 0,
+      "rarity": "rare",
+      "partNames": [
+        "reference",
+        "heart",
+        "heart-blink",
+        "heart-action",
+        "fan-left",
+        "fan-right",
+        "stalk",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "heart",
+        "heart-blink",
+        "heart-action"
+      ],
+      "motion": "Los dos abanicos de pétalos flotan a destiempo; se pliegan y despliegan una floración con destellos.",
+      "portrait": "characters/aurelia/portrait.png",
+      "rig": "characters/aurelia/rig.json",
+      "effects": {
+        "projectile": "characters/aurelia/parts/projectile.png",
+        "burst": "characters/aurelia/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/aurelia/sprites/idle.png",
+          "data": "characters/aurelia/sprites/idle.json",
+          "webp": "characters/aurelia/animated/idle.webp",
+          "gif": "characters/aurelia/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/attack.png",
+          "data": "characters/aurelia/sprites/attack.json",
+          "webp": "characters/aurelia/animated/attack.webp",
+          "gif": "characters/aurelia/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/hit.png",
+          "data": "characters/aurelia/sprites/hit.json",
+          "webp": "characters/aurelia/animated/hit.webp",
+          "gif": "characters/aurelia/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/spawn.png",
+          "data": "characters/aurelia/sprites/spawn.json",
+          "webp": "characters/aurelia/animated/spawn.webp",
+          "gif": "characters/aurelia/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/aurelia/sprites/celebrate.png",
+          "data": "characters/aurelia/sprites/celebrate.json",
+          "webp": "characters/aurelia/animated/celebrate.webp",
+          "gif": "characters/aurelia/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "cortezon",
+      "name": "Cortezón",
+      "anatomy": "bark",
+      "role": "Defensa pura",
+      "color": "#a08862",
+      "description": "Un tronco de corcho con un corazón tranquilo. Se aferra con sus raíces y aguanta los golpes.",
+      "attackStyle": "block",
+      "actionLabel": "Bloquear",
+      "primaryClip": "guard",
+      "defenseOnly": true,
+      "clips": [
+        "idle",
+        "guard",
+        "hit",
+        "spawn",
+        "celebrate",
+        "damaged",
+        "critical"
+      ],
+      "combat": {
+        "blocks": true,
+        "attackDamage": 0,
+        "reflectDamage": 0,
+        "suggestedHealth": 1600
+      },
+      "healthThresholds": {
+        "damaged": 0.55,
+        "critical": 0.25
+      },
+      "tempo": 0.52,
+      "projectileEvent": 0.42,
+      "muzzle": [
+        224,
+        207
+      ],
+      "projectileSpeed": 0,
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "crown",
+        "base",
+        "cracks",
+        "cracks-critical",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "motion": "Masa pesada y raíces firmes. Amortigua el impacto sin atacar; la corteza se agrieta al perder integridad.",
+      "portrait": "characters/cortezon/portrait.png",
+      "rig": "characters/cortezon/rig.json",
+      "effects": {
+        "burst": "characters/cortezon/parts/effect.png",
+        "cracks": "characters/cortezon/parts/cracks.png",
+        "cracks-critical": "characters/cortezon/parts/cracks-critical.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/cortezon/sprites/idle.png",
+          "data": "characters/cortezon/sprites/idle.json",
+          "webp": "characters/cortezon/animated/idle.webp",
+          "gif": "characters/cortezon/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "guard": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/cortezon/sprites/guard.png",
+          "data": "characters/cortezon/sprites/guard.json",
+          "webp": "characters/cortezon/animated/guard.webp",
+          "gif": "characters/cortezon/animated/guard.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/cortezon/sprites/hit.png",
+          "data": "characters/cortezon/sprites/hit.json",
+          "webp": "characters/cortezon/animated/hit.webp",
+          "gif": "characters/cortezon/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/cortezon/sprites/spawn.png",
+          "data": "characters/cortezon/sprites/spawn.json",
+          "webp": "characters/cortezon/animated/spawn.webp",
+          "gif": "characters/cortezon/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/cortezon/sprites/celebrate.png",
+          "data": "characters/cortezon/sprites/celebrate.json",
+          "webp": "characters/cortezon/animated/celebrate.webp",
+          "gif": "characters/cortezon/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "damaged": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/cortezon/sprites/damaged.png",
+          "data": "characters/cortezon/sprites/damaged.json",
+          "webp": "characters/cortezon/animated/damaged.webp",
+          "gif": "characters/cortezon/animated/damaged.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "critical": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/cortezon/sprites/critical.png",
+          "data": "characters/cortezon/sprites/critical.json",
+          "webp": "characters/cortezon/animated/critical.webp",
+          "gif": "characters/cortezon/animated/critical.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "frigora",
+      "name": "Frígora",
+      "anatomy": "fern",
+      "role": "Helecho de escarcha",
+      "color": "#67bfd0",
+      "description": "Sus frondas rizadas se cargan de frío. La escarcha frena al objetivo y tres impactos seguidos lo congelan.",
+      "attackStyle": "chill",
+      "actionLabel": "Lanzar escarcha",
+      "tempo": 0.86,
+      "projectileEvent": 0.53,
+      "muzzle": [
+        220,
+        225
+      ],
+      "projectileSpeed": 230,
+      "cold": {
+        "speedMultiplier": 0.5,
+        "slowSeconds": 3,
+        "freezeAtStacks": 3,
+        "freezeSeconds": 1.2,
+        "damage": 0
+      },
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "frond-left",
+        "frond-right",
+        "base",
+        "projectile",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "motion": "Las frondas se doblan con retraso; el brote enrollado se comprime y sopla un copo de frío.",
+      "portrait": "characters/frigora/portrait.png",
+      "rig": "characters/frigora/rig.json",
+      "effects": {
+        "projectile": "characters/frigora/parts/projectile.png",
+        "burst": "characters/frigora/parts/effect.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/frigora/sprites/idle.png",
+          "data": "characters/frigora/sprites/idle.json",
+          "webp": "characters/frigora/animated/idle.webp",
+          "gif": "characters/frigora/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "attack": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/frigora/sprites/attack.png",
+          "data": "characters/frigora/sprites/attack.json",
+          "webp": "characters/frigora/animated/attack.webp",
+          "gif": "characters/frigora/animated/attack.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/frigora/sprites/hit.png",
+          "data": "characters/frigora/sprites/hit.json",
+          "webp": "characters/frigora/animated/hit.webp",
+          "gif": "characters/frigora/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/frigora/sprites/spawn.png",
+          "data": "characters/frigora/sprites/spawn.json",
+          "webp": "characters/frigora/animated/spawn.webp",
+          "gif": "characters/frigora/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/frigora/sprites/celebrate.png",
+          "data": "characters/frigora/sprites/celebrate.json",
+          "webp": "characters/frigora/animated/celebrate.webp",
+          "gif": "characters/frigora/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    },
+    {
+      "id": "velaria",
+      "name": "Velaria",
+      "anatomy": "nocturne",
+      "role": "Cala del eco umbrío",
+      "color": "#6e5b94",
+      "description": "Serena y solemne. Ancla la sombra de un enemigo y, dos segundos después, lo devuelve a esa posición.",
+      "attackStyle": "shadow-mark",
+      "actionLabel": "Eco umbrío",
+      "primaryClip": "seal",
+      "clips": [
+        "idle",
+        "seal",
+        "channel",
+        "recall",
+        "recover",
+        "hit",
+        "spawn",
+        "celebrate"
+      ],
+      "shadow": {
+        "delaySeconds": 2,
+        "recallLeadSeconds": 0.36,
+        "cooldownSeconds": 7,
+        "maxRange": 260,
+        "damage": 0,
+        "targets": 1
+      },
+      "tempo": 0.64,
+      "projectileEvent": 0.72,
+      "muzzle": [
+        207,
+        184
+      ],
+      "projectileSpeed": 0,
+      "partNames": [
+        "reference",
+        "body",
+        "body-blink",
+        "body-action",
+        "mantle-left",
+        "mantle-right",
+        "base",
+        "sigil",
+        "effect"
+      ],
+      "expressions": [
+        "body",
+        "body-blink",
+        "body-action"
+      ],
+      "motion": "Abre los pétalos para sellar; sostiene un pulso contenido, cierra el vínculo con un tirón y recupera el aliento.",
+      "portrait": "characters/velaria/portrait.png",
+      "rig": "characters/velaria/rig.json",
+      "effects": {
+        "burst": "characters/velaria/parts/effect.png",
+        "sigil": "characters/velaria/parts/sigil.png"
+      },
+      "animations": {
+        "idle": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/velaria/sprites/idle.png",
+          "data": "characters/velaria/sprites/idle.json",
+          "webp": "characters/velaria/animated/idle.webp",
+          "gif": "characters/velaria/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "seal": {
+          "frames": 42,
+          "fps": 30,
+          "duration": 1.4,
+          "loop": false,
+          "atlas": "characters/velaria/sprites/seal.png",
+          "data": "characters/velaria/sprites/seal.json",
+          "webp": "characters/velaria/animated/seal.webp",
+          "gif": "characters/velaria/animated/seal.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "channel": {
+          "frames": 72,
+          "fps": 30,
+          "duration": 2.4,
+          "loop": true,
+          "atlas": "characters/velaria/sprites/channel.png",
+          "data": "characters/velaria/sprites/channel.json",
+          "webp": "characters/velaria/animated/channel.webp",
+          "gif": "characters/velaria/animated/channel.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "recall": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/velaria/sprites/recall.png",
+          "data": "characters/velaria/sprites/recall.json",
+          "webp": "characters/velaria/animated/recall.webp",
+          "gif": "characters/velaria/animated/recall.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "recover": {
+          "frames": 42,
+          "fps": 30,
+          "duration": 1.4,
+          "loop": false,
+          "atlas": "characters/velaria/sprites/recover.png",
+          "data": "characters/velaria/sprites/recover.json",
+          "webp": "characters/velaria/animated/recover.webp",
+          "gif": "characters/velaria/animated/recover.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "frames": 24,
+          "fps": 30,
+          "duration": 0.8,
+          "loop": false,
+          "atlas": "characters/velaria/sprites/hit.png",
+          "data": "characters/velaria/sprites/hit.json",
+          "webp": "characters/velaria/animated/hit.webp",
+          "gif": "characters/velaria/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "spawn": {
+          "frames": 36,
+          "fps": 30,
+          "duration": 1.2,
+          "loop": false,
+          "atlas": "characters/velaria/sprites/spawn.png",
+          "data": "characters/velaria/sprites/spawn.json",
+          "webp": "characters/velaria/animated/spawn.webp",
+          "gif": "characters/velaria/animated/spawn.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "celebrate": {
+          "frames": 48,
+          "fps": 30,
+          "duration": 1.6,
+          "loop": false,
+          "atlas": "characters/velaria/sprites/celebrate.png",
+          "data": "characters/velaria/sprites/celebrate.json",
+          "webp": "characters/velaria/animated/celebrate.webp",
+          "gif": "characters/velaria/animated/celebrate.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    }
+  ]
+}

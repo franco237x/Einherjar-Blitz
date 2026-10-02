@@ -1,0 +1,298 @@
+{
+  "id": "conero",
+  "name": "Conero",
+  "role": "Zombi con cono",
+  "color": "#c88943",
+  "description": "Bajo, testarudo y confundido. Su cono torcido absorbe los primeros golpes.",
+  "motion": "Pasos cortos y codos inquietos. El cono se bambolea y sale despedido cuando pierde su protección.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "health": 100,
+  "armor": 100,
+  "gaitTempo": 1.08,
+  "stride": 14,
+  "biteTime": 0.52,
+  "biteDamage": 10,
+  "layout": {
+    "hips": [
+      171,
+      218
+    ],
+    "head": [
+      146,
+      168
+    ],
+    "headSize": [
+      94,
+      83
+    ],
+    "torsoSize": [
+      91,
+      81
+    ],
+    "torsoOffset": 11,
+    "shoulders": [
+      [
+        153,
+        165
+      ],
+      [
+        184,
+        167
+      ]
+    ],
+    "arms": [
+      27,
+      31
+    ],
+    "legs": [
+      37,
+      40
+    ],
+    "hipOffsets": [
+      10,
+      -10
+    ],
+    "legWidth": 40,
+    "shoeWidth": 52,
+    "gear": [
+      147,
+      107,
+      81,
+      75
+    ]
+  },
+  "moveSpeed": 21.000000000000004,
+  "portrait": "characters/conero/portrait.png",
+  "rig": "characters/conero/rig.json",
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/conero/sprites/idle.png",
+      "data": "characters/conero/sprites/idle.json",
+      "webp": "characters/conero/animated/idle.webp",
+      "gif": "characters/conero/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "walk": {
+      "label": "Caminar",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/conero/sprites/walk.png",
+      "data": "characters/conero/sprites/walk.json",
+      "webp": "characters/conero/animated/walk.webp",
+      "gif": "characters/conero/animated/walk.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "bite": {
+      "label": "Morder",
+      "duration": 1.2,
+      "frames": 36,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/conero/sprites/bite.png",
+      "data": "characters/conero/sprites/bite.json",
+      "webp": "characters/conero/animated/bite.webp",
+      "gif": "characters/conero/animated/bite.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/conero/sprites/hit.png",
+      "data": "characters/conero/sprites/hit.json",
+      "webp": "characters/conero/animated/hit.webp",
+      "gif": "characters/conero/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 1,
+      "frames": 30,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/conero/sprites/spawn.png",
+      "data": "characters/conero/sprites/spawn.json",
+      "webp": "characters/conero/animated/spawn.webp",
+      "gif": "characters/conero/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 1.4,
+      "frames": 42,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/conero/sprites/fall.png",
+      "data": "characters/conero/sprites/fall.json",
+      "webp": "characters/conero/animated/fall.webp",
+      "gif": "characters/conero/animated/fall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "armor-break": {
+      "label": "Perder protección",
+      "duration": 0.8,
+      "frames": 24,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/conero/sprites/armor-break.png",
+      "data": "characters/conero/sprites/armor-break.json",
+      "webp": "characters/conero/animated/armor-break.webp",
+      "gif": "characters/conero/animated/armor-break.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  },
+  "variants": {
+    "unarmored": {
+      "armorVisible": false,
+      "animations": {
+        "idle": {
+          "label": "Reposo",
+          "duration": 2.4,
+          "frames": 72,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/conero/unarmored/sprites/idle.png",
+          "data": "characters/conero/unarmored/sprites/idle.json",
+          "webp": "characters/conero/unarmored/animated/idle.webp",
+          "gif": "characters/conero/unarmored/animated/idle.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "walk": {
+          "label": "Caminar",
+          "duration": 2.4,
+          "frames": 72,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/conero/unarmored/sprites/walk.png",
+          "data": "characters/conero/unarmored/sprites/walk.json",
+          "webp": "characters/conero/unarmored/animated/walk.webp",
+          "gif": "characters/conero/unarmored/animated/walk.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "bite": {
+          "label": "Morder",
+          "duration": 1.2,
+          "frames": 36,
+          "fps": 30,
+          "loop": true,
+          "atlas": "characters/conero/unarmored/sprites/bite.png",
+          "data": "characters/conero/unarmored/sprites/bite.json",
+          "webp": "characters/conero/unarmored/animated/bite.webp",
+          "gif": "characters/conero/unarmored/animated/bite.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "hit": {
+          "label": "Recibir golpe",
+          "duration": 0.6,
+          "frames": 18,
+          "fps": 30,
+          "loop": false,
+          "atlas": "characters/conero/unarmored/sprites/hit.png",
+          "data": "characters/conero/unarmored/sprites/hit.json",
+          "webp": "characters/conero/unarmored/animated/hit.webp",
+          "gif": "characters/conero/unarmored/animated/hit.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        },
+        "fall": {
+          "label": "Caer",
+          "duration": 1.4,
+          "frames": 42,
+          "fps": 30,
+          "loop": false,
+          "atlas": "characters/conero/unarmored/sprites/fall.png",
+          "data": "characters/conero/unarmored/sprites/fall.json",
+          "webp": "characters/conero/unarmored/animated/fall.webp",
+          "gif": "characters/conero/unarmored/animated/fall.gif",
+          "columns": 8,
+          "frameSize": [
+            256,
+            256
+          ]
+        }
+      }
+    }
+  }
+}

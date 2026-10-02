@@ -1,0 +1,15 @@
+Use case: stylized-concept.
+Asset type: 3x3 separated body-parts atlas for continuous 2D game plant animation.
+Input image: REDESIGN IDENTITY REFERENCE. Develop ONLY the tall slender turquoise CACTUS CARDON, second character in reference. Preserve its tall kinked column anatomy, flat narrow top, sparse triangular cream spines, tiny widely spaced black dot eyes, deadpan flat eyebrows, asymmetric cactus branches and tiny root pads. Do NOT give it a separate head.
+Layout: square actual transparent canvas, EXACT 3 columns x 3 rows of equal cells, ONE isolated asset per cell, each centered with at least 14 percent empty margin on all four sides. No grid lines or text. No floor, environment, pot, cast shadow or label.
+Cell order left-right top-bottom:
+1. COMPLETE assembled CARDON, full very tall thin cactus column, one branch bending UP on its LEFT and another longer branch bending DOWN on its RIGHT, small root pads. Keep exaggerated lanky proportions.
+2. ONLY MAIN CACTUS COLUMN including its face and triangular spines, neutral bored/deadpan dot eyes, no side branches, no root pads. Column is kinked and slender, top is narrow and almost flat, NOT round bulb head.
+3. EXACT SAME MAIN COLUMN as cell 2, same kinked outline height width top angle and spine placements, but dot eyes gently closed in blink.
+4. EXACT SAME MAIN COLUMN as cell 2, same geometry and spines, but concentrated eyebrows and small pursed mouth for thorn shooting. Not changing body posture in artwork.
+5. ONLY the tiny rooted BASE of two dark green root pads and a very short central connection stump. No tall column or face.
+6. ONLY LEFT cactus branch from reference, short narrow turquoise cactus segment bent upward, cream spines, inner attachment point at lower RIGHT end.
+7. ONLY RIGHT cactus branch from reference, longer skinny segment bending downward, spines, inner attachment point at upper LEFT end.
+8. ONLY a single long cream-gold needle/thorn projectile pointing RIGHT, subtle turquoise speed stroke behind.
+9. ONLY three compact pale turquoise-gold thorn sparkles.
+All three main column expressions must be identical shape and scale, only facial acting changes. Sparse small eyes, no anime irises, no glossy chibi face, no leaf hands, no normal plant neck. Clean lively 2D cartoon outline, restrained broad painted shadows and highlights matching reference. True alpha transparency everywhere, no text or watermark.

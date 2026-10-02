@@ -1,0 +1,116 @@
+{
+  "id": "nabu",
+  "name": "Nabú",
+  "anatomy": "root",
+  "role": "Nabo lanzasemillas",
+  "color": "#ac81b5",
+  "description": "Rechoncho, impulsivo y un poco torpe. Se planta sobre sus raíces y escupe una semilla.",
+  "attackStyle": "seed",
+  "tempo": 1.15,
+  "projectileEvent": 0.43,
+  "muzzle": [
+    211,
+    212
+  ],
+  "projectileSpeed": 310,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "tuft",
+    "foot-left",
+    "foot-right",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "El cuerpo se comprime; la cresta llega tarde y las raíces dan pequeños pasos.",
+  "portrait": "characters/nabu/portrait.png",
+  "rig": "characters/nabu/rig.json",
+  "effects": {
+    "projectile": "characters/nabu/parts/projectile.png",
+    "burst": "characters/nabu/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/nabu/sprites/idle.png",
+      "data": "characters/nabu/sprites/idle.json",
+      "webp": "characters/nabu/animated/idle.webp",
+      "gif": "characters/nabu/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/nabu/sprites/attack.png",
+      "data": "characters/nabu/sprites/attack.json",
+      "webp": "characters/nabu/animated/attack.webp",
+      "gif": "characters/nabu/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/nabu/sprites/hit.png",
+      "data": "characters/nabu/sprites/hit.json",
+      "webp": "characters/nabu/animated/hit.webp",
+      "gif": "characters/nabu/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/nabu/sprites/spawn.png",
+      "data": "characters/nabu/sprites/spawn.json",
+      "webp": "characters/nabu/animated/spawn.webp",
+      "gif": "characters/nabu/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/nabu/sprites/celebrate.png",
+      "data": "characters/nabu/sprites/celebrate.json",
+      "webp": "characters/nabu/animated/celebrate.webp",
+      "gif": "characters/nabu/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

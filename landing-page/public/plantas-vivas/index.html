@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ddebec">
+  <title>Plantas vivas · Taller de personajes</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./viewer.css">
+  <script type="module" src="./viewer.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#workbench">Ir a las animaciones</a>
+  <header class="masthead">
+    <a href="./index.html" class="brand"><span class="brand-mark" aria-hidden="true">✳</span><span>Plantas vivas<small>Einherjar Blitz · taller de personajes</small></span></a>
+    <a class="pack-link" href="./plantas-vivas-pack-v5.zip" download>Descargar el pack <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <div class="intro">
+      <h1>Cada planta,<br>un carácter.</h1>
+      <p>Diez habitantes, diez personalidades. Velaria ancla la sombra de sus enemigos y los devuelve sobre sus propios pasos.</p>
+    </div>
+    <section id="workbench" class="workbench" aria-label="Visor de personajes animados" tabindex="-1">
+      <div class="stage-column">
+        <div id="stage" class="stage garden">
+          <div class="stage-toolbar" role="group" aria-label="Fondo de la vista">
+            <button type="button" data-background="garden" aria-pressed="true">Jardín</button>
+            <button type="button" data-background="alpha" aria-pressed="false">Transparencia</button>
+            <button type="button" data-background="dark" aria-pressed="false">Oscuro</button>
+          </div>
+          <canvas id="plant-stage" width="720" height="440" role="img" aria-label="Personaje animado seleccionado">Elige una planta y una acción para ver su animación. También puedes descargar su vista animada.</canvas>
+          <span id="now-playing" class="now-playing">Reposo</span>
+          <span class="stage-caption">Originales del jardín</span>
+        </div>
+        <div class="transport">
+          <button id="pause" type="button" class="pause" aria-pressed="false">Pausar</button>
+          <label class="speed-label" for="speed">Velocidad <output id="speed-value" for="speed">1×</output></label>
+          <input id="speed" type="range" min="0.25" max="1.5" step="0.25" value="1">
+          <label class="flip"><input id="flip" type="checkbox"> Mirar a la izquierda</label>
+        </div>
+      </div>
+      <aside class="character-panel">
+        <span id="character-role" class="role">Cargando personajes…</span>
+        <h2 id="character-name">Plantas vivas</h2>
+        <p id="character-description" class="description">Preparando las animaciones.</p>
+        <div id="actions" class="actions" role="group" aria-label="Acción del personaje">
+          <button type="button" data-clip="idle" aria-pressed="true"><span aria-hidden="true">◌</span> Reposo</button>
+          <button type="button" data-action="primary" data-clip="attack" aria-pressed="false"><span aria-hidden="true">➜</span><span class="action-label">Atacar</span></button>
+          <button type="button" data-clip="hit" aria-pressed="false"><span aria-hidden="true">✦</span> Recibir golpe</button>
+          <button type="button" data-clip="spawn" aria-pressed="false"><span aria-hidden="true">↟</span><span class="action-label">Brotar</span></button>
+          <button type="button" data-clip="celebrate" aria-pressed="false"><span aria-hidden="true">✳</span> Festejar</button>
+          <button type="button" data-clip="damaged" aria-pressed="false" hidden><span aria-hidden="true">⌁</span> Agrietado</button>
+          <button type="button" data-clip="critical" aria-pressed="false" hidden><span aria-hidden="true">↯</span> Estado crítico</button>
+          <button type="button" data-clip="channel" aria-pressed="false" hidden><span aria-hidden="true">⌁</span> Sostener vínculo</button>
+          <button type="button" data-clip="recall" aria-pressed="false" hidden><span aria-hidden="true">↶</span> Retorno umbrío</button>
+          <button type="button" data-clip="recover" aria-pressed="false" hidden><span aria-hidden="true">◡</span> Recuperación</button>
+          <label class="repeat"><input id="repeat" type="checkbox"> Repetir acción</label>
+        </div>
+        <div id="integrity-controls" class="mechanic-panel" hidden>
+          <label for="integrity">Integridad de la corteza <output id="integrity-value" for="integrity">100%</output></label>
+          <input id="integrity" type="range" min="5" max="100" step="5" value="100">
+          <small>Bloquea y absorbe golpes. No ataca.</small>
+        </div>
+        <div id="cold-demo" class="mechanic-panel" hidden>
+          <strong>Objetivo de práctica</strong>
+          <div class="cold-stats"><span id="cold-state">Normal</span><span>Velocidad <output id="cold-speed">100%</output></span></div>
+          <small id="cold-stacks">Escarcha 0/3</small>
+          <button id="reset-cold" type="button">Reiniciar escarcha</button>
+        </div>
+        <div id="shadow-demo" class="mechanic-panel shadow-demo" hidden>
+          <strong>Prueba del eco</strong>
+          <small>Marca de 2 s · una sombra · recarga de 7 s. El objetivo sigue avanzando. Un golpe a Velaria rompe el vínculo.</small>
+          <div class="cold-stats"><span id="shadow-phase">Lista</span><span>Marca <output id="shadow-delay">—</output></span></div>
+          <small>Recarga <output id="shadow-cooldown">0.0 s</output> · Retornos <output id="shadow-returns">0</output></small>
+          <button id="toggle-shadow-target" type="button">Retirar objetivo</button>
+          <button id="reset-shadow" type="button">Reiniciar prueba</button>
+        </div>
+        <p id="motion-note" class="motion-note"></p>
+        <div class="downloads"><a id="download-animation" href="./manifest.json" download>Animación WebP <span aria-hidden="true">↓</span></a><a id="download-sprites" href="./manifest.json" download>Hoja de sprites <span aria-hidden="true">↓</span></a></div>
+      </aside>
+    </section>
+    <div class="roster-heading"><h2>Los habitantes</h2><span>Diez plantas con siluetas y movimientos propios</span></div>
+    <div id="roster" class="roster" role="group" aria-label="Elegir personaje"></div>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <footer><p>Arte y animación de personajes originales.</p><a href="./README.md">Guía del pack</a><span>PNG transparentes · 30 cuadros por segundo</span></footer>
+  </main>
+</body>
+</html>

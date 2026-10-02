@@ -1,0 +1,18 @@
+Use case: stylized-concept.
+Asset type: professional 2D game character cutout rig, transparent 3-by-3 parts sheet.
+Primary request: Create SOLMIEL, an ORIGINAL cute sun-producing plant for a humorous plant tower-defense game.
+Input image: STYLE reference only — bold colored cartoon contours, painterly broad two-tone shadows, exaggerated botanical anatomy and asymmetry. Do not reuse any of the reference characters.
+Character identity: a warm golden-orange Chinese lantern / physalis fruit suspended from a tall crooked olive-green hooked stalk, like a tiny organic hanging lantern. A flared jagged olive-and-gold calyx crowns the lantern. The fruit itself has a simple sleepy affectionate face, small unequal black oval eyes, gently arched brows, warm cheeks and a curved little smile; no huge irises. Its softly lobed lantern body ends in a tapered bell tip. One big drooping green leaf grows low on the stalk. Small rooted base. Off-center, leaning silhouette. This plant generates little gold suns by squeezing its lantern belly. It is NOT a sunflower with a round head and petal ring.
+Style: highly varied caricature game art in the playful Plants vs Zombies 2 visual family, confident ink shapes, irregular expressive contours, crisp edges, carefully placed cel-painted shadow planes, rich honey gold versus sage green. Cute, funny, readable at small scale. Flat illustrated 2D, not glossy 3D, not anime, not an emoji.
+Production layout: one square image, exactly nine equally sized invisible cells in a 3x3 grid. Each asset entirely INSIDE its own cell, CENTERED, with at least 15% truly transparent padding on all sides. No gridlines, captions, letters, background, ground shadow or pot. All parts must be separate with transparent gutters. Maintain consistent proportions and details for expressions.
+Cell order, left-to-right top-to-bottom:
+1 complete assembled character reference, hanging lantern on crooked stalk with calyx and lower leaf;
+2 ONLY the golden lantern fruit body with neutral face, no stalk, no calyx, no leaves;
+3 EXACT same isolated lantern body silhouette and shading as cell 2, eyes gently closed, little smile;
+4 EXACT same isolated lantern body silhouette and shading as cell 2, eyes squeezed shut, cheeks puffed and mouth forming a small O while producing sunlight; do not attach a sun to it;
+5 ONLY the flared angular olive/gold calyx crown, with a central short attachment nub beneath, no fruit, no stalk;
+6 ONLY the crooked hooked olive-green stalk AND small attached rooted ground base; no fruit, no calyx, no lateral leaf. Stalk arcs upward then bends left to a downward pointing hook, with a clean socket for the hanging fruit;
+7 ONLY a single broad drooping sage-green leaf with its short attachment stem at upper right;
+8 ONLY the collectible sun: a plump golden circular core, eight short irregular rounded triangular rays, bright pale yellow center, warm amber outlined edges, no face;
+9 ONLY a small curling golden pollen puff/sunlight flourish effect, no plant and no sun disc.
+Constraints: original character, exactly these nine assets, true transparency everywhere outside the artwork, no copied PvZ character, no overlap or cropped parts, no extra accessories, avoid uniform chibi head/stem/leaf template.

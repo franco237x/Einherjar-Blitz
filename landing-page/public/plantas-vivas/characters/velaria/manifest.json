@@ -1,0 +1,181 @@
+{
+  "id": "velaria",
+  "name": "Velaria",
+  "anatomy": "nocturne",
+  "role": "Cala del eco umbrío",
+  "color": "#6e5b94",
+  "description": "Serena y solemne. Ancla la sombra de un enemigo y, dos segundos después, lo devuelve a esa posición.",
+  "attackStyle": "shadow-mark",
+  "actionLabel": "Eco umbrío",
+  "primaryClip": "seal",
+  "clips": [
+    "idle",
+    "seal",
+    "channel",
+    "recall",
+    "recover",
+    "hit",
+    "spawn",
+    "celebrate"
+  ],
+  "shadow": {
+    "delaySeconds": 2,
+    "recallLeadSeconds": 0.36,
+    "cooldownSeconds": 7,
+    "maxRange": 260,
+    "damage": 0,
+    "targets": 1
+  },
+  "tempo": 0.64,
+  "projectileEvent": 0.72,
+  "muzzle": [
+    207,
+    184
+  ],
+  "projectileSpeed": 0,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "mantle-left",
+    "mantle-right",
+    "base",
+    "sigil",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "Abre los pétalos para sellar; sostiene un pulso contenido, cierra el vínculo con un tirón y recupera el aliento.",
+  "portrait": "characters/velaria/portrait.png",
+  "rig": "characters/velaria/rig.json",
+  "effects": {
+    "burst": "characters/velaria/parts/effect.png",
+    "sigil": "characters/velaria/parts/sigil.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/velaria/sprites/idle.png",
+      "data": "characters/velaria/sprites/idle.json",
+      "webp": "characters/velaria/animated/idle.webp",
+      "gif": "characters/velaria/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "seal": {
+      "frames": 42,
+      "fps": 30,
+      "duration": 1.4,
+      "loop": false,
+      "atlas": "characters/velaria/sprites/seal.png",
+      "data": "characters/velaria/sprites/seal.json",
+      "webp": "characters/velaria/animated/seal.webp",
+      "gif": "characters/velaria/animated/seal.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "channel": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/velaria/sprites/channel.png",
+      "data": "characters/velaria/sprites/channel.json",
+      "webp": "characters/velaria/animated/channel.webp",
+      "gif": "characters/velaria/animated/channel.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "recall": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/velaria/sprites/recall.png",
+      "data": "characters/velaria/sprites/recall.json",
+      "webp": "characters/velaria/animated/recall.webp",
+      "gif": "characters/velaria/animated/recall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "recover": {
+      "frames": 42,
+      "fps": 30,
+      "duration": 1.4,
+      "loop": false,
+      "atlas": "characters/velaria/sprites/recover.png",
+      "data": "characters/velaria/sprites/recover.json",
+      "webp": "characters/velaria/animated/recover.webp",
+      "gif": "characters/velaria/animated/recover.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/velaria/sprites/hit.png",
+      "data": "characters/velaria/sprites/hit.json",
+      "webp": "characters/velaria/animated/hit.webp",
+      "gif": "characters/velaria/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/velaria/sprites/spawn.png",
+      "data": "characters/velaria/sprites/spawn.json",
+      "webp": "characters/velaria/animated/spawn.webp",
+      "gif": "characters/velaria/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/velaria/sprites/celebrate.png",
+      "data": "characters/velaria/sprites/celebrate.json",
+      "webp": "characters/velaria/animated/celebrate.webp",
+      "gif": "characters/velaria/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

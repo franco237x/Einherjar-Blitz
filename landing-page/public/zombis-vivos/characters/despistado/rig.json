@@ -1,0 +1,272 @@
+{
+  "id": "despistado",
+  "name": "Despistado",
+  "role": "Zombi común",
+  "color": "#70846d",
+  "description": "Largo, desgarbado y distraído. Arrastra los zapatos y alcanza el jardín con las manos flojas.",
+  "motion": "Paso arrastrado, rodillas blandas y cabeza que llega tarde. Estira los brazos antes de morder.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "bite",
+    "hit",
+    "spawn",
+    "fall"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "health": 100,
+  "armor": 0,
+  "gaitTempo": 1,
+  "stride": 16,
+  "biteTime": 0.52,
+  "biteDamage": 10,
+  "layout": {
+    "hips": [
+      173,
+      211
+    ],
+    "head": [
+      143,
+      152
+    ],
+    "headSize": [
+      83,
+      88
+    ],
+    "torsoSize": [
+      76,
+      78
+    ],
+    "shoulders": [
+      [
+        184,
+        151
+      ],
+      [
+        161,
+        156
+      ]
+    ],
+    "arms": [
+      31,
+      35
+    ],
+    "legs": [
+      41,
+      43
+    ],
+    "hipOffsets": [
+      8,
+      -8
+    ],
+    "legWidth": 34,
+    "shoeWidth": 43,
+    "gear": [
+      143,
+      72,
+      25,
+      29
+    ]
+  },
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    160,
+    288
+  ],
+  "source": "../../source/despistado-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 266,
+      "height": 518,
+      "sourceRegion": {
+        "left": 30,
+        "top": 42,
+        "right": 289,
+        "bottom": 554
+      }
+    },
+    "head": {
+      "file": "parts/head.png",
+      "width": 196,
+      "height": 295,
+      "sourceRegion": {
+        "left": 304,
+        "top": 161,
+        "right": 493,
+        "bottom": 449
+      }
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 196,
+      "height": 295,
+      "sourceRegion": {
+        "left": 557,
+        "top": 167,
+        "right": 749,
+        "bottom": 456
+      }
+    },
+    "head-bite": {
+      "file": "parts/head-bite.png",
+      "width": 196,
+      "height": 295,
+      "sourceRegion": {
+        "left": 820,
+        "top": 167,
+        "right": 1006,
+        "bottom": 455
+      }
+    },
+    "gear": {
+      "file": "parts/gear.png",
+      "width": 166,
+      "height": 119,
+      "sourceRegion": {
+        "left": 1065,
+        "top": 262,
+        "right": 1225,
+        "bottom": 375
+      }
+    },
+    "torso": {
+      "file": "parts/torso.png",
+      "width": 218,
+      "height": 290,
+      "sourceRegion": {
+        "left": 62,
+        "top": 617,
+        "right": 273,
+        "bottom": 900
+      }
+    },
+    "upper-back": {
+      "file": "parts/upper-back.png",
+      "width": 126,
+      "height": 244,
+      "sourceRegion": {
+        "left": 385,
+        "top": 627,
+        "right": 504,
+        "bottom": 864
+      }
+    },
+    "lower-back": {
+      "file": "parts/lower-back.png",
+      "width": 124,
+      "height": 280,
+      "sourceRegion": {
+        "left": 586,
+        "top": 623,
+        "right": 703,
+        "bottom": 896
+      }
+    },
+    "upper-front": {
+      "file": "parts/upper-front.png",
+      "width": 116,
+      "height": 251,
+      "sourceRegion": {
+        "left": 840,
+        "top": 622,
+        "right": 950,
+        "bottom": 866
+      }
+    },
+    "lower-front": {
+      "file": "parts/lower-front.png",
+      "width": 120,
+      "height": 267,
+      "sourceRegion": {
+        "left": 1092,
+        "top": 631,
+        "right": 1205,
+        "bottom": 891
+      }
+    },
+    "thigh-back": {
+      "file": "parts/thigh-back.png",
+      "width": 127,
+      "height": 239,
+      "sourceRegion": {
+        "left": 83,
+        "top": 940,
+        "right": 203,
+        "bottom": 1172
+      }
+    },
+    "shin-back": {
+      "file": "parts/shin-back.png",
+      "width": 171,
+      "height": 274,
+      "sourceRegion": {
+        "left": 288,
+        "top": 937,
+        "right": 452,
+        "bottom": 1204
+      }
+    },
+    "thigh-front": {
+      "file": "parts/thigh-front.png",
+      "width": 120,
+      "height": 246,
+      "sourceRegion": {
+        "left": 601,
+        "top": 936,
+        "right": 714,
+        "bottom": 1175
+      }
+    },
+    "shin-front": {
+      "file": "parts/shin-front.png",
+      "width": 165,
+      "height": 264,
+      "sourceRegion": {
+        "left": 792,
+        "top": 947,
+        "right": 950,
+        "bottom": 1204
+      }
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 188,
+      "height": 163,
+      "sourceRegion": {
+        "left": 1022,
+        "top": 1003,
+        "right": 1204,
+        "bottom": 1159
+      }
+    }
+  }
+}

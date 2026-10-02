@@ -1,0 +1,149 @@
+{
+  "id": "nabu",
+  "name": "Nabú",
+  "anatomy": "root",
+  "role": "Nabo lanzasemillas",
+  "color": "#ac81b5",
+  "description": "Rechoncho, impulsivo y un poco torpe. Se planta sobre sus raíces y escupe una semilla.",
+  "attackStyle": "seed",
+  "tempo": 1.15,
+  "projectileEvent": 0.43,
+  "muzzle": [
+    211,
+    212
+  ],
+  "projectileSpeed": 310,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "tuft",
+    "foot-left",
+    "foot-right",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "El cuerpo se comprime; la cresta llega tarde y las raíces dan pequeños pasos.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/nabu-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 8,
+      "top": 7,
+      "width": 399,
+      "height": 469
+    },
+    "body": {
+      "left": 450,
+      "top": 155,
+      "width": 355,
+      "height": 307
+    },
+    "body-blink": {
+      "left": 869,
+      "top": 156,
+      "width": 355,
+      "height": 307
+    },
+    "body-action": {
+      "left": 6,
+      "top": 595,
+      "width": 335,
+      "height": 285
+    },
+    "tuft": {
+      "left": 419,
+      "top": 496,
+      "width": 429,
+      "height": 364
+    },
+    "foot-left": {
+      "left": 1003,
+      "top": 640,
+      "width": 178,
+      "height": 180
+    },
+    "foot-right": {
+      "left": 104,
+      "top": 1001,
+      "width": 188,
+      "height": 174
+    },
+    "projectile": {
+      "left": 534,
+      "top": 1043,
+      "width": 177,
+      "height": 75
+    },
+    "effect": {
+      "left": 926,
+      "top": 988,
+      "width": 278,
+      "height": 188
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 405,
+      "height": 475
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 360,
+      "height": 313
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 360,
+      "height": 313
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 360,
+      "height": 313
+    },
+    "tuft": {
+      "file": "parts/tuft.png",
+      "width": 435,
+      "height": 370
+    },
+    "foot-left": {
+      "file": "parts/foot-left.png",
+      "width": 184,
+      "height": 186
+    },
+    "foot-right": {
+      "file": "parts/foot-right.png",
+      "width": 194,
+      "height": 180
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 183,
+      "height": 80
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 284,
+      "height": 194
+    }
+  }
+}

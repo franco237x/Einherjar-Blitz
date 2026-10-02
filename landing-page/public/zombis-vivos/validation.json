@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-01",
+  "characters": [
+    {
+      "id": "despistado",
+      "clips": 6,
+      "frames": 270,
+      "variantClips": 0,
+      "variantFrames": 0,
+      "alpha": "verified",
+      "clipping": "none",
+      "movement": "verified",
+      "encodedDuration": "exact"
+    },
+    {
+      "id": "conero",
+      "clips": 7,
+      "frames": 294,
+      "variantClips": 5,
+      "variantFrames": 240,
+      "alpha": "verified",
+      "clipping": "none",
+      "movement": "verified",
+      "encodedDuration": "exact"
+    },
+    {
+      "id": "balderon",
+      "clips": 7,
+      "frames": 294,
+      "variantClips": 5,
+      "variantFrames": 240,
+      "alpha": "verified",
+      "clipping": "none",
+      "movement": "verified",
+      "encodedDuration": "exact"
+    }
+  ]
+}

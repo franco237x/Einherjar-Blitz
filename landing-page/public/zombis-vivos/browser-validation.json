@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-01",
+  "checked": {
+    "characters": 3,
+    "clips": 20,
+    "atlasFrames": 858,
+    "variantClips": 10,
+    "variantFrames": 480,
+    "unarmoredExports": "verified",
+    "webpEncodedFrames": 822,
+    "loopSeams": "verified",
+    "worldFootContact": "verified",
+    "slowAndFreeze": "verified",
+    "biteTimingAndOvershoot": "verified",
+    "armorAndOverflow": "verified",
+    "deathAndRespawn": "verified",
+    "callbackTransitions": "verified",
+    "responsiveWidths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "browserCanvas": "all 20 clips animate",
+    "armorDemo": "verified",
+    "pauseFlipBackgroundTravel": "verified",
+    "reducedMotion": "starts paused",
+    "javascriptErrors": [],
+    "failedRequests": []
+  }
+}

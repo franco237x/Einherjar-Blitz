@@ -1,0 +1,194 @@
+{
+  "id": "despistado",
+  "name": "Despistado",
+  "role": "Zombi común",
+  "color": "#70846d",
+  "description": "Largo, desgarbado y distraído. Arrastra los zapatos y alcanza el jardín con las manos flojas.",
+  "motion": "Paso arrastrado, rodillas blandas y cabeza que llega tarde. Estira los brazos antes de morder.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "bite",
+    "hit",
+    "spawn",
+    "fall"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "health": 100,
+  "armor": 0,
+  "gaitTempo": 1,
+  "stride": 16,
+  "biteTime": 0.52,
+  "biteDamage": 10,
+  "layout": {
+    "hips": [
+      173,
+      211
+    ],
+    "head": [
+      143,
+      152
+    ],
+    "headSize": [
+      83,
+      88
+    ],
+    "torsoSize": [
+      76,
+      78
+    ],
+    "shoulders": [
+      [
+        184,
+        151
+      ],
+      [
+        161,
+        156
+      ]
+    ],
+    "arms": [
+      31,
+      35
+    ],
+    "legs": [
+      41,
+      43
+    ],
+    "hipOffsets": [
+      8,
+      -8
+    ],
+    "legWidth": 34,
+    "shoeWidth": 43,
+    "gear": [
+      143,
+      72,
+      25,
+      29
+    ]
+  },
+  "moveSpeed": 22.22222222222222,
+  "portrait": "characters/despistado/portrait.png",
+  "rig": "characters/despistado/rig.json",
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/despistado/sprites/idle.png",
+      "data": "characters/despistado/sprites/idle.json",
+      "webp": "characters/despistado/animated/idle.webp",
+      "gif": "characters/despistado/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "walk": {
+      "label": "Caminar",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/despistado/sprites/walk.png",
+      "data": "characters/despistado/sprites/walk.json",
+      "webp": "characters/despistado/animated/walk.webp",
+      "gif": "characters/despistado/animated/walk.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "bite": {
+      "label": "Morder",
+      "duration": 1.2,
+      "frames": 36,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/despistado/sprites/bite.png",
+      "data": "characters/despistado/sprites/bite.json",
+      "webp": "characters/despistado/animated/bite.webp",
+      "gif": "characters/despistado/animated/bite.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/despistado/sprites/hit.png",
+      "data": "characters/despistado/sprites/hit.json",
+      "webp": "characters/despistado/animated/hit.webp",
+      "gif": "characters/despistado/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 1,
+      "frames": 30,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/despistado/sprites/spawn.png",
+      "data": "characters/despistado/sprites/spawn.json",
+      "webp": "characters/despistado/animated/spawn.webp",
+      "gif": "characters/despistado/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 1.4,
+      "frames": 42,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/despistado/sprites/fall.png",
+      "data": "characters/despistado/sprites/fall.json",
+      "webp": "characters/despistado/animated/fall.webp",
+      "gif": "characters/despistado/animated/fall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  },
+  "variants": {}
+}

@@ -1,0 +1,18 @@
+Use case: stylized-concept.
+Asset type: professional transparent 2D game character cutout rig, exactly nine separate parts in a 3-by-3 sheet.
+Primary request: Create CORTEZON, an ORIGINAL cute very tough purely defensive living cork-tree stump for a plant tower-defense game.
+Input image: STYLE AND CAST DIVERSITY reference only. Keep the hand-illustrated caricature finish and bold colored outlines of the collection, but invent a different silhouette. Do not copy any reference character.
+Identity: an immovable wide squat living CORK TRUNK, a roughly rectangular vertical bark block with a slightly arched top, extremely thick layered gray-brown cork on the sides and a warm pale ochre wood face recessed in the front. Heavy sleepy mismatched eyes with cream sclera and tiny dark pupils, bushy bark eyebrow ridges, one mild reassuring crooked smile. Face belongs to the trunk, no head, stalk, human arms or shield prop. Irregular vertical bark ridges, a big knot on one side, small sage-green moss accents. A separate ragged heavy cork crown/lid sits on top with one tiny living twig and two tiny sage leaves. Three wide gnarled roots anchor the whole block. An ancient softhearted tree guardian. Shape reads as a solid natural barricade; broader than tall. It absorbs hits and braces, NEVER shoots or attacks. No spikes.
+Style: Plants vs Zombies 2 playful hand-illustrated caricature family, deliberately different body proportions and eye shape from the rest of the cast. Confident earthy colored outline, crisp irregular shapes, broad cel-painted light and shadow planes, gray-brown cork, ochre core and muted sage moss. Cute sturdy 2D game art, not glossy 3D, not anime, not a walnut or existing PvZ character.
+Production composition: one square PNG, invisible 3x3 equal-cell layout, ONE asset per cell, all fully contained and centered, at least 15% truly transparent padding and gutters. Exactly nine assets, no text, grid, scenery, cast shadow, floor, pot, label or watermark. Expressions have EXACTLY the same contour, proportions and wood/bark texture placement.
+Left-to-right, top-to-bottom:
+1 complete assembled living trunk character reference, crown and rooted base, no cracks;
+2 ONLY the wide cork TRUNK BODY with neutral calm face, NO cork crown/lid, NO roots, NO twig or top leaves;
+3 EXACT same isolated trunk body as cell 2, gently closed eyes and small calm smile, unchanged contour and texture;
+4 EXACT same isolated trunk body as cell 2, eyes firmly clenched and mouth braced in a determined small grimace; visibly taking a hit, no attack, no flying effect or cracks baked onto it;
+5 ONLY the heavy irregular cork crown/lid, a wide shallow bark strip slightly convex on top, connected small twig and two tiny sage leaves at one side. Clean lower attachment edge, no body, no roots;
+6 ONLY the three broad gnarled root feet connected into a low rooted base, no trunk body;
+7 ONLY a moderate DAMAGE CRACK OVERLAY, three jagged dark brown branching bark cracks with narrow ochre rim highlights, separated on a roughly rectangular invisible area; no opaque wood fill, background or plant body;
+8 ONLY a CRITICAL DAMAGE CRACK OVERLAY, deeper dark-brown branching splits and two small lifted cork chips with ochre interior, cracks concentrated at the right and lower front; truly transparent spaces, no plant silhouette, no background;
+9 ONLY a small NON-VIOLENT IMPACT EFFECT of three little pale wood-dust puffs and two tiny tan splinters, clean cartoon contours, no weapon, no magic shield, no projectile.
+Constraints: fully original purely defensive plant, no weapon, no projectile, no generic spherical cute head-on-stalk, consistent anatomy and clean alpha; no part cropped or touching its neighbor.

@@ -1,0 +1,122 @@
+{
+  "id": "mordiseta",
+  "name": "Mordiseta",
+  "anatomy": "mushroom",
+  "role": "Hongo de esporas",
+  "color": "#c86440",
+  "description": "Tiene sueño hasta que toca defender el jardín. Infla el sombrero y libera esporas.",
+  "attackStyle": "spore",
+  "tempo": 0.8,
+  "projectileEvent": 0.6,
+  "muzzle": [
+    220,
+    207
+  ],
+  "projectileSpeed": 180,
+  "partNames": [
+    "reference",
+    "cap",
+    "stalk",
+    "stalk-blink",
+    "stalk-action",
+    "base",
+    "projectile",
+    "effect",
+    "cap-action"
+  ],
+  "expressions": [
+    "stalk",
+    "stalk-blink",
+    "stalk-action"
+  ],
+  "extraExpressions": [
+    [
+      "cap",
+      "cap-action"
+    ]
+  ],
+  "motion": "El sombrero pesa y se hunde; el tallo cabecea con los ojos medio cerrados.",
+  "portrait": "characters/mordiseta/portrait.png",
+  "rig": "characters/mordiseta/rig.json",
+  "effects": {
+    "projectile": "characters/mordiseta/parts/projectile.png",
+    "burst": "characters/mordiseta/parts/effect.png"
+  },
+  "animations": {
+    "idle": {
+      "frames": 72,
+      "fps": 30,
+      "duration": 2.4,
+      "loop": true,
+      "atlas": "characters/mordiseta/sprites/idle.png",
+      "data": "characters/mordiseta/sprites/idle.json",
+      "webp": "characters/mordiseta/animated/idle.webp",
+      "gif": "characters/mordiseta/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "attack": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/mordiseta/sprites/attack.png",
+      "data": "characters/mordiseta/sprites/attack.json",
+      "webp": "characters/mordiseta/animated/attack.webp",
+      "gif": "characters/mordiseta/animated/attack.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "hit": {
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "atlas": "characters/mordiseta/sprites/hit.png",
+      "data": "characters/mordiseta/sprites/hit.json",
+      "webp": "characters/mordiseta/animated/hit.webp",
+      "gif": "characters/mordiseta/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "spawn": {
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "atlas": "characters/mordiseta/sprites/spawn.png",
+      "data": "characters/mordiseta/sprites/spawn.json",
+      "webp": "characters/mordiseta/animated/spawn.webp",
+      "gif": "characters/mordiseta/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    },
+    "celebrate": {
+      "frames": 48,
+      "fps": 30,
+      "duration": 1.6,
+      "loop": false,
+      "atlas": "characters/mordiseta/sprites/celebrate.png",
+      "data": "characters/mordiseta/sprites/celebrate.json",
+      "webp": "characters/mordiseta/animated/celebrate.webp",
+      "gif": "characters/mordiseta/animated/celebrate.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ]
+    }
+  }
+}

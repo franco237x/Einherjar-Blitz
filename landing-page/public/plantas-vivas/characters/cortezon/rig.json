@@ -1,0 +1,171 @@
+{
+  "id": "cortezon",
+  "name": "Cortezón",
+  "anatomy": "bark",
+  "role": "Defensa pura",
+  "color": "#a08862",
+  "description": "Un tronco de corcho con un corazón tranquilo. Se aferra con sus raíces y aguanta los golpes.",
+  "attackStyle": "block",
+  "actionLabel": "Bloquear",
+  "primaryClip": "guard",
+  "defenseOnly": true,
+  "clips": [
+    "idle",
+    "guard",
+    "hit",
+    "spawn",
+    "celebrate",
+    "damaged",
+    "critical"
+  ],
+  "combat": {
+    "blocks": true,
+    "attackDamage": 0,
+    "reflectDamage": 0,
+    "suggestedHealth": 1600
+  },
+  "healthThresholds": {
+    "damaged": 0.55,
+    "critical": 0.25
+  },
+  "tempo": 0.52,
+  "projectileEvent": 0.42,
+  "muzzle": [
+    224,
+    207
+  ],
+  "projectileSpeed": 0,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "crown",
+    "base",
+    "cracks",
+    "cracks-critical",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "Masa pesada y raíces firmes. Amortigua el impacto sin atacar; la corteza se agrieta al perder integridad.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/cortezon-parts.png",
+  "sourceSize": [
+    1312,
+    1199
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 18,
+      "top": 24,
+      "width": 428,
+      "height": 441
+    },
+    "body": {
+      "left": 499,
+      "top": 160,
+      "width": 345,
+      "height": 283
+    },
+    "body-blink": {
+      "left": 938,
+      "top": 160,
+      "width": 344,
+      "height": 283
+    },
+    "body-action": {
+      "left": 56,
+      "top": 526,
+      "width": 347,
+      "height": 282
+    },
+    "crown": {
+      "left": 466,
+      "top": 570,
+      "width": 394,
+      "height": 189
+    },
+    "base": {
+      "left": 907,
+      "top": 662,
+      "width": 389,
+      "height": 127
+    },
+    "cracks": {
+      "left": 87,
+      "top": 867,
+      "width": 340,
+      "height": 311
+    },
+    "cracks-critical": {
+      "left": 547,
+      "top": 831,
+      "width": 314,
+      "height": 349
+    },
+    "effect": {
+      "left": 954,
+      "top": 926,
+      "width": 314,
+      "height": 219
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 434,
+      "height": 447
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 350,
+      "height": 289
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 350,
+      "height": 289
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 350,
+      "height": 289
+    },
+    "crown": {
+      "file": "parts/crown.png",
+      "width": 399,
+      "height": 194
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 395,
+      "height": 133
+    },
+    "cracks": {
+      "file": "parts/cracks.png",
+      "width": 346,
+      "height": 316
+    },
+    "cracks-critical": {
+      "file": "parts/cracks-critical.png",
+      "width": 319,
+      "height": 355
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 320,
+      "height": 225
+    }
+  }
+}

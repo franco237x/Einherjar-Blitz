@@ -1,0 +1,151 @@
+{
+  "id": "solmiel",
+  "name": "Solmiel",
+  "anatomy": "lantern",
+  "role": "Productora de soles",
+  "color": "#d8a13e",
+  "description": "Un farol de miel, cálido y soñoliento. Aprieta su fruto y deja escapar un sol dorado.",
+  "attackStyle": "sun",
+  "actionLabel": "Producir sol",
+  "tempo": 0.72,
+  "projectileEvent": 0.58,
+  "muzzle": [
+    132,
+    187
+  ],
+  "projectileSpeed": 16,
+  "sunValue": 25,
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "calyx",
+    "stalk",
+    "leaf",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "El farol cuelga y se balancea; se comprime, brilla y suelta un sol que flota hacia arriba.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/solmiel-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 52,
+      "top": 36,
+      "width": 384,
+      "height": 430
+    },
+    "body": {
+      "left": 530,
+      "top": 163,
+      "width": 258,
+      "height": 267
+    },
+    "body-blink": {
+      "left": 921,
+      "top": 163,
+      "width": 257,
+      "height": 267
+    },
+    "body-action": {
+      "left": 97,
+      "top": 566,
+      "width": 257,
+      "height": 266
+    },
+    "calyx": {
+      "left": 479,
+      "top": 619,
+      "width": 322,
+      "height": 185
+    },
+    "stalk": {
+      "left": 943,
+      "top": 480,
+      "width": 234,
+      "height": 392
+    },
+    "leaf": {
+      "left": 115,
+      "top": 928,
+      "width": 234,
+      "height": 285
+    },
+    "projectile": {
+      "left": 485,
+      "top": 924,
+      "width": 292,
+      "height": 282
+    },
+    "effect": {
+      "left": 943,
+      "top": 984,
+      "width": 237,
+      "height": 174
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 390,
+      "height": 436
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 264,
+      "height": 273
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 264,
+      "height": 273
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 264,
+      "height": 273
+    },
+    "calyx": {
+      "file": "parts/calyx.png",
+      "width": 328,
+      "height": 191
+    },
+    "stalk": {
+      "file": "parts/stalk.png",
+      "width": 240,
+      "height": 398
+    },
+    "leaf": {
+      "file": "parts/leaf.png",
+      "width": 240,
+      "height": 291
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 298,
+      "height": 288
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 243,
+      "height": 180
+    }
+  }
+}

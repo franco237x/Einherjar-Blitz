@@ -1,0 +1,157 @@
+{
+  "id": "frigora",
+  "name": "Frígora",
+  "anatomy": "fern",
+  "role": "Helecho de escarcha",
+  "color": "#67bfd0",
+  "description": "Sus frondas rizadas se cargan de frío. La escarcha frena al objetivo y tres impactos seguidos lo congelan.",
+  "attackStyle": "chill",
+  "actionLabel": "Lanzar escarcha",
+  "tempo": 0.86,
+  "projectileEvent": 0.53,
+  "muzzle": [
+    220,
+    225
+  ],
+  "projectileSpeed": 230,
+  "cold": {
+    "speedMultiplier": 0.5,
+    "slowSeconds": 3,
+    "freezeAtStacks": 3,
+    "freezeSeconds": 1.2,
+    "damage": 0
+  },
+  "partNames": [
+    "reference",
+    "body",
+    "body-blink",
+    "body-action",
+    "frond-left",
+    "frond-right",
+    "base",
+    "projectile",
+    "effect"
+  ],
+  "expressions": [
+    "body",
+    "body-blink",
+    "body-action"
+  ],
+  "motion": "Las frondas se doblan con retraso; el brote enrollado se comprime y sopla un copo de frío.",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    150,
+    288
+  ],
+  "source": "../../source/frigora-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "sourceRegions": {
+    "reference": {
+      "left": 48,
+      "top": 31,
+      "width": 387,
+      "height": 478
+    },
+    "body": {
+      "left": 495,
+      "top": 216,
+      "width": 334,
+      "height": 247
+    },
+    "body-blink": {
+      "left": 891,
+      "top": 216,
+      "width": 330,
+      "height": 247
+    },
+    "body-action": {
+      "left": 66,
+      "top": 656,
+      "width": 345,
+      "height": 249
+    },
+    "frond-left": {
+      "left": 449,
+      "top": 518,
+      "width": 341,
+      "height": 444
+    },
+    "frond-right": {
+      "left": 942,
+      "top": 641,
+      "width": 247,
+      "height": 309
+    },
+    "base": {
+      "left": 77,
+      "top": 1046,
+      "width": 308,
+      "height": 171
+    },
+    "projectile": {
+      "left": 525,
+      "top": 989,
+      "width": 207,
+      "height": 222
+    },
+    "effect": {
+      "left": 913,
+      "top": 1022,
+      "width": 295,
+      "height": 179
+    }
+  },
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 393,
+      "height": 483
+    },
+    "body": {
+      "file": "parts/body.png",
+      "width": 339,
+      "height": 252
+    },
+    "body-blink": {
+      "file": "parts/body-blink.png",
+      "width": 339,
+      "height": 252
+    },
+    "body-action": {
+      "file": "parts/body-action.png",
+      "width": 339,
+      "height": 252
+    },
+    "frond-left": {
+      "file": "parts/frond-left.png",
+      "width": 346,
+      "height": 450
+    },
+    "frond-right": {
+      "file": "parts/frond-right.png",
+      "width": 252,
+      "height": 315
+    },
+    "base": {
+      "file": "parts/base.png",
+      "width": 314,
+      "height": 177
+    },
+    "projectile": {
+      "file": "parts/projectile.png",
+      "width": 212,
+      "height": 228
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 301,
+      "height": 184
+    }
+  }
+}

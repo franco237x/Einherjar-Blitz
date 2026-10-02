@@ -1,0 +1,15 @@
+Use case: stylized-concept.
+Asset type: separated parts atlas for professional cutout animation of a 2D plant game character.
+Input image: APPROVED REDESIGN ART REFERENCE. Isolate and develop ONLY the leftmost turnip creature NABU from the reference. Keep his exact ivory-lavender pear-shaped root body, tiny unequal bead eyes, off-center bucktooth grin, crooked taproot tail, messy oversized green leaf hair, short root feet and simple caricature shading. Do NOT use the cactus, mushroom or carnivorous flower.
+CRITICAL: square transparent canvas, exactly 3 columns x 3 rows of equal cells; ONE fully isolated part per cell. At least 14 percent empty transparent padding on each cell edge. NO labels, text, grids, shared scene, floor, pots or shadows.
+Cells in reading order:
+1. COMPLETE assembled NABU turnip creature as in reference, full leaf tuft/body/tail/root feet. Short, squat, lopsided, no long stem.
+2. ONLY TURNIP BODY neutral expression, ivory-lavender pear shape with crooked little tail still attached, tiny bead eyes and goofy bucktooth smile. NO top leaf tuft and NO root feet.
+3. EXACT SAME TURNIP BODY same silhouette angle scale tail and colors as cell 2 but eyes CLOSED in a blink. Same tooth and mouth.
+4. EXACT SAME TURNIP BODY same geometry as cell 2 but puffed cheeks and small O mouth blowing a seed, playful determined eyebrows. NO leaf tuft or root feet.
+5. ONLY the BIG THREE-LEAF TOP TUFT from reference, three oversized wildly splayed leafy shoots with purple-green stems coming together in one narrow attachment point at bottom center. No body or face.
+6. ONLY LEFT root foot: short bent chunky cream-colored root leg with lavender shadow, attachment upper right, foot curl lower left.
+7. ONLY RIGHT root foot: short bent cream root leg, attachment upper left, foot curl lower right.
+8. ONLY one small funny oval brown seed projectile facing RIGHT with a very short pale green motion streak.
+9. ONLY one compact green-lavender little leaf/dirt puff effect, no ground behind it.
+Preserve tiny asymmetric bead eyes, expressive cartoon eyebrow and one bucktooth. Simple clean 2D cartoon line work and broad shadow planes matching reference, NO glossy anime eyes, NO generic round head on trunk, NO paired leaf arms. Heads/body expressions 2,3,4 must match character outline EXACTLY with only face changed. Genuine transparent alpha, crisp professional game sprites, no text or watermark.

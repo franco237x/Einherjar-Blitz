@@ -1,0 +1,273 @@
+{
+  "id": "balderon",
+  "name": "Balderón",
+  "role": "Zombi con balde",
+  "color": "#738ea0",
+  "description": "Ancho, pesado y sin ninguna prisa. Su balde abollado aguanta más golpes antes de desprenderse.",
+  "motion": "Pisadas pesadas, torso con inercia y brazos bajos. El balde cae con un giro corto y un golpe seco.",
+  "partNames": [
+    "reference",
+    "head",
+    "head-blink",
+    "head-bite",
+    "gear",
+    "torso",
+    "upper-back",
+    "lower-back",
+    "upper-front",
+    "lower-front",
+    "thigh-back",
+    "shin-back",
+    "thigh-front",
+    "shin-front",
+    "effect"
+  ],
+  "clips": [
+    "idle",
+    "walk",
+    "bite",
+    "hit",
+    "spawn",
+    "fall",
+    "armor-break"
+  ],
+  "expressions": [
+    "head",
+    "head-blink",
+    "head-bite"
+  ],
+  "health": 100,
+  "armor": 240,
+  "gaitTempo": 0.82,
+  "stride": 13,
+  "biteTime": 0.52,
+  "biteDamage": 10,
+  "layout": {
+    "hips": [
+      174,
+      221
+    ],
+    "head": [
+      150,
+      166
+    ],
+    "headSize": [
+      96,
+      89
+    ],
+    "torsoSize": [
+      108,
+      83
+    ],
+    "shoulders": [
+      [
+        166,
+        168
+      ],
+      [
+        196,
+        166
+      ]
+    ],
+    "arms": [
+      30,
+      34
+    ],
+    "legs": [
+      36,
+      40
+    ],
+    "hipOffsets": [
+      12,
+      -12
+    ],
+    "legWidth": 45,
+    "shoeWidth": 55,
+    "gear": [
+      152,
+      112,
+      100,
+      65
+    ]
+  },
+  "logicalSize": [
+    320,
+    320
+  ],
+  "groundAnchor": [
+    160,
+    288
+  ],
+  "source": "../../source/balderon-parts.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "parts": {
+    "reference": {
+      "file": "parts/reference.png",
+      "width": 306,
+      "height": 482,
+      "sourceRegion": {
+        "left": 21,
+        "top": 65,
+        "right": 320,
+        "bottom": 540
+      }
+    },
+    "head": {
+      "file": "parts/head.png",
+      "width": 200,
+      "height": 232,
+      "sourceRegion": {
+        "left": 333,
+        "top": 224,
+        "right": 526,
+        "bottom": 449
+      }
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 200,
+      "height": 232,
+      "sourceRegion": {
+        "left": 546,
+        "top": 223,
+        "right": 739,
+        "bottom": 449
+      }
+    },
+    "head-bite": {
+      "file": "parts/head-bite.png",
+      "width": 200,
+      "height": 232,
+      "sourceRegion": {
+        "left": 777,
+        "top": 223,
+        "right": 973,
+        "bottom": 453
+      }
+    },
+    "gear": {
+      "file": "parts/gear.png",
+      "width": 253,
+      "height": 242,
+      "sourceRegion": {
+        "left": 987,
+        "top": 233,
+        "right": 1233,
+        "bottom": 468
+      }
+    },
+    "torso": {
+      "file": "parts/torso.png",
+      "width": 330,
+      "height": 323,
+      "sourceRegion": {
+        "left": 36,
+        "top": 580,
+        "right": 359,
+        "bottom": 897
+      }
+    },
+    "upper-back": {
+      "file": "parts/upper-back.png",
+      "width": 142,
+      "height": 237,
+      "sourceRegion": {
+        "left": 409,
+        "top": 609,
+        "right": 544,
+        "bottom": 839
+      }
+    },
+    "lower-back": {
+      "file": "parts/lower-back.png",
+      "width": 146,
+      "height": 245,
+      "sourceRegion": {
+        "left": 593,
+        "top": 627,
+        "right": 733,
+        "bottom": 866
+      }
+    },
+    "upper-front": {
+      "file": "parts/upper-front.png",
+      "width": 147,
+      "height": 243,
+      "sourceRegion": {
+        "left": 822,
+        "top": 610,
+        "right": 962,
+        "bottom": 846
+      }
+    },
+    "lower-front": {
+      "file": "parts/lower-front.png",
+      "width": 149,
+      "height": 265,
+      "sourceRegion": {
+        "left": 1069,
+        "top": 621,
+        "right": 1211,
+        "bottom": 879
+      }
+    },
+    "thigh-back": {
+      "file": "parts/thigh-back.png",
+      "width": 167,
+      "height": 260,
+      "sourceRegion": {
+        "left": 54,
+        "top": 928,
+        "right": 214,
+        "bottom": 1181
+      }
+    },
+    "shin-back": {
+      "file": "parts/shin-back.png",
+      "width": 234,
+      "height": 236,
+      "sourceRegion": {
+        "left": 250,
+        "top": 966,
+        "right": 477,
+        "bottom": 1195
+      }
+    },
+    "thigh-front": {
+      "file": "parts/thigh-front.png",
+      "width": 160,
+      "height": 238,
+      "sourceRegion": {
+        "left": 547,
+        "top": 930,
+        "right": 701,
+        "bottom": 1161
+      }
+    },
+    "shin-front": {
+      "file": "parts/shin-front.png",
+      "width": 218,
+      "height": 242,
+      "sourceRegion": {
+        "left": 747,
+        "top": 965,
+        "right": 958,
+        "bottom": 1200
+      }
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 192,
+      "height": 155,
+      "sourceRegion": {
+        "left": 1033,
+        "top": 1029,
+        "right": 1218,
+        "bottom": 1177
+      }
+    }
+  }
+}
