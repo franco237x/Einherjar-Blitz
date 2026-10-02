@@ -1,26 +1,29 @@
 import {
   COLS,
-  PLANTS,
   ROWS,
   TICKS_PER_SECOND,
   TIMING,
+  hasArmor,
+  isFrozen,
+  isSlowed,
   type JardinState,
   type PlantKind,
 } from '@/lib/jardin/engine';
 import {
   ATLAS_COLUMNS,
   BACKGROUND_URL,
-  MOWER_CLIPS,
-  MOWER_PIVOT,
   FRAME_PX_PER_CELL,
   FRAME_SIZE,
+  MOWER_CLIPS,
+  MOWER_PIVOT,
   PLANT_CLIPS,
   PLANT_PIVOT,
+  PROJECTILE_IMAGES,
   ZOMBIE_CLIPS,
   ZOMBIE_PIVOT,
-  ZOMBIE_WALK_FRAME_RATE,
   frameIndex,
   spriteUrl,
+  zombieSpriteName,
   type ClipInfo,
 } from '@/lib/jardin/sprites';
 
@@ -90,10 +93,18 @@ function drawFrame(
   size: number,
   pivot: { x: number; y: number },
 ) {
-  if (!image) return;
+  if (!image) return false;
   const sx = (frame % ATLAS_COLUMNS) * FRAME_SIZE;
   const sy = Math.floor(frame / ATLAS_COLUMNS) * FRAME_SIZE;
   ctx.drawImage(image, sx, sy, FRAME_SIZE, FRAME_SIZE, x - pivot.x * size, y - pivot.y * size, size, size);
+  return true;
+}
+
+/** Placeholder while a character's atlas is still downloading. */
+function drawPortrait(ctx: CanvasRenderingContext2D, image: HTMLImageElement | undefined, x: number, y: number, size: number) {
+  if (!image) return;
+  const w = size * 0.6;
+  ctx.drawImage(image, x - w / 2, y - w * 0.95, w, w);
 }
 
 let lawnCache: { key: string; canvas: HTMLCanvasElement } | null = null;
@@ -114,28 +125,19 @@ function drawLawn(ctx: CanvasRenderingContext2D, v: Viewport, dpr: number, backg
     if (background) {
       c.imageSmoothingQuality = 'high';
       c.drawImage(background, v.ox, v.oy, WORLD_W * v.scale, WORLD_H * v.scale);
-      lawnCache = { key, canvas };
-      ctx.drawImage(canvas, 0, 0, v.width, v.height);
-      return;
-    }
-    // House strip and entry path.
-    c.fillStyle = '#3a2a1d';
-    c.fillRect(v.ox, screenY(v, 0), LEFT * v.scale, ROWS * CELL_H * v.scale);
-    c.fillStyle = '#4a4034';
-    c.fillRect(screenX(v, COLS), screenY(v, 0), RIGHT * v.scale, ROWS * CELL_H * v.scale);
-    for (let row = 0; row < ROWS; row++) {
-      for (let col = 0; col < COLS; col++) {
-        const light = (row + col) % 2 === 0;
-        c.fillStyle = row % 2 === 0 ? (light ? '#5f9a3a' : '#548a33') : light ? '#6aa641' : '#5c9638';
-        c.fillRect(screenX(v, col), screenY(v, row), v.scale + 0.5, CELL_H * v.scale + 0.5);
+    } else {
+      c.fillStyle = '#3a2a1d';
+      c.fillRect(v.ox, screenY(v, 0), LEFT * v.scale, ROWS * CELL_H * v.scale);
+      c.fillStyle = '#4a4034';
+      c.fillRect(screenX(v, COLS), screenY(v, 0), RIGHT * v.scale, ROWS * CELL_H * v.scale);
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const light = (row + col) % 2 === 0;
+          c.fillStyle = light ? '#6aa641' : '#5c9638';
+          c.fillRect(screenX(v, col), screenY(v, row), v.scale + 0.5, CELL_H * v.scale + 0.5);
+        }
       }
     }
-    // Soft vignette over the lawn edges.
-    const shade = c.createLinearGradient(screenX(v, 0), 0, screenX(v, 0.6), 0);
-    shade.addColorStop(0, 'rgba(0,0,0,0.25)');
-    shade.addColorStop(1, 'rgba(0,0,0,0)');
-    c.fillStyle = shade;
-    c.fillRect(screenX(v, 0), screenY(v, 0), 0.6 * v.scale, ROWS * CELL_H * v.scale);
     lawnCache = { key, canvas };
   }
   ctx.drawImage(lawnCache.canvas, 0, 0, v.width, v.height);
@@ -148,10 +150,10 @@ function shadow(ctx: CanvasRenderingContext2D, x: number, y: number, w: number) 
   ctx.fill();
 }
 
-function withFlash(ctx: CanvasRenderingContext2D, active: boolean, draw: () => void) {
-  if (!active) return draw();
+function withFilter(ctx: CanvasRenderingContext2D, filter: string | null, draw: () => void) {
+  if (!filter) return draw();
   ctx.save();
-  ctx.filter = 'brightness(1.7)';
+  ctx.filter = filter;
   draw();
   ctx.restore();
 }
@@ -178,19 +180,44 @@ export function drawScene(
   drawLawn(ctx, v, dpr, images.get(BACKGROUND_URL));
 
   if (hover) {
-    ctx.fillStyle = hover.valid ? 'rgba(255,255,255,0.18)' : 'rgba(255,60,60,0.22)';
+    ctx.fillStyle = hover.valid ? 'rgba(255,255,255,0.2)' : 'rgba(255,60,60,0.25)';
     ctx.fillRect(screenX(v, hover.col), screenY(v, hover.row), v.scale, CELL_H * v.scale);
+  }
+
+  // Velaria's link to the marked zombie, drawn under the characters.
+  const sigil = images.get(spriteUrl('velaria', 'sigil'));
+  for (const plant of state.plants) {
+    const mark = plant.mark;
+    if (!mark) continue;
+    const zombie = state.zombies.find((other) => other.id === mark.zombieId);
+    if (!zombie) continue;
+    const y = screenY(v, plant.row + 0.55);
+    const ax = screenX(v, mark.anchorX);
+    const zx = screenX(v, zombie.prevX + (zombie.x - zombie.prevX) * alpha);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(190,140,255,0.75)';
+    ctx.lineWidth = Math.max(1.5, v.scale * 0.03);
+    ctx.setLineDash([v.scale * 0.08, v.scale * 0.06]);
+    ctx.beginPath();
+    ctx.moveTo(ax, y);
+    ctx.lineTo(zx, y);
+    ctx.stroke();
+    if (sigil) {
+      const size = v.scale * (0.5 + Math.sin(t / 5) * 0.04);
+      ctx.globalAlpha = 0.9;
+      ctx.drawImage(sigil, ax - size / 2, y - size / 2, size, size);
+    }
+    ctx.restore();
   }
 
   for (let row = 0; row < ROWS; row++) {
     const mower = state.mowers[row];
     if (mower && !mower.gone) {
       const x = screenX(v, mower.prevX + (mower.x - mower.prevX) * alpha);
-      const clip = MOWER_CLIPS[mower.clip];
       drawFrame(
         ctx,
         images.get(spriteUrl('podadora', mower.clip)),
-        frameIndex(clip, t - mower.clipStart),
+        frameIndex(MOWER_CLIPS[mower.clip], t - mower.clipStart),
         x,
         groundY(v, row),
         spriteSize,
@@ -203,35 +230,62 @@ export function drawScene(
       const x = screenX(v, plant.col + 0.5);
       const y = groundY(v, row);
       shadow(ctx, x, y, 0.34 * v.scale);
-      const clip = (PLANT_CLIPS[plant.kind][plant.clip] ?? PLANT_CLIPS[plant.kind].idle) as ClipInfo;
-      const image = images.get(spriteUrl(plant.kind, PLANT_CLIPS[plant.kind][plant.clip] ? plant.clip : 'idle'));
-      withFlash(ctx, t - plant.lastHit < 4, () =>
-        drawFrame(ctx, image, frameIndex(clip, t - plant.clipStart), x, y, spriteSize, PLANT_PIVOT),
-      );
+      const clips = PLANT_CLIPS[plant.kind];
+      const clipName = clips[plant.clip] ? plant.clip : 'idle';
+      const clip = clips[clipName] as ClipInfo;
+      const digesting = state.tick < plant.digestUntil;
+      const filter = t - plant.lastHit < 4 ? 'brightness(1.7)' : digesting ? 'saturate(0.6) brightness(0.92)' : null;
+      withFilter(ctx, filter, () => {
+        const drawn = drawFrame(
+          ctx,
+          images.get(spriteUrl(plant.kind, clipName)),
+          frameIndex(clip, t - plant.clipStart),
+          x,
+          y,
+          spriteSize,
+          PLANT_PIVOT,
+        );
+        if (!drawn) drawPortrait(ctx, images.get(spriteUrl(plant.kind, 'portrait')), x, y, spriteSize);
+      });
+      if (digesting) {
+        const left = (plant.digestUntil - t) / TIMING.zarzinaDigest;
+        const w = 0.6 * v.scale;
+        const bx = x - w / 2;
+        const by = screenY(v, row + 0.08);
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(bx, by, w, 0.07 * v.scale);
+        ctx.fillStyle = '#c084fc';
+        ctx.fillRect(bx, by, w * (1 - left), 0.07 * v.scale);
+      }
     }
 
     if (hover && hover.kind !== 'shovel' && hover.valid && hover.row === row) {
       ctx.save();
       ctx.globalAlpha = 0.45;
-      drawFrame(
-        ctx,
-        images.get(spriteUrl(hover.kind, 'idle')),
-        0,
-        screenX(v, hover.col + 0.5),
-        groundY(v, row),
-        spriteSize,
-        PLANT_PIVOT,
-      );
+      const x = screenX(v, hover.col + 0.5);
+      const y = groundY(v, row);
+      const idle = images.get(spriteUrl(hover.kind, 'idle'));
+      if (!drawFrame(ctx, idle, 0, x, y, spriteSize, PLANT_PIVOT))
+        drawPortrait(ctx, images.get(spriteUrl(hover.kind, 'portrait')), x, y, spriteSize);
       ctx.restore();
     }
 
-    const seed = images.get(spriteUrl('nabu', 'seed'));
     for (const projectile of state.projectiles) {
-      if (projectile.row !== row || !seed) continue;
+      if (projectile.row !== row) continue;
+      const art = PROJECTILE_IMAGES[projectile.kind];
+      const image = images.get(art.url);
       const x = screenX(v, projectile.prevX + (projectile.x - projectile.prevX) * alpha);
-      const w = 0.42 * v.scale;
-      const h = (w * seed.height) / seed.width;
-      ctx.drawImage(seed, x - w / 2, screenY(v, row + 0.42) - h / 2, w, h);
+      const y = screenY(v, row + art.y);
+      const w = art.size * v.scale;
+      if (image) {
+        const h = (w * image.height) / image.width;
+        ctx.drawImage(image, x - w / 2, y - h / 2, w, h);
+      } else {
+        ctx.fillStyle = projectile.kind === 'frost' ? '#bae6fd' : '#a16207';
+        ctx.beginPath();
+        ctx.arc(x, y, w * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     const zombies = state.zombies.filter((zombie) => zombie.row === row).sort((a, b) => b.x - a.x);
@@ -239,8 +293,7 @@ export function drawScene(
       const x = screenX(v, zombie.prevX + (zombie.x - zombie.prevX) * alpha);
       const y = groundY(v, row);
       const clip = ZOMBIE_CLIPS[zombie.clip];
-      const rate = zombie.clip === 'walk' ? ZOMBIE_WALK_FRAME_RATE : 1;
-      const elapsed = (t - zombie.clipStart) * rate;
+      const name = zombieSpriteName(zombie.kind, zombie.clip, hasArmor(zombie));
       ctx.save();
       if (zombie.clip === 'fall') {
         const fade = (t - zombie.clipStart - TIMING.zombieFall) / TIMING.corpseLinger;
@@ -248,30 +301,73 @@ export function drawScene(
       } else {
         shadow(ctx, x, y, 0.3 * v.scale);
       }
-      withFlash(ctx, t - zombie.lastHit < 4 && zombie.clip !== 'fall', () =>
-        drawFrame(ctx, images.get(spriteUrl('despistado', zombie.clip)), frameIndex(clip, elapsed), x, y, spriteSize, ZOMBIE_PIVOT),
-      );
+      const frozen = isFrozen(state, zombie);
+      const filter =
+        zombie.clip === 'fall'
+          ? null
+          : frozen
+            ? 'saturate(0.3) hue-rotate(170deg) brightness(1.25)'
+            : isSlowed(state, zombie)
+              ? 'saturate(0.6) hue-rotate(150deg) brightness(1.1)'
+              : t - zombie.lastHit < 4
+                ? 'brightness(1.7)'
+                : null;
+      withFilter(ctx, filter, () => {
+        const drawn = drawFrame(
+          ctx,
+          images.get(spriteUrl(zombie.kind, name)),
+          frameIndex(clip, zombie.anim),
+          x,
+          y,
+          spriteSize,
+          ZOMBIE_PIVOT,
+        );
+        if (!drawn) drawPortrait(ctx, images.get(spriteUrl(zombie.kind, 'portrait')), x, y, spriteSize);
+      });
+      if (t - zombie.rewoundAt < 12) {
+        ctx.globalAlpha = 1 - (t - zombie.rewoundAt) / 12;
+        ctx.fillStyle = 'rgba(190,140,255,0.5)';
+        ctx.beginPath();
+        ctx.ellipse(x, y - 0.6 * v.scale, 0.35 * v.scale, 0.75 * v.scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.restore();
     }
   }
 
   const burst = images.get(spriteUrl('granadin', 'burst'));
-  for (const blast of state.blasts) {
-    const p = (t - blast.tick) / TICKS_PER_SECOND;
-    const x = screenX(v, blast.col + 0.5);
-    const y = screenY(v, blast.row + 0.5);
-    const r = (0.6 + p * 1.6) * v.scale;
+  const bloom = images.get(spriteUrl('aurelia', 'bloom'));
+  for (const effect of state.effects) {
+    const p = (t - effect.tick) / TICKS_PER_SECOND;
+    const x = screenX(v, effect.col + 0.5);
+    const y = screenY(v, effect.row + 0.5);
     ctx.save();
     ctx.globalAlpha = Math.max(0, 1 - p);
-    const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
-    glow.addColorStop(0, 'rgba(255,240,180,0.95)');
-    glow.addColorStop(0.45, 'rgba(255,140,40,0.75)');
-    glow.addColorStop(1, 'rgba(160,30,10,0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    if (burst) ctx.drawImage(burst, x - r * 0.8, y - r * 0.8, r * 1.6, r * 1.6);
+    if (effect.type === 'blast') {
+      const r = (0.6 + p * 1.6) * v.scale;
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
+      glow.addColorStop(0, 'rgba(255,240,180,0.95)');
+      glow.addColorStop(0.45, 'rgba(255,140,40,0.75)');
+      glow.addColorStop(1, 'rgba(160,30,10,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      if (burst) ctx.drawImage(burst, x - r * 0.8, y - r * 0.8, r * 1.6, r * 1.6);
+    } else if (effect.type === 'bloom') {
+      const r = (0.5 + p * 1.1) * v.scale;
+      ctx.strokeStyle = 'rgba(253,224,255,0.9)';
+      ctx.lineWidth = v.scale * 0.05;
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * 1.4, r, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      if (bloom) ctx.drawImage(bloom, x - r * 0.6, y - r * 0.9, r * 1.2, r * 1.2);
+    } else if (effect.type === 'chomp') {
+      ctx.fillStyle = 'rgba(244,114,182,0.85)';
+      ctx.font = `bold ${Math.round(0.32 * v.scale)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('¡ÑAM!', x + 0.6 * v.scale, y - 0.5 * v.scale - p * 0.4 * v.scale);
+    }
     ctx.restore();
   }
 
@@ -290,5 +386,3 @@ export function drawScene(
     ctx.restore();
   }
 }
-
-export const PLANT_COST = (kind: PlantKind) => PLANTS[kind].cost;

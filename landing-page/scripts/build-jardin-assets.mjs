@@ -1,13 +1,15 @@
-// Builds the Jardín sandbox sprites from the full art pack.
+// Builds the Jardín sprites from the full art pack.
 //
 // The pack (branch codex/plantas-zombis-assets) ships PNG atlases, GIF/WebP
-// previews and sources (~340 MB). The game only needs a few clips per
+// previews and sources (~340 MB). The game only needs some clips per
 // character, so this script converts those atlases to WebP and writes them to
 // public/jardin/, together with the garden background and the lane mower.
 // Usage:
 //
-//   git archive origin/codex/plantas-zombis-assets landing-page/public \
-//     | tar -x -C /tmp/pack
+//   git archive origin/codex/plantas-zombis-assets \
+//     landing-page/public/plantas-vivas/characters \
+//     landing-page/public/zombis-vivos/characters \
+//     landing-page/public/jardin-yggdrasil | tar -x -C /tmp/pack
 //   node scripts/build-jardin-assets.mjs /tmp/pack/landing-page/public
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -20,38 +22,62 @@ if (!source) {
 }
 const out = path.resolve(import.meta.dirname, '../public/jardin');
 
-const CHARACTERS = {
-  solmiel: { dir: 'plantas-vivas', clips: ['idle', 'attack', 'spawn'], extra: { 'sun.webp': 'parts/projectile.png' } },
-  nabu: { dir: 'plantas-vivas', clips: ['idle', 'attack', 'spawn'], extra: { 'seed.webp': 'parts/projectile.png' } },
-  cortezon: { dir: 'plantas-vivas', clips: ['idle', 'damaged', 'critical', 'spawn'] },
-  granadin: { dir: 'plantas-vivas', clips: ['idle', 'attack'], extra: { 'burst.webp': 'parts/projectile.png' } },
-  despistado: { dir: 'zombis-vivos', clips: ['walk', 'bite', 'fall', 'spawn'] },
+const PLANT_BASE = ['idle', 'attack', 'spawn'];
+const PLANTS = {
+  solmiel: { clips: PLANT_BASE, extra: { 'sun.webp': 'parts/projectile.png' } },
+  nabu: { clips: PLANT_BASE, extra: { 'seed.webp': 'parts/projectile.png' } },
+  cortezon: { clips: ['idle', 'damaged', 'critical', 'spawn'] },
+  granadin: { clips: ['idle', 'attack'], extra: { 'burst.webp': 'parts/projectile.png' } },
+  mordiseta: { clips: PLANT_BASE, extra: { 'spore.webp': 'parts/projectile.png' } },
+  cardon: { clips: PLANT_BASE, extra: { 'spine.webp': 'parts/projectile.png' } },
+  frigora: { clips: PLANT_BASE, extra: { 'frost.webp': 'parts/projectile.png' } },
+  zarzina: { clips: PLANT_BASE },
+  aurelia: { clips: PLANT_BASE, extra: { 'bloom.webp': 'parts/effect.png' } },
+  velaria: { clips: ['idle', 'seal', 'channel', 'recall', 'recover', 'spawn'], extra: { 'sigil.webp': 'parts/sigil.png' } },
+};
+const ZOMBIE_BASE = ['walk', 'bite', 'fall', 'spawn'];
+const ZOMBIES = {
+  despistado: { clips: ZOMBIE_BASE },
+  conero: { clips: [...ZOMBIE_BASE, 'armor-break'], unarmored: ['walk', 'bite', 'fall'] },
+  balderon: { clips: [...ZOMBIE_BASE, 'armor-break'], unarmored: ['walk', 'bite', 'fall'] },
 };
 
 const summary = {};
-for (const [id, { dir, clips, extra = {} }] of Object.entries(CHARACTERS)) {
-  const from = path.join(source, dir, 'characters', id);
+async function atlas(from, to, name, key) {
+  const meta = JSON.parse(await readFile(`${from}.json`, 'utf8'));
+  await sharp(`${from}.png`)
+    .webp({ quality: 80, alphaQuality: 88, effort: 5 })
+    .toFile(path.join(to, `${name}.webp`));
+  summary[key][name] = { frames: meta.frames.length, loop: meta.meta.animation.loop };
+}
+async function still(file, target, width) {
+  await sharp(file)
+    .resize({ width, withoutEnlargement: true })
+    .webp({ quality: 85, alphaQuality: 90 })
+    .toFile(target);
+}
+
+for (const [id, { clips, extra = {} }] of Object.entries(PLANTS)) {
+  const from = path.join(source, 'plantas-vivas', 'characters', id);
   const to = path.join(out, id);
   await mkdir(to, { recursive: true });
   summary[id] = {};
-  for (const clip of clips) {
-    const meta = JSON.parse(await readFile(path.join(from, 'sprites', `${clip}.json`), 'utf8'));
-    await sharp(path.join(from, 'sprites', `${clip}.png`))
-      .webp({ quality: 82, alphaQuality: 90, effort: 5 })
-      .toFile(path.join(to, `${clip}.webp`));
-    summary[id][clip] = { frames: meta.frames.length, loop: meta.meta.animation.loop };
-  }
-  await sharp(path.join(from, 'portrait.png'))
-    .resize(256, 256)
-    .webp({ quality: 85, alphaQuality: 90 })
-    .toFile(path.join(to, 'portrait.webp'));
-  for (const [name, file] of Object.entries(extra)) {
-    await sharp(path.join(from, file))
-      .resize({ width: 160, withoutEnlargement: true })
-      .webp({ quality: 85, alphaQuality: 90 })
-      .toFile(path.join(to, name));
-  }
+  for (const clip of clips) await atlas(path.join(from, 'sprites', clip), to, clip, id);
+  await still(path.join(from, 'portrait.png'), path.join(to, 'portrait.webp'), 256);
+  for (const [name, file] of Object.entries(extra)) await still(path.join(from, file), path.join(to, name), 160);
 }
+
+for (const [id, { clips, unarmored = [] }] of Object.entries(ZOMBIES)) {
+  const from = path.join(source, 'zombis-vivos', 'characters', id);
+  const to = path.join(out, id);
+  await mkdir(to, { recursive: true });
+  summary[id] = {};
+  for (const clip of clips) await atlas(path.join(from, 'sprites', clip), to, clip, id);
+  for (const clip of unarmored)
+    await atlas(path.join(from, 'unarmored', 'sprites', clip), to, `sin-${clip}`, id);
+  await still(path.join(from, 'portrait.png'), path.join(to, 'portrait.webp'), 256);
+}
+
 // Garden background and lane mower (public/jardin-yggdrasil in the pack).
 const garden = path.join(source, 'jardin-yggdrasil');
 await mkdir(path.join(out, 'escenario'), { recursive: true });
@@ -60,13 +86,8 @@ await sharp(path.join(garden, 'background', 'jardin-yggdrasil.webp'))
   .toFile(path.join(out, 'escenario', 'jardin.webp'));
 await mkdir(path.join(out, 'podadora'), { recursive: true });
 summary.podadora = {};
-for (const clip of ['idle', 'start', 'run']) {
-  const meta = JSON.parse(await readFile(path.join(garden, 'podadora', 'sprites', `${clip}.json`), 'utf8'));
-  await sharp(path.join(garden, 'podadora', 'sprites', `${clip}.png`))
-    .webp({ quality: 82, alphaQuality: 90, effort: 5 })
-    .toFile(path.join(out, 'podadora', `${clip}.webp`));
-  summary.podadora[clip] = { frames: meta.frames.length, loop: meta.meta.animation.loop };
-}
+for (const clip of ['idle', 'start', 'run'])
+  await atlas(path.join(garden, 'podadora', 'sprites', clip), path.join(out, 'podadora'), clip, 'podadora');
 
 // Paste into src/lib/jardin/sprites.ts when clips change.
-console.log(JSON.stringify(summary, null, 2));
+console.log(JSON.stringify(summary));

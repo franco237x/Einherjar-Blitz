@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { JardinSandbox } from '@/components/jardin/JardinSandbox';
 
 export const metadata: Metadata = {
-  title: 'Jardín de Yggdrasil · Sandbox | Einherjar Blitz',
-  description: 'Prueba libre del nuevo evento: defiende el jardín de los zombis con Solmiel, Nabú, Cortezón y Granadín.',
+  title: 'Jardín de Yggdrasil · Beta pre-evento | Einherjar Blitz',
+  description:
+    'Beta abierta del próximo evento: defiende el jardín de los zombis con diez plantas vivas, en oleadas o en modo sandbox.',
 };
 
 export const viewport: Viewport = {

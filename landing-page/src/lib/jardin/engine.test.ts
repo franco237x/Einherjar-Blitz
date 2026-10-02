@@ -3,8 +3,12 @@ import {
   BALANCE,
   canPlace,
   createGame,
+  isFrozen,
+  isSlowed,
+  LEVEL_WAVES,
   PLANTS,
   step,
+  ZOMBIES,
   TICKS_PER_SECOND,
   TIMING,
   type Command,
@@ -186,7 +190,7 @@ describe('Granadín', () => {
     const fallen = game.zombies.filter((zombie) => zombie.clip === 'fall').map((zombie) => zombie.row).sort();
     expect(fallen).toEqual([1, 2, 3]);
     expect(game.plants).toHaveLength(0);
-    expect(game.blasts).toHaveLength(1);
+    expect(game.effects.filter((effect) => effect.type === 'blast')).toHaveLength(1);
   });
 });
 
@@ -202,5 +206,162 @@ describe('determinism', () => {
       return JSON.stringify({ ...game, rngState: undefined });
     };
     expect(play()).toBe(play());
+  });
+});
+
+// ─── Plants added for the beta ─────────────────────────────────────────────
+const free = { ...quiet, infiniteSun: true, noCooldown: true };
+
+describe('armoured zombies', () => {
+  it('lose the cone or bucket before taking health damage', () => {
+    const game = createGame(SEED, quiet);
+    step(game, [
+      { type: 'spawnZombie', row: 1, kind: 'conero' },
+      { type: 'spawnZombie', row: 3, kind: 'balderon' },
+    ]);
+    const [cone, bucket] = game.zombies;
+    expect(cone.armor).toBe(ZOMBIES.conero.armor);
+    expect(bucket.armor).toBe(ZOMBIES.balderon.armor);
+    step(game, [{ type: 'place', kind: 'nabu', row: 1, col: 0 }]);
+    while (cone.armor > 0) step(game);
+    expect(cone.hp).toBe(ZOMBIES.conero.hp);
+    expect(cone.clip).toBe('armor-break');
+  });
+
+  it('Balderón walks slower than Despistado', () => {
+    const game = createGame(SEED, quiet);
+    step(game, [
+      { type: 'spawnZombie', row: 0, kind: 'despistado' },
+      { type: 'spawnZombie', row: 4, kind: 'balderon' },
+    ]);
+    const start = game.zombies.map((zombie) => zombie.x);
+    run(game, 10 * TICKS_PER_SECOND);
+    const walked = game.zombies.map((zombie, i) => start[i] - zombie.x);
+    expect(walked[1]).toBeLessThan(walked[0]);
+  });
+});
+
+describe('Cardón', () => {
+  it('spines pierce every zombie in the lane', () => {
+    const game = createGame(SEED, free);
+    for (let i = 0; i < 3; i++) run(game, 15, { [game.tick]: [{ type: 'spawnZombie', row: 2 }] });
+    step(game, [{ type: 'place', kind: 'cardon', row: 2, col: 0 }]);
+    while (!game.projectiles.length) step(game);
+    const spine = game.projectiles[0];
+    while (game.projectiles.includes(spine)) step(game);
+    expect(spine.kind).toBe('spine');
+    expect(new Set(spine.hit).size).toBe(3);
+  });
+});
+
+describe('Mordiseta', () => {
+  it('only shoots zombies within its short range', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'place', kind: 'mordiseta', row: 0, col: 0 },
+      { type: 'spawnZombie', row: 0 },
+    ]);
+    run(game, 5 * TICKS_PER_SECOND);
+    expect(game.projectiles).toHaveLength(0);
+    while (game.zombies[0].x > BALANCE.mordisetaRange + 0.4) step(game);
+    run(game, 2 * TICKS_PER_SECOND);
+    expect(game.zombies[0].hp).toBeLessThan(ZOMBIES.despistado.hp);
+  });
+});
+
+describe('Frígora', () => {
+  it('slows on the first hit and freezes on the third', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'spawnZombie', row: 3 },
+      { type: 'place', kind: 'frigora', row: 3, col: 0 },
+    ]);
+    const zombie = game.zombies[0];
+    while (zombie.chill === 0) step(game);
+    expect(isSlowed(game, zombie)).toBe(true);
+    expect(zombie.hp).toBe(ZOMBIES.despistado.hp);
+    while (!isFrozen(game, zombie)) step(game);
+    const x = zombie.x;
+    run(game, 10);
+    expect(zombie.x).toBe(x);
+  });
+});
+
+describe('Zarzina', () => {
+  it('swallows the zombie in front and then digests', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'place', kind: 'zarzina', row: 2, col: 3 },
+      { type: 'spawnZombie', row: 2, kind: 'balderon' },
+    ]);
+    run(game, 60 * TICKS_PER_SECOND);
+    expect(game.zombies).toHaveLength(0);
+    expect(game.stats.killed).toBe(1);
+    expect(game.effects.some((effect) => effect.type === 'chomp') || game.plants[0].digestUntil > 0).toBe(true);
+  });
+});
+
+describe('Aurélia', () => {
+  it('heals wounded neighbours', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'place', kind: 'cortezon', row: 2, col: 4 },
+      { type: 'place', kind: 'aurelia', row: 2, col: 3 },
+    ]);
+    run(game, TIMING.plantSpawn + 2);
+    game.plants[0].hp = 1000;
+    run(game, 6 * TICKS_PER_SECOND);
+    expect(game.plants[0].hp).toBeGreaterThan(1000);
+  });
+});
+
+describe('Velaria', () => {
+  it('sends the marked zombie back to the anchor after 2 s', () => {
+    const game = createGame(SEED, free);
+    step(game, [{ type: 'spawnZombie', row: 1 }]);
+    while (game.zombies[0].x > 4.4) step(game);
+    step(game, [{ type: 'place', kind: 'velaria', row: 1, col: 0 }]);
+    const velaria = game.plants[0];
+    while (!velaria.mark) step(game);
+    const anchor = velaria.mark.anchorX;
+    run(game, TIMING.velariaDelay + 1);
+    // Back on the anchor; it may already have taken its next step.
+    expect(game.zombies[0].x).toBeCloseTo(anchor, 1);
+    expect(game.zombies[0].rewoundAt).toBeGreaterThan(0);
+    expect(velaria.mark).toBeNull();
+  });
+});
+
+describe('waves mode', () => {
+  it('ends in defeat when a zombie gets past a spent mower', () => {
+    const game = createGame(SEED, {}, 'waves');
+    expect(game.sun).toBe(BALANCE.wavesStartingSun);
+    step(game, [{ type: 'spawnZombie', row: 0 }]);
+    expect(game.zombies).toHaveLength(0);
+    // With no plants, the mowers stop the first zombie of each lane and a
+    // later one walks in.
+    run(game, (LEVEL_WAVES[LEVEL_WAVES.length - 1].at + 90) * TICKS_PER_SECOND);
+    expect(game.outcome).toBe('defeat');
+    expect(game.stats.mowersUsed).toBeGreaterThan(0);
+    const tick = game.tick;
+    step(game);
+    expect(game.tick).toBe(tick);
+  });
+
+  it('can be won with a strong defence', () => {
+    const game = createGame(SEED, {}, 'waves');
+    // Cheat in a fortress so the test only checks the wave bookkeeping.
+    game.options.infiniteSun = true;
+    game.options.noCooldown = true;
+    const commands: Command[] = [];
+    for (let row = 0; row < 5; row++) {
+      commands.push({ type: 'place', kind: 'cardon', row, col: 0 }, { type: 'place', kind: 'cardon', row, col: 1 });
+      commands.push({ type: 'place', kind: 'nabu', row, col: 2 }, { type: 'place', kind: 'nabu', row, col: 3 });
+      commands.push({ type: 'place', kind: 'frigora', row, col: 4 }, { type: 'place', kind: 'cortezon', row, col: 6 });
+    }
+    step(game, commands);
+    run(game, (LEVEL_WAVES[LEVEL_WAVES.length - 1].at + 90) * TICKS_PER_SECOND);
+    expect(game.outcome).toBe('victory');
+    expect(game.stats.killed).toBe(LEVEL_WAVES.reduce((sum, wave) => sum + wave.zombies.length, 0));
   });
 });
