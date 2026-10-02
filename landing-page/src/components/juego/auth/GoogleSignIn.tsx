@@ -7,6 +7,7 @@ import { Check } from 'lucide-react';
 import { auth } from '@/config/firebase';
 import { GoogleLogo } from '@/components/juego/Icon';
 import { Spinner } from '@/components/juego/Spinner';
+import type { ReturnTo } from '@/lib/returnTo';
 
 const SILENT_CODES = new Set(['auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/user-cancelled']);
 
@@ -34,7 +35,7 @@ export function useGoogleSignIn({
   returnTo = '/juego',
 }: {
   onError: (message: string) => void;
-  returnTo?: '/juego' | '/evento/agro';
+  returnTo?: ReturnTo;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);

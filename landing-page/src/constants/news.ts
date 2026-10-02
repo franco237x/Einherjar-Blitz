@@ -11,6 +11,14 @@ export interface NewsItem {
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'jardin-yggdrasil',
+    title: 'Nuevo evento: el Jardín de Yggdrasil',
+    date: '2 de Octubre, 2026',
+    type: 'Evento',
+    content:
+      'Los zombis avanzan sobre el jardín del árbol del mundo. Elige hasta 6 plantas antes de cada nivel y defiende los cinco carriles. Hay 3 niveles y cada uno paga más que el anterior: 250, 500 y 750 monedas, hasta 1500 en total. Cada nivel se cobra una sola vez. El almanaque explica cada planta y cada zombi, y puedes retirar tus monedas en un vale para canjear con los administradores.',
+  },
+  {
     id: 'portal-animado',
     title: 'El portal se mueve: inicio, tienda e invocaciones renovados',
     date: '30 de Septiembre, 2026',

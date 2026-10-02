@@ -109,7 +109,7 @@ export const TIMING = {
   corpseLinger: s(1),
   slow: s(3),
   freeze: s(1.2),
-  skySunInterval: s(10),
+  skySunInterval: s(8),
   sunLifetime: s(10),
   autoWaveInterval: s(9),
   mowerStart: s(0.4),
@@ -117,7 +117,6 @@ export const TIMING = {
 
 export const BALANCE = {
   startingSun: 150,
-  wavesStartingSun: 100,
   sunValue: 25,
   shotDamage: 20,
   explosionDamage: 1800,
@@ -236,26 +235,99 @@ export interface Wave {
   flag?: 'big' | 'final';
 }
 
-export const LEVEL_WAVES: Wave[] = [
-  { at: 25, zombies: ['despistado'] },
-  { at: 42, zombies: ['despistado'] },
-  { at: 58, zombies: ['despistado', 'despistado'] },
-  { at: 74, zombies: ['conero'] },
-  { at: 90, zombies: ['despistado', 'conero'] },
-  { at: 108, zombies: ['despistado', 'despistado', 'conero', 'conero', 'despistado'], flag: 'big' },
-  { at: 130, zombies: ['conero', 'despistado'] },
-  { at: 146, zombies: ['balderon'] },
-  { at: 162, zombies: ['conero', 'despistado', 'despistado'] },
-  { at: 180, zombies: ['balderon', 'conero', 'despistado'] },
+export interface LevelDef {
+  id: number;
+  name: string;
+  description: string;
+  startingSun: number;
+  /** Event coins granted the first time the level is won. */
+  reward: number;
+  waves: Wave[];
+}
+
+/** Maximum seed packets a player can take into a level. */
+export const MAX_LOADOUT = 6;
+
+const d = 'despistado' as const;
+const c = 'conero' as const;
+const b = 'balderon' as const;
+
+export const LEVELS: LevelDef[] = [
   {
-    at: 202,
-    zombies: ['despistado', 'despistado', 'conero', 'conero', 'balderon', 'balderon', 'despistado', 'conero'],
-    flag: 'final',
+    id: 1,
+    name: 'Brote del claro',
+    description: 'Los primeros despistados cruzan el claro. Aprende a juntar sol y a cubrir los carriles.',
+    startingSun: 150,
+    reward: 250,
+    waves: [
+      { at: 20, zombies: [d] },
+      { at: 38, zombies: [d] },
+      { at: 54, zombies: [d, d] },
+      { at: 70, zombies: [c] },
+      { at: 86, zombies: [d, d, c], flag: 'big' },
+      { at: 106, zombies: [d, c, d, d, c], flag: 'final' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'Raíces del fresno',
+    description: 'Llegan más conos y el primer Balderón. Necesitarás muros y ataques que atraviesen.',
+    startingSun: 150,
+    reward: 500,
+    waves: [
+      { at: 22, zombies: [d] },
+      { at: 38, zombies: [c] },
+      { at: 54, zombies: [d, d] },
+      { at: 70, zombies: [c, d] },
+      { at: 88, zombies: [d, d, c, c, d], flag: 'big' },
+      { at: 110, zombies: [b] },
+      { at: 126, zombies: [c, d, d] },
+      { at: 146, zombies: [b, c, d, d, c, c], flag: 'final' },
+    ],
+  },
+  {
+    id: 3,
+    name: 'Corazón de Yggdrasil',
+    description: 'La horda completa marcha hacia el árbol. Once oleadas y un final con tres Balderones.',
+    startingSun: 150,
+    reward: 750,
+    waves: [
+      { at: 25, zombies: [d] },
+      { at: 42, zombies: [d] },
+      { at: 58, zombies: [d, d] },
+      { at: 74, zombies: [c] },
+      { at: 90, zombies: [d, c] },
+      { at: 108, zombies: [d, d, c, c, d], flag: 'big' },
+      { at: 130, zombies: [c, d] },
+      { at: 146, zombies: [b] },
+      { at: 162, zombies: [c, d, d] },
+      { at: 180, zombies: [b, c, d, c] },
+      { at: 202, zombies: [d, d, c, c, b, b, d, c, c, b], flag: 'final' },
+    ],
   },
 ];
 
+export function getLevel(id: number): LevelDef | undefined {
+  return LEVELS.find((level) => level.id === id);
+}
+
+/** A loadout is 1..MAX_LOADOUT distinct known plants. */
+export function isValidLoadout(value: unknown): value is PlantKind[] {
+  return (
+    Array.isArray(value) &&
+    value.length >= 1 &&
+    value.length <= MAX_LOADOUT &&
+    new Set(value).size === value.length &&
+    value.every((kind) => typeof kind === 'string' && kind in PLANTS)
+  );
+}
+
 export interface JardinState {
   mode: GameMode;
+  /** Level being played in waves mode. */
+  level: LevelDef;
+  /** Seed packets chosen for this match; null means every plant. */
+  loadout: PlantKind[] | null;
   tick: number;
   rngState: { rng: Rng };
   nextId: number;
@@ -320,14 +392,18 @@ export function createGame(
   seed: string,
   options: Partial<SandboxOptions> = {},
   mode: GameMode = 'sandbox',
+  setup: { level?: number; loadout?: PlantKind[] | null } = {},
 ): JardinState {
   const waves = mode === 'waves';
+  const level = getLevel(setup.level ?? LEVELS.length) ?? LEVELS[LEVELS.length - 1];
   return {
     mode,
+    level,
+    loadout: setup.loadout ?? null,
     tick: 0,
     rngState: { rng: createSeededRng(seed) },
     nextId: 1,
-    sun: waves ? BALANCE.wavesStartingSun : BALANCE.startingSun,
+    sun: waves ? level.startingSun : BALANCE.startingSun,
     plants: [],
     zombies: [],
     mowers: freshMowers(0),
@@ -350,10 +426,11 @@ export function plantAt(state: JardinState, row: number, col: number): Plant | u
   return state.plants.find((plant) => plant.row === row && plant.col === col);
 }
 
-export type PlaceCheck = 'ok' | 'occupied' | 'sun' | 'cooldown' | 'outside' | 'over';
+export type PlaceCheck = 'ok' | 'occupied' | 'sun' | 'cooldown' | 'outside' | 'over' | 'locked';
 
 export function canPlace(state: JardinState, kind: PlantKind, row: number, col: number): PlaceCheck {
   if (state.outcome) return 'over';
+  if (state.loadout && !state.loadout.includes(kind)) return 'locked';
   if (!Number.isInteger(row) || !Number.isInteger(col) || row < 0 || row >= ROWS || col < 0 || col >= COLS)
     return 'outside';
   if (plantAt(state, row, col)) return 'occupied';
@@ -371,7 +448,8 @@ export function cooldownProgress(state: JardinState, kind: PlantKind): number {
 
 /** Level progress for the waves mode, 0..1. */
 export function waveProgress(state: JardinState): number {
-  const last = LEVEL_WAVES[LEVEL_WAVES.length - 1].at;
+  const waves = state.level.waves;
+  const last = waves[waves.length - 1].at;
   return Math.min(1, state.tick / s(last));
 }
 
@@ -804,7 +882,8 @@ function randomKind(rng: Rng): ZombieKind {
 
 function updateWaves(state: JardinState) {
   const { rng } = state.rngState;
-  const wave = LEVEL_WAVES[state.waves.index];
+  const levelWaves = state.level.waves;
+  const wave = levelWaves[state.waves.index];
   if (wave && state.tick >= s(wave.at)) {
     state.waves.index++;
     let offset = 0;
@@ -821,7 +900,7 @@ function updateWaves(state: JardinState) {
     state.waves.pending = state.waves.pending.filter((other) => other !== spawn);
   }
   const finished =
-    state.waves.index >= LEVEL_WAVES.length &&
+    state.waves.index >= levelWaves.length &&
     state.waves.pending.length === 0 &&
     !state.zombies.some(isAlive);
   if (finished && !state.outcome) state.outcome = 'victory';
@@ -857,5 +936,52 @@ export function step(state: JardinState, commands: readonly Command[] = []): Jar
   updateSuns(state);
   updateSpawners(state);
   state.tick++;
+  return state;
+}
+
+// ─── Match log (for server verification) ────────────────────────────────────
+/** Commands applied at a tick: `[tick, command]`. */
+export type LoggedCommand = [number, Command];
+
+/** Longest level (last wave + time to clear it), used to bound replays. */
+export const MAX_LEVEL_TICKS = s(LEVELS.reduce((max, level) => Math.max(max, level.waves[level.waves.length - 1].at), 0) + 240);
+
+const ROW_COL = (value: unknown, max: number) => Number.isInteger(value) && (value as number) >= 0 && (value as number) < max;
+
+/** Only the commands a player can issue in a level; sandbox tools are rejected. */
+export function parseLoggedCommand(value: unknown): LoggedCommand | null {
+  if (!Array.isArray(value) || value.length !== 2) return null;
+  const [tick, command] = value as [unknown, Record<string, unknown>];
+  if (!Number.isInteger(tick) || (tick as number) < 0 || (tick as number) > MAX_LEVEL_TICKS) return null;
+  if (!command || typeof command !== 'object') return null;
+  switch (command.type) {
+    case 'place':
+      if (typeof command.kind !== 'string' || !(command.kind in PLANTS)) return null;
+      if (!ROW_COL(command.row, ROWS) || !ROW_COL(command.col, COLS)) return null;
+      return [tick as number, { type: 'place', kind: command.kind as PlantKind, row: command.row as number, col: command.col as number }];
+    case 'shovel':
+      if (!ROW_COL(command.row, ROWS) || !ROW_COL(command.col, COLS)) return null;
+      return [tick as number, { type: 'shovel', row: command.row as number, col: command.col as number }];
+    case 'collect':
+      if (!Number.isInteger(command.sunId) || (command.sunId as number) < 1) return null;
+      return [tick as number, { type: 'collect', sunId: command.sunId as number }];
+    default:
+      return null;
+  }
+}
+
+/**
+ * Plays a level from its seed and the player's logged commands. Stops at the
+ * outcome or after `MAX_LEVEL_TICKS`. Commands must be in tick order.
+ */
+export function replayLevel(seed: string, levelId: number, loadout: PlantKind[], log: readonly LoggedCommand[]): JardinState {
+  const state = createGame(seed, {}, 'waves', { level: levelId, loadout });
+  let index = 0;
+  while (!state.outcome && state.tick < MAX_LEVEL_TICKS) {
+    const commands: Command[] = [];
+    while (index < log.length && log[index][0] === state.tick) commands.push(log[index++][1]);
+    if (index < log.length && log[index][0] < state.tick) throw new Error('Registro fuera de orden.');
+    step(state, commands);
+  }
   return state;
 }

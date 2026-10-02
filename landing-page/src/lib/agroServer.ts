@@ -47,11 +47,11 @@ interface FarmRecord {
 interface AgroAccountRecord {
   ownerId: string;
 }
-interface VoucherRecord {
+export interface VoucherRecord {
   voucher: AgroVoucher;
   ownerId: string;
 }
-interface StoreTransaction {
+export interface StoreTransaction {
   get<T>(key: string): Promise<T | null>;
   set(key: string, value: unknown): void;
 }
@@ -158,7 +158,7 @@ async function localTransaction<T>(
     await unlink(temporary).catch(() => undefined);
   }
 }
-async function transaction<T>(
+export async function transaction<T>(
   run: (store: StoreTransaction) => Promise<T>,
 ): Promise<T> {
   if (isLocalStore()) return localTransaction(run);
@@ -369,9 +369,20 @@ export async function redeemVoucher(id: string) {
         'Este vale ya fue canjeado. No vuelvas a acreditar sus monedas.',
         409,
       );
+    record.voucher.redeemedAt = Date.now();
+    // Jardín vouchers keep their copy in the player's event record.
+    if (record.ownerId.startsWith('jardin:')) {
+      const jardinKey = `jardin/${record.ownerId.slice('jardin:'.length)}`;
+      const jardin = await store.get<{ vouchers: AgroVoucher[] }>(jardinKey);
+      if (jardin) {
+        jardin.vouchers = jardin.vouchers.map((item) => (item.id === id ? record.voucher : item));
+        store.set(jardinKey, jardin);
+      }
+      store.set(key, record);
+      return record.voucher;
+    }
     const ownerKey = `farms/${record.ownerId}`;
     const owner = await store.get<FarmRecord>(ownerKey);
-    record.voucher.redeemedAt = Date.now();
     if (owner) {
       owner.farm.vouchers = owner.farm.vouchers.map((item) =>
         item.id === id ? record.voucher : item,

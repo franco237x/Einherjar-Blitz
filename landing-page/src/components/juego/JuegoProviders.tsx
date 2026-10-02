@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserData } from '@/hooks/useUserData';
 import { LoadingScreen } from './LoadingScreen';
 import { FEATURE_FLAGS } from '@/config/featureFlags';
+import { parseReturnTo } from '@/lib/returnTo';
 
 const AUTH_ROUTES = ['/juego/login', '/juego/registro'];
 const GAME_ROUTE_PREFIX = '/juego/combate';
@@ -30,16 +31,15 @@ function RouteGuard({ children }: PropsWithChildren) {
 
   const onAuthRoute = isAuthRoute(pathname);
   const onGameRoute = pathname.startsWith(GAME_ROUTE_PREFIX);
-  const returnToAgro =
-    onAuthRoute &&
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('next') === '/evento/agro';
+  const returnTo =
+    onAuthRoute && typeof window !== 'undefined'
+      ? parseReturnTo(new URLSearchParams(window.location.search).get('next'))
+      : '/juego';
 
   let redirectTo: string | null = null;
   if (!authLoading) {
     if (!user && !onAuthRoute) redirectTo = '/juego/login';
-    else if (user && onAuthRoute)
-      redirectTo = returnToAgro ? '/evento/agro' : '/juego';
+    else if (user && onAuthRoute) redirectTo = returnTo;
     else if (user && onGameRoute && !FEATURE_FLAGS.game) redirectTo = '/juego';
   }
 

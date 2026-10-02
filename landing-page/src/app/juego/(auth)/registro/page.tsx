@@ -20,6 +20,7 @@ import { FormMessage, PasswordField, SubmitButton, TextField } from '@/component
 import { AuthShell } from '@/components/juego/auth/AuthShell';
 import { GoogleBenefits, GoogleButton, useGoogleSignIn } from '@/components/juego/auth/GoogleSignIn';
 import { cn } from '@/lib/utils';
+import { parseReturnTo, withReturnTo } from '@/lib/returnTo';
 
 const GOOGLE_BENEFITS = [
   'Entras al instante, sin esperar un correo de verificación.',
@@ -30,7 +31,7 @@ const GOOGLE_BENEFITS = [
 function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const returnTo = params.get('next') === '/evento/agro' ? '/evento/agro' : '/juego';
+  const returnTo = parseReturnTo(params.get('next'));
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -100,11 +101,7 @@ function RegisterForm() {
         }
       });
       await signOut(secondaryAuth).catch(() => {});
-      router.replace(
-        returnTo === '/evento/agro'
-          ? '/juego/login?registered=verify&next=%2Fevento%2Fagro'
-          : '/juego/login?registered=verify',
-      );
+      router.replace(withReturnTo('/juego/login?registered=verify', returnTo));
     } catch (error: unknown) {
       if (createdUser && !profileCreated) {
         await deleteUser(createdUser).catch(() => {});
@@ -215,7 +212,7 @@ function RegisterForm() {
         <p className="mt-9 text-center text-sm text-white/50">
           ¿Ya tienes cuenta?{' '}
           <Link
-            href={returnTo === '/evento/agro' ? '/juego/login?next=%2Fevento%2Fagro' : '/juego/login'}
+            href={withReturnTo('/juego/login', returnTo)}
             className="font-semibold text-gold hover:underline"
           >
             Inicia sesión

@@ -75,6 +75,8 @@ export interface AgroVoucher {
   plantsGrowing: number;
   redeemedAt: number | null;
   environment: 'local' | 'live';
+  /** Event that issued it; absent for the Huerto. */
+  source?: 'jardin';
 }
 export interface FarmState {
   version: 2;

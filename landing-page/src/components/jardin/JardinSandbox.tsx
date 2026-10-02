@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Maximize, Minimize, Pause, Play, Shovel, SlidersHorizontal } from 'lucide-react';
 import {
-  LEVEL_WAVES,
   PLANT_ORDER,
   PLANTS,
   TICKS_PER_SECOND,
@@ -18,6 +17,8 @@ import {
   waveProgress,
   type Command,
   type GameMode,
+  type LevelDef,
+  type LoggedCommand,
   type JardinState,
   type PlantKind,
   type SandboxOptions,
@@ -176,7 +177,7 @@ function useFullscreen() {
   return { active, supported, toggle };
 }
 
-function BetaBadge() {
+export function BetaBadge() {
   return (
     <span className="rounded-full border border-amber-300/50 bg-amber-300/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
       Beta · pre-evento
@@ -184,79 +185,37 @@ function BetaBadge() {
   );
 }
 
-export function JardinSandbox() {
-  const [mode, setMode] = useState<GameMode | null>(null);
-  const [round, setRound] = useState(0);
-  if (!mode)
-    return (
-      <StartScreen
-        onPick={(picked) => {
-          // Must run inside the tap that picks the mode (a user gesture).
-          if (window.matchMedia('(pointer: coarse)').matches) enterFullscreen();
-          setMode(picked);
-          setRound((value) => value + 1);
-        }}
-      />
-    );
-  return <JardinGame key={`${mode}-${round}`} mode={mode} onExit={() => setMode(null)} onRestart={() => setRound((value) => value + 1)} />;
+export interface LevelResult {
+  reward: number;
+  firstClear: boolean;
 }
 
-function StartScreen({ onPick }: { onPick: (mode: GameMode) => void }) {
-  return (
-    <main className="fixed inset-0 flex overflow-y-auto bg-[#0b130d] p-4 text-white short:p-2">
-      <img
-        src="/jardin/escenario/jardin.webp"
-        alt=""
-        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-30 blur-[2px]"
-      />
-      <section className="relative m-auto w-full max-w-xl rounded-3xl border border-white/15 bg-black/70 p-6 text-center shadow-2xl backdrop-blur-md short:p-4">
-        <BetaBadge />
-        <h1 className="mt-3 font-title text-3xl text-amber-100 short:mt-1 short:text-2xl">Jardín de Yggdrasil</h1>
-        <p className="mx-auto mt-2 max-w-md text-sm text-white/70">
-          Defiende el claro de los zombis con las plantas vivas del próximo evento. Esta beta es una prueba abierta: no da premios y su
-          equilibrio puede cambiar.
-        </p>
-        <div className="mt-4 flex flex-wrap justify-center gap-1 short:hidden">
-          {PLANT_ORDER.map((kind) => (
-            <img key={kind} src={spriteUrl(kind, 'portrait')} alt={PLANTS[kind].name} title={PLANTS[kind].name} className="h-10 w-10 object-contain" />
-          ))}
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 short:mt-3">
-          <button
-            type="button"
-            onClick={() => onPick('waves')}
-            className="rounded-2xl border border-amber-300/60 bg-amber-300/15 p-4 text-left transition hover:bg-amber-300/25 active:scale-[0.98]"
-          >
-            <span className="block font-title text-lg text-amber-100">Oleadas</span>
-            <span className="mt-1 block text-xs text-white/70">
-              {LEVEL_WAVES.length} oleadas, con una gran oleada a mitad de camino y una final. Si un zombi llega a la casa sin podadora, pierdes.
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onPick('sandbox')}
-            className="rounded-2xl border border-white/20 bg-white/5 p-4 text-left transition hover:bg-white/10 active:scale-[0.98]"
-          >
-            <span className="block font-title text-lg">Sandbox</span>
-            <span className="mt-1 block text-xs text-white/70">
-              Prueba libre: sol infinito, sin recarga, suelta el zombi que quieras en el carril que quieras.
-            </span>
-          </button>
-        </div>
-        <p className="mt-4 text-[11px] text-white/45 short:hidden">
-          Atajos: 1–8 plantas · Q pala · P pausa · Esc cancela. Mejor en horizontal.
-        </p>
-      </section>
-    </main>
-  );
+interface JardinGameProps {
+  mode: GameMode;
+  /** Level and seed packets for waves mode; the seed comes from the server. */
+  level?: LevelDef;
+  loadout?: PlantKind[];
+  seed?: string;
+  onExit: () => void;
+  onRestart: () => void;
+  /** Reports a finished level; resolves with the reward granted by the server. */
+  onLevelEnd?: (outcome: 'victory' | 'defeat', log: LoggedCommand[]) => Promise<LevelResult>;
 }
 
-function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () => void; onRestart: () => void }) {
+type Report = { status: 'idle' | 'saving' } | { status: 'saved'; result: LevelResult } | { status: 'error'; message: string };
+
+export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLevelEnd }: JardinGameProps) {
   const { imagesRef, load, progress, ready, failed } = useSprites();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLElement>(null);
-  const [initialGame] = useState(() => createGame(randomSeed(), {}, mode));
+  const [initialGame] = useState(() =>
+    createGame(seed ?? randomSeed(), {}, mode, { level: level?.id, loadout: loadout ?? null }),
+  );
+  const logRef = useRef<LoggedCommand[]>([]);
+  const [report, setReport] = useState<Report>({ status: 'idle' });
+  const seedPackets = initialGame.loadout ?? PLANT_ORDER;
+  const levelWaves = initialGame.level.waves;
   const gameRef = useRef<JardinState>(initialGame);
   const queueRef = useRef<Command[]>([]);
   const viewportRef = useRef<Viewport | null>(null);
@@ -277,6 +236,25 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
   const fullscreen = useFullscreen();
   const [playPortrait, setPlayPortrait] = useState(false);
   const sandbox = mode === 'sandbox';
+
+  const reportOutcome = useCallback(
+    (outcome: 'victory' | 'defeat') => {
+      if (!onLevelEnd) return;
+      setReport({ status: 'saving' });
+      onLevelEnd(outcome, logRef.current)
+        .then((result) => setReport({ status: 'saved', result }))
+        .catch((error) =>
+          setReport({ status: 'error', message: error instanceof Error ? error.message : 'No se pudo guardar el resultado.' }),
+        );
+    },
+    [onLevelEnd],
+  );
+  const reported = useRef(false);
+  useEffect(() => {
+    if (!hud.outcome || reported.current || sandbox) return;
+    reported.current = true;
+    reportOutcome(hud.outcome);
+  }, [hud.outcome, reportOutcome, sandbox]);
 
   const setTool = useCallback(
     (next: Tool) => {
@@ -332,6 +310,16 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
     observer.observe(board);
     if (railRef.current) observer.observe(railRef.current);
 
+    // Every command of a level is logged with its tick so the server can
+    // replay the match and verify the result.
+    const advance = (game: JardinState) => {
+      const commands = queueRef.current.splice(0);
+      if (game.mode === 'waves' && !game.outcome)
+        for (const command of commands)
+          if (command.type === 'place' || command.type === 'shovel' || command.type === 'collect')
+            logRef.current.push([game.tick, command]);
+      step(game, commands);
+    };
     let raf = 0;
     let last = performance.now();
     let accumulator = 0;
@@ -344,13 +332,13 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
         accumulator += dt * speedRef.current;
         let steps = 0;
         while (accumulator >= TICK_SECONDS && steps < 12) {
-          step(game, queueRef.current.splice(0));
+          advance(game);
           accumulator -= TICK_SECONDS;
           steps++;
         }
       } else if (queueRef.current.length) {
         // Let the player plant and collect while paused.
-        step(game, queueRef.current.splice(0));
+        advance(game);
       }
       const v = viewportRef.current!;
       let hover: Hover | null = null;
@@ -389,7 +377,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const index = PLANT_KEYS.indexOf(event.key);
-      if (index >= 0 && index < PLANT_ORDER.length) setTool(PLANT_ORDER[index]);
+      if (index >= 0 && index < seedPackets.length) setTool(seedPackets[index]);
       else if (event.key === 'q' || event.key === 'Q') setTool('shovel');
       else if (sandbox && (event.key === 'z' || event.key === 'Z')) send({ type: 'spawnZombie', kind: zombieKind });
       else if (event.key === 'p' || event.key === 'P' || event.key === ' ') {
@@ -399,7 +387,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [send, setTool, togglePause, sandbox, zombieKind]);
+  }, [send, setTool, togglePause, sandbox, zombieKind, seedPackets]);
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -427,8 +415,8 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
   const spawn = (row?: number) => send({ type: 'spawnZombie', row, kind: zombieKind });
 
   // Flags on the progress bar for the big and final waves.
-  const lastWave = LEVEL_WAVES[LEVEL_WAVES.length - 1].at;
-  const flags = LEVEL_WAVES.filter((wave) => wave.flag).map((wave) => wave.at / lastWave);
+  const lastWave = levelWaves[levelWaves.length - 1].at;
+  const flags = levelWaves.filter((wave) => wave.flag).map((wave) => wave.at / lastWave);
 
   const roundButton = `flex shrink-0 items-center justify-center rounded-full border-2 border-[#f5d68a]/70 bg-gradient-to-b from-[#5b3b1d] to-[#2f1d0d] text-amber-50 shadow-[0_3px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
     compact ? 'h-10 w-10' : 'h-12 w-12'
@@ -474,7 +462,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
           </span>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-1">
-          {PLANT_ORDER.map((kind, index) => {
+          {seedPackets.map((kind, index) => {
             const def = PLANTS[kind];
             const selected = tool === kind;
             const ready = hud.placeable[kind];
@@ -563,7 +551,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
                 />
               </div>
               <p className={`mt-0.5 font-title font-bold text-amber-100 [text-shadow:0_2px_0_#000] ${compact ? 'text-[11px]' : 'text-sm'}`}>
-                Claro de Yggdrasil · Oleada {Math.min(hud.wave, LEVEL_WAVES.length)}/{LEVEL_WAVES.length}
+                {initialGame.level.name} · Oleada {Math.min(hud.wave, levelWaves.length)}/{levelWaves.length}
               </p>
             </>
           ) : (
@@ -763,8 +751,8 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
             </p>
             <p className="mt-2 text-sm text-white/70">
               {hud.outcome === 'victory'
-                ? `Resististe las ${LEVEL_WAVES.length} oleadas.`
-                : `Llegaste a la oleada ${Math.min(hud.wave, LEVEL_WAVES.length)} de ${LEVEL_WAVES.length}.`}
+                ? `Resististe las ${levelWaves.length} oleadas de ${initialGame.level.name}.`
+                : `Llegaste a la oleada ${Math.min(hud.wave, levelWaves.length)} de ${levelWaves.length}.`}
             </p>
             <p className="mt-1 text-xs text-white/55">
               {hud.killed} zombis eliminados · {hud.mowersUsed} podadoras usadas · {Math.floor(hud.seconds / 60)}:
@@ -778,7 +766,11 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
                 Menú
               </button>
             </div>
-            <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-white/40">Beta · sin premios</p>
+            {sandbox ? (
+              <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-white/40">Sandbox · sin premios</p>
+            ) : (
+              <LevelReport report={report} outcome={hud.outcome} onRetry={() => reportOutcome(hud.outcome!)} />
+            )}
           </div>
         </div>
       )}
@@ -794,5 +786,40 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
         </div>
       )}
     </main>
+  );
+}
+
+function LevelReport({
+  report,
+  outcome,
+  onRetry,
+}: {
+  report: Report;
+  outcome: JardinState['outcome'];
+  onRetry: () => void;
+}) {
+  if (report.status === 'error')
+    return (
+      <div className="mt-3 text-xs text-red-300" role="alert">
+        <p>{report.message}</p>
+        <button type="button" onClick={onRetry} className="mt-1 underline">
+          Reintentar
+        </button>
+      </div>
+    );
+  if (report.status !== 'saved')
+    return (
+      <p className="mt-3 text-xs text-white/60" role="status">
+        Verificando la partida…
+      </p>
+    );
+  const { reward } = report.result;
+  if (outcome !== 'victory') return <p className="mt-3 text-xs text-white/55">Sin recompensa. ¡Prueba con otras plantas!</p>;
+  return reward > 0 ? (
+    <p className="mt-3 flex items-center justify-center gap-2 font-title text-xl text-amber-200">
+      <span aria-hidden>🪙</span> +{reward.toLocaleString('es-AR')} monedas
+    </p>
+  ) : (
+    <p className="mt-3 text-xs text-white/60">Ya cobraste este nivel: esta victoria no suma monedas.</p>
   );
 }

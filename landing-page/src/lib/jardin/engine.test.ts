@@ -5,7 +5,12 @@ import {
   createGame,
   isFrozen,
   isSlowed,
-  LEVEL_WAVES,
+  LEVELS,
+  MAX_LOADOUT,
+  isValidLoadout,
+  parseLoggedCommand,
+  replayLevel,
+  type LoggedCommand,
   PLANTS,
   step,
   ZOMBIES,
@@ -304,12 +309,12 @@ describe('Zarzina', () => {
 describe('waves mode', () => {
   it('ends in defeat when a zombie gets past a spent mower', () => {
     const game = createGame(SEED, {}, 'waves');
-    expect(game.sun).toBe(BALANCE.wavesStartingSun);
+    expect(game.sun).toBe(LEVELS[2].startingSun);
     step(game, [{ type: 'spawnZombie', row: 0 }]);
     expect(game.zombies).toHaveLength(0);
     // With no plants, the mowers stop the first zombie of each lane and a
     // later one walks in.
-    run(game, (LEVEL_WAVES[LEVEL_WAVES.length - 1].at + 90) * TICKS_PER_SECOND);
+    run(game, (LEVELS[2].waves[LEVELS[2].waves.length - 1].at + 90) * TICKS_PER_SECOND);
     expect(game.outcome).toBe('defeat');
     expect(game.stats.mowersUsed).toBeGreaterThan(0);
     const tick = game.tick;
@@ -329,8 +334,82 @@ describe('waves mode', () => {
       commands.push({ type: 'place', kind: 'frigora', row, col: 4 }, { type: 'place', kind: 'cortezon', row, col: 6 });
     }
     step(game, commands);
-    run(game, (LEVEL_WAVES[LEVEL_WAVES.length - 1].at + 90) * TICKS_PER_SECOND);
+    run(game, (LEVELS[2].waves[LEVELS[2].waves.length - 1].at + 90) * TICKS_PER_SECOND);
     expect(game.outcome).toBe('victory');
-    expect(game.stats.killed).toBe(LEVEL_WAVES.reduce((sum, wave) => sum + wave.zombies.length, 0));
+    expect(game.stats.killed).toBe(LEVELS[2].waves.reduce((sum, wave) => sum + wave.zombies.length, 0));
+  });
+});
+
+// ─── Event levels ───────────────────────────────────────────────────────────
+describe('levels', () => {
+  it('pay more each time and 1500 coins in total', () => {
+    const rewards = LEVELS.map((level) => level.reward);
+    expect(rewards).toEqual([...rewards].sort((a, b) => a - b));
+    expect(new Set(rewards).size).toBe(rewards.length);
+    expect(rewards.reduce((sum, value) => sum + value, 0)).toBe(1500);
+  });
+
+  it('only allow the chosen seed packets', () => {
+    const loadout = ['solmiel', 'nabu'] as const;
+    const game = createGame(SEED, {}, 'waves', { level: 1, loadout: [...loadout] });
+    expect(game.sun).toBe(LEVELS[0].startingSun);
+    expect(canPlace(game, 'cortezon', 0, 0)).toBe('locked');
+    expect(canPlace(game, 'solmiel', 0, 0)).toBe('ok');
+  });
+
+  it('validate loadouts', () => {
+    expect(isValidLoadout(['solmiel'])).toBe(true);
+    expect(isValidLoadout([])).toBe(false);
+    expect(isValidLoadout(['solmiel', 'solmiel'])).toBe(false);
+    expect(isValidLoadout(['solmiel', 'velaria'])).toBe(false);
+    expect(isValidLoadout(['solmiel', 'nabu', 'mordiseta', 'cortezon', 'frigora', 'granadin', 'zarzina'])).toBe(false);
+    expect(MAX_LOADOUT).toBe(6);
+  });
+
+  it('reject sandbox commands in a match log', () => {
+    expect(parseLoggedCommand([10, { type: 'place', kind: 'nabu', row: 1, col: 2 }])).not.toBeNull();
+    expect(parseLoggedCommand([10, { type: 'spawnZombie', row: 1 }])).toBeNull();
+    expect(parseLoggedCommand([10, { type: 'options', options: { infiniteSun: true } }])).toBeNull();
+    expect(parseLoggedCommand([10, { type: 'resetMowers' }])).toBeNull();
+    expect(parseLoggedCommand([-1, { type: 'collect', sunId: 3 }])).toBeNull();
+    expect(parseLoggedCommand([10, { type: 'place', kind: 'nabu', row: 9, col: 2 }])).toBeNull();
+  });
+
+  it('replay a logged match to the same result as live play', () => {
+    const loadout = ['solmiel', 'nabu', 'cardon', 'cortezon', 'frigora', 'mordiseta'] as const;
+    const live = createGame(SEED, {}, 'waves', { level: 1, loadout: [...loadout] });
+    const log: LoggedCommand[] = [];
+    let planted = 0;
+    const plan: [typeof loadout[number], number, number][] = [
+      ['solmiel', 0, 0], ['solmiel', 1, 0], ['solmiel', 2, 0], ['solmiel', 3, 0], ['solmiel', 4, 0],
+      ['nabu', 0, 1], ['nabu', 1, 1], ['nabu', 2, 1], ['nabu', 3, 1], ['nabu', 4, 1],
+      ['cardon', 0, 2], ['cardon', 1, 2], ['cardon', 2, 2], ['cardon', 3, 2], ['cardon', 4, 2],
+      ['cortezon', 0, 6], ['cortezon', 1, 6], ['cortezon', 2, 6], ['cortezon', 3, 6], ['cortezon', 4, 6],
+    ];
+    // A simple bot: collect every sun, plant the next item whenever possible.
+    while (!live.outcome && live.tick < 260 * TICKS_PER_SECOND) {
+      const commands: Command[] = live.suns.map((sun) => ({ type: 'collect', sunId: sun.id }) as Command);
+      const next = plan[planted];
+      if (next) {
+        const after = live.sun + live.suns.reduce((sum, sun) => sum + sun.value, 0);
+        if (after >= PLANTS[next[0]].cost && canPlace({ ...live, sun: after }, next[0], next[1], next[2]) === 'ok') {
+          commands.push({ type: 'place', kind: next[0], row: next[1], col: next[2] });
+          planted++;
+        }
+      }
+      for (const command of commands) log.push([live.tick, command]);
+      step(live, commands);
+    }
+    expect(live.outcome).not.toBeNull();
+    expect(log.length).toBeGreaterThan(20);
+    const replay = replayLevel(SEED, 1, [...loadout], log);
+    expect(replay.outcome).toBe(live.outcome);
+    expect(replay.tick).toBe(live.tick);
+    expect(replay.stats).toEqual(live.stats);
+  });
+
+  it('a forged log cannot win', () => {
+    const replay = replayLevel(SEED, 1, ['solmiel'], [[0, { type: 'collect', sunId: 999 }]]);
+    expect(replay.outcome).toBe('defeat');
   });
 });
