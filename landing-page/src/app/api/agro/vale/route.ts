@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     return new Response(new Uint8Array(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${voucher.environment === 'local' ? 'DEMO-' : ''}${voucher.id}.pdf"`,
+        // `ver=1` shows it in the browser's viewer instead of downloading it.
+        'Content-Disposition': `${request.nextUrl.searchParams.get('ver') === '1' ? 'inline' : 'attachment'}; filename="${voucher.environment === 'local' ? 'DEMO-' : ''}${voucher.id}.pdf"`,
         'Cache-Control': 'private, no-store',
         'X-Content-Type-Options': 'nosniff',
         'X-Robots-Tag': 'noindex',

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Coins, Download, FlaskConical, Lock, Play, Swords, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Coins, Download, FlaskConical, Lock, Play, Swords } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { PLANT_ALMANAC, ZOMBIE_ALMANAC } from '@/lib/jardin/almanac';
 import {
@@ -20,7 +20,9 @@ import { BACKGROUND_URL, PLANT_CLIPS, ZOMBIE_CLIPS, spriteUrl } from '@/lib/jard
 import { AnimatedSprite } from './AnimatedSprite';
 import { BetaBadge, JardinGame, enterFullscreen, type LevelResult } from './JardinSandbox';
 import { SeedPacket } from './SeedPacket';
-import { fetchProgress, finishLevel, issueVoucher, startLevel, voucherPdfUrl, type JardinProgress } from './jardinApi';
+import { fetchProgress, finishLevel, issueVoucher, startLevel, type JardinProgress } from './jardinApi';
+import { VoucherView } from './VoucherView';
+import type { AgroVoucher } from '@/lib/agroGame';
 
 type Screen =
   | { name: 'menu' }
@@ -616,11 +618,12 @@ function CoinsScreen({
   onProgress: (progress: JardinProgress) => void;
   signedIn: boolean;
   onBack: () => void;
-  issue: (name: string) => Promise<{ progress: JardinProgress }>;
+  issue: (name: string) => Promise<{ voucher: AgroVoucher; progress: JardinProgress }>;
 }) {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [openVoucher, setOpenVoucher] = useState<AgroVoucher | null>(null);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setBusy(true);
@@ -628,7 +631,8 @@ function CoinsScreen({
     try {
       const result = await issue(name);
       onProgress(result.progress);
-      setMessage('¡Vale emitido! Descárgalo y preséntalo en el grupo.');
+      setMessage('¡Vale emitido! Preséntalo en el grupo de Messenger.');
+      setOpenVoucher(result.voucher);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'No se pudo emitir el vale.');
     } finally {
@@ -699,26 +703,26 @@ function CoinsScreen({
                         </span>
                         <span className="block truncate text-white/50">{voucher.id}</span>
                       </span>
-                      <a
-                        href={voucherPdfUrl(voucher.id)}
+                      <button
+                        type="button"
+                        onClick={() => setOpenVoucher(voucher)}
                         className="flex shrink-0 items-center gap-1 rounded-lg bg-amber-300 px-2 py-1 font-bold text-[#2a1c0c]"
                       >
-                        <Download size={14} aria-hidden /> PDF
-                      </a>
+                        <Download size={14} aria-hidden /> Ver vale
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
               <p className="mt-3 text-[11px] leading-snug text-white/60">
-                Presenta el PDF en el grupo de Messenger. El administrador consulta el folio y acredita las monedas una sola vez.
+                Presenta el PDF, una captura del vale o su folio en el grupo de Messenger. El administrador consulta el folio y
+                acredita las monedas una sola vez.
               </p>
             </section>
           </>
         )}
       </div>
-      <span className="sr-only">
-        <X aria-hidden />
-      </span>
+      {openVoucher && <VoucherView voucher={openVoucher} onClose={() => setOpenVoucher(null)} />}
     </Backdrop>
   );
 }
