@@ -20,6 +20,7 @@ import {
   PLANT_PIVOT,
   PROJECTILE_IMAGES,
   ZOMBIE_CLIPS,
+  ZOMBIE_SCALE,
   ZOMBIE_PIVOT,
   frameIndex,
   spriteUrl,
@@ -285,7 +286,8 @@ export function drawScene(
     for (const zombie of zombies) {
       const x = screenX(v, zombie.prevX + (zombie.x - zombie.prevX) * alpha);
       const y = groundY(v, row);
-      const clip = ZOMBIE_CLIPS[zombie.clip];
+      const clip = ZOMBIE_CLIPS[zombie.kind][zombie.clip] ?? ZOMBIE_CLIPS[zombie.kind].walk!;
+      const size = spriteSize * (ZOMBIE_SCALE[zombie.kind] ?? 1);
       const name = zombieSpriteName(zombie.kind, zombie.clip, hasArmor(zombie));
       ctx.save();
       if (zombie.clip === 'fall') {
@@ -302,7 +304,9 @@ export function drawScene(
             ? 'saturate(0.3) hue-rotate(170deg) brightness(1.25)'
             : isSlowed(state, zombie)
               ? 'saturate(0.6) hue-rotate(150deg) brightness(1.1)'
-              : t - zombie.lastHit < 4
+              : t < zombie.dazedUntil
+                ? 'sepia(0.4) hue-rotate(50deg) saturate(1.4)'
+                : t - zombie.lastHit < 4
                 ? 'brightness(1.7)'
                 : null;
       withFilter(ctx, filter, () => {
@@ -312,16 +316,17 @@ export function drawScene(
           frameIndex(clip, zombie.anim),
           x,
           y,
-          spriteSize,
+          size,
           ZOMBIE_PIVOT,
         );
-        if (!drawn) drawPortrait(ctx, images.get(spriteUrl(zombie.kind, 'portrait')), x, y, spriteSize);
+        if (!drawn) drawPortrait(ctx, images.get(spriteUrl(zombie.kind, 'portrait')), x, y, size);
       });
       ctx.restore();
     }
   }
 
   const burst = images.get(spriteUrl('granadin', 'burst'));
+  const impact = images.get(spriteUrl('jengibron', 'impact'));
   for (const effect of state.effects) {
     const p = (t - effect.tick) / TICKS_PER_SECOND;
     const x = screenX(v, effect.col + 0.5);
@@ -339,6 +344,11 @@ export function drawScene(
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
       if (burst) ctx.drawImage(burst, x - r * 0.8, y - r * 0.8, r * 1.6, r * 1.6);
+    } else if (effect.type === 'punch') {
+      const r = (0.32 + p * 0.5) * v.scale;
+      const px = screenX(v, effect.col + 0.15);
+      const py = screenY(v, effect.row + 0.45);
+      if (impact) ctx.drawImage(impact, px - r, py - r, r * 2, r * 2);
     } else if (effect.type === 'chomp') {
       ctx.fillStyle = 'rgba(244,114,182,0.85)';
       ctx.font = `bold ${Math.round(0.32 * v.scale)}px sans-serif`;

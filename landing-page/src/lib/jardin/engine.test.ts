@@ -304,17 +304,109 @@ describe('Zarzina', () => {
     expect(game.stats.killed).toBe(1);
     expect(game.effects.some((effect) => effect.type === 'chomp') || game.plants[0].digestUntil > 0).toBe(true);
   });
+
+  it('cannot swallow Brutón whole', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'place', kind: 'zarzina', row: 2, col: 3 },
+      { type: 'spawnZombie', row: 2, kind: 'bruton' },
+    ]);
+    const giant = game.zombies[0];
+    while (!game.plants[0] || game.plants[0].digestUntil === 0) {
+      if (!game.plants.length) break;
+      step(game);
+    }
+    expect(game.zombies).toContain(giant);
+    expect(giant.hp).toBe(ZOMBIES.bruton.hp - ZOMBIES.bruton.tooBigToSwallow!);
+  });
+});
+
+describe('Limón', () => {
+  it('melts armour faster without the extra reaching health', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'spawnZombie', row: 1, kind: 'conero' },
+      { type: 'place', kind: 'limon', row: 1, col: 0 },
+    ]);
+    const cone = game.zombies[0];
+    while (cone.armor === ZOMBIES.conero.armor) step(game);
+    expect(cone.armor).toBe(ZOMBIES.conero.armor - BALANCE.shotDamage - BALANCE.acidArmorDamage);
+    expect(cone.hp).toBe(ZOMBIES.conero.hp);
+    // 220 armour: three hits leave 10; the acid bonus covers that, so the
+    // fourth hit's normal damage all goes into health.
+    while (cone.armor > 0) step(game);
+    expect(cone.hp).toBe(ZOMBIES.conero.hp - BALANCE.shotDamage);
+  });
+});
+
+describe('Cilantro', () => {
+  it('stops a zombie biting while its aroma lasts', () => {
+    const bitten = (withCilantro: boolean) => {
+      const game = createGame(SEED, free);
+      step(game, [
+        { type: 'place', kind: 'cortezon', row: 0, col: 3 },
+        { type: 'spawnZombie', row: 0, kind: 'despistado' },
+      ]);
+      if (withCilantro) step(game, [{ type: 'place', kind: 'cilantro', row: 0, col: 2 }]);
+      run(game, 50 * TICKS_PER_SECOND);
+      return PLANTS.cortezon.hp - game.plants.find((plant) => plant.kind === 'cortezon')!.hp;
+    };
+    const plain = bitten(false);
+    const calmed = bitten(true);
+    expect(plain).toBeGreaterThan(0);
+    expect(calmed).toBeLessThan(plain * 0.5);
+  });
+});
+
+describe('Jengibrón', () => {
+  it('punches only zombies within reach', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'place', kind: 'jengibron', row: 4, col: 2 },
+      { type: 'spawnZombie', row: 4, kind: 'despistado' },
+    ]);
+    const zombie = game.zombies[0];
+    while (zombie.x > 2.5 + BALANCE.jengibronReach + 0.05) {
+      step(game);
+      expect(zombie.hp).toBe(ZOMBIES.despistado.hp);
+    }
+    // 75 per jab-and-cross: three combos.
+    run(game, 5 * TICKS_PER_SECOND);
+    expect(zombie.hp).toBeLessThanOrEqual(0);
+    expect(game.effects.some((effect) => effect.type === 'punch') || game.stats.killed === 1).toBe(true);
+  });
+});
+
+describe('special zombies', () => {
+  it('Ráfago runs much faster and Brutón crushes plants', () => {
+    const game = createGame(SEED, free);
+    step(game, [
+      { type: 'spawnZombie', row: 0, kind: 'despistado' },
+      { type: 'spawnZombie', row: 1, kind: 'rafago' },
+      { type: 'spawnZombie', row: 2, kind: 'bruton' },
+      { type: 'place', kind: 'nabu', row: 2, col: 4 },
+    ]);
+    const start = game.zombies.map((zombie) => zombie.x);
+    run(game, 10 * TICKS_PER_SECOND);
+    const walked = game.zombies.map((zombie, i) => start[i] - zombie.x);
+    expect(walked[1]).toBeGreaterThan(walked[0] * 1.5);
+    expect(walked[2]).toBeLessThan(walked[0]);
+    // One punch is enough for a shooter.
+    run(game, 60 * TICKS_PER_SECOND);
+    expect(game.plants.some((plant) => plant.kind === 'nabu')).toBe(false);
+    expect(ZOMBIES.bruton.bite.damage).toBeGreaterThanOrEqual(PLANTS.nabu.hp);
+  });
 });
 
 describe('waves mode', () => {
   it('ends in defeat when a zombie gets past a spent mower', () => {
     const game = createGame(SEED, {}, 'waves');
-    expect(game.sun).toBe(LEVELS[2].startingSun);
+    expect(game.sun).toBe(LEVELS[LEVELS.length - 1].startingSun);
     step(game, [{ type: 'spawnZombie', row: 0 }]);
     expect(game.zombies).toHaveLength(0);
     // With no plants, the mowers stop the first zombie of each lane and a
     // later one walks in.
-    run(game, (LEVELS[2].waves[LEVELS[2].waves.length - 1].at + 90) * TICKS_PER_SECOND);
+    run(game, (LEVELS[LEVELS.length - 1].waves[LEVELS[LEVELS.length - 1].waves.length - 1].at + 90) * TICKS_PER_SECOND);
     expect(game.outcome).toBe('defeat');
     expect(game.stats.mowersUsed).toBeGreaterThan(0);
     const tick = game.tick;
@@ -334,19 +426,19 @@ describe('waves mode', () => {
       commands.push({ type: 'place', kind: 'frigora', row, col: 4 }, { type: 'place', kind: 'cortezon', row, col: 6 });
     }
     step(game, commands);
-    run(game, (LEVELS[2].waves[LEVELS[2].waves.length - 1].at + 90) * TICKS_PER_SECOND);
+    run(game, (LEVELS[LEVELS.length - 1].waves[LEVELS[LEVELS.length - 1].waves.length - 1].at + 90) * TICKS_PER_SECOND);
     expect(game.outcome).toBe('victory');
-    expect(game.stats.killed).toBe(LEVELS[2].waves.reduce((sum, wave) => sum + wave.zombies.length, 0));
+    expect(game.stats.killed).toBe(LEVELS[LEVELS.length - 1].waves.reduce((sum, wave) => sum + wave.zombies.length, 0));
   });
 });
 
 // ─── Event levels ───────────────────────────────────────────────────────────
 describe('levels', () => {
-  it('pay more each time and 1500 coins in total', () => {
+  it('pay more each time and 4000 coins in total', () => {
     const rewards = LEVELS.map((level) => level.reward);
     expect(rewards).toEqual([...rewards].sort((a, b) => a - b));
     expect(new Set(rewards).size).toBe(rewards.length);
-    expect(rewards.reduce((sum, value) => sum + value, 0)).toBe(1500);
+    expect(rewards.reduce((sum, value) => sum + value, 0)).toBe(4000);
   });
 
   it('only allow the chosen seed packets', () => {

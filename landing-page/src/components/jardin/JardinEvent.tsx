@@ -172,7 +172,7 @@ export function JardinEvent() {
             if (!user) throw new Error('Inicia sesión para guardar el resultado.');
             const result = await finishLevel(user, screen.runId, log);
             setProgress(result.progress);
-            return { reward: result.reward, firstClear: result.firstClear };
+            return { reward: result.reward, firstClear: result.firstClear, note: result.note };
           }}
         />
       );
@@ -337,7 +337,7 @@ function MainMenu({
         </section>
 
         <div className="hidden justify-center md:flex short:flex" aria-hidden>
-          <AnimatedSprite url={spriteUrl('conero', 'walk')} frames={ZOMBIE_CLIPS.walk.frames} size={190} className="short:!h-32 short:!w-32" />
+          <AnimatedSprite url={spriteUrl('conero', 'walk')} frames={ZOMBIE_CLIPS.conero.walk!.frames} size={190} className="short:!h-32 short:!w-32" />
         </div>
       </div>
     </Backdrop>
@@ -368,7 +368,7 @@ function LevelSelect({
           para jugar los niveles: tus victorias y monedas se guardan en tu cuenta.
         </p>
       )}
-      <div className="m-auto flex w-full max-w-5xl snap-x gap-4 overflow-x-auto p-4 short:gap-3 short:p-3 md:justify-center">
+      <div className="m-auto flex w-full max-w-5xl snap-x justify-center-safe gap-4 overflow-x-auto p-4 md:flex-wrap short:flex-nowrap short:gap-3 short:p-3">
         {LEVELS.map((level) => {
           const done = !!progress?.completed[level.id];
           const locked = level.id > unlocked;
@@ -476,7 +476,7 @@ function LoadoutSelect({
               );
             })}
           </div>
-          <div className="mt-3 grid grid-cols-4 gap-2 border-t border-amber-100/15 pt-3 sm:grid-cols-4" aria-label="Plantas disponibles">
+          <div className="mt-3 grid grid-cols-6 gap-1.5 border-t border-amber-100/15 pt-3" aria-label="Plantas disponibles">
             {PLANT_ORDER.map((kind) => (
               <SeedPacket
                 key={kind}
@@ -486,7 +486,8 @@ function LoadoutSelect({
                 dimmed={chosen.includes(kind)}
                 ariaPressed={chosen.includes(kind)}
                 selected={focus === kind}
-                className="h-16 short:h-12"
+                size="sm"
+                className="h-14 short:h-11"
                 onClick={() => toggle(kind)}
               />
             ))}
@@ -532,7 +533,7 @@ function Almanac({ onBack }: { onBack: () => void }) {
   const sprite =
     tab === 'plants'
       ? { url: spriteUrl(plant, 'idle'), frames: PLANT_CLIPS[plant].idle!.frames }
-      : { url: spriteUrl(zombie, 'walk'), frames: ZOMBIE_CLIPS.walk.frames };
+      : { url: spriteUrl(zombie, 'walk'), frames: ZOMBIE_CLIPS[zombie].walk!.frames };
   const tabClass = (active: boolean) =>
     `rounded-full px-4 py-1.5 font-title text-sm font-bold ${active ? 'bg-amber-300 text-[#2a1c0c]' : 'bg-black/50 text-amber-100'}`;
   return (

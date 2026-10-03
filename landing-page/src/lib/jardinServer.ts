@@ -7,6 +7,7 @@ import {
   MAX_LEVEL_TICKS,
   TICKS_PER_SECOND,
   getLevel,
+  isEarnedVictory,
   isValidLoadout,
   parseLoggedCommand,
   replayLevel,
@@ -125,10 +126,12 @@ export async function finishRun(uid: string, body: Record<string, unknown>) {
 
     let outcome: 'victory' | 'defeat' | null;
     let ticks: number;
+    let earned: boolean;
     try {
       const state = replayLevel(run.seed, run.level, run.loadout, log);
       outcome = state.outcome;
       ticks = state.tick;
+      earned = isEarnedVictory(state);
     } catch {
       throw new GameError('La partida no coincide con el registro del servidor.', 409);
     }
@@ -139,7 +142,7 @@ export async function finishRun(uid: string, body: Record<string, unknown>) {
       throw new GameError('La partida terminó demasiado rápido.', 409);
 
     const level = getLevel(run.level)!;
-    const firstClear = outcome === 'victory' && !record.completed[level.id];
+    const firstClear = earned && !record.completed[level.id];
     const reward = firstClear ? level.reward : 0;
     const next: JardinRecord = {
       ...record,
@@ -149,7 +152,11 @@ export async function finishRun(uid: string, body: Record<string, unknown>) {
       totalEarned: record.totalEarned + reward,
     };
     store.set(key, next);
-    return { outcome, reward, firstClear, progress: publicProgress(next) };
+    const note =
+      outcome === 'victory' && !earned
+        ? 'Las podadoras hicieron casi todo el trabajo: esta victoria no cuenta. ¡Planta tu defensa!'
+        : undefined;
+    return { outcome, reward, firstClear, note, progress: publicProgress(next) };
   });
 }
 

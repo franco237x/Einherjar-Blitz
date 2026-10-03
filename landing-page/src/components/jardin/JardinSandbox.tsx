@@ -188,6 +188,8 @@ export function BetaBadge() {
 export interface LevelResult {
   reward: number;
   firstClear: boolean;
+  /** Why a victory paid nothing, when it is not because it was already paid. */
+  note?: string;
 }
 
 interface JardinGameProps {
@@ -215,6 +217,8 @@ export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLe
   const logRef = useRef<LoggedCommand[]>([]);
   const [report, setReport] = useState<Report>({ status: 'idle' });
   const seedPackets = initialGame.loadout ?? PLANT_ORDER;
+  // A level brings at most 6 packets; the sandbox has every plant.
+  const twoColumns = seedPackets.length > 8;
   const levelWaves = initialGame.level.waves;
   const gameRef = useRef<JardinState>(initialGame);
   const queueRef = useRef<Command[]>([]);
@@ -442,7 +446,9 @@ export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLe
       {/* Seed packets, PvZ 2 style: sun counter on top, one column below. */}
       <nav
         ref={railRef}
-        className={`absolute bottom-0 left-0 top-0 z-10 flex flex-col gap-1 ${compact ? 'w-[86px] py-1' : 'w-[112px] py-2'}`}
+        className={`absolute bottom-0 left-0 top-0 z-10 flex flex-col gap-1 ${
+          twoColumns ? (compact ? 'w-[156px] py-1' : 'w-[204px] py-2') : compact ? 'w-[86px] py-1' : 'w-[112px] py-2'
+        }`}
         style={{ paddingLeft: 'max(6px, env(safe-area-inset-left))' }}
         aria-label="Plantas"
       >
@@ -461,7 +467,11 @@ export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLe
             {options.infiniteSun ? '∞' : hud.sun}
           </span>
         </div>
-        <div className="flex min-h-0 flex-1 flex-col gap-1">
+        <div
+          className={`min-h-0 flex-1 gap-1 ${
+            twoColumns ? `grid grid-cols-2 content-start ${compact ? 'auto-rows-[46px]' : 'auto-rows-[62px]'}` : 'flex flex-col'
+          }`}
+        >
           {seedPackets.map((kind, index) => {
             const def = PLANTS[kind];
             const selected = tool === kind;
@@ -472,7 +482,7 @@ export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLe
                 key={kind}
                 type="button"
                 onClick={() => setTool(selected ? null : kind)}
-                title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
+                title={PLANT_KEYS[index] ? `${def.name} · ${def.role} (${PLANT_KEYS[index]})` : `${def.name} · ${def.role}`}
                 aria-label={`${def.name}, ${def.cost} de sol`}
                 aria-pressed={selected}
                 className={`relative min-h-0 flex-1 overflow-hidden rounded-[6px] border-2 border-[#2a1c0c] bg-gradient-to-b from-[#fbf3d6] to-[#dccb94] shadow-[0_3px_0_rgba(0,0,0,0.5)] transition active:translate-y-0.5 ${
@@ -641,7 +651,7 @@ export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLe
               ))}
               <div className="mt-2 border-t border-white/10 pt-2">
                 <p className="mb-1 text-xs text-white/60">Zombi a soltar (Z: carril al azar)</p>
-                <div className="mb-1.5 grid grid-cols-3 gap-1">
+                <div className="mb-1.5 grid grid-cols-5 gap-1">
                   {ZOMBIE_ORDER.map((kind) => (
                     <button
                       key={kind}
@@ -813,13 +823,13 @@ function LevelReport({
         Verificando la partida…
       </p>
     );
-  const { reward } = report.result;
+  const { reward, note } = report.result;
   if (outcome !== 'victory') return <p className="mt-3 text-xs text-white/55">Sin recompensa. ¡Prueba con otras plantas!</p>;
   return reward > 0 ? (
     <p className="mt-3 flex items-center justify-center gap-2 font-title text-xl text-amber-200">
       <span aria-hidden>🪙</span> +{reward.toLocaleString('es-AR')} monedas
     </p>
   ) : (
-    <p className="mt-3 text-xs text-white/60">Ya cobraste este nivel: esta victoria no suma monedas.</p>
+    <p className="mt-3 text-xs text-white/60">{note ?? 'Ya cobraste este nivel: esta victoria no suma monedas.'}</p>
   );
 }

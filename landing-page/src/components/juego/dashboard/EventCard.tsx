@@ -39,7 +39,7 @@ export function EventCard({ delay }: { delay: number }) {
           </span>
           <span className="mt-2 block font-title text-[20px] leading-tight text-white/95">Jardín de Yggdrasil</span>
           <span className="mt-1 block text-[12px] leading-[18px] text-white/60">
-            Defiende el jardín en 3 niveles y gana hasta 1500 monedas.
+            Defiende el jardín en 5 niveles y gana hasta 4000 monedas.
           </span>
           <span className="mt-2.5 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#e5ce96]">
             Jugar ahora

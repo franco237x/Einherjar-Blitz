@@ -38,7 +38,7 @@ export const startLevel = (user: User, level: number, loadout: PlantKind[]) =>
   call<{ runId: string; seed: string }>(user, '/api/jardin/partida', { accion: 'iniciar', nivel: level, plantas: loadout });
 
 export const finishLevel = (user: User, runId: string, log: LoggedCommand[]) =>
-  call<{ outcome: 'victory' | 'defeat'; reward: number; firstClear: boolean; progress: JardinProgress }>(
+  call<{ outcome: 'victory' | 'defeat'; reward: number; firstClear: boolean; note?: string; progress: JardinProgress }>(
     user,
     '/api/jardin/partida',
     { accion: 'terminar', runId, comandos: log },

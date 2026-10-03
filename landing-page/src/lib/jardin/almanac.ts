@@ -1,6 +1,6 @@
 // Almanac entries for the Jardín de Yggdrasil. Numbers come from the engine
 // so the almanac never disagrees with the game.
-import { BALANCE, PLANTS, TICKS_PER_SECOND, ZOMBIES, type PlantKind, type ZombieKind } from './engine';
+import { BALANCE, PLANTS, TICKS_PER_SECOND, TIMING, ZOMBIES, type PlantKind, type ZombieKind } from './engine';
 
 export interface AlmanacStat {
   label: string;
@@ -85,6 +85,39 @@ export const PLANT_ALMANAC: Record<PlantKind, AlmanacEntry> = {
       'Un cactus serio y alto. Sus espinas atraviesan el carril entero y hieren a todos los zombis que encuentran en el camino.',
     stats: [...plantBase('cardon'), { label: 'Daño', value: `${BALANCE.shotDamage} a cada zombi del carril` }],
   },
+  cilantro: {
+    title: 'Cilantro',
+    tagline: 'Apoyo aromático',
+    description:
+      'Un manojo travieso de hojas recortadas. Infla los cachetes y sopla una ráfaga aromática: el zombi que la respira deja de morder un momento, aunque sigue caminando. No hace daño, pero salva a las plantas que tiene delante.',
+    stats: [
+      ...plantBase('cilantro'),
+      { label: 'Efecto', value: `Impide morder ${seconds(TIMING.aroma)} cada 1,5 s` },
+      { label: 'Alcance', value: `${BALANCE.cilantroRange} casillas` },
+    ],
+  },
+  limon: {
+    title: 'Limón',
+    tagline: 'Rompe armaduras',
+    description:
+      'Bajito, ancho y con una sonrisa ácida. Su jugo hace daño normal y, además, disuelve conos, baldes y cascos mucho más rápido. Lo que sobra del ácido no daña la vida.',
+    stats: [
+      ...plantBase('limon'),
+      { label: 'Daño', value: `${BALANCE.shotDamage} cada 1,5 s` },
+      { label: 'Contra armadura', value: `+${BALANCE.acidArmorDamage}` },
+    ],
+  },
+  jengibron: {
+    title: 'Jengibrón',
+    tagline: 'Boxeador cuerpo a cuerpo',
+    description:
+      'Una raíz de jengibre con enormes puños de hojas. Espera a que el zombi esté al alcance y descarga un jab rápido y un cruzado pesado. Aguanta más que los tiradores.',
+    stats: [
+      ...plantBase('jengibron'),
+      { label: 'Daño', value: `${BALANCE.punchDamage[0]} + ${BALANCE.punchDamage[1]} cada 1,5 s` },
+      { label: 'Alcance', value: '1 casilla' },
+    ],
+  },
 };
 
 export const ZOMBIE_ALMANAC: Record<ZombieKind, AlmanacEntry> = {
@@ -115,6 +148,28 @@ export const ZOMBIE_ALMANAC: Record<ZombieKind, AlmanacEntry> = {
       { label: 'Vida', value: `${ZOMBIES.balderon.hp}` },
       { label: 'Protección', value: `${ZOMBIES.balderon.armor}` },
       { label: 'Velocidad', value: 'Lento' },
+    ],
+  },
+  rafago: {
+    title: 'Ráfago',
+    tagline: 'Corredor con casco',
+    description:
+      'Un corredor de fútbol americano con casco y hombreras. Cruza el jardín al doble de velocidad; cuando pierde el casco sigue corriendo igual de rápido. El Limón y la Frígora son tus mejores aliados.',
+    stats: [
+      { label: 'Vida', value: `${ZOMBIES.rafago.hp}` },
+      { label: 'Protección', value: `${ZOMBIES.rafago.armor}` },
+      { label: 'Velocidad', value: 'Muy rápido' },
+    ],
+  },
+  bruton: {
+    title: 'Brutón',
+    tagline: 'Gigante',
+    description:
+      'Un gigante de brazos enormes y pasos pesados. No muerde: carga el puño y aplasta la planta que tenga delante de un par de golpes. La Zarzina no puede tragárselo entero.',
+    stats: [
+      { label: 'Vida', value: `${ZOMBIES.bruton.hp}` },
+      { label: 'Golpe', value: `${ZOMBIES.bruton.bite.damage} por puñetazo` },
+      { label: 'Velocidad', value: 'Muy lento' },
     ],
   },
 };

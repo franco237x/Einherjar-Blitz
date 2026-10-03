@@ -17,6 +17,13 @@ import {
   type PlantKind,
 } from './jardin/engine';
 
+// A fixed match seed keeps the test bot's result stable. With this one the
+// mowers alone clear level 1, which must not pay. Voucher folios still differ.
+vi.mock('node:crypto', async (importOriginal) => {
+  const crypto = await importOriginal<typeof import('node:crypto')>();
+  return { ...crypto, randomBytes: (size: number) => (size === 16 ? Buffer.alloc(16, 0x5a) : crypto.randomBytes(size)) };
+});
+
 // The local store writes to `<cwd>/.agro-data`; keep it in a temp folder.
 const originalCwd = process.cwd();
 let server: typeof import('./jardinServer');
@@ -105,12 +112,14 @@ describe('jardín server', () => {
     await expect(server.startRun(uid, { nivel: 9, plantas: LOADOUT })).rejects.toThrow(/nivel/);
   });
 
-  it('pays nothing for a forged or lost match', async () => {
+  it('pays nothing for a match the plants did not win', async () => {
     const { runId } = await server.startRun(uid, { nivel: 1, plantas: LOADOUT });
     vi.useFakeTimers({ now: Date.now() + 10 * 60_000, toFake: ['Date'] });
     const result = await server.finishRun(uid, { runId, comandos: [[0, { type: 'collect', sunId: 1 }]] });
     vi.useRealTimers();
-    expect(result).toMatchObject({ outcome: 'defeat', reward: 0 });
+    // Nothing planted: the mowers did all the work.
+    expect(result).toMatchObject({ outcome: 'victory', reward: 0, firstClear: false, progress: { unlocked: 1 } });
+    expect(result.note).toMatch(/podadoras/);
     await expect(server.finishRun(uid, { runId, comandos: [] })).rejects.toThrow(/terminó/);
   });
 

@@ -2,6 +2,7 @@ import { PDFDocument, StandardFonts, PDFName, PDFString, rgb } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { AgroVoucher } from './agroGame';
+import { LEVELS } from './jardin/engine';
 
 const ink = rgb(0.035, 0.075, 0.062);
 const forest = rgb(0.075, 0.15, 0.12);
@@ -146,7 +147,7 @@ export async function createAgroVoucherPdf(
     ['FOLIO', voucher.id],
     ['FECHA', pdfText(date)],
     jardin
-      ? ['NIVELES SUPERADOS', `${voucher.plantsGrowing} de 3`]
+      ? ['NIVELES SUPERADOS', `${voucher.plantsGrowing} de ${LEVELS.length}`]
       : ['COSECHA TOTAL', `${voucher.totalHarvested.toLocaleString('es-AR')} monedas`],
   ] as const;
   rows.forEach(([label, value], index) => {

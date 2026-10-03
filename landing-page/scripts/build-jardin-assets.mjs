@@ -9,6 +9,7 @@
 //   git archive origin/codex/plantas-zombis-assets \
 //     landing-page/public/plantas-vivas/characters \
 //     landing-page/public/zombis-vivos/characters \
+//     landing-page/public/zombis-vivos/especiales-v4/characters \
 //     landing-page/public/jardin-yggdrasil | tar -x -C /tmp/pack
 //   node scripts/build-jardin-assets.mjs /tmp/pack/landing-page/public
 import { mkdir, readFile } from 'node:fs/promises';
@@ -32,12 +33,25 @@ const PLANTS = {
   cardon: { clips: PLANT_BASE, extra: { 'spine.webp': 'parts/projectile.png' } },
   frigora: { clips: PLANT_BASE, extra: { 'frost.webp': 'parts/projectile.png' } },
   zarzina: { clips: PLANT_BASE },
+  cilantro: { clips: PLANT_BASE, extra: { 'aroma.webp': 'parts/projectile.png' } },
+  limon: { clips: PLANT_BASE, extra: { 'acid.webp': 'parts/projectile.png' } },
+  jengibron: { clips: PLANT_BASE, extra: { 'impact.webp': 'parts/effect.png' } },
 };
 const ZOMBIE_BASE = ['walk', 'bite', 'fall', 'spawn'];
+// The special zombies (especiales-v4) name some clips differently; the game
+// keeps its own names: `{ game clip: pack clip }`.
+const same = (names) => Object.fromEntries(names.map((name) => [name, name]));
 const ZOMBIES = {
-  despistado: { clips: ZOMBIE_BASE },
-  conero: { clips: [...ZOMBIE_BASE, 'armor-break'], unarmored: ['walk', 'bite', 'fall'] },
-  balderon: { clips: [...ZOMBIE_BASE, 'armor-break'], unarmored: ['walk', 'bite', 'fall'] },
+  despistado: { clips: same(ZOMBIE_BASE) },
+  conero: { clips: same([...ZOMBIE_BASE, 'armor-break']), unarmored: same(['walk', 'bite', 'fall']) },
+  balderon: { clips: same([...ZOMBIE_BASE, 'armor-break']), unarmored: same(['walk', 'bite', 'fall']) },
+  bruton: { pack: 'especiales-v4', clips: { walk: 'walk', bite: 'smash', fall: 'fall', spawn: 'spawn' } },
+  rafago: {
+    pack: 'especiales-v4',
+    clips: { walk: 'run', bite: 'bite', fall: 'fall', spawn: 'spawn', 'armor-break': 'armor-break' },
+    unarmoredDir: 'helmetless',
+    unarmored: { walk: 'run', bite: 'bite', fall: 'fall' },
+  },
 };
 
 const summary = {};
@@ -65,14 +79,14 @@ for (const [id, { clips, extra = {} }] of Object.entries(PLANTS)) {
   for (const [name, file] of Object.entries(extra)) await still(path.join(from, file), path.join(to, name), 160);
 }
 
-for (const [id, { clips, unarmored = [] }] of Object.entries(ZOMBIES)) {
-  const from = path.join(source, 'zombis-vivos', 'characters', id);
+for (const [id, { pack, clips, unarmored = {}, unarmoredDir = 'unarmored' }] of Object.entries(ZOMBIES)) {
+  const from = path.join(source, 'zombis-vivos', ...(pack ? [pack] : []), 'characters', id);
   const to = path.join(out, id);
   await mkdir(to, { recursive: true });
   summary[id] = {};
-  for (const clip of clips) await atlas(path.join(from, 'sprites', clip), to, clip, id);
-  for (const clip of unarmored)
-    await atlas(path.join(from, 'unarmored', 'sprites', clip), to, `sin-${clip}`, id);
+  for (const [name, clip] of Object.entries(clips)) await atlas(path.join(from, 'sprites', clip), to, name, id);
+  for (const [name, clip] of Object.entries(unarmored))
+    await atlas(path.join(from, unarmoredDir, 'sprites', clip), to, `sin-${name}`, id);
   await still(path.join(from, 'portrait.png'), path.join(to, 'portrait.webp'), 256);
 }
 
