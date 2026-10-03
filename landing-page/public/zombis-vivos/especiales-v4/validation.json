@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-03",
+  "checked": {
+    "characters": 2,
+    "rigidPieces": 36,
+    "sourceSheets": 6,
+    "primaryClips": 13,
+    "primaryFrames": 468,
+    "helmetlessClips": 6,
+    "helmetlessFrames": 198,
+    "pieceAspectAndFixedBoneLengths": "verified",
+    "plantedFootWorldPosition": "verified",
+    "continuousLocomotionFrames": "verified",
+    "helmetOnlyLoss": "verified",
+    "preservedShoulderPads": "verified",
+    "combatTimingAndInterruption": "verified",
+    "slowFreezeDeathRespawn": "verified",
+    "responsiveWidths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "browserClips": "all 13 animate",
+    "frameStepRigOverlayAndFlip": "verified",
+    "reducedMotion": "starts paused",
+    "javascriptErrors": [],
+    "failedRequests": []
+  }
+}

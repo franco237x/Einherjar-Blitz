@@ -1,0 +1,260 @@
+{
+  "id": "bruton",
+  "name": "Brutón",
+  "role": "Gigante sin armadura",
+  "anatomy": "brute",
+  "color": "#7b8255",
+  "description": "Un gigante de brazos enormes, manos desnudas y pasos pesados. Prepara el puño y descarga un golpe contra las plantas.",
+  "motion": "Cadera, torso, cabeza y extremidades articulados. El puñetazo tiene preparación, contacto y recuperación.",
+  "health": 800,
+  "armor": 0,
+  "locomotion": "walk",
+  "recommendedScale": 1.4,
+  "speed": 11.1111111111,
+  "clips": [
+    "idle",
+    "walk",
+    "smash",
+    "hit",
+    "spawn",
+    "fall"
+  ],
+  "layout": {
+    "hips": [
+      180,
+      228
+    ],
+    "torso": [
+      168,
+      119
+    ],
+    "torsoAnchor": [
+      0.5,
+      0.94
+    ],
+    "pelvis": [
+      97,
+      55
+    ],
+    "shoulders": [
+      [
+        127,
+        137
+      ],
+      [
+        231,
+        134
+      ]
+    ],
+    "head": [
+      174,
+      152
+    ],
+    "headSize": [
+      92,
+      91
+    ],
+    "headAnchor": [
+      0.72,
+      0.92
+    ],
+    "hipOffsets": [
+      24,
+      -19
+    ],
+    "legLengths": [
+      23,
+      24
+    ],
+    "armLengths": [
+      48,
+      44
+    ],
+    "handSize": [
+      52,
+      57
+    ],
+    "shoeSize": [
+      61,
+      27
+    ],
+    "stance": 0.64,
+    "stride": 8.53333333333
+  },
+  "moveSpeed": 11.1111111111,
+  "rig": "characters/bruton/rig.json",
+  "portrait": "characters/bruton/portrait.png",
+  "sourceSheets": [
+    {
+      "sheet": "core",
+      "source": "source/bruton-core.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "head",
+        "head-blink",
+        "head-bite",
+        "torso",
+        "pelvis",
+        "effect"
+      ]
+    },
+    {
+      "sheet": "arms",
+      "source": "source/bruton-arms.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "upper-back",
+        "forearm-back",
+        "hand-back",
+        "upper-front",
+        "forearm-front",
+        "hand-front"
+      ]
+    },
+    {
+      "sheet": "legs",
+      "source": "source/bruton-legs.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "thigh-back",
+        "calf-back",
+        "shoe-back",
+        "thigh-front",
+        "calf-front",
+        "shoe-front"
+      ]
+    }
+  ],
+  "animations": {
+    "idle": {
+      "label": "Reposo",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/bruton/sprites/idle.png",
+      "data": "characters/bruton/sprites/idle.json",
+      "hdAtlas": "characters/bruton/sprites/idle@2x.png",
+      "hdData": "characters/bruton/sprites/idle@2x.json",
+      "webp": "characters/bruton/animated/idle.webp",
+      "gif": "characters/bruton/animated/idle.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ],
+      "shoulderPadsVisible": false,
+      "helmetVisible": false
+    },
+    "walk": {
+      "label": "Caminar",
+      "duration": 2.4,
+      "frames": 72,
+      "fps": 30,
+      "loop": true,
+      "atlas": "characters/bruton/sprites/walk.png",
+      "data": "characters/bruton/sprites/walk.json",
+      "hdAtlas": "characters/bruton/sprites/walk@2x.png",
+      "hdData": "characters/bruton/sprites/walk@2x.json",
+      "webp": "characters/bruton/animated/walk.webp",
+      "gif": "characters/bruton/animated/walk.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ],
+      "shoulderPadsVisible": false,
+      "helmetVisible": false
+    },
+    "smash": {
+      "label": "Puñetazo pesado",
+      "duration": 1.4,
+      "frames": 42,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/smash.png",
+      "data": "characters/bruton/sprites/smash.json",
+      "hdAtlas": "characters/bruton/sprites/smash@2x.png",
+      "hdData": "characters/bruton/sprites/smash@2x.json",
+      "webp": "characters/bruton/animated/smash.webp",
+      "gif": "characters/bruton/animated/smash.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ],
+      "shoulderPadsVisible": false,
+      "helmetVisible": false
+    },
+    "hit": {
+      "label": "Recibir golpe",
+      "duration": 0.4,
+      "frames": 12,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/hit.png",
+      "data": "characters/bruton/sprites/hit.json",
+      "hdAtlas": "characters/bruton/sprites/hit@2x.png",
+      "hdData": "characters/bruton/sprites/hit@2x.json",
+      "webp": "characters/bruton/animated/hit.webp",
+      "gif": "characters/bruton/animated/hit.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ],
+      "shoulderPadsVisible": false,
+      "helmetVisible": false
+    },
+    "spawn": {
+      "label": "Entrar",
+      "duration": 0.6,
+      "frames": 18,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/spawn.png",
+      "data": "characters/bruton/sprites/spawn.json",
+      "hdAtlas": "characters/bruton/sprites/spawn@2x.png",
+      "hdData": "characters/bruton/sprites/spawn@2x.json",
+      "webp": "characters/bruton/animated/spawn.webp",
+      "gif": "characters/bruton/animated/spawn.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ],
+      "shoulderPadsVisible": false,
+      "helmetVisible": false
+    },
+    "fall": {
+      "label": "Caer",
+      "duration": 1.2,
+      "frames": 36,
+      "fps": 30,
+      "loop": false,
+      "atlas": "characters/bruton/sprites/fall.png",
+      "data": "characters/bruton/sprites/fall.json",
+      "hdAtlas": "characters/bruton/sprites/fall@2x.png",
+      "hdData": "characters/bruton/sprites/fall@2x.json",
+      "webp": "characters/bruton/animated/fall.webp",
+      "gif": "characters/bruton/animated/fall.gif",
+      "columns": 8,
+      "frameSize": [
+        256,
+        256
+      ],
+      "shoulderPadsVisible": false,
+      "helmetVisible": false
+    }
+  },
+  "variants": {}
+}

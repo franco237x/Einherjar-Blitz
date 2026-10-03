@@ -1,0 +1,523 @@
+{
+  "version": "4.0.0",
+  "id": "bruton",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "ground": 288,
+  "pivot": [
+    0.5,
+    0.9
+  ],
+  "transform": "fixed uniform scale + rotation only",
+  "layout": {
+    "hips": [
+      180,
+      228
+    ],
+    "torso": [
+      168,
+      119
+    ],
+    "torsoAnchor": [
+      0.5,
+      0.94
+    ],
+    "pelvis": [
+      97,
+      55
+    ],
+    "shoulders": [
+      [
+        127,
+        137
+      ],
+      [
+        231,
+        134
+      ]
+    ],
+    "head": [
+      174,
+      152
+    ],
+    "headSize": [
+      92,
+      91
+    ],
+    "headAnchor": [
+      0.72,
+      0.92
+    ],
+    "hipOffsets": [
+      24,
+      -19
+    ],
+    "legLengths": [
+      23,
+      24
+    ],
+    "armLengths": [
+      48,
+      44
+    ],
+    "handSize": [
+      52,
+      57
+    ],
+    "shoeSize": [
+      61,
+      27
+    ],
+    "stance": 0.64,
+    "stride": 8.53333333333
+  },
+  "parts": {
+    "head": {
+      "file": "parts/head.png",
+      "width": 363,
+      "height": 371,
+      "scale": 0.24528301886792453,
+      "pivot": [
+        261.36,
+        341.32
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-core.png",
+      "sourceBounds": {
+        "x": 100,
+        "y": 64,
+        "w": 363,
+        "h": 371
+      }
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 360,
+      "height": 370,
+      "scale": 0.24594594594594596,
+      "pivot": [
+        259.2,
+        340.40000000000003
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-core.png",
+      "sourceBounds": {
+        "x": 582,
+        "y": 65,
+        "w": 360,
+        "h": 370
+      }
+    },
+    "head-bite": {
+      "file": "parts/head-bite.png",
+      "width": 365,
+      "height": 374,
+      "scale": 0.24331550802139038,
+      "pivot": [
+        262.8,
+        344.08000000000004
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-core.png",
+      "sourceBounds": {
+        "x": 1092,
+        "y": 66,
+        "w": 365,
+        "h": 374
+      }
+    },
+    "torso": {
+      "file": "parts/torso.png",
+      "width": 562,
+      "height": 439,
+      "scale": 0.27107061503416857,
+      "pivot": [
+        281,
+        412.65999999999997
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-core.png",
+      "sourceBounds": {
+        "x": 49,
+        "y": 501,
+        "w": 562,
+        "h": 439
+      }
+    },
+    "pelvis": {
+      "file": "parts/pelvis.png",
+      "width": 433,
+      "height": 341,
+      "scale": 0.16129032258064516,
+      "pivot": [
+        216.5,
+        218.24
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-core.png",
+      "sourceBounds": {
+        "x": 620,
+        "y": 622,
+        "w": 433,
+        "h": 341
+      }
+    },
+    "effect": {
+      "file": "parts/effect.png",
+      "width": 365,
+      "height": 268,
+      "scale": 0.1455223880597015,
+      "pivot": [
+        182.5,
+        241.20000000000002
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-core.png",
+      "sourceBounds": {
+        "x": 1128,
+        "y": 682,
+        "w": 365,
+        "h": 268
+      }
+    },
+    "upper-back": {
+      "file": "parts/upper-back.png",
+      "width": 266,
+      "height": 446,
+      "pivot": [
+        129.72625370127233,
+        80
+      ],
+      "distal": [
+        157.73505534711813,
+        365
+      ],
+      "nativeAngle": -5.612804815052472,
+      "nativeLength": 286.3729962298057,
+      "boneLength": 48,
+      "scale": 0.16761356912815006,
+      "fixedAspect": true,
+      "source": "source/bruton-arms.png",
+      "sourceBounds": {
+        "x": 224,
+        "y": 30,
+        "w": 266,
+        "h": 446
+      }
+    },
+    "forearm-back": {
+      "file": "parts/forearm-back.png",
+      "width": 214,
+      "height": 421,
+      "pivot": [
+        92.14994178701478,
+        76
+      ],
+      "distal": [
+        142.2539115824845,
+        344
+      ],
+      "nativeAngle": -10.589492768250619,
+      "nativeLength": 272.64337107156183,
+      "boneLength": 44,
+      "scale": 0.16138298109749802,
+      "fixedAspect": true,
+      "source": "source/bruton-arms.png",
+      "sourceBounds": {
+        "x": 675,
+        "y": 53,
+        "w": 214,
+        "h": 421
+      }
+    },
+    "hand-back": {
+      "file": "parts/hand-back.png",
+      "width": 258,
+      "height": 292,
+      "scale": 0.1952054794520548,
+      "pivot": [
+        129,
+        37.96
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-arms.png",
+      "sourceBounds": {
+        "x": 1078,
+        "y": 163,
+        "w": 258,
+        "h": 292
+      }
+    },
+    "upper-front": {
+      "file": "parts/upper-front.png",
+      "width": 276,
+      "height": 457,
+      "pivot": [
+        148.68812829555247,
+        82
+      ],
+      "distal": [
+        111.89630930654847,
+        374
+      ],
+      "nativeAngle": 7.18138873158707,
+      "nativeLength": 294.3087459531566,
+      "boneLength": 48,
+      "scale": 0.16309403189682947,
+      "fixedAspect": true,
+      "source": "source/bruton-arms.png",
+      "sourceBounds": {
+        "x": 223,
+        "y": 524,
+        "w": 276,
+        "h": 457
+      }
+    },
+    "forearm-front": {
+      "file": "parts/forearm-front.png",
+      "width": 214,
+      "height": 421,
+      "pivot": [
+        121.41030314104907,
+        76
+      ],
+      "distal": [
+        83.08524995077947,
+        344
+      ],
+      "nativeAngle": 8.138344252404499,
+      "nativeLength": 270.72644810220703,
+      "boneLength": 44,
+      "scale": 0.16252567973480275,
+      "fixedAspect": true,
+      "source": "source/bruton-arms.png",
+      "sourceBounds": {
+        "x": 689,
+        "y": 541,
+        "w": 214,
+        "h": 421
+      }
+    },
+    "hand-front": {
+      "file": "parts/hand-front.png",
+      "width": 270,
+      "height": 293,
+      "scale": 0.1925925925925926,
+      "pivot": [
+        135,
+        38.09
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-arms.png",
+      "sourceBounds": {
+        "x": 1078,
+        "y": 638,
+        "w": 270,
+        "h": 293
+      }
+    },
+    "thigh-back": {
+      "file": "parts/thigh-back.png",
+      "width": 303,
+      "height": 457,
+      "pivot": [
+        179.45577318143617,
+        46
+      ],
+      "distal": [
+        149.32667281758592,
+        410
+      ],
+      "nativeAngle": 4.731714426080857,
+      "nativeLength": 365.2447983048287,
+      "boneLength": 23,
+      "scale": 0.06297146490996565,
+      "fixedAspect": true,
+      "source": "source/bruton-legs.png",
+      "sourceBounds": {
+        "x": 176,
+        "y": 33,
+        "w": 303,
+        "h": 457
+      }
+    },
+    "calf-back": {
+      "file": "parts/calf-back.png",
+      "width": 230,
+      "height": 456,
+      "pivot": [
+        113.70974291488461,
+        46
+      ],
+      "distal": [
+        107.77834174055623,
+        410
+      ],
+      "nativeAngle": 0.9335554373257539,
+      "nativeLength": 364.04832305600695,
+      "boneLength": 24,
+      "scale": 0.06592531397626497,
+      "fixedAspect": true,
+      "source": "source/bruton-legs.png",
+      "sourceBounds": {
+        "x": 663,
+        "y": 47,
+        "w": 230,
+        "h": 456
+      }
+    },
+    "shoe-back": {
+      "file": "parts/shoe-back.png",
+      "width": 430,
+      "height": 256,
+      "scale": 0.10546875,
+      "pivot": [
+        292.40000000000003,
+        35.84
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-legs.png",
+      "sourceBounds": {
+        "x": 963,
+        "y": 256,
+        "w": 430,
+        "h": 256
+      }
+    },
+    "thigh-front": {
+      "file": "parts/thigh-front.png",
+      "width": 299,
+      "height": 461,
+      "pivot": [
+        118.45461016140317,
+        46
+      ],
+      "distal": [
+        168.33444640398938,
+        414
+      ],
+      "nativeAngle": -7.719002187155986,
+      "nativeLength": 371.3650469061233,
+      "boneLength": 23,
+      "scale": 0.06193366928744408,
+      "fixedAspect": true,
+      "source": "source/bruton-legs.png",
+      "sourceBounds": {
+        "x": 186,
+        "y": 513,
+        "w": 299,
+        "h": 461
+      }
+    },
+    "calf-front": {
+      "file": "parts/calf-front.png",
+      "width": 233,
+      "height": 445,
+      "pivot": [
+        115.69499904379423,
+        44
+      ],
+      "distal": [
+        124.36762356807083,
+        400
+      ],
+      "nativeAngle": -1.3955239259684689,
+      "nativeLength": 356.10562255620044,
+      "boneLength": 24,
+      "scale": 0.06739573452315353,
+      "fixedAspect": true,
+      "source": "source/bruton-legs.png",
+      "sourceBounds": {
+        "x": 659,
+        "y": 529,
+        "w": 233,
+        "h": 445
+      }
+    },
+    "shoe-front": {
+      "file": "parts/shoe-front.png",
+      "width": 421,
+      "height": 259,
+      "scale": 0.10424710424710425,
+      "pivot": [
+        286.28000000000003,
+        36.260000000000005
+      ],
+      "fixedAspect": true,
+      "source": "source/bruton-legs.png",
+      "sourceBounds": {
+        "x": 962,
+        "y": 741,
+        "w": 421,
+        "h": 259
+      }
+    }
+  },
+  "helmetOffset": [
+    -2,
+    -4
+  ],
+  "drawOrder": [
+    "leg-back",
+    "arm-back",
+    "leg-front",
+    "upper-arm-front",
+    "pelvis",
+    "torso-with-permanent-pads",
+    "head",
+    "helmet",
+    "forearm-and-hand-front"
+  ],
+  "sources": [
+    {
+      "sheet": "core",
+      "source": "source/bruton-core.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "head",
+        "head-blink",
+        "head-bite",
+        "torso",
+        "pelvis",
+        "effect"
+      ]
+    },
+    {
+      "sheet": "arms",
+      "source": "source/bruton-arms.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "upper-back",
+        "forearm-back",
+        "hand-back",
+        "upper-front",
+        "forearm-front",
+        "hand-front"
+      ]
+    },
+    {
+      "sheet": "legs",
+      "source": "source/bruton-legs.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "thigh-back",
+        "calf-back",
+        "shoe-back",
+        "thigh-front",
+        "calf-front",
+        "shoe-front"
+      ]
+    }
+  ]
+}

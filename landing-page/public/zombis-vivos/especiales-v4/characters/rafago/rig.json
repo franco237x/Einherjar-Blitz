@@ -1,0 +1,523 @@
+{
+  "version": "4.0.0",
+  "id": "rafago",
+  "logicalSize": [
+    320,
+    320
+  ],
+  "ground": 288,
+  "pivot": [
+    0.5,
+    0.9
+  ],
+  "transform": "fixed uniform scale + rotation only",
+  "layout": {
+    "hips": [
+      186,
+      216
+    ],
+    "torso": [
+      106,
+      91
+    ],
+    "torsoAnchor": [
+      0.5,
+      0.93
+    ],
+    "pelvis": [
+      60,
+      40
+    ],
+    "shoulders": [
+      [
+        158,
+        156
+      ],
+      [
+        211,
+        154
+      ]
+    ],
+    "head": [
+      153,
+      150
+    ],
+    "headSize": [
+      68,
+      91
+    ],
+    "headAnchor": [
+      0.74,
+      0.94
+    ],
+    "hipOffsets": [
+      11,
+      -11
+    ],
+    "legLengths": [
+      37,
+      36
+    ],
+    "armLengths": [
+      30,
+      31
+    ],
+    "handSize": [
+      21,
+      26
+    ],
+    "shoeSize": [
+      45,
+      23
+    ],
+    "stance": 0.4,
+    "stride": 15.55555555556
+  },
+  "parts": {
+    "head": {
+      "file": "parts/head.png",
+      "width": 348,
+      "height": 413,
+      "scale": 0.19540229885057472,
+      "pivot": [
+        257.52,
+        388.21999999999997
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-core.png",
+      "sourceBounds": {
+        "x": 108,
+        "y": 79,
+        "w": 348,
+        "h": 413
+      }
+    },
+    "head-blink": {
+      "file": "parts/head-blink.png",
+      "width": 344,
+      "height": 408,
+      "scale": 0.19767441860465115,
+      "pivot": [
+        254.56,
+        383.52
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-core.png",
+      "sourceBounds": {
+        "x": 607,
+        "y": 79,
+        "w": 344,
+        "h": 408
+      }
+    },
+    "head-bite": {
+      "file": "parts/head-bite.png",
+      "width": 355,
+      "height": 412,
+      "scale": 0.19154929577464788,
+      "pivot": [
+        262.7,
+        387.28
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-core.png",
+      "sourceBounds": {
+        "x": 1115,
+        "y": 79,
+        "w": 355,
+        "h": 412
+      }
+    },
+    "torso": {
+      "file": "parts/torso.png",
+      "width": 542,
+      "height": 388,
+      "scale": 0.19557195571955718,
+      "pivot": [
+        271,
+        360.84000000000003
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-core.png",
+      "sourceBounds": {
+        "x": 56,
+        "y": 566,
+        "w": 542,
+        "h": 388
+      }
+    },
+    "pelvis": {
+      "file": "parts/pelvis.png",
+      "width": 416,
+      "height": 301,
+      "scale": 0.132890365448505,
+      "pivot": [
+        208,
+        192.64000000000001
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-core.png",
+      "sourceBounds": {
+        "x": 615,
+        "y": 623,
+        "w": 416,
+        "h": 301
+      }
+    },
+    "helmet": {
+      "file": "parts/helmet.png",
+      "width": 396,
+      "height": 359,
+      "scale": 0.24242424242424243,
+      "pivot": [
+        213.84,
+        323.1
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-core.png",
+      "sourceBounds": {
+        "x": 1079,
+        "y": 587,
+        "w": 396,
+        "h": 359
+      }
+    },
+    "upper-back": {
+      "file": "parts/upper-back.png",
+      "width": 246,
+      "height": 434,
+      "pivot": [
+        174.9179104477612,
+        43
+      ],
+      "distal": [
+        143.33146330060777,
+        390
+      ],
+      "nativeAngle": 5.2011419526387614,
+      "nativeLength": 348.4346475931748,
+      "boneLength": 30,
+      "scale": 0.08609935954195745,
+      "fixedAspect": true,
+      "source": "source/rafago-arms.png",
+      "sourceBounds": {
+        "x": 259,
+        "y": 32,
+        "w": 246,
+        "h": 434
+      }
+    },
+    "forearm-back": {
+      "file": "parts/forearm-back.png",
+      "width": 162,
+      "height": 475,
+      "pivot": [
+        64.75689975877957,
+        47
+      ],
+      "distal": [
+        79.04461157899252,
+        427
+      ],
+      "nativeAngle": -2.153263548964802,
+      "nativeLength": 380.26850870017813,
+      "boneLength": 31,
+      "scale": 0.08152134423637451,
+      "fixedAspect": true,
+      "source": "source/rafago-arms.png",
+      "sourceBounds": {
+        "x": 709,
+        "y": 29,
+        "w": 162,
+        "h": 475
+      }
+    },
+    "hand-back": {
+      "file": "parts/hand-back.png",
+      "width": 183,
+      "height": 278,
+      "scale": 0.09352517985611511,
+      "pivot": [
+        91.5,
+        36.14
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-arms.png",
+      "sourceBounds": {
+        "x": 1121,
+        "y": 227,
+        "w": 183,
+        "h": 278
+      }
+    },
+    "upper-front": {
+      "file": "parts/upper-front.png",
+      "width": 239,
+      "height": 432,
+      "pivot": [
+        72.85510287577041,
+        43
+      ],
+      "distal": [
+        87.6706587645004,
+        388
+      ],
+      "nativeAngle": -2.4589785061209506,
+      "nativeLength": 345.3179704218882,
+      "boneLength": 30,
+      "scale": 0.08687645176226377,
+      "fixedAspect": true,
+      "source": "source/rafago-arms.png",
+      "sourceBounds": {
+        "x": 314,
+        "y": 521,
+        "w": 239,
+        "h": 432
+      }
+    },
+    "forearm-front": {
+      "file": "parts/forearm-front.png",
+      "width": 161,
+      "height": 456,
+      "pivot": [
+        73.42572257225723,
+        46
+      ],
+      "distal": [
+        58.75373971182532,
+        410
+      ],
+      "nativeAngle": 2.3082084408333507,
+      "nativeLength": 364.29557653237674,
+      "boneLength": 31,
+      "scale": 0.08509573543296889,
+      "fixedAspect": true,
+      "source": "source/rafago-arms.png",
+      "sourceBounds": {
+        "x": 707,
+        "y": 529,
+        "w": 161,
+        "h": 456
+      }
+    },
+    "hand-front": {
+      "file": "parts/hand-front.png",
+      "width": 180,
+      "height": 274,
+      "scale": 0.0948905109489051,
+      "pivot": [
+        90,
+        35.620000000000005
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-arms.png",
+      "sourceBounds": {
+        "x": 1103,
+        "y": 711,
+        "w": 180,
+        "h": 274
+      }
+    },
+    "thigh-back": {
+      "file": "parts/thigh-back.png",
+      "width": 189,
+      "height": 424,
+      "pivot": [
+        84.05166291512693,
+        42
+      ],
+      "distal": [
+        95.66829718105913,
+        381
+      ],
+      "nativeAngle": -1.9626070143517675,
+      "nativeLength": 339.1989772857053,
+      "boneLength": 37,
+      "scale": 0.10908051756546162,
+      "fixedAspect": true,
+      "source": "source/rafago-legs.png",
+      "sourceBounds": {
+        "x": 238,
+        "y": 50,
+        "w": 189,
+        "h": 424
+      }
+    },
+    "calf-back": {
+      "file": "parts/calf-back.png",
+      "width": 158,
+      "height": 420,
+      "pivot": [
+        65.83651870119195,
+        42
+      ],
+      "distal": [
+        84.11743993849701,
+        377
+      ],
+      "nativeAngle": -3.1235277346820034,
+      "nativeLength": 335.49842336631707,
+      "boneLength": 36,
+      "scale": 0.1073030377871346,
+      "fixedAspect": true,
+      "source": "source/rafago-legs.png",
+      "sourceBounds": {
+        "x": 702,
+        "y": 58,
+        "w": 158,
+        "h": 420
+      }
+    },
+    "shoe-back": {
+      "file": "parts/shoe-back.png",
+      "width": 351,
+      "height": 254,
+      "scale": 0.09055118110236221,
+      "pivot": [
+        238.68,
+        35.56
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-legs.png",
+      "sourceBounds": {
+        "x": 1049,
+        "y": 239,
+        "w": 351,
+        "h": 254
+      }
+    },
+    "thigh-front": {
+      "file": "parts/thigh-front.png",
+      "width": 192,
+      "height": 437,
+      "pivot": [
+        112.48374118728925,
+        44
+      ],
+      "distal": [
+        100.1838906331189,
+        392
+      ],
+      "nativeAngle": 2.024242211379893,
+      "nativeLength": 348.217297565263,
+      "boneLength": 37,
+      "scale": 0.10625549120823169,
+      "fixedAspect": true,
+      "source": "source/rafago-legs.png",
+      "sourceBounds": {
+        "x": 234,
+        "y": 530,
+        "w": 192,
+        "h": 437
+      }
+    },
+    "calf-front": {
+      "file": "parts/calf-front.png",
+      "width": 141,
+      "height": 427,
+      "pivot": [
+        74.66544907465197,
+        43
+      ],
+      "distal": [
+        68.65073662517058,
+        383
+      ],
+      "nativeAngle": 1.0134755764056778,
+      "nativeLength": 340.0531969646072,
+      "boneLength": 36,
+      "scale": 0.10586578900402717,
+      "fixedAspect": true,
+      "source": "source/rafago-legs.png",
+      "sourceBounds": {
+        "x": 702,
+        "y": 543,
+        "w": 141,
+        "h": 427
+      }
+    },
+    "shoe-front": {
+      "file": "parts/shoe-front.png",
+      "width": 354,
+      "height": 257,
+      "scale": 0.08949416342412451,
+      "pivot": [
+        240.72000000000003,
+        35.980000000000004
+      ],
+      "fixedAspect": true,
+      "source": "source/rafago-legs.png",
+      "sourceBounds": {
+        "x": 1044,
+        "y": 718,
+        "w": 354,
+        "h": 257
+      }
+    }
+  },
+  "helmetOffset": [
+    -2,
+    -4
+  ],
+  "drawOrder": [
+    "leg-back",
+    "arm-back",
+    "leg-front",
+    "upper-arm-front",
+    "pelvis",
+    "torso-with-permanent-pads",
+    "head",
+    "helmet",
+    "forearm-and-hand-front"
+  ],
+  "sources": [
+    {
+      "sheet": "core",
+      "source": "source/rafago-core.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "head",
+        "head-blink",
+        "head-bite",
+        "torso",
+        "pelvis",
+        "helmet"
+      ]
+    },
+    {
+      "sheet": "arms",
+      "source": "source/rafago-arms.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "upper-back",
+        "forearm-back",
+        "hand-back",
+        "upper-front",
+        "forearm-front",
+        "hand-front"
+      ]
+    },
+    {
+      "sheet": "legs",
+      "source": "source/rafago-legs.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "parts": [
+        "thigh-back",
+        "calf-back",
+        "shoe-back",
+        "thigh-front",
+        "calf-front",
+        "shoe-front"
+      ]
+    }
+  ]
+}

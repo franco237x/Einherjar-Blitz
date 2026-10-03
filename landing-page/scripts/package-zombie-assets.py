@@ -14,7 +14,7 @@ assert primary == 20 and variants == 10
 
 with ZipFile(destination, 'w', compression=ZIP_DEFLATED, compresslevel=6) as archive:
     for file in sorted(asset_root.rglob('*')):
-        if file.relative_to(asset_root).parts[0] in {'especiales-v2', 'especiales-v3'}:
+        if file.relative_to(asset_root).parts[0].startswith('especiales-v'):
             continue
         if file.is_file() and file.suffix != '.zip':
             archive.write(file, file.relative_to(asset_root).as_posix())
