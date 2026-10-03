@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, rename, unlink } from 'node:fs/promises';
+import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { ZOMBIES, CLIPS, renderZombie, ZombieAnimator } from '../public/zombis-vivos/especiales-v4/runtime/zombie-rig.mjs';
@@ -63,8 +64,28 @@ if (!process.argv.includes('--stills-only')) {
       for (const [index, actor] of actors.entries()) positions[index] += actor.update(1 / FPS) * actor.character.recommendedScale;
     }
   }
-  const input = () => sharp(Buffer.concat(frames), { raw: { width: WIDTH, height: HEIGHT * frames.length, channels: 4, pageHeight: HEIGHT } });
-  await input().webp({ quality: 92, effort: 3, loop: 0, delay: frames.map((_, i) => Math.round((i + 1) * 1000 / FPS) - Math.round(i * 1000 / FPS)) }).toFile(path.join(out, 'movimientos.webp'));
-  await input().gif({ colours: 256, dither: 0.1, effort: 3, loop: 0, delay: frames.map((_, i) => (Math.round((i + 1) * 100 / FPS) - Math.round(i * 100 / FPS)) * 10) }).toFile(path.join(out, 'movimientos.gif'));
-  console.log(`Preview: ${frames.length} frames / ${frames.length / FPS} seconds.`);
+  const count = frames.length, duration = Math.round(count / FPS * 1000);
+  const temporaryWebp = path.join(out, '.movimientos-export.webp'), temporaryGif = path.join(out, '.movimientos-export.gif');
+  sharp.cache(false);
+  try {
+    await sharp(Buffer.concat(frames), { raw: { width: WIDTH, height: HEIGHT * count, channels: 4, pageHeight: HEIGHT } })
+      .webp({ quality: 92, effort: 3, loop: 0, delay: frames.map((_, i) => Math.round((i + 1) * 1000 / FPS) - Math.round(i * 1000 / FPS)) }).toFile(temporaryWebp);
+    frames.length = 0;
+    const metadata = await sharp(temporaryWebp, { animated: true }).metadata();
+    assert(metadata.pages > 1); assert.equal(metadata.delay.reduce((a, b) => a + b, 0), duration);
+    await sharp(temporaryWebp, { animated: true }).stats();
+    // Read the encoded WebP instead of allocating a second half-gigabyte raw
+    // stack. GIF uses centiseconds: round cumulative time to preserve cadence.
+    let elapsed = 0, previous = 0;
+    const delays = metadata.delay.map(ms => { elapsed += ms; const next = Math.round(elapsed / 10), result = (next - previous) * 10; previous = next; return result; });
+    await sharp(temporaryWebp, { animated: true }).gif({ colours: 256, dither: 0.1, effort: 3, loop: 0, keepDuplicateFrames: true, delay: delays }).toFile(temporaryGif);
+    const gif = await sharp(temporaryGif, { animated: true }).metadata();
+    assert(gif.pages > 1); assert.equal(gif.delay.reduce((a, b) => a + b, 0), duration);
+    await sharp(temporaryGif, { animated: true }).stats();
+    await rename(temporaryWebp, path.join(out, 'movimientos.webp'));
+    await rename(temporaryGif, path.join(out, 'movimientos.gif'));
+    console.log(`Preview: ${count} rendered frames / ${duration / 1000} seconds; WebP and GIF fully decoded and timing verified.`);
+  } finally {
+    for (const file of [temporaryWebp, temporaryGif]) await unlink(file).catch(error => { if (error.code !== 'ENOENT') throw error; });
+  }
 }

@@ -80,6 +80,7 @@ node scripts/build-articulated-zombies.mjs --canvas-module <ruta-a-@napi-rs/canv
 node scripts/render-articulated-zombie-review.mjs --canvas-module <ruta-a-@napi-rs/canvas>
 node scripts/render-zombie-motion-comparison.mjs --canvas-module <ruta-a-@napi-rs/canvas>
 node scripts/verify-articulated-zombies.mjs --canvas-module <ruta-a-@napi-rs/canvas> --playwright-module <ruta-a-playwright>
+node scripts/verify-zombie-media.mjs
 python scripts/package-articulated-zombies.py
 node scripts/verify-special-zombie-pack.mjs --version 4 --playwright-module <ruta-a-playwright> --python <ruta-a-python>
 ```
@@ -87,3 +88,5 @@ node scripts/verify-special-zombie-pack.mjs --version 4 --playwright-module <rut
 El builder usa Node, Sharp y `@napi-rs/canvas`. `--parts-only` extrae y ensambla las piezas sin regenerar los clips; `--reuse-parts` reutiliza los PNG y recalcula el apoyo de la caída. El script de comparación usa las piezas de los tres primeros zombis del repositorio; la muestra resultante también se incluye en el ZIP. El ZIP incluye el arte original, los clips, el visor independiente y herramientas de exportación; no incluye las dependencias de Node. La generación del arte se hizo con **ImageGen integrado**, sin API/CLI de imágenes. Esta revisión modifica la animación; los prompts del arte conservado están en [PROMPTS.md](./PROMPTS.md).
 
 La revisión automática comprueba alfa, bordes, proporciones, apoyo de los pies, jerarquía de los brazos y muñecas, caída sobre el suelo, eventos, variantes, controles y errores del visor. Las hojas `*-revision.png` y las muestras animadas sirven para juzgar visualmente el resultado; esos controles no certifican por sí solos la calidad artística.
+
+`media-validation.json` registra la decodificación completa de los 42 archivos GIF/WebP, incluidas las dos muestras. El GIF de la muestra se exporta a partir del WebP comprobado para reducir el uso de memoria. Su tiempo se redondea de forma acumulada a centésimas de segundo, conservando la duración del movimiento. Los archivos de muestra se reemplazan sólo después de comprobar su decodificación y sus tiempos.

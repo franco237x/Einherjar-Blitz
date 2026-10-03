@@ -161,6 +161,8 @@ async function exportClip(c, parts, out, clip, options = {}) {
   await input().gif({ colours: 256, effort: 3, dither: 0.1, loop: 0, delay: Array.from({ length: info.frames }, (_, i) => (Math.round((i + 1) * 100 / FPS) - Math.round(i * 100 / FPS)) * 10) }).toFile(path.join(out, 'animated', `${clip}.gif`));
   for (const ext of ['webp', 'gif']) files[ext] = path.relative(root, path.join(out, 'animated', `${clip}.${ext}`)).split(path.sep).join('/');
   const media = await sharp(path.join(root, files.webp), { animated: true }).metadata(); assert(media.hasAlpha); assert.equal(media.delay.reduce((a, b) => a + b, 0), info.duration * 1000);
+  const gif = await sharp(path.join(root, files.gif), { animated: true }).metadata(); assert(gif.pages > 1); assert.equal(gif.delay.reduce((a, b) => a + b, 0), info.duration * 1000);
+  await sharp(path.join(root, files.gif), { animated: true }).stats();
   console.log(`${c.id}/${path.basename(out) === 'helmetless' ? 'helmetless/' : ''}${clip}: ${info.frames} continuous frames, alpha and borders verified.`);
   return { ...info, ...files, columns: COLUMNS, frameSize: [256, 256], shoulderPadsVisible: !!c.armor, helmetVisible: !!c.armor && options.armorRatio !== 0 };
 }

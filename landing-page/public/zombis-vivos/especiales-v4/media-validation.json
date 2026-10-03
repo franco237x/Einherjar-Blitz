@@ -1,0 +1,258 @@
+{
+  "assetVersion": "4.1.0",
+  "files": 42,
+  "checked": [
+    {
+      "file": "characters/bruton/animated/idle.gif",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/idle.webp",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/walk.gif",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/walk.webp",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/smash.gif",
+      "pages": 42,
+      "duration": 1400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/smash.webp",
+      "pages": 42,
+      "duration": 1400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/hit.gif",
+      "pages": 12,
+      "duration": 400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/hit.webp",
+      "pages": 12,
+      "duration": 400,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/spawn.gif",
+      "pages": 17,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/spawn.webp",
+      "pages": 18,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/fall.gif",
+      "pages": 36,
+      "duration": 1200,
+      "decoded": true
+    },
+    {
+      "file": "characters/bruton/animated/fall.webp",
+      "pages": 36,
+      "duration": 1200,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/idle.gif",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/idle.webp",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/run.gif",
+      "pages": 24,
+      "duration": 800,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/run.webp",
+      "pages": 24,
+      "duration": 800,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/bite.gif",
+      "pages": 24,
+      "duration": 1000,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/bite.webp",
+      "pages": 24,
+      "duration": 1000,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/hit.gif",
+      "pages": 12,
+      "duration": 400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/hit.webp",
+      "pages": 12,
+      "duration": 400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/spawn.gif",
+      "pages": 17,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/spawn.webp",
+      "pages": 18,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/fall.gif",
+      "pages": 36,
+      "duration": 1200,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/fall.webp",
+      "pages": 36,
+      "duration": 1200,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/armor-break.gif",
+      "pages": 18,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/animated/armor-break.webp",
+      "pages": 18,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/idle.gif",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/idle.webp",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/run.gif",
+      "pages": 24,
+      "duration": 800,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/run.webp",
+      "pages": 24,
+      "duration": 800,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/bite.gif",
+      "pages": 24,
+      "duration": 1000,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/bite.webp",
+      "pages": 24,
+      "duration": 1000,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/hit.gif",
+      "pages": 12,
+      "duration": 400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/hit.webp",
+      "pages": 12,
+      "duration": 400,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/spawn.gif",
+      "pages": 17,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/spawn.webp",
+      "pages": 18,
+      "duration": 600,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/fall.gif",
+      "pages": 36,
+      "duration": 1200,
+      "decoded": true
+    },
+    {
+      "file": "characters/rafago/helmetless/animated/fall.webp",
+      "pages": 36,
+      "duration": 1200,
+      "decoded": true
+    },
+    {
+      "file": "preview/movimientos.gif",
+      "pages": 271,
+      "duration": 9400,
+      "decoded": true
+    },
+    {
+      "file": "preview/movimientos.webp",
+      "pages": 271,
+      "duration": 9400,
+      "decoded": true
+    },
+    {
+      "file": "preview/comparacion-primeros.gif",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    },
+    {
+      "file": "preview/comparacion-primeros.webp",
+      "pages": 72,
+      "duration": 2400,
+      "decoded": true
+    }
+  ]
+}
