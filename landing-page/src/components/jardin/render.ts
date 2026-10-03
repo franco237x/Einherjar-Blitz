@@ -20,6 +20,7 @@ import {
   PLANT_PIVOT,
   PROJECTILE_IMAGES,
   ZOMBIE_CLIPS,
+  ZOMBIE_SCALE,
   ZOMBIE_PIVOT,
   frameIndex,
   spriteUrl,
@@ -46,13 +47,19 @@ export interface Viewport {
   oy: number;
 }
 
-export function computeViewport(width: number, height: number): Viewport {
-  const scale = Math.min(width / WORLD_W, height / WORLD_H);
+/**
+ * Fits the garden inside the canvas minus `insetLeft` (the seed packet
+ * column, drawn over the scenery as in PvZ 2). The rest of the canvas shows
+ * the background extended to the edges.
+ */
+export function computeViewport(width: number, height: number, insetLeft = 0): Viewport {
+  const room = Math.max(1, width - insetLeft);
+  const scale = Math.min(room / WORLD_W, height / WORLD_H);
   return {
     width,
     height,
     scale,
-    ox: (width - WORLD_W * scale) / 2,
+    ox: insetLeft + (room - WORLD_W * scale) / 2,
     oy: (height - WORLD_H * scale) / 2,
   };
 }
@@ -72,7 +79,7 @@ export function cellAt(v: Viewport, px: number, py: number) {
 
 /** Sun under a screen point (generous radius for touch). */
 export function sunAt(v: Viewport, state: JardinState, px: number, py: number) {
-  const radius = 0.5 * v.scale;
+  const radius = 0.6 * v.scale;
   for (let i = state.suns.length - 1; i >= 0; i--) {
     const sun = state.suns[i];
     const dx = screenX(v, sun.x) - px;
@@ -124,7 +131,20 @@ function drawLawn(ctx: CanvasRenderingContext2D, v: Viewport, dpr: number, backg
     c.fillRect(0, 0, v.width, v.height);
     if (background) {
       c.imageSmoothingQuality = 'high';
+      // Extend the scenery to the screen edges: the same art, scaled to
+      // cover and darkened, behind the exact garden.
+      const cover = Math.max(v.width / background.width, v.height / background.height);
+      const cw = background.width * cover;
+      const ch = background.height * cover;
+      c.save();
+      c.filter = 'blur(6px) brightness(0.55)';
+      c.drawImage(background, (v.width - cw) / 2, (v.height - ch) / 2, cw, ch);
+      c.restore();
+      c.save();
+      c.shadowColor = 'rgba(0,0,0,0.6)';
+      c.shadowBlur = 24;
       c.drawImage(background, v.ox, v.oy, WORLD_W * v.scale, WORLD_H * v.scale);
+      c.restore();
     } else {
       c.fillStyle = '#3a2a1d';
       c.fillRect(v.ox, screenY(v, 0), LEFT * v.scale, ROWS * CELL_H * v.scale);
@@ -182,32 +202,6 @@ export function drawScene(
   if (hover) {
     ctx.fillStyle = hover.valid ? 'rgba(255,255,255,0.2)' : 'rgba(255,60,60,0.25)';
     ctx.fillRect(screenX(v, hover.col), screenY(v, hover.row), v.scale, CELL_H * v.scale);
-  }
-
-  // Velaria's link to the marked zombie, drawn under the characters.
-  const sigil = images.get(spriteUrl('velaria', 'sigil'));
-  for (const plant of state.plants) {
-    const mark = plant.mark;
-    if (!mark) continue;
-    const zombie = state.zombies.find((other) => other.id === mark.zombieId);
-    if (!zombie) continue;
-    const y = screenY(v, plant.row + 0.55);
-    const ax = screenX(v, mark.anchorX);
-    const zx = screenX(v, zombie.prevX + (zombie.x - zombie.prevX) * alpha);
-    ctx.save();
-    ctx.strokeStyle = 'rgba(190,140,255,0.75)';
-    ctx.lineWidth = Math.max(1.5, v.scale * 0.03);
-    ctx.setLineDash([v.scale * 0.08, v.scale * 0.06]);
-    ctx.beginPath();
-    ctx.moveTo(ax, y);
-    ctx.lineTo(zx, y);
-    ctx.stroke();
-    if (sigil) {
-      const size = v.scale * (0.5 + Math.sin(t / 5) * 0.04);
-      ctx.globalAlpha = 0.9;
-      ctx.drawImage(sigil, ax - size / 2, y - size / 2, size, size);
-    }
-    ctx.restore();
   }
 
   for (let row = 0; row < ROWS; row++) {
@@ -292,7 +286,8 @@ export function drawScene(
     for (const zombie of zombies) {
       const x = screenX(v, zombie.prevX + (zombie.x - zombie.prevX) * alpha);
       const y = groundY(v, row);
-      const clip = ZOMBIE_CLIPS[zombie.clip];
+      const clip = ZOMBIE_CLIPS[zombie.kind][zombie.clip] ?? ZOMBIE_CLIPS[zombie.kind].walk!;
+      const size = spriteSize * (ZOMBIE_SCALE[zombie.kind] ?? 1);
       const name = zombieSpriteName(zombie.kind, zombie.clip, hasArmor(zombie));
       ctx.save();
       if (zombie.clip === 'fall') {
@@ -309,7 +304,9 @@ export function drawScene(
             ? 'saturate(0.3) hue-rotate(170deg) brightness(1.25)'
             : isSlowed(state, zombie)
               ? 'saturate(0.6) hue-rotate(150deg) brightness(1.1)'
-              : t - zombie.lastHit < 4
+              : t < zombie.dazedUntil
+                ? 'sepia(0.4) hue-rotate(50deg) saturate(1.4)'
+                : t - zombie.lastHit < 4
                 ? 'brightness(1.7)'
                 : null;
       withFilter(ctx, filter, () => {
@@ -319,24 +316,17 @@ export function drawScene(
           frameIndex(clip, zombie.anim),
           x,
           y,
-          spriteSize,
+          size,
           ZOMBIE_PIVOT,
         );
-        if (!drawn) drawPortrait(ctx, images.get(spriteUrl(zombie.kind, 'portrait')), x, y, spriteSize);
+        if (!drawn) drawPortrait(ctx, images.get(spriteUrl(zombie.kind, 'portrait')), x, y, size);
       });
-      if (t - zombie.rewoundAt < 12) {
-        ctx.globalAlpha = 1 - (t - zombie.rewoundAt) / 12;
-        ctx.fillStyle = 'rgba(190,140,255,0.5)';
-        ctx.beginPath();
-        ctx.ellipse(x, y - 0.6 * v.scale, 0.35 * v.scale, 0.75 * v.scale, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
       ctx.restore();
     }
   }
 
   const burst = images.get(spriteUrl('granadin', 'burst'));
-  const bloom = images.get(spriteUrl('aurelia', 'bloom'));
+  const impact = images.get(spriteUrl('jengibron', 'impact'));
   for (const effect of state.effects) {
     const p = (t - effect.tick) / TICKS_PER_SECOND;
     const x = screenX(v, effect.col + 0.5);
@@ -354,14 +344,11 @@ export function drawScene(
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
       if (burst) ctx.drawImage(burst, x - r * 0.8, y - r * 0.8, r * 1.6, r * 1.6);
-    } else if (effect.type === 'bloom') {
-      const r = (0.5 + p * 1.1) * v.scale;
-      ctx.strokeStyle = 'rgba(253,224,255,0.9)';
-      ctx.lineWidth = v.scale * 0.05;
-      ctx.beginPath();
-      ctx.ellipse(x, y, r * 1.4, r, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      if (bloom) ctx.drawImage(bloom, x - r * 0.6, y - r * 0.9, r * 1.2, r * 1.2);
+    } else if (effect.type === 'punch') {
+      const r = (0.32 + p * 0.5) * v.scale;
+      const px = screenX(v, effect.col + 0.15);
+      const py = screenY(v, effect.row + 0.45);
+      if (impact) ctx.drawImage(impact, px - r, py - r, r * 2, r * 2);
     } else if (effect.type === 'chomp') {
       ctx.fillStyle = 'rgba(244,114,182,0.85)';
       ctx.font = `bold ${Math.round(0.32 * v.scale)}px sans-serif`;
@@ -376,12 +363,23 @@ export function drawScene(
     if (!sunImage) break;
     const age = t - sun.bornAt;
     const fadeOut = Math.max(0, (age - (TIMING.sunLifetime - TICKS_PER_SECOND * 2)) / (TICKS_PER_SECOND * 2));
-    const pulse = 1 + Math.sin(age / 6) * 0.05;
-    const size = 0.7 * v.scale * pulse;
+    const pulse = 1 + Math.sin(age / 6) * 0.06;
+    const size = 0.88 * v.scale * pulse;
     const x = screenX(v, sun.x);
     const y = screenY(v, sun.prevY + (sun.y - sun.prevY) * alpha);
     ctx.save();
     ctx.globalAlpha = 1 - fadeOut * 0.7;
+    // Bright halo so the sun reads against yellow flowers and light grass.
+    const halo = ctx.createRadialGradient(x, y, size * 0.15, x, y, size * 0.85);
+    halo.addColorStop(0, 'rgba(255,255,220,0.95)');
+    halo.addColorStop(0.45, 'rgba(255,214,80,0.55)');
+    halo.addColorStop(1, 'rgba(255,170,0,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.85, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = 'rgba(120,60,0,0.65)';
+    ctx.shadowBlur = size * 0.12;
     ctx.drawImage(sunImage, x - size / 2, y - size / 2, size, (size * sunImage.height) / sunImage.width);
     ctx.restore();
   }

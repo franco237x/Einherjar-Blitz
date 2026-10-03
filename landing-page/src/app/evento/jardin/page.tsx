@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { JardinSandbox } from '@/components/jardin/JardinSandbox';
+import { JardinEvent } from '@/components/jardin/JardinEvent';
 
 export const metadata: Metadata = {
-  title: 'Jardín de Yggdrasil · Beta pre-evento | Einherjar Blitz',
+  title: 'Jardín de Yggdrasil | Einherjar Blitz',
   description:
-    'Beta abierta del próximo evento: defiende el jardín de los zombis con diez plantas vivas, en oleadas o en modo sandbox.',
+    'Evento de Einherjar Blitz: defiende el jardín de los zombis, supera los niveles y gana monedas.',
   // Saved to the home screen it opens without browser bars (iOS has no
   // fullscreen API for web pages).
   manifest: '/jardin/manifest.webmanifest',
@@ -17,5 +17,5 @@ export const viewport: Viewport = {
 };
 
 export default function JardinPage() {
-  return <JardinSandbox />;
+  return <JardinEvent />;
 }

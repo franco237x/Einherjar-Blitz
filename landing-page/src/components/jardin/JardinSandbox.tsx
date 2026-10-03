@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Maximize, Minimize, Pause, Play, Shovel, SlidersHorizontal } from 'lucide-react';
 import {
-  LEVEL_WAVES,
   PLANT_ORDER,
   PLANTS,
   TICKS_PER_SECOND,
@@ -18,6 +17,8 @@ import {
   waveProgress,
   type Command,
   type GameMode,
+  type LevelDef,
+  type LoggedCommand,
   type JardinState,
   type PlantKind,
   type SandboxOptions,
@@ -176,7 +177,7 @@ function useFullscreen() {
   return { active, supported, toggle };
 }
 
-function BetaBadge() {
+export function BetaBadge() {
   return (
     <span className="rounded-full border border-amber-300/50 bg-amber-300/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
       Beta · pre-evento
@@ -184,78 +185,41 @@ function BetaBadge() {
   );
 }
 
-export function JardinSandbox() {
-  const [mode, setMode] = useState<GameMode | null>(null);
-  const [round, setRound] = useState(0);
-  if (!mode)
-    return (
-      <StartScreen
-        onPick={(picked) => {
-          // Must run inside the tap that picks the mode (a user gesture).
-          if (window.matchMedia('(pointer: coarse)').matches) enterFullscreen();
-          setMode(picked);
-          setRound((value) => value + 1);
-        }}
-      />
-    );
-  return <JardinGame key={`${mode}-${round}`} mode={mode} onExit={() => setMode(null)} onRestart={() => setRound((value) => value + 1)} />;
+export interface LevelResult {
+  reward: number;
+  firstClear: boolean;
+  /** Why a victory paid nothing, when it is not because it was already paid. */
+  note?: string;
 }
 
-function StartScreen({ onPick }: { onPick: (mode: GameMode) => void }) {
-  return (
-    <main className="fixed inset-0 flex overflow-y-auto bg-[#0b130d] p-4 text-white short:p-2">
-      <img
-        src="/jardin/escenario/jardin.webp"
-        alt=""
-        className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-30 blur-[2px]"
-      />
-      <section className="relative m-auto w-full max-w-xl rounded-3xl border border-white/15 bg-black/70 p-6 text-center shadow-2xl backdrop-blur-md short:p-4">
-        <BetaBadge />
-        <h1 className="mt-3 font-title text-3xl text-amber-100 short:mt-1 short:text-2xl">Jardín de Yggdrasil</h1>
-        <p className="mx-auto mt-2 max-w-md text-sm text-white/70">
-          Defiende el claro de los zombis con las plantas vivas del próximo evento. Esta beta es una prueba abierta: no da premios y su
-          equilibrio puede cambiar.
-        </p>
-        <div className="mt-4 flex flex-wrap justify-center gap-1 short:hidden">
-          {PLANT_ORDER.map((kind) => (
-            <img key={kind} src={spriteUrl(kind, 'portrait')} alt={PLANTS[kind].name} title={PLANTS[kind].name} className="h-10 w-10 object-contain" />
-          ))}
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 short:mt-3">
-          <button
-            type="button"
-            onClick={() => onPick('waves')}
-            className="rounded-2xl border border-amber-300/60 bg-amber-300/15 p-4 text-left transition hover:bg-amber-300/25 active:scale-[0.98]"
-          >
-            <span className="block font-title text-lg text-amber-100">Oleadas</span>
-            <span className="mt-1 block text-xs text-white/70">
-              {LEVEL_WAVES.length} oleadas, con una gran oleada a mitad de camino y una final. Si un zombi llega a la casa sin podadora, pierdes.
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onPick('sandbox')}
-            className="rounded-2xl border border-white/20 bg-white/5 p-4 text-left transition hover:bg-white/10 active:scale-[0.98]"
-          >
-            <span className="block font-title text-lg">Sandbox</span>
-            <span className="mt-1 block text-xs text-white/70">
-              Prueba libre: sol infinito, sin recarga, suelta el zombi que quieras en el carril que quieras.
-            </span>
-          </button>
-        </div>
-        <p className="mt-4 text-[11px] text-white/45 short:hidden">
-          Atajos: 1–0 plantas · Q pala · P pausa · Esc cancela. Mejor en horizontal.
-        </p>
-      </section>
-    </main>
-  );
+interface JardinGameProps {
+  mode: GameMode;
+  /** Level and seed packets for waves mode; the seed comes from the server. */
+  level?: LevelDef;
+  loadout?: PlantKind[];
+  seed?: string;
+  onExit: () => void;
+  onRestart: () => void;
+  /** Reports a finished level; resolves with the reward granted by the server. */
+  onLevelEnd?: (outcome: 'victory' | 'defeat', log: LoggedCommand[]) => Promise<LevelResult>;
 }
 
-function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () => void; onRestart: () => void }) {
+type Report = { status: 'idle' | 'saving' } | { status: 'saved'; result: LevelResult } | { status: 'error'; message: string };
+
+export function JardinGame({ mode, level, loadout, seed, onExit, onRestart, onLevelEnd }: JardinGameProps) {
   const { imagesRef, load, progress, ready, failed } = useSprites();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
-  const [initialGame] = useState(() => createGame(randomSeed(), {}, mode));
+  const railRef = useRef<HTMLElement>(null);
+  const [initialGame] = useState(() =>
+    createGame(seed ?? randomSeed(), {}, mode, { level: level?.id, loadout: loadout ?? null }),
+  );
+  const logRef = useRef<LoggedCommand[]>([]);
+  const [report, setReport] = useState<Report>({ status: 'idle' });
+  const seedPackets = initialGame.loadout ?? PLANT_ORDER;
+  // A level brings at most 6 packets; the sandbox has every plant.
+  const twoColumns = seedPackets.length > 8;
+  const levelWaves = initialGame.level.waves;
   const gameRef = useRef<JardinState>(initialGame);
   const queueRef = useRef<Command[]>([]);
   const viewportRef = useRef<Viewport | null>(null);
@@ -276,6 +240,25 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
   const fullscreen = useFullscreen();
   const [playPortrait, setPlayPortrait] = useState(false);
   const sandbox = mode === 'sandbox';
+
+  const reportOutcome = useCallback(
+    (outcome: 'victory' | 'defeat') => {
+      if (!onLevelEnd) return;
+      setReport({ status: 'saving' });
+      onLevelEnd(outcome, logRef.current)
+        .then((result) => setReport({ status: 'saved', result }))
+        .catch((error) =>
+          setReport({ status: 'error', message: error instanceof Error ? error.message : 'No se pudo guardar el resultado.' }),
+        );
+    },
+    [onLevelEnd],
+  );
+  const reported = useRef(false);
+  useEffect(() => {
+    if (!hud.outcome || reported.current || sandbox) return;
+    reported.current = true;
+    reportOutcome(hud.outcome);
+  }, [hud.outcome, reportOutcome, sandbox]);
 
   const setTool = useCallback(
     (next: Tool) => {
@@ -322,12 +305,25 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
-      viewportRef.current = computeViewport(width, height);
+      // The seed column sits over the scenery; keep the lawn clear of it.
+      const rail = railRef.current?.getBoundingClientRect().width ?? 0;
+      viewportRef.current = computeViewport(width, height, rail + 4);
     };
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(board);
+    if (railRef.current) observer.observe(railRef.current);
 
+    // Every command of a level is logged with its tick so the server can
+    // replay the match and verify the result.
+    const advance = (game: JardinState) => {
+      const commands = queueRef.current.splice(0);
+      if (game.mode === 'waves' && !game.outcome)
+        for (const command of commands)
+          if (command.type === 'place' || command.type === 'shovel' || command.type === 'collect')
+            logRef.current.push([game.tick, command]);
+      step(game, commands);
+    };
     let raf = 0;
     let last = performance.now();
     let accumulator = 0;
@@ -340,13 +336,13 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
         accumulator += dt * speedRef.current;
         let steps = 0;
         while (accumulator >= TICK_SECONDS && steps < 12) {
-          step(game, queueRef.current.splice(0));
+          advance(game);
           accumulator -= TICK_SECONDS;
           steps++;
         }
       } else if (queueRef.current.length) {
         // Let the player plant and collect while paused.
-        step(game, queueRef.current.splice(0));
+        advance(game);
       }
       const v = viewportRef.current!;
       let hover: Hover | null = null;
@@ -385,7 +381,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const index = PLANT_KEYS.indexOf(event.key);
-      if (index >= 0 && index < PLANT_ORDER.length) setTool(PLANT_ORDER[index]);
+      if (index >= 0 && index < seedPackets.length) setTool(seedPackets[index]);
       else if (event.key === 'q' || event.key === 'Q') setTool('shovel');
       else if (sandbox && (event.key === 'z' || event.key === 'Z')) send({ type: 'spawnZombie', kind: zombieKind });
       else if (event.key === 'p' || event.key === 'P' || event.key === ' ') {
@@ -395,7 +391,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [send, setTool, togglePause, sandbox, zombieKind]);
+  }, [send, setTool, togglePause, sandbox, zombieKind, seedPackets]);
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -422,134 +418,210 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
 
   const spawn = (row?: number) => send({ type: 'spawnZombie', row, kind: zombieKind });
 
-  const sunBox = (
-    <div
-      className={`flex flex-col items-center justify-center rounded-xl bg-amber-300/15 ring-1 ring-amber-300/40 ${
-        compact ? 'shrink-0 flex-row gap-1 py-1' : 'min-w-[64px] px-2'
-      }`}
-    >
-      <img src={spriteUrl('solmiel', 'sun')} alt="" className={compact ? 'h-5 w-5 object-contain' : 'h-7 w-7 object-contain'} />
-      <span className="text-sm font-bold tabular-nums text-amber-200">{options.infiniteSun ? '∞' : hud.sun}</span>
-    </div>
-  );
+  // Flags on the progress bar for the big and final waves.
+  const lastWave = levelWaves[levelWaves.length - 1].at;
+  const flags = levelWaves.filter((wave) => wave.flag).map((wave) => wave.at / lastWave);
 
-  const cards = PLANT_ORDER.map((kind, index) => {
-    const def = PLANTS[kind];
-    const selected = tool === kind;
-    const ready = hud.placeable[kind];
-    return (
-      <button
-        key={kind}
-        type="button"
-        onClick={() => setTool(selected ? null : kind)}
-        title={`${def.name} · ${def.role} (${PLANT_KEYS[index]})`}
-        aria-label={`${def.name}, ${def.cost} de sol`}
-        aria-pressed={selected}
-        className={`relative flex shrink-0 flex-col items-center justify-center overflow-hidden rounded-xl border bg-[#1d2a1a] transition active:scale-95 ${
-          compact ? 'h-full max-h-[56px] min-h-0 w-full' : 'w-[62px] pb-0.5'
-        } ${selected ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'} ${ready ? '' : 'opacity-60'}`}
-      >
-        <img
-          src={spriteUrl(kind, 'portrait')}
-          alt=""
-          className={compact ? 'h-7 min-h-0 w-7 shrink object-contain' : 'h-10 w-10 object-contain'}
-        />
-        {!compact && (
-          <span className="w-full truncate px-0.5 text-center text-[10px] font-semibold leading-tight text-white/85">{def.name}</span>
-        )}
-        <span className="text-[11px] font-bold leading-tight tabular-nums text-amber-200">{options.infiniteSun ? '—' : def.cost}</span>
-        {hud.cooldowns[kind] > 0 && (
-          <span className="pointer-events-none absolute inset-x-0 top-0 bg-black/60" style={{ height: `${hud.cooldowns[kind] * 100}%` }} />
-        )}
-      </button>
-    );
-  });
-
-  const round = compact ? 'h-11 w-11' : 'h-10 w-10';
-  const shovelButton = (
-    <button
-      type="button"
-      onClick={() => setTool(tool === 'shovel' ? null : 'shovel')}
-      title="Pala (Q)"
-      aria-label="Pala"
-      aria-pressed={tool === 'shovel'}
-      className={`flex shrink-0 flex-col items-center justify-center rounded-xl border bg-[#2a2219] transition active:scale-95 ${
-        compact ? 'h-11 w-11' : 'w-[52px]'
-      } ${tool === 'shovel' ? 'border-amber-300 ring-2 ring-amber-300/70' : 'border-white/15'}`}
-    >
-      <Shovel size={22} className="text-amber-100" aria-hidden />
-      {!compact && <span className="text-[10px] font-semibold text-white/80">Pala</span>}
-    </button>
-  );
-  const pauseButton = (
-    <button
-      type="button"
-      onClick={togglePause}
-      className={`${round} flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10`}
-      aria-label={paused ? 'Reanudar' : 'Pausar'}
-    >
-      {paused ? <Play size={18} aria-hidden /> : <Pause size={18} aria-hidden />}
-    </button>
-  );
-  const menuButton = (
-    <button
-      type="button"
-      onClick={() => setShowPanel((open) => !open)}
-      className={`flex shrink-0 items-center justify-center rounded-full border text-xs font-bold ${compact ? 'h-11 w-11' : 'h-10 px-3'} ${
-        showPanel ? 'border-amber-300 bg-amber-300/20 text-amber-100' : 'border-white/20 bg-white/10'
-      }`}
-      aria-expanded={showPanel}
-      aria-label={sandbox ? 'Opciones del sandbox' : 'Menú'}
-    >
-      {compact ? <SlidersHorizontal size={18} aria-hidden /> : sandbox ? 'Sandbox' : 'Menú'}
-    </button>
-  );
-  const fullscreenButton = fullscreen.supported && (
-    <button
-      type="button"
-      onClick={fullscreen.toggle}
-      className={`${round} flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10`}
-      aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
-      title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
-    >
-      {fullscreen.active ? <Minimize size={18} aria-hidden /> : <Maximize size={18} aria-hidden />}
-    </button>
-  );
+  const roundButton = `flex shrink-0 items-center justify-center rounded-full border-2 border-[#f5d68a]/70 bg-gradient-to-b from-[#5b3b1d] to-[#2f1d0d] text-amber-50 shadow-[0_3px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
+    compact ? 'h-10 w-10' : 'h-12 w-12'
+  }`;
 
   return (
-    <main
-      className={`fixed inset-0 flex select-none overflow-hidden bg-[#0b130d] text-white ${compact ? 'flex-row' : 'flex-col'}`}
-    >
-      {compact ? (
-        // Low landscape screens (phones): seed packets in a side rail so the
-        // garden can use the full height.
-        <nav
-          className="relative z-10 flex w-[104px] shrink-0 flex-col gap-1 border-r border-white/10 bg-black/50 py-1 pr-1"
-          style={{ paddingLeft: 'max(4px, env(safe-area-inset-left))' }}
-          aria-label="Plantas"
+    <main className="fixed inset-0 select-none overflow-hidden bg-[#0b130d] text-white">
+      <div ref={boardRef} className="absolute inset-0">
+        <canvas
+          ref={canvasRef}
+          className={`absolute inset-0 touch-none ${tool ? 'cursor-crosshair' : 'cursor-pointer'}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            pointerRef.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+          }}
+          onPointerLeave={() => (pointerRef.current = null)}
+          onContextMenu={(event) => event.preventDefault()}
+          aria-label="Jardín: toca una casilla para plantar o un sol para recogerlo"
+        />
+      </div>
+
+      {/* Seed packets, PvZ 2 style: sun counter on top, one column below. */}
+      <nav
+        ref={railRef}
+        className={`absolute bottom-0 left-0 top-0 z-10 flex flex-col gap-1 ${
+          twoColumns ? (compact ? 'w-[156px] py-1' : 'w-[204px] py-2') : compact ? 'w-[86px] py-1' : 'w-[112px] py-2'
+        }`}
+        style={{ paddingLeft: 'max(6px, env(safe-area-inset-left))' }}
+        aria-label="Plantas"
+      >
+        <div
+          className={`flex shrink-0 items-center gap-1 rounded-full border-2 border-[#f5d68a]/70 bg-gradient-to-b from-[#3d2a14]/95 to-[#1e1408]/95 pr-3 shadow-[0_3px_0_rgba(0,0,0,0.45)] ${
+            compact ? 'h-9' : 'h-12'
+          }`}
+          aria-label={`Sol: ${options.infiniteSun ? 'infinito' : hud.sun}`}
         >
-          {sunBox}
-          <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-5 gap-1">{cards}</div>
-        </nav>
-      ) : (
-        <header className="relative z-10 flex items-stretch gap-2 border-b border-white/10 bg-black/45 px-2 py-1.5 backdrop-blur-md">
-          {sunBox}
-          <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none]">
-            {cards}
-            {shovelButton}
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {fullscreenButton}
-            {pauseButton}
-            {menuButton}
-          </div>
-        </header>
+          <img
+            src={spriteUrl('solmiel', 'sun')}
+            alt=""
+            className={`-ml-1 object-contain drop-shadow-[0_0_6px_rgba(255,220,90,0.9)] ${compact ? 'h-9 w-9' : 'h-12 w-12'}`}
+          />
+          <span className={`font-black tabular-nums text-white [text-shadow:0_2px_0_#000] ${compact ? 'text-base' : 'text-xl'}`}>
+            {options.infiniteSun ? '∞' : hud.sun}
+          </span>
+        </div>
+        <div
+          className={`min-h-0 flex-1 gap-1 ${
+            twoColumns ? `grid grid-cols-2 content-start ${compact ? 'auto-rows-[46px]' : 'auto-rows-[62px]'}` : 'flex flex-col'
+          }`}
+        >
+          {seedPackets.map((kind, index) => {
+            const def = PLANTS[kind];
+            const selected = tool === kind;
+            const ready = hud.placeable[kind];
+            const affordable = options.infiniteSun || hud.sun >= def.cost;
+            return (
+              <button
+                key={kind}
+                type="button"
+                onClick={() => setTool(selected ? null : kind)}
+                title={PLANT_KEYS[index] ? `${def.name} · ${def.role} (${PLANT_KEYS[index]})` : `${def.name} · ${def.role}`}
+                aria-label={`${def.name}, ${def.cost} de sol`}
+                aria-pressed={selected}
+                className={`relative min-h-0 flex-1 overflow-hidden rounded-[6px] border-2 border-[#2a1c0c] bg-gradient-to-b from-[#fbf3d6] to-[#dccb94] shadow-[0_3px_0_rgba(0,0,0,0.5)] transition active:translate-y-0.5 ${
+                  compact ? 'max-h-[52px]' : 'max-h-[66px]'
+                } ${selected ? 'translate-x-2 ring-2 ring-amber-300 shadow-[0_0_12px_rgba(255,214,90,0.8)]' : ''} ${
+                  ready ? '' : '[filter:grayscale(0.55)_brightness(0.85)]'
+                }`}
+              >
+                {/* Seed packet: perforated paper flap and a green window. */}
+                <span className="pointer-events-none absolute inset-x-[5px] top-[3px] border-t-2 border-dashed border-[#a2824a]/70" />
+                <span className="pointer-events-none absolute inset-x-[4px] bottom-[4px] top-[8px] rounded-[3px] border border-[#4f7a2e]/70 bg-[radial-gradient(circle_at_32%_38%,#effcdc_0%,#b5df8a_50%,#6fa84b_100%)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)]" />
+                <img
+                  src={spriteUrl(kind, 'portrait')}
+                  alt=""
+                  className="pointer-events-none absolute -bottom-[10%] left-0 h-[128%] w-auto object-contain drop-shadow-[0_2px_1px_rgba(0,0,0,0.55)]"
+                />
+                <span
+                  className={`absolute bottom-[3px] right-[3px] rounded-[3px] border border-[#2a1c0c] bg-[#fbf6e1] px-1 font-black leading-[1.15] tabular-nums shadow-[0_1px_0_rgba(0,0,0,0.4)] ${
+                    compact ? 'text-[11px]' : 'text-sm'
+                  } ${affordable ? 'text-[#2a1c0c]' : 'text-red-600'}`}
+                >
+                  {options.infiniteSun ? '—' : def.cost}
+                </span>
+                {hud.cooldowns[kind] > 0 && (
+                  <span
+                    className="pointer-events-none absolute inset-x-0 top-0 bg-[#1b130a]/60"
+                    style={{ height: `${hud.cooldowns[kind] * 100}%` }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Level progress, top centre. */}
+      {ready && (
+        <div
+          className="pointer-events-none absolute top-4 z-10 flex -translate-x-1/2 flex-col items-center"
+          style={{ left: `calc(50% + ${compact ? 43 : 56}px)` }}
+        >
+          {!sandbox ? (
+            <>
+              <div
+                className={`relative rounded-full border-2 border-[#f5d68a]/70 bg-[#1e1408]/90 p-[3px] shadow-[0_3px_0_rgba(0,0,0,0.45)] ${
+                  compact ? 'h-4 w-44' : 'h-5 w-64'
+                }`}
+                role="progressbar"
+                aria-label="Progreso del nivel"
+                aria-valuenow={Math.round(hud.progress * 100)}
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-full bg-black/50">
+                  {/* Zombies advance from the right, like in PvZ 2. */}
+                  <div
+                    className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-lime-300 to-lime-600"
+                    style={{ width: `${hud.progress * 100}%` }}
+                  />
+                </div>
+                {flags.map((at) => (
+                  <span
+                    key={at}
+                    className={`absolute top-1/2 -translate-y-[80%] leading-none ${compact ? 'text-sm' : 'text-base'}`}
+                    style={{ right: `calc(${at * 100}% - 6px)` }}
+                    aria-hidden
+                  >
+                    🚩
+                  </span>
+                ))}
+                <img
+                  src={spriteUrl('despistado', 'portrait')}
+                  alt=""
+                  className={`absolute top-1/2 -translate-y-1/2 object-contain drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] ${
+                    compact ? 'h-7 w-7' : 'h-9 w-9'
+                  }`}
+                  style={{ right: `calc(${hud.progress * 100}% - ${compact ? 14 : 18}px)` }}
+                />
+              </div>
+              <p className={`mt-0.5 font-title font-bold text-amber-100 [text-shadow:0_2px_0_#000] ${compact ? 'text-[11px]' : 'text-sm'}`}>
+                {initialGame.level.name} · Oleada {Math.min(hud.wave, levelWaves.length)}/{levelWaves.length}
+              </p>
+            </>
+          ) : (
+            <p className={`font-title font-bold text-amber-100 [text-shadow:0_2px_0_#000] ${compact ? 'text-xs' : 'text-base'}`}>
+              Sandbox · Beta
+            </p>
+          )}
+        </div>
       )}
+
+      {/* Pause, options and fullscreen, top right. */}
+      <div
+        className="absolute right-0 top-0 z-10 flex gap-1.5 p-1.5"
+        style={{ paddingRight: 'max(6px, env(safe-area-inset-right))' }}
+      >
+        {fullscreen.supported && (
+          <button
+            type="button"
+            onClick={fullscreen.toggle}
+            className={roundButton}
+            aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+          >
+            {fullscreen.active ? <Minimize size={18} aria-hidden /> : <Maximize size={18} aria-hidden />}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setShowPanel((open) => !open)}
+          className={`${roundButton} ${showPanel ? 'ring-2 ring-amber-200' : ''}`}
+          aria-expanded={showPanel}
+          aria-label={sandbox ? 'Opciones del sandbox' : 'Menú'}
+          title={sandbox ? 'Opciones del sandbox' : 'Menú'}
+        >
+          <SlidersHorizontal size={18} aria-hidden />
+        </button>
+        <button type="button" onClick={togglePause} className={roundButton} aria-label={paused ? 'Reanudar' : 'Pausar'}>
+          {paused ? <Play size={20} aria-hidden /> : <Pause size={20} aria-hidden />}
+        </button>
+      </div>
+
+      {/* Shovel, bottom right. */}
+      <button
+        type="button"
+        onClick={() => setTool(tool === 'shovel' ? null : 'shovel')}
+        title="Pala (Q)"
+        aria-label="Pala"
+        aria-pressed={tool === 'shovel'}
+        className={`absolute bottom-2 z-10 flex items-center justify-center rounded-full border-[3px] bg-gradient-to-b from-[#6a4a25] to-[#2f1d0d] shadow-[0_4px_0_rgba(0,0,0,0.45)] transition active:translate-y-0.5 ${
+          compact ? 'h-12 w-12' : 'h-16 w-16'
+        } ${tool === 'shovel' ? 'border-amber-200 ring-2 ring-amber-200' : 'border-[#f5d68a]/70'}`}
+        style={{ right: 'max(8px, env(safe-area-inset-right))' }}
+      >
+        <Shovel size={compact ? 22 : 28} className="text-amber-50" aria-hidden />
+      </button>
 
       {showPanel && (
         <aside
-          className={`absolute z-20 w-[min(92vw,300px)] overflow-y-auto rounded-2xl border border-white/15 bg-black/85 p-3 text-sm shadow-2xl backdrop-blur-md ${
-            compact ? 'right-[64px] top-2 max-h-[calc(100%-16px)]' : 'right-2 top-[78px] max-h-[calc(100%-86px)]'
+          className={`absolute right-2 z-20 w-[min(92vw,300px)] overflow-y-auto rounded-2xl border border-white/15 bg-black/85 p-3 text-sm shadow-2xl backdrop-blur-md ${
+            compact ? 'top-[52px] max-h-[calc(100%-60px)]' : 'top-[64px] max-h-[calc(100%-72px)]'
           }`}
         >
           <div className="mb-2 flex items-center justify-between">
@@ -579,7 +651,7 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
               ))}
               <div className="mt-2 border-t border-white/10 pt-2">
                 <p className="mb-1 text-xs text-white/60">Zombi a soltar (Z: carril al azar)</p>
-                <div className="mb-1.5 grid grid-cols-3 gap-1">
+                <div className="mb-1.5 grid grid-cols-5 gap-1">
                   {ZOMBIE_ORDER.map((kind) => (
                     <button
                       key={kind}
@@ -653,100 +725,64 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
         </aside>
       )}
 
-      <div ref={boardRef} className="relative min-h-0 flex-1">
-        <canvas
-          ref={canvasRef}
-          className={`absolute inset-0 touch-none ${tool ? 'cursor-crosshair' : 'cursor-pointer'}`}
-          onPointerDown={onPointerDown}
-          onPointerMove={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-            pointerRef.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-          }}
-          onPointerLeave={() => (pointerRef.current = null)}
-          onContextMenu={(event) => event.preventDefault()}
-          aria-label="Jardín: toca una casilla para plantar o un sol para recogerlo"
-        />
+      {hud.announcement && (
+        <p className="pointer-events-none absolute left-1/2 top-1/3 z-10 -translate-x-1/2 animate-pulse whitespace-nowrap font-title text-3xl font-bold text-red-200 [text-shadow:0_3px_0_#000,0_0_12px_#000] short:text-2xl">
+          {hud.announcement}
+        </p>
+      )}
 
-        {!sandbox && ready && (
-          <div className="pointer-events-none absolute bottom-2 right-3 flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 text-xs">
-            <span className="text-white/75">
-              Oleada {Math.min(hud.wave, LEVEL_WAVES.length)}/{LEVEL_WAVES.length}
-            </span>
-            <span className="relative h-2 w-28 overflow-hidden rounded-full bg-white/15 short:w-20">
-              <span className="absolute inset-y-0 left-0 bg-gradient-to-r from-lime-400 to-red-500" style={{ width: `${hud.progress * 100}%` }} />
-            </span>
-          </div>
-        )}
+      {!ready && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-[#0b130d]">
+          {failed ? (
+            <p className="text-sm text-red-300">No se pudieron cargar los sprites. Recarga la página.</p>
+          ) : (
+            <>
+              <p className="font-title text-lg text-amber-100">Preparando el jardín…</p>
+              <div className="h-2 w-56 overflow-hidden rounded-full bg-white/10">
+                <div className="h-full bg-amber-300 transition-[width]" style={{ width: `${Math.round(progress * 100)}%` }} />
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
-        {hud.announcement && (
-          <p className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 animate-pulse whitespace-nowrap font-title text-3xl text-red-200 drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)] short:text-2xl">
-            {hud.announcement}
-          </p>
-        )}
+      {tool && !hud.outcome && (
+        <p className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs text-white/85 short:hidden">
+          {tool === 'shovel' ? 'Toca una planta para quitarla' : `Toca una casilla para plantar ${PLANTS[tool].name}`} · Esc o clic derecho
+          para cancelar
+        </p>
+      )}
 
-        {!ready && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            {failed ? (
-              <p className="text-sm text-red-300">No se pudieron cargar los sprites. Recarga la página.</p>
+      {hud.outcome && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/85 p-6 text-center shadow-2xl short:p-4">
+            <p className={`font-title text-3xl ${hud.outcome === 'victory' ? 'text-amber-200' : 'text-red-300'}`}>
+              {hud.outcome === 'victory' ? '¡Jardín a salvo!' : 'Los zombis entraron'}
+            </p>
+            <p className="mt-2 text-sm text-white/70">
+              {hud.outcome === 'victory'
+                ? `Resististe las ${levelWaves.length} oleadas de ${initialGame.level.name}.`
+                : `Llegaste a la oleada ${Math.min(hud.wave, levelWaves.length)} de ${levelWaves.length}.`}
+            </p>
+            <p className="mt-1 text-xs text-white/55">
+              {hud.killed} zombis eliminados · {hud.mowersUsed} podadoras usadas · {Math.floor(hud.seconds / 60)}:
+              {String(hud.seconds % 60).padStart(2, '0')}
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" onClick={onRestart} className="rounded-full bg-amber-300 py-2 text-sm font-bold text-black">
+                Jugar otra vez
+              </button>
+              <button type="button" onClick={onExit} className="rounded-full border border-white/25 py-2 text-sm">
+                Menú
+              </button>
+            </div>
+            {sandbox ? (
+              <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-white/40">Sandbox · sin premios</p>
             ) : (
-              <>
-                <p className="font-title text-lg text-amber-100">Preparando el jardín…</p>
-                <div className="h-2 w-56 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full bg-amber-300 transition-[width]" style={{ width: `${Math.round(progress * 100)}%` }} />
-                </div>
-              </>
+              <LevelReport report={report} outcome={hud.outcome} onRetry={() => reportOutcome(hud.outcome!)} />
             )}
           </div>
-        )}
-
-        {tool && !hud.outcome && (
-          <p className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs text-white/85 short:hidden">
-            {tool === 'shovel' ? 'Toca una planta para quitarla' : `Toca una casilla para plantar ${PLANTS[tool].name}`} · Esc o clic
-            derecho para cancelar
-          </p>
-        )}
-
-        {hud.outcome && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/85 p-6 text-center shadow-2xl short:p-4">
-              <p className={`font-title text-3xl ${hud.outcome === 'victory' ? 'text-amber-200' : 'text-red-300'}`}>
-                {hud.outcome === 'victory' ? '¡Jardín a salvo!' : 'Los zombis entraron'}
-              </p>
-              <p className="mt-2 text-sm text-white/70">
-                {hud.outcome === 'victory'
-                  ? `Resististe las ${LEVEL_WAVES.length} oleadas.`
-                  : `Llegaste a la oleada ${Math.min(hud.wave, LEVEL_WAVES.length)} de ${LEVEL_WAVES.length}.`}
-              </p>
-              <p className="mt-1 text-xs text-white/55">
-                {hud.killed} zombis eliminados · {hud.mowersUsed} podadoras usadas · {Math.floor(hud.seconds / 60)}:
-                {String(hud.seconds % 60).padStart(2, '0')}
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button type="button" onClick={onRestart} className="rounded-full bg-amber-300 py-2 text-sm font-bold text-black">
-                  Jugar otra vez
-                </button>
-                <button type="button" onClick={onExit} className="rounded-full border border-white/25 py-2 text-sm">
-                  Menú
-                </button>
-              </div>
-              <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-white/40">Beta · sin premios</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {compact && (
-        <nav
-          className="relative z-10 flex w-[56px] shrink-0 flex-col items-center gap-1.5 border-l border-white/10 bg-black/50 py-1.5"
-          style={{ paddingRight: 'env(safe-area-inset-right)' }}
-          aria-label="Controles"
-        >
-          {shovelButton}
-          <div className="flex-1" />
-          {fullscreenButton}
-          {pauseButton}
-          {menuButton}
-        </nav>
+        </div>
       )}
 
       {portrait && !playPortrait && (
@@ -760,5 +796,40 @@ function JardinGame({ mode, onExit, onRestart }: { mode: GameMode; onExit: () =>
         </div>
       )}
     </main>
+  );
+}
+
+function LevelReport({
+  report,
+  outcome,
+  onRetry,
+}: {
+  report: Report;
+  outcome: JardinState['outcome'];
+  onRetry: () => void;
+}) {
+  if (report.status === 'error')
+    return (
+      <div className="mt-3 text-xs text-red-300" role="alert">
+        <p>{report.message}</p>
+        <button type="button" onClick={onRetry} className="mt-1 underline">
+          Reintentar
+        </button>
+      </div>
+    );
+  if (report.status !== 'saved')
+    return (
+      <p className="mt-3 text-xs text-white/60" role="status">
+        Verificando la partida…
+      </p>
+    );
+  const { reward, note } = report.result;
+  if (outcome !== 'victory') return <p className="mt-3 text-xs text-white/55">Sin recompensa. ¡Prueba con otras plantas!</p>;
+  return reward > 0 ? (
+    <p className="mt-3 flex items-center justify-center gap-2 font-title text-xl text-amber-200">
+      <span aria-hidden>🪙</span> +{reward.toLocaleString('es-AR')} monedas
+    </p>
+  ) : (
+    <p className="mt-3 text-xs text-white/60">{note ?? 'Ya cobraste este nivel: esta victoria no suma monedas.'}</p>
   );
 }

@@ -13,11 +13,12 @@ import { auth } from '@/config/firebase';
 import { FormMessage, PasswordField, SubmitButton, TextField } from '@/components/juego/AuthFields';
 import { AuthShell } from '@/components/juego/auth/AuthShell';
 import { AuthDivider, GoogleButton, useGoogleSignIn } from '@/components/juego/auth/GoogleSignIn';
+import { parseReturnTo, withReturnTo } from '@/lib/returnTo';
 
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const returnTo = params.get('next') === '/evento/agro' ? '/evento/agro' : '/juego';
+  const returnTo = parseReturnTo(params.get('next'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -144,7 +145,7 @@ function LoginForm() {
       <p className="mt-8 text-center text-sm text-white/50">
         ¿Primera vez aquí?{' '}
         <Link
-          href={returnTo === '/evento/agro' ? '/juego/registro?next=%2Fevento%2Fagro' : '/juego/registro'}
+          href={withReturnTo('/juego/registro', returnTo)}
           className="font-semibold text-gold hover:underline"
         >
           Crea tu cuenta

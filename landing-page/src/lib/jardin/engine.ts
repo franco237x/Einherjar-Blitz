@@ -26,22 +26,19 @@ export type PlantKind =
   | 'cardon'
   | 'frigora'
   | 'zarzina'
-  | 'aurelia'
-  | 'velaria';
+  | 'cilantro'
+  | 'limon'
+  | 'jengibron';
 export type PlantClip =
   | 'spawn'
   | 'idle'
   | 'attack'
   | 'damaged'
-  | 'critical'
-  | 'seal'
-  | 'channel'
-  | 'recall'
-  | 'recover';
-export type ZombieKind = 'despistado' | 'conero' | 'balderon';
+  | 'critical';
+export type ZombieKind = 'despistado' | 'conero' | 'balderon' | 'rafago' | 'bruton';
 export type ZombieClip = 'spawn' | 'walk' | 'bite' | 'fall' | 'armor-break';
 export type MowerClip = 'idle' | 'start' | 'run';
-export type ProjectileKind = 'seed' | 'spore' | 'spine' | 'frost';
+export type ProjectileKind = 'seed' | 'spore' | 'spine' | 'frost' | 'aroma' | 'acid';
 export type GameMode = 'sandbox' | 'waves';
 
 export interface PlantDef {
@@ -54,17 +51,21 @@ export interface PlantDef {
   cooldown: number;
 }
 
+/** Attackers are fragile: a zombie eats one in four bites (~5 s). */
+const ATTACKER_HP = 160;
+
 export const PLANTS: Record<PlantKind, PlantDef> = {
   solmiel: { kind: 'solmiel', name: 'Solmiel', role: 'Produce 25 de sol', cost: 50, hp: 300, cooldown: s(7.5) },
-  nabu: { kind: 'nabu', name: 'Nabú', role: 'Escupe semillas', cost: 100, hp: 300, cooldown: s(7.5) },
-  mordiseta: { kind: 'mordiseta', name: 'Mordiseta', role: 'Esporas de corto alcance', cost: 25, hp: 300, cooldown: s(7.5) },
+  nabu: { kind: 'nabu', name: 'Nabú', role: 'Escupe semillas', cost: 100, hp: ATTACKER_HP, cooldown: s(7.5) },
+  mordiseta: { kind: 'mordiseta', name: 'Mordiseta', role: 'Esporas de corto alcance', cost: 25, hp: ATTACKER_HP, cooldown: s(7.5) },
   cortezon: { kind: 'cortezon', name: 'Cortezón', role: 'Muro resistente', cost: 50, hp: 4000, cooldown: s(30) },
-  frigora: { kind: 'frigora', name: 'Frígora', role: 'Ralentiza y congela', cost: 100, hp: 300, cooldown: s(7.5) },
-  granadin: { kind: 'granadin', name: 'Granadín', role: 'Explota en 3×3', cost: 150, hp: 9999, cooldown: s(50) },
-  zarzina: { kind: 'zarzina', name: 'Zarzina', role: 'Devora de un mordisco', cost: 150, hp: 300, cooldown: s(7.5) },
-  cardon: { kind: 'cardon', name: 'Cardón', role: 'Espinas que atraviesan', cost: 175, hp: 300, cooldown: s(7.5) },
-  aurelia: { kind: 'aurelia', name: 'Aurélia', role: 'Cura a sus vecinas', cost: 125, hp: 300, cooldown: s(30) },
-  velaria: { kind: 'velaria', name: 'Velaria', role: 'Devuelve al zombi atrás', cost: 125, hp: 300, cooldown: s(20) },
+  frigora: { kind: 'frigora', name: 'Frígora', role: 'Ralentiza y congela', cost: 100, hp: ATTACKER_HP, cooldown: s(7.5) },
+  granadin: { kind: 'granadin', name: 'Granadín', role: 'Explota en 3×3', cost: 200, hp: 9999, cooldown: s(50) },
+  zarzina: { kind: 'zarzina', name: 'Zarzina', role: 'Devora de un mordisco', cost: 150, hp: ATTACKER_HP, cooldown: s(7.5) },
+  cardon: { kind: 'cardon', name: 'Cardón', role: 'Espinas que atraviesan', cost: 175, hp: ATTACKER_HP, cooldown: s(7.5) },
+  cilantro: { kind: 'cilantro', name: 'Cilantro', role: 'Su aroma corta los mordiscos', cost: 75, hp: ATTACKER_HP, cooldown: s(7.5) },
+  limon: { kind: 'limon', name: 'Limón', role: 'Jugo que disuelve armaduras', cost: 125, hp: ATTACKER_HP, cooldown: s(7.5) },
+  jengibron: { kind: 'jengibron', name: 'Jengibrón', role: 'Golpes cuerpo a cuerpo', cost: 150, hp: 400, cooldown: s(10) },
 };
 export const PLANT_ORDER: PlantKind[] = [
   'solmiel',
@@ -75,8 +76,9 @@ export const PLANT_ORDER: PlantKind[] = [
   'granadin',
   'zarzina',
   'cardon',
-  'aurelia',
-  'velaria',
+  'cilantro',
+  'limon',
+  'jengibron',
 ];
 
 export interface ZombieDef {
@@ -84,16 +86,45 @@ export interface ZombieDef {
   name: string;
   hp: number;
   armor: number;
-  /** Walk tempo from the art pack; scales speed and the walk animation. */
+  /** Speed multiplier (1 = Despistado). */
   gait: number;
+  /** Walk-clip frames per tick, so the feet match the ground speed. */
+  walkAnim: number;
+  /** Bite (or punch) loop: frames per cycle, impact frame, damage. */
+  bite: { cycle: number; frame: number; damage: number };
+  /** Zarzina cannot swallow it whole; it takes this much damage instead. */
+  tooBigToSwallow?: number;
 }
 
+const BITE = { cycle: 36, frame: 16, damage: 40 };
+/** The walk art covers 22.2 rig units/s; the engine walks 1.4× faster. */
+const walkAnim = (gait: number, artSpeed = 22.2) => (1.4 * gait * 22.2) / artSpeed;
+
 export const ZOMBIES: Record<ZombieKind, ZombieDef> = {
-  despistado: { kind: 'despistado', name: 'Despistado', hp: 200, armor: 0, gait: 1 },
-  conero: { kind: 'conero', name: 'Conero', hp: 200, armor: 220, gait: 1.08 },
-  balderon: { kind: 'balderon', name: 'Balderón', hp: 200, armor: 560, gait: 0.82 },
+  despistado: { kind: 'despistado', name: 'Despistado', hp: 200, armor: 0, gait: 1, walkAnim: walkAnim(1), bite: BITE },
+  conero: { kind: 'conero', name: 'Conero', hp: 200, armor: 220, gait: 1.08, walkAnim: walkAnim(1.08), bite: BITE },
+  balderon: { kind: 'balderon', name: 'Balderón', hp: 200, armor: 560, gait: 0.82, walkAnim: walkAnim(0.82), bite: BITE },
+  rafago: {
+    kind: 'rafago',
+    name: 'Ráfago',
+    hp: 200,
+    armor: 300,
+    gait: 1.7,
+    walkAnim: walkAnim(1.7, 77.8),
+    bite: { cycle: 30, frame: 15, damage: 50 },
+  },
+  bruton: {
+    kind: 'bruton',
+    name: 'Brutón',
+    hp: 1600,
+    armor: 0,
+    gait: 0.55,
+    walkAnim: walkAnim(0.55, 11.1),
+    bite: { cycle: 42, frame: 21, damage: 300 },
+    tooBigToSwallow: 600,
+  },
 };
-export const ZOMBIE_ORDER: ZombieKind[] = ['despistado', 'conero', 'balderon'];
+export const ZOMBIE_ORDER: ZombieKind[] = ['despistado', 'conero', 'balderon', 'rafago', 'bruton'];
 
 // Timings come from the events in each sprite's JSON so the art and the
 // gameplay stay in sync (e.g. Nabú releases its seed at 0.43 s of `attack`).
@@ -101,31 +132,24 @@ export const TIMING = {
   plantSpawn: s(1.2),
   attackClip: s(1.2),
   fireInterval: s(1.5),
-  release: { nabu: 13, mordiseta: 18, cardon: 14, frigora: 16 } as Record<string, number>,
+  release: { nabu: 13, mordiseta: 18, cardon: 14, frigora: 16, cilantro: 18, limon: 18 } as Record<string, number>,
+  /** Jengibrón's jab and cross land on these frames of its attack clip. */
+  punches: [12, 24] as readonly number[],
+  /** Cilantro's aroma stops a bite for this long. */
+  aroma: s(1.1),
   solmielRelease: 17,
   solmielFirst: s(7),
   solmielInterval: s(24),
   granadinFuse: 21,
   zarzinaBite: 14,
   zarzinaDigest: s(15),
-  aureliaBloom: 17,
-  aureliaInterval: s(8),
-  velariaSeal: s(1.4),
-  velariaMark: 22,
-  velariaDelay: s(2),
-  velariaRecallLead: 11,
-  velariaRecall: s(1.2),
-  velariaRecover: s(1.4),
-  velariaCooldown: s(7),
   zombieSpawn: s(1),
   armorBreak: s(0.8),
-  biteCycle: 36,
-  biteFrame: 16,
   zombieFall: s(1.4),
   corpseLinger: s(1),
   slow: s(3),
   freeze: s(1.2),
-  skySunInterval: s(10),
+  skySunInterval: s(8),
   sunLifetime: s(10),
   autoWaveInterval: s(9),
   mowerStart: s(0.4),
@@ -133,19 +157,20 @@ export const TIMING = {
 
 export const BALANCE = {
   startingSun: 150,
-  wavesStartingSun: 100,
   sunValue: 25,
   shotDamage: 20,
   explosionDamage: 1800,
   /** Cells per tick for a gait of 1; matches the walk cycle at 140 px per cell. */
   zombieSpeed: 0.178 / TICKS_PER_SECOND,
-  /** The walk art covers 22.2 rig units/s; the engine walks 1.4× faster. */
-  walkFrameRate: 1.4,
-  biteDamage: 40,
   skySunFallSpeed: 0.9 / TICKS_PER_SECOND,
   mordisetaRange: 3.5,
-  velariaRange: 4,
   zarzinaReach: 1.6,
+  cilantroRange: 4,
+  /** Limón's extra damage that only eats armour. */
+  acidArmorDamage: 50,
+  /** Cells past the centre of its own cell: the zombie biting it and the next one. */
+  jengibronReach: 1.3,
+  punchDamage: [30, 45],
   slowFactor: 0.5,
   freezeStacks: 3,
   mowerSpeed: 4 / TICKS_PER_SECOND,
@@ -156,18 +181,14 @@ export const BALANCE = {
   breachX: -0.6,
 } as const;
 
-const PROJECTILES: Record<ProjectileKind, { speed: number; damage: number; pierce: boolean }> = {
+const PROJECTILES: Record<ProjectileKind, { speed: number; damage: number; pierce: boolean; armorDamage?: number }> = {
   seed: { speed: 4 / TICKS_PER_SECOND, damage: BALANCE.shotDamage, pierce: false },
   spore: { speed: 2.6 / TICKS_PER_SECOND, damage: BALANCE.shotDamage, pierce: false },
   spine: { speed: 5 / TICKS_PER_SECOND, damage: BALANCE.shotDamage, pierce: true },
   frost: { speed: 3 / TICKS_PER_SECOND, damage: 0, pierce: false },
+  aroma: { speed: 3.3 / TICKS_PER_SECOND, damage: 0, pierce: false },
+  acid: { speed: 4.2 / TICKS_PER_SECOND, damage: BALANCE.shotDamage, pierce: false, armorDamage: BALANCE.acidArmorDamage },
 };
-
-export interface ShadowMark {
-  zombieId: number;
-  anchorX: number;
-  tick: number;
-}
 
 export interface Plant {
   id: number;
@@ -177,14 +198,12 @@ export interface Plant {
   hp: number;
   clip: PlantClip;
   clipStart: number;
-  /** Tick of the next shot, sun or bloom; for Granadín, the detonation tick. */
+  /** Tick of the next shot or sun; for Granadín, the detonation tick. */
   nextAction: number;
   pendingRelease: number | null;
   lastHit: number;
   /** Zarzina: chewing until this tick. */
   digestUntil: number;
-  /** Velaria: active Eco umbrío. */
-  mark: ShadowMark | null;
 }
 
 export interface Zombie {
@@ -204,8 +223,8 @@ export interface Zombie {
   slowUntil: number;
   freezeUntil: number;
   chill: number;
-  /** Tick of the last Eco umbrío rewind, for the visual trail. */
-  rewoundAt: number;
+  /** Cilantro's aroma: no biting until this tick. */
+  dazedUntil: number;
 }
 
 /** One per lane; single use until the garden is reset. */
@@ -242,7 +261,7 @@ export interface Sun {
 }
 
 export interface Effect {
-  type: 'blast' | 'bloom' | 'chomp' | 'rewind';
+  type: 'blast' | 'chomp' | 'punch';
   row: number;
   col: number;
   tick: number;
@@ -263,26 +282,142 @@ export interface Wave {
   flag?: 'big' | 'final';
 }
 
-export const LEVEL_WAVES: Wave[] = [
-  { at: 25, zombies: ['despistado'] },
-  { at: 42, zombies: ['despistado'] },
-  { at: 58, zombies: ['despistado', 'despistado'] },
-  { at: 74, zombies: ['conero'] },
-  { at: 90, zombies: ['despistado', 'conero'] },
-  { at: 108, zombies: ['despistado', 'despistado', 'conero', 'conero', 'despistado'], flag: 'big' },
-  { at: 130, zombies: ['conero', 'despistado'] },
-  { at: 146, zombies: ['balderon'] },
-  { at: 162, zombies: ['conero', 'despistado', 'despistado'] },
-  { at: 180, zombies: ['balderon', 'conero', 'despistado'] },
+export interface LevelDef {
+  id: number;
+  name: string;
+  description: string;
+  startingSun: number;
+  /** Event coins granted the first time the level is won. */
+  reward: number;
+  waves: Wave[];
+}
+
+/** Maximum seed packets a player can take into a level. */
+export const MAX_LOADOUT = 6;
+
+const d = 'despistado' as const;
+const c = 'conero' as const;
+const b = 'balderon' as const;
+const r = 'rafago' as const;
+const g = 'bruton' as const;
+
+export const LEVELS: LevelDef[] = [
   {
-    at: 202,
-    zombies: ['despistado', 'despistado', 'conero', 'conero', 'balderon', 'balderon', 'despistado', 'conero'],
-    flag: 'final',
+    id: 1,
+    name: 'Brote del claro',
+    description: 'Los primeros despistados cruzan el claro. Aprende a juntar sol y a cubrir los carriles.',
+    startingSun: 150,
+    reward: 250,
+    waves: [
+      { at: 20, zombies: [d] },
+      { at: 38, zombies: [d] },
+      { at: 54, zombies: [d, d] },
+      { at: 70, zombies: [c] },
+      { at: 86, zombies: [d, d, c], flag: 'big' },
+      { at: 106, zombies: [d, c, d, d, c], flag: 'final' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'Raíces del fresno',
+    description: 'Llegan más conos y el primer Balderón. Necesitarás muros y ataques que atraviesen.',
+    startingSun: 150,
+    reward: 500,
+    waves: [
+      { at: 22, zombies: [d] },
+      { at: 38, zombies: [c] },
+      { at: 54, zombies: [d, d] },
+      { at: 70, zombies: [c, d] },
+      { at: 88, zombies: [d, d, c, c, d], flag: 'big' },
+      { at: 110, zombies: [b] },
+      { at: 126, zombies: [c, d, d] },
+      { at: 146, zombies: [b, c, d, d, c, c], flag: 'final' },
+    ],
+  },
+  {
+    id: 3,
+    name: 'Corazón de Yggdrasil',
+    description: 'Los Balderones llegan en grupo. Once oleadas y un final con tres de ellos.',
+    startingSun: 150,
+    reward: 750,
+    waves: [
+      { at: 25, zombies: [d] },
+      { at: 42, zombies: [d] },
+      { at: 58, zombies: [d, d] },
+      { at: 74, zombies: [c] },
+      { at: 90, zombies: [d, c] },
+      { at: 108, zombies: [d, d, c, c, d], flag: 'big' },
+      { at: 130, zombies: [c, d] },
+      { at: 146, zombies: [b] },
+      { at: 162, zombies: [c, d, d] },
+      { at: 180, zombies: [b, c, d, c] },
+      { at: 202, zombies: [d, d, c, c, b, b, d, c, c, b], flag: 'final' },
+    ],
+  },
+  {
+    id: 4,
+    name: 'Puente de Bifröst',
+    description: 'Los Ráfagos cruzan el puente a la carrera. Frénalos antes de que lleguen a tus plantas.',
+    startingSun: 200,
+    reward: 1000,
+    waves: [
+      { at: 25, zombies: [d] },
+      { at: 42, zombies: [d] },
+      { at: 58, zombies: [d, d] },
+      { at: 76, zombies: [r] },
+      { at: 94, zombies: [d, c] },
+      { at: 112, zombies: [d, d, c, r, d], flag: 'big' },
+      { at: 134, zombies: [b, d] },
+      { at: 150, zombies: [r, c] },
+      { at: 166, zombies: [c, c, d] },
+      { at: 184, zombies: [r, b, d, d] },
+      { at: 206, zombies: [d, d, c, c, r, r, b, d, c, r], flag: 'final' },
+    ],
+  },
+  {
+    id: 5,
+    name: 'Ocaso del Ragnarök',
+    description: 'Los Brutones aplastan todo a su paso. La batalla final por el árbol del mundo.',
+    startingSun: 200,
+    reward: 1500,
+    waves: [
+      { at: 25, zombies: [d] },
+      { at: 42, zombies: [d] },
+      { at: 58, zombies: [d, c] },
+      { at: 76, zombies: [r] },
+      { at: 94, zombies: [d, c, d] },
+      { at: 112, zombies: [g] },
+      { at: 130, zombies: [d, d, c, r, c, d], flag: 'big' },
+      { at: 152, zombies: [b, r] },
+      { at: 168, zombies: [g, d, d] },
+      { at: 186, zombies: [c, r, c, d] },
+      { at: 206, zombies: [b, g, d, d, r] },
+      { at: 230, zombies: [d, d, c, c, b, r, r, g, g, d, c, b], flag: 'final' },
+    ],
   },
 ];
 
+export function getLevel(id: number): LevelDef | undefined {
+  return LEVELS.find((level) => level.id === id);
+}
+
+/** A loadout is 1..MAX_LOADOUT distinct known plants. */
+export function isValidLoadout(value: unknown): value is PlantKind[] {
+  return (
+    Array.isArray(value) &&
+    value.length >= 1 &&
+    value.length <= MAX_LOADOUT &&
+    new Set(value).size === value.length &&
+    value.every((kind) => typeof kind === 'string' && kind in PLANTS)
+  );
+}
+
 export interface JardinState {
   mode: GameMode;
+  /** Level being played in waves mode. */
+  level: LevelDef;
+  /** Seed packets chosen for this match; null means every plant. */
+  loadout: PlantKind[] | null;
   tick: number;
   rngState: { rng: Rng };
   nextId: number;
@@ -299,7 +434,7 @@ export interface JardinState {
   waves: { index: number; pending: { tick: number; kind: ZombieKind; row: number }[] };
   announcement: { text: string; tick: number } | null;
   outcome: 'victory' | 'defeat' | null;
-  stats: { killed: number; breaches: number; sunCollected: number; mowersUsed: number; planted: number };
+  stats: { killed: number; breaches: number; sunCollected: number; mowersUsed: number; planted: number; mowerKills: number };
   options: SandboxOptions;
 }
 
@@ -347,14 +482,18 @@ export function createGame(
   seed: string,
   options: Partial<SandboxOptions> = {},
   mode: GameMode = 'sandbox',
+  setup: { level?: number; loadout?: PlantKind[] | null } = {},
 ): JardinState {
   const waves = mode === 'waves';
+  const level = getLevel(setup.level ?? LEVELS.length) ?? LEVELS[LEVELS.length - 1];
   return {
     mode,
+    level,
+    loadout: setup.loadout ?? null,
     tick: 0,
     rngState: { rng: createSeededRng(seed) },
     nextId: 1,
-    sun: waves ? BALANCE.wavesStartingSun : BALANCE.startingSun,
+    sun: waves ? level.startingSun : BALANCE.startingSun,
     plants: [],
     zombies: [],
     mowers: freshMowers(0),
@@ -367,7 +506,7 @@ export function createGame(
     waves: { index: 0, pending: [] },
     announcement: null,
     outcome: null,
-    stats: { killed: 0, breaches: 0, sunCollected: 0, mowersUsed: 0, planted: 0 },
+    stats: { killed: 0, breaches: 0, sunCollected: 0, mowersUsed: 0, planted: 0, mowerKills: 0 },
     options: waves ? { ...WAVES_OPTIONS } : { ...DEFAULT_OPTIONS, ...options },
   };
 }
@@ -377,10 +516,11 @@ export function plantAt(state: JardinState, row: number, col: number): Plant | u
   return state.plants.find((plant) => plant.row === row && plant.col === col);
 }
 
-export type PlaceCheck = 'ok' | 'occupied' | 'sun' | 'cooldown' | 'outside' | 'over';
+export type PlaceCheck = 'ok' | 'occupied' | 'sun' | 'cooldown' | 'outside' | 'over' | 'locked';
 
 export function canPlace(state: JardinState, kind: PlantKind, row: number, col: number): PlaceCheck {
   if (state.outcome) return 'over';
+  if (state.loadout && !state.loadout.includes(kind)) return 'locked';
   if (!Number.isInteger(row) || !Number.isInteger(col) || row < 0 || row >= ROWS || col < 0 || col >= COLS)
     return 'outside';
   if (plantAt(state, row, col)) return 'occupied';
@@ -398,7 +538,8 @@ export function cooldownProgress(state: JardinState, kind: PlantKind): number {
 
 /** Level progress for the waves mode, 0..1. */
 export function waveProgress(state: JardinState): number {
-  const last = LEVEL_WAVES[LEVEL_WAVES.length - 1].at;
+  const waves = state.level.waves;
+  const last = waves[waves.length - 1].at;
   return Math.min(1, state.tick / s(last));
 }
 
@@ -432,13 +573,10 @@ function apply(state: JardinState, command: Command) {
             ? state.tick + TIMING.solmielFirst
             : granadin
               ? state.tick + TIMING.granadinFuse
-              : command.kind === 'aurelia'
-                ? state.tick + s(3)
-                : state.tick + TIMING.plantSpawn,
+              : state.tick + TIMING.plantSpawn,
         pendingRelease: null,
         lastHit: -1,
         digestUntil: 0,
-        mark: null,
       });
       return;
     }
@@ -515,7 +653,7 @@ function spawnZombie(state: JardinState, row: number, kind: ZombieKind) {
     slowUntil: 0,
     freezeUntil: 0,
     chill: 0,
-    rewoundAt: -1,
+    dazedUntil: 0,
   });
 }
 
@@ -524,13 +662,17 @@ function startWalking(state: JardinState, zombie: Zombie) {
   if (zombie.clip === 'bite') setZombieClip(state, zombie, 'walk');
 }
 
-function damageZombie(state: JardinState, zombie: Zombie, amount: number) {
+/**
+ * `armorBonus` is extra damage that only armour takes (Limón's acid): it is
+ * spent first and never spills over into health.
+ */
+function damageZombie(state: JardinState, zombie: Zombie, amount: number, armorBonus = 0) {
   if (!isAlive(zombie) || amount <= 0) return;
   zombie.lastHit = state.tick;
   const hadArmor = hasArmor(zombie);
-  const absorbed = Math.min(zombie.armor, amount);
+  const absorbed = Math.min(zombie.armor, amount + armorBonus);
   zombie.armor -= absorbed;
-  zombie.hp -= amount - absorbed;
+  zombie.hp -= amount - Math.max(0, absorbed - armorBonus);
   if (zombie.hp <= 0) {
     zombie.target = null;
     setZombieClip(state, zombie, 'fall');
@@ -539,6 +681,12 @@ function damageZombie(state: JardinState, zombie: Zombie, amount: number) {
     zombie.target = null;
     setZombieClip(state, zombie, 'armor-break');
   }
+}
+
+function daze(state: JardinState, zombie: Zombie) {
+  if (!isAlive(zombie)) return;
+  zombie.lastHit = state.tick;
+  zombie.dazedUntil = state.tick + TIMING.aroma;
 }
 
 function chillZombie(state: JardinState, zombie: Zombie) {
@@ -569,11 +717,6 @@ function dropSun(state: JardinState, x: number, y: number, targetY: number, from
 function hitPlant(state: JardinState, plant: Plant, damage: number) {
   plant.hp -= damage;
   plant.lastHit = state.tick;
-  // A blow to Velaria breaks a link that has not rewound yet.
-  if (plant.kind === 'velaria' && plant.mark) {
-    plant.mark = null;
-    setPlantClip(state, plant, 'idle');
-  }
   if (plant.hp <= 0) removePlant(state, plant);
 }
 
@@ -606,6 +749,8 @@ const SHOOTERS: Partial<Record<PlantKind, { projectile: ProjectileKind; range?: 
   mordiseta: { projectile: 'spore', range: BALANCE.mordisetaRange },
   cardon: { projectile: 'spine' },
   frigora: { projectile: 'frost' },
+  cilantro: { projectile: 'aroma', range: BALANCE.cilantroRange },
+  limon: { projectile: 'acid' },
 };
 
 function updateShooter(state: JardinState, plant: Plant) {
@@ -634,9 +779,14 @@ function updateZarzina(state: JardinState, plant: Plant) {
     plant.pendingRelease = null;
     const prey = inReach();
     if (prey) {
-      damageZombie(state, prey, Number.POSITIVE_INFINITY);
-      // Swallowed whole: no corpse to watch fall.
-      state.zombies = state.zombies.filter((zombie) => zombie !== prey);
+      const tooBig = ZOMBIES[prey.kind].tooBigToSwallow;
+      if (tooBig) {
+        damageZombie(state, prey, tooBig);
+      } else {
+        damageZombie(state, prey, Number.POSITIVE_INFINITY);
+        // Swallowed whole: no corpse to watch fall.
+        state.zombies = state.zombies.filter((zombie) => zombie !== prey);
+      }
       state.effects.push({ type: 'chomp', row: plant.row, col: plant.col, tick: state.tick });
       plant.digestUntil = state.tick + TIMING.zarzinaDigest;
     } else {
@@ -645,84 +795,20 @@ function updateZarzina(state: JardinState, plant: Plant) {
   }
 }
 
-function updateAurelia(state: JardinState, plant: Plant) {
+/** Jengibrón: a jab and a cross; each punch checks its reach when it lands. */
+function updateJengibron(state: JardinState, plant: Plant) {
   if (plant.clip === 'spawn') return;
-  const neighbours = () =>
-    state.plants.filter(
-      (other) => Math.abs(other.row - plant.row) <= 1 && Math.abs(other.col - plant.col) <= 1,
-    );
-  if (state.tick >= plant.nextAction && plant.clip === 'idle') {
-    const wounded = neighbours().some((other) => other.hp < PLANTS[other.kind].hp);
-    if (wounded) {
-      setPlantClip(state, plant, 'attack');
-      plant.pendingRelease = state.tick + TIMING.aureliaBloom;
-      plant.nextAction = state.tick + TIMING.aureliaInterval;
-    } else {
-      plant.nextAction = state.tick + s(1);
-    }
+  const inReach = () => zombiesAhead(state, plant, BALANCE.jengibronReach).sort((a, b) => a.x - b.x)[0];
+  if (plant.clip !== 'attack' && state.tick >= plant.nextAction && inReach()) {
+    setPlantClip(state, plant, 'attack');
+    plant.nextAction = state.tick + TIMING.fireInterval;
   }
-  if (plant.pendingRelease !== null && state.tick >= plant.pendingRelease) {
-    plant.pendingRelease = null;
-    for (const other of neighbours()) {
-      const max = PLANTS[other.kind].hp;
-      other.hp = Math.min(max, other.hp + 120 + max * 0.1);
-    }
-    state.effects.push({ type: 'bloom', row: plant.row, col: plant.col, tick: state.tick });
-  }
-}
-
-function updateVelaria(state: JardinState, plant: Plant) {
-  const age = state.tick - plant.clipStart;
-  const mark = plant.mark;
-  const target = mark ? state.zombies.find((zombie) => zombie.id === mark.zombieId) : undefined;
-  if (mark && (!target || !isAlive(target) || target.row !== plant.row)) {
-    plant.mark = null;
-    if (plant.clip === 'channel' || plant.clip === 'seal') setPlantClip(state, plant, 'idle');
-  }
-
-  switch (plant.clip) {
-    case 'idle': {
-      if (state.tick < plant.nextAction) return;
-      const marked = new Set(state.plants.flatMap((other) => (other.mark ? [other.mark.zombieId] : [])));
-      const candidate = zombiesAhead(state, plant, BALANCE.velariaRange)
-        .filter((zombie) => !marked.has(zombie.id))
-        .sort((a, b) => a.x - b.x)[0];
-      if (candidate) {
-        setPlantClip(state, plant, 'seal');
-        plant.pendingRelease = state.tick + TIMING.velariaMark;
-      }
-      return;
-    }
-    case 'seal': {
-      if (plant.pendingRelease !== null && state.tick >= plant.pendingRelease) {
-        plant.pendingRelease = null;
-        const prey = zombiesAhead(state, plant, BALANCE.velariaRange).sort((a, b) => a.x - b.x)[0];
-        plant.nextAction = state.tick + TIMING.velariaCooldown;
-        if (prey) plant.mark = { zombieId: prey.id, anchorX: prey.x, tick: state.tick };
-      }
-      if (age >= TIMING.velariaSeal) setPlantClip(state, plant, plant.mark ? 'channel' : 'idle');
-      return;
-    }
-    case 'channel': {
-      if (plant.mark && state.tick >= plant.mark.tick + TIMING.velariaDelay - TIMING.velariaRecallLead)
-        setPlantClip(state, plant, 'recall');
-      return;
-    }
-    case 'recall': {
-      if (plant.mark && target && state.tick >= plant.mark.tick + TIMING.velariaDelay) {
-        target.x = plant.mark.anchorX;
-        target.prevX = target.x;
-        target.rewoundAt = state.tick;
-        startWalking(state, target);
-        state.effects.push({ type: 'rewind', row: target.row, col: Math.floor(target.x), tick: state.tick });
-        plant.mark = null;
-      }
-      if (age >= TIMING.velariaRecall) setPlantClip(state, plant, 'recover');
-      return;
-    }
-    case 'recover':
-      if (age >= TIMING.velariaRecover) setPlantClip(state, plant, 'idle');
-      return;
+  if (plant.clip !== 'attack') return;
+  const punch = TIMING.punches.indexOf(state.tick - plant.clipStart);
+  const target = punch === -1 ? undefined : inReach();
+  if (target) {
+    damageZombie(state, target, BALANCE.punchDamage[punch]);
+    state.effects.push({ type: 'punch', row: plant.row, col: Math.min(COLS - 1, plant.col + 1), tick: state.tick });
   }
 }
 
@@ -740,16 +826,15 @@ function updatePlants(state: JardinState) {
       case 'mordiseta':
       case 'cardon':
       case 'frigora':
+      case 'cilantro':
+      case 'limon':
         updateShooter(state, plant);
+        break;
+      case 'jengibron':
+        updateJengibron(state, plant);
         break;
       case 'zarzina':
         updateZarzina(state, plant);
-        break;
-      case 'aurelia':
-        updateAurelia(state, plant);
-        break;
-      case 'velaria':
-        if (plant.clip !== 'spawn') updateVelaria(state, plant);
         break;
       case 'solmiel': {
         if (state.tick >= plant.nextAction) {
@@ -759,8 +844,9 @@ function updatePlants(state: JardinState) {
         }
         if (plant.pendingRelease !== null && state.tick >= plant.pendingRelease) {
           plant.pendingRelease = null;
-          const x = plant.col + 0.35 + rng() * 0.3;
-          dropSun(state, x, plant.row + 0.25, plant.row + 0.55, true);
+          // Drop it on the grass to the right of the flower so it stands out.
+          const x = plant.col + 0.8 + rng() * 0.12;
+          dropSun(state, x, plant.row + 0.3, plant.row + 0.78, true);
         }
         break;
       }
@@ -805,7 +891,8 @@ function updateProjectiles(state: JardinState) {
     let consumed = false;
     for (const zombie of def.pierce ? touching : touching.slice(0, 1)) {
       if (projectile.kind === 'frost') chillZombie(state, zombie);
-      else damageZombie(state, zombie, def.damage);
+      else if (projectile.kind === 'aroma') daze(state, zombie);
+      else damageZombie(state, zombie, def.damage, def.armorDamage);
       projectile.hit.push(zombie.id);
       consumed = !def.pierce;
     }
@@ -825,7 +912,7 @@ function updateZombies(state: JardinState) {
     if (state.tick >= zombie.slowUntil) zombie.chill = 0;
     const age = state.tick - zombie.clipStart;
     const factor = coldFactor(state, zombie);
-    const gait = ZOMBIES[zombie.kind].gait;
+    const def = ZOMBIES[zombie.kind];
 
     if (zombie.clip === 'fall') {
       zombie.anim += 1;
@@ -850,13 +937,14 @@ function updateZombies(state: JardinState) {
         startWalking(state, zombie);
         continue;
       }
+      // Cilantro's aroma holds the bite without stopping the zombie.
+      if (state.tick < zombie.dazedUntil) continue;
       const before = zombie.anim;
       zombie.anim += factor;
-      const cycle = TIMING.biteCycle;
-      const crossed =
-        Math.floor((zombie.anim - TIMING.biteFrame) / cycle) > Math.floor((before - TIMING.biteFrame) / cycle);
+      const { cycle, frame, damage } = def.bite;
+      const crossed = Math.floor((zombie.anim - frame) / cycle) > Math.floor((before - frame) / cycle);
       // Granadín is mid-fuse: zombies cannot eat it before it blows up.
-      if (crossed && target.kind !== 'granadin') hitPlant(state, target, BALANCE.biteDamage);
+      if (crossed && target.kind !== 'granadin') hitPlant(state, target, damage);
       continue;
     }
 
@@ -869,8 +957,8 @@ function updateZombies(state: JardinState) {
       zombie.target = victim.id;
       continue;
     }
-    zombie.anim += BALANCE.walkFrameRate * gait * factor;
-    zombie.x -= BALANCE.zombieSpeed * gait * factor;
+    zombie.anim += def.walkAnim * factor;
+    zombie.x -= BALANCE.zombieSpeed * def.gait * factor;
     if (zombie.x < BALANCE.breachX) {
       state.stats.breaches++;
       state.zombies = state.zombies.filter((other) => other !== zombie);
@@ -899,8 +987,10 @@ function updateMowers(state: JardinState) {
     }
     if (mower.clip === 'run') mower.x += BALANCE.mowerSpeed;
     for (const zombie of state.zombies) {
-      if (zombie.row === mower.row && Math.abs(zombie.x - mower.x) < 0.55)
+      if (zombie.row === mower.row && isAlive(zombie) && Math.abs(zombie.x - mower.x) < 0.55) {
         damageZombie(state, zombie, Number.POSITIVE_INFINITY);
+        state.stats.mowerKills++;
+      }
     }
     if (mower.x > COLS + 2) mower.gone = true;
   }
@@ -921,12 +1011,13 @@ function updateSuns(state: JardinState) {
 
 function randomKind(rng: Rng): ZombieKind {
   const roll = rng();
-  return roll < 0.6 ? 'despistado' : roll < 0.9 ? 'conero' : 'balderon';
+  return roll < 0.5 ? 'despistado' : roll < 0.75 ? 'conero' : roll < 0.87 ? 'balderon' : roll < 0.96 ? 'rafago' : 'bruton';
 }
 
 function updateWaves(state: JardinState) {
   const { rng } = state.rngState;
-  const wave = LEVEL_WAVES[state.waves.index];
+  const levelWaves = state.level.waves;
+  const wave = levelWaves[state.waves.index];
   if (wave && state.tick >= s(wave.at)) {
     state.waves.index++;
     let offset = 0;
@@ -943,7 +1034,7 @@ function updateWaves(state: JardinState) {
     state.waves.pending = state.waves.pending.filter((other) => other !== spawn);
   }
   const finished =
-    state.waves.index >= LEVEL_WAVES.length &&
+    state.waves.index >= levelWaves.length &&
     state.waves.pending.length === 0 &&
     !state.zombies.some(isAlive);
   if (finished && !state.outcome) state.outcome = 'victory';
@@ -979,5 +1070,60 @@ export function step(state: JardinState, commands: readonly Command[] = []): Jar
   updateSuns(state);
   updateSpawners(state);
   state.tick++;
+  return state;
+}
+
+/**
+ * A victory that pays: the plants did at least half of the killing. On some
+ * seeds the mowers alone can clear an easy level, which must not earn coins.
+ */
+export function isEarnedVictory(state: JardinState) {
+  return state.outcome === 'victory' && state.stats.mowerKills * 2 <= state.stats.killed;
+}
+
+// ─── Match log (for server verification) ────────────────────────────────────
+/** Commands applied at a tick: `[tick, command]`. */
+export type LoggedCommand = [number, Command];
+
+/** Longest level (last wave + time to clear it), used to bound replays. */
+export const MAX_LEVEL_TICKS = s(LEVELS.reduce((max, level) => Math.max(max, level.waves[level.waves.length - 1].at), 0) + 240);
+
+const ROW_COL = (value: unknown, max: number) => Number.isInteger(value) && (value as number) >= 0 && (value as number) < max;
+
+/** Only the commands a player can issue in a level; sandbox tools are rejected. */
+export function parseLoggedCommand(value: unknown): LoggedCommand | null {
+  if (!Array.isArray(value) || value.length !== 2) return null;
+  const [tick, command] = value as [unknown, Record<string, unknown>];
+  if (!Number.isInteger(tick) || (tick as number) < 0 || (tick as number) > MAX_LEVEL_TICKS) return null;
+  if (!command || typeof command !== 'object') return null;
+  switch (command.type) {
+    case 'place':
+      if (typeof command.kind !== 'string' || !(command.kind in PLANTS)) return null;
+      if (!ROW_COL(command.row, ROWS) || !ROW_COL(command.col, COLS)) return null;
+      return [tick as number, { type: 'place', kind: command.kind as PlantKind, row: command.row as number, col: command.col as number }];
+    case 'shovel':
+      if (!ROW_COL(command.row, ROWS) || !ROW_COL(command.col, COLS)) return null;
+      return [tick as number, { type: 'shovel', row: command.row as number, col: command.col as number }];
+    case 'collect':
+      if (!Number.isInteger(command.sunId) || (command.sunId as number) < 1) return null;
+      return [tick as number, { type: 'collect', sunId: command.sunId as number }];
+    default:
+      return null;
+  }
+}
+
+/**
+ * Plays a level from its seed and the player's logged commands. Stops at the
+ * outcome or after `MAX_LEVEL_TICKS`. Commands must be in tick order.
+ */
+export function replayLevel(seed: string, levelId: number, loadout: PlantKind[], log: readonly LoggedCommand[]): JardinState {
+  const state = createGame(seed, {}, 'waves', { level: levelId, loadout });
+  let index = 0;
+  while (!state.outcome && state.tick < MAX_LEVEL_TICKS) {
+    const commands: Command[] = [];
+    while (index < log.length && log[index][0] === state.tick) commands.push(log[index++][1]);
+    if (index < log.length && log[index][0] < state.tick) throw new Error('Registro fuera de orden.');
+    step(state, commands);
+  }
   return state;
 }

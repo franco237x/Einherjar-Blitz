@@ -2,6 +2,7 @@ import { PDFDocument, StandardFonts, PDFName, PDFString, rgb } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { AgroVoucher } from './agroGame';
+import { LEVELS } from './jardin/engine';
 
 const ink = rgb(0.035, 0.075, 0.062);
 const forest = rgb(0.075, 0.15, 0.12);
@@ -19,9 +20,10 @@ export async function createAgroVoucherPdf(
   verificationUrl: string,
 ): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`Vale de cosecha ${voucher.id}`);
+  const jardin = voucher.source === 'jardin';
+  pdf.setTitle(`${jardin ? 'Vale del Jardín' : 'Vale de cosecha'} ${voucher.id}`);
   pdf.setSubject('Comprobante del evento agropecuario de Einherjar Blitz');
-  pdf.setCreator('Einherjar Blitz - El Huerto de Yggdrasil');
+  pdf.setCreator(jardin ? 'Einherjar Blitz - Jardín de Yggdrasil' : 'Einherjar Blitz - El Huerto de Yggdrasil');
 
   const page = pdf.addPage([595.28, 841.89]);
   const sans = await pdf.embedFont(StandardFonts.Helvetica);
@@ -59,14 +61,14 @@ export async function createAgroVoucherPdf(
     font: sansBold,
     color: gold,
   });
-  page.drawText('EL HUERTO DE YGGDRASIL', {
+  page.drawText(jardin ? 'JARDÍN DE YGGDRASIL' : 'EL HUERTO DE YGGDRASIL', {
     x: 58,
     y: 704,
     size: 25,
     font: display,
     color: cream,
   });
-  page.drawText('VALE DE MONEDAS DE COSECHA', {
+  page.drawText(jardin ? 'VALE DE MONEDAS DE DEFENSA' : 'VALE DE MONEDAS DE COSECHA', {
     x: 58,
     y: 681,
     size: 10,
@@ -82,7 +84,9 @@ export async function createAgroVoucherPdf(
 
   try {
     const imageBytes = await readFile(
-      path.join(process.cwd(), 'public', 'evento-agro', 'espiga-ambar.png'),
+      jardin
+        ? path.join(process.cwd(), 'public', 'jardin', 'vale-solmiel.png')
+        : path.join(process.cwd(), 'public', 'evento-agro', 'espiga-ambar.png'),
     );
     const art = await pdf.embedPng(imageBytes);
     const scaled = art.scaleToFit(198, 198);
@@ -142,10 +146,9 @@ export async function createAgroVoucherPdf(
     ['JUGADOR', playerName],
     ['FOLIO', voucher.id],
     ['FECHA', pdfText(date)],
-    [
-      'COSECHA TOTAL',
-      `${voucher.totalHarvested.toLocaleString('es-AR')} monedas`,
-    ],
+    jardin
+      ? ['NIVELES SUPERADOS', `${voucher.plantsGrowing} de ${LEVELS.length}`]
+      : ['COSECHA TOTAL', `${voucher.totalHarvested.toLocaleString('es-AR')} monedas`],
   ] as const;
   rows.forEach(([label, value], index) => {
     const y = 416 - index * 34;
@@ -227,7 +230,7 @@ export async function createAgroVoucherPdf(
     }),
   );
   page.node.set(PDFName.of('Annots'), pdf.context.obj([annotation]));
-  page.drawText('Einherjar Blitz  /  Evento agropecuario', {
+  page.drawText(jardin ? 'Einherjar Blitz  /  Jardín de Yggdrasil' : 'Einherjar Blitz  /  Evento agropecuario', {
     x: 58,
     y: 72,
     size: 9,
