@@ -1,6 +1,6 @@
 {
   "name": "Zombis articulados",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "created": "2026-10-03",
   "artwork": "Built-in ImageGen",
   "animation": "Continuous rigid part transforms with foot IK",
@@ -30,7 +30,7 @@
       "anatomy": "brute",
       "color": "#7b8255",
       "description": "Un gigante de brazos enormes, manos desnudas y pasos pesados. Prepara el puño y descarga un golpe contra las plantas.",
-      "motion": "Cadera, torso, cabeza y extremidades articulados. El puñetazo tiene preparación, contacto y recuperación.",
+      "motion": "Apoya cada pie, hunde el peso y deja que cabeza y puños lleguen después. Carga el puñetazo y empuja con todo el cuerpo.",
       "health": 800,
       "armor": 0,
       "locomotion": "walk",
@@ -290,7 +290,7 @@
       "anatomy": "runner",
       "color": "#337c81",
       "description": "Un corredor de fútbol americano con casco y hombreras. Cuando agota su protección, pierde sólo el casco y sigue corriendo.",
-      "motion": "Piernas alternadas, brazos en contrapeso y breves fases de vuelo. Las hombreras permanecen unidas al torso.",
+      "motion": "Carrera inclinada hacia delante: talón atrás, rodilla arriba y brazos alternados. La cabeza sigue el rebote; sólo pierde el casco.",
       "health": 140,
       "armor": 300,
       "locomotion": "run",
@@ -365,7 +365,7 @@
           23
         ],
         "stance": 0.4,
-        "stride": 15.55555555556
+        "stride": 12.444444444448
       },
       "moveSpeed": 77.7777777778,
       "rig": "characters/rafago/rig.json",
@@ -443,8 +443,8 @@
         },
         "run": {
           "label": "Correr",
-          "duration": 1,
-          "frames": 30,
+          "duration": 0.8,
+          "frames": 24,
           "fps": 30,
           "loop": true,
           "atlas": "characters/rafago/sprites/run.png",
@@ -589,8 +589,8 @@
             },
             "run": {
               "label": "Correr",
-              "duration": 1,
-              "frames": 30,
+              "duration": 0.8,
+              "frames": 24,
               "fps": 30,
               "loop": true,
               "atlas": "characters/rafago/helmetless/sprites/run.png",

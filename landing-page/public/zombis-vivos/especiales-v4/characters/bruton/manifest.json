@@ -5,7 +5,7 @@
   "anatomy": "brute",
   "color": "#7b8255",
   "description": "Un gigante de brazos enormes, manos desnudas y pasos pesados. Prepara el puño y descarga un golpe contra las plantas.",
-  "motion": "Cadera, torso, cabeza y extremidades articulados. El puñetazo tiene preparación, contacto y recuperación.",
+  "motion": "Apoya cada pie, hunde el peso y deja que cabeza y puños lleguen después. Carga el puñetazo y empuja con todo el cuerpo.",
   "health": 800,
   "armor": 0,
   "locomotion": "walk",

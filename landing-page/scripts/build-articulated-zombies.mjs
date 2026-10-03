@@ -97,10 +97,34 @@ async function loadParts(c, out) {
     await writeFile(path.join(out, 'sheets', `${sheet}.json`), JSON.stringify({ frames, image: `${sheet}.png`, size: [1536, 1024], source: `source/${c.id}-${sheet}.png` }, null, 2) + '\n');
     sources.push({ sheet, source: `source/${c.id}-${sheet}.png`, size: [info.width, info.height], parts: names });
   }
-  const rig = { version: '4.0.0', id: c.id, logicalSize: [320, 320], ground: 288, pivot: [0.5, 0.9],
+  const rig = { version: '4.1.0', id: c.id, logicalSize: [320, 320], ground: 288, pivot: [0.5, 0.9],
     transform: 'fixed uniform scale + rotation only', layout: c.layout, parts: definitions, helmetOffset: [-2, -4],
     drawOrder: ['leg-back', 'arm-back', 'leg-front', 'upper-arm-front', 'pelvis', 'torso-with-permanent-pads', 'head', 'helmet', 'forearm-and-hand-front'], sources };
   parts.rig = rig; await writeFile(path.join(out, 'rig.json'), JSON.stringify(rig, null, 2) + '\n'); return parts;
+}
+async function calibrateFall(c, parts, out) {
+  const samplesPerSecond = 120, count = Math.round(CLIPS.fall.duration * samplesPerSecond), canvas = createCanvas(800, 800), ctx = canvas.getContext('2d');
+  const curves = {};
+  for (const [name, armorRatio] of [['helmetless', 0], ...(c.armor ? [['withHelmet', 1]] : [])]) {
+    const values = [];
+    for (let frame = 0; frame <= count; frame++) {
+      ctx.resetTransform(); ctx.clearRect(0, 0, 800, 800); ctx.translate(80, 80); ctx.scale(2, 2);
+      renderZombie(ctx, c, parts, 'fall', frame / samplesPerSecond, { armorRatio, unconstrainedFall: true, effects: false });
+      const pixels = ctx.getImageData(0, 0, 800, 800).data; let bottom = -1;
+      search: for (let y = 799; y >= 0; y--) for (let x = 0; x < 800; x++) if (pixels[(y * 800 + x) * 4 + 3] > 24) { bottom = (y - 80) / 2; break search; }
+      assert(bottom >= 0, 'Missing fall silhouette');
+      const progress = frame / count;
+      // Before the impact, stop pieces from crossing the ground. At impact the
+      // corpse settles on the grass, with a small authored bounce afterwards.
+      const bounce = progress > 0.72 && progress < 0.94 ? Math.sin((progress - 0.72) / 0.22 * Math.PI) * 3 : 0;
+      const weight = Math.max(0, Math.min(1, (progress - 0.35) / 0.37)), settle = weight * weight * (3 - 2 * weight);
+      const offset = 288 - bounce - bottom;
+      values.push(Number((offset < 0 ? offset : offset * settle).toFixed(3)));
+    }
+    curves[name] = values;
+  }
+  parts.rig = { ...parts.rig, version: '4.1.0', layout: c.layout, fallGround: { samplesPerSecond, ...curves } };
+  await writeFile(path.join(out, 'rig.json'), JSON.stringify(parts.rig, null, 2) + '\n');
 }
 function frame(c, parts, clip, time, size, options = {}) {
   const canvas = createCanvas(size, size), ctx = canvas.getContext('2d'); ctx.scale(size / 320, size / 320);
@@ -145,6 +169,7 @@ for (const c of ZOMBIES) {
   if (arg('--character', c.id) !== c.id) continue;
   const out = path.join(root, 'characters', c.id), parts = process.argv.includes('--reuse-parts') ? Object.fromEntries(await Promise.all(Object.keys(JSON.parse(await readFile(path.join(out, 'rig.json'), 'utf8')).parts).map(async name => [name, await loadImage(path.join(out, 'parts', `${name}.png`))]))) : await loadParts(c, out);
   if (!parts.rig) parts.rig = JSON.parse(await readFile(path.join(out, 'rig.json'), 'utf8'));
+  await calibrateFall(c, parts, out);
   await writeFile(path.join(out, 'portrait.png'), frame(c, parts, 'idle', 0, 512).toBuffer('image/png'));
   if (process.argv.includes('--parts-only')) { console.log(`${c.id}: 18 rigid pieces assembled.`); continue; }
   for (const folder of ['sprites', 'animated']) await mkdir(path.join(out, folder), { recursive: true });
@@ -158,6 +183,6 @@ for (const c of ZOMBIES) {
   const item = { ...c, moveSpeed: moveSpeed(c), rig: `characters/${c.id}/rig.json`, portrait: `characters/${c.id}/portrait.png`, sourceSheets: parts.rig.sources, animations, variants };
   characters.push(item); await writeFile(path.join(out, 'manifest.json'), JSON.stringify(item, null, 2) + '\n');
 }
-if (!process.argv.includes('--parts-only')) await writeFile(path.join(root, 'manifest.json'), JSON.stringify({ name: 'Zombis articulados', version: '4.0.0', created: '2026-10-03',
+if (!process.argv.includes('--parts-only')) await writeFile(path.join(root, 'manifest.json'), JSON.stringify({ name: 'Zombis articulados', version: '4.1.0', created: '2026-10-03',
   artwork: 'Built-in ImageGen', animation: 'Continuous rigid part transforms with foot IK', logicalSize: [320, 320], frameSize: [256, 256], hdFrameSize: [512, 512],
   fps: FPS, anchor: [0.5, 0.9], facing: 'left', characters }, null, 2) + '\n');

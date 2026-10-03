@@ -623,176 +623,20 @@
         "h": 256
       },
       "duration": 33
-    },
-    {
-      "filename": "rafago-run-24",
-      "frame": {
-        "x": 0,
-        "y": 768,
-        "w": 256,
-        "h": 256
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.9
-      },
-      "rotated": false,
-      "trimmed": false,
-      "sourceSize": {
-        "w": 256,
-        "h": 256
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 256,
-        "h": 256
-      },
-      "duration": 33
-    },
-    {
-      "filename": "rafago-run-25",
-      "frame": {
-        "x": 256,
-        "y": 768,
-        "w": 256,
-        "h": 256
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.9
-      },
-      "rotated": false,
-      "trimmed": false,
-      "sourceSize": {
-        "w": 256,
-        "h": 256
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 256,
-        "h": 256
-      },
-      "duration": 34
-    },
-    {
-      "filename": "rafago-run-26",
-      "frame": {
-        "x": 512,
-        "y": 768,
-        "w": 256,
-        "h": 256
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.9
-      },
-      "rotated": false,
-      "trimmed": false,
-      "sourceSize": {
-        "w": 256,
-        "h": 256
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 256,
-        "h": 256
-      },
-      "duration": 33
-    },
-    {
-      "filename": "rafago-run-27",
-      "frame": {
-        "x": 768,
-        "y": 768,
-        "w": 256,
-        "h": 256
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.9
-      },
-      "rotated": false,
-      "trimmed": false,
-      "sourceSize": {
-        "w": 256,
-        "h": 256
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 256,
-        "h": 256
-      },
-      "duration": 33
-    },
-    {
-      "filename": "rafago-run-28",
-      "frame": {
-        "x": 1024,
-        "y": 768,
-        "w": 256,
-        "h": 256
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.9
-      },
-      "rotated": false,
-      "trimmed": false,
-      "sourceSize": {
-        "w": 256,
-        "h": 256
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 256,
-        "h": 256
-      },
-      "duration": 34
-    },
-    {
-      "filename": "rafago-run-29",
-      "frame": {
-        "x": 1280,
-        "y": 768,
-        "w": 256,
-        "h": 256
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.9
-      },
-      "rotated": false,
-      "trimmed": false,
-      "sourceSize": {
-        "w": 256,
-        "h": 256
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 256,
-        "h": 256
-      },
-      "duration": 33
     }
   ],
   "meta": {
     "image": "run.png",
     "size": {
       "w": 2048,
-      "h": 1024
+      "h": 768
     },
     "scale": "1",
     "format": "RGBA8888",
     "animation": {
       "label": "Correr",
-      "duration": 1,
-      "frames": 30,
+      "duration": 0.8,
+      "frames": 24,
       "fps": 30,
       "loop": true,
       "after": "run",
@@ -801,7 +645,7 @@
       "shoulderPadsVisible": true,
       "events": [],
       "recommendedSpeed": 77.7777777778,
-      "distancePerCycle": 77.7777777778
+      "distancePerCycle": 62.22222222224
     }
   }
 }

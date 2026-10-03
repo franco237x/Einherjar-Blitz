@@ -13,6 +13,8 @@ const root = fileURLToPath(new URL('../public/zombis-vivos/especiales-v4/', impo
 const manifest = JSON.parse(await readFile(path.join(root, 'manifest.json'), 'utf8'));
 const report = { characters: 0, rigidPieces: 0, sourceSheets: 0, primaryClips: 0, primaryFrames: 0, helmetlessClips: 0, helmetlessFrames: 0 };
 const near = (a, b, epsilon = 1e-6) => assert(Math.abs(a - b) < epsilon, `${a} != ${b}`);
+const degrees = m => Math.atan2(m.b, m.a) * 180 / Math.PI;
+const angleDifference = (a, b) => (a - b + 540) % 360 - 180;
 for (const c of manifest.characters) {
   const rig = JSON.parse(await readFile(path.join(root, c.rig), 'utf8')), parts = {};
   assert.equal(Object.keys(rig.parts).length, 18); assert.equal(rig.sources.length, 3);
@@ -31,6 +33,28 @@ for (const c of manifest.characters) {
     assert.equal(args.length, 3, 'Rigid piece draws must retain their native bitmap aspect ratio.');
     return originalDraw(...args);
   };
+  // Regression: torso rotation must carry the shoulder, upper arm, forearm and
+  // hand in the same direction. Compare actual drawing transforms at the wrist.
+  const jointCanvas = createCanvas(320, 320), joints = jointCanvas.getContext('2d'), placements = {};
+  const nativeDraw = joints.drawImage.bind(joints), names = new Map(Object.entries(parts).map(([name, image]) => [image, name]));
+  joints.drawImage = function(...args) { placements[names.get(args[0])] = joints.getTransform(); return nativeDraw(...args); };
+  for (const clip of ['idle', live.locomotion, live.id === 'bruton' ? 'smash' : 'bite', 'hit']) {
+    for (let frame = 0; frame < CLIPS[clip].frames; frame++) {
+      const seconds = frame / 30, p = evaluatePose(live, clip, seconds);
+      joints.clearRect(0, 0, 320, 320); renderZombie(joints, live, parts, clip, seconds);
+      for (const side of ['Back', 'Front']) {
+        const name = side.toLowerCase(), upper = placements[`upper-${name}`], forearm = placements[`forearm-${name}`], hand = placements[`hand-${name}`];
+        near(angleDifference(degrees(upper) + rig.parts[`upper-${name}`].nativeAngle, p.torso + p[`upper${side}`]), 0, 1e-4);
+        near(angleDifference(degrees(forearm) + rig.parts[`forearm-${name}`].nativeAngle, degrees(hand) - p[`hand${side}`]), 0, 1e-4);
+      }
+    }
+  }
+  if (live.id === 'bruton') {
+    const contact = animationEvents(live, 'smash')[0], fist = createCanvas(320, 320), mask = fist.getContext('2d'), draw = mask.drawImage.bind(mask);
+    mask.drawImage = (...args) => { if (args[0] === parts['hand-front']) draw(...args); };
+    renderZombie(mask, live, parts, 'smash', contact.time);
+    assert(mask.getImageData(...contact.position, 1, 1).data[3] > 64, 'Smash event should land on the extended painted fist.');
+  }
   for (const [bare, animations] of [[false, c.animations], [true, c.variants.helmetless?.animations ?? {}]]) {
     for (const [clip, info] of Object.entries(animations)) {
       for (const key of ['atlas', 'data', 'hdAtlas', 'hdData', 'webp', 'gif']) await access(path.join(root, info[key]));
@@ -47,7 +71,14 @@ for (const c of manifest.characters) {
       const hashes = new Set();
       for (let frame = 0; frame < info.frames; frame++) {
         ctx.clearRect(0, 0, 320, 320); renderZombie(ctx, live, parts, clip, frame / 30, { armorRatio: bare ? 0 : 1 });
-        hashes.add(createHash('sha256').update(Buffer.from(ctx.getImageData(0, 0, 256, 256).data)).digest('hex'));
+        const pixels = Buffer.from(ctx.getImageData(0, 0, 256, 256).data);
+        hashes.add(createHash('sha256').update(pixels).digest('hex'));
+        if (clip === 'fall') {
+          let bottom = 0;
+          for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) if (pixels[(y * 256 + x) * 4 + 3] > 24) bottom = y;
+          assert(bottom <= 232, `${c.id} falls through the ground at frame ${frame}`);
+          if (frame >= info.frames - 3) assert(Math.abs(bottom - 230.4) < 2.5, `${c.id} corpse floats above the ground`);
+        }
       }
       if (clip === live.locomotion) assert(hashes.size >= info.frames - 1, `${c.id}/${clip} should not use held full-body drawings`);
       if (bare) { report.helmetlessClips++; report.helmetlessFrames += info.frames; } else { report.primaryClips++; report.primaryFrames += info.frames; }
@@ -71,8 +102,8 @@ for (const c of manifest.characters) {
   }
   report.characters++;
 }
-assert.equal(report.sourceSheets, 6); assert.equal(report.rigidPieces, 36); assert.equal(report.primaryClips, 13); assert.equal(report.primaryFrames, 468);
-assert.equal(report.helmetlessClips, 6); assert.equal(report.helmetlessFrames, 198);
+assert.equal(report.sourceSheets, 6); assert.equal(report.rigidPieces, 36); assert.equal(report.primaryClips, 13); assert.equal(report.primaryFrames, 462);
+assert.equal(report.helmetlessClips, 6); assert.equal(report.helmetlessFrames, 192);
 assert.deepEqual(animationEvents(ZOMBIES[1], 'armor-break')[0].pieces, ['helmet']);
 for (const c of ZOMBIES) {
   const actor = new ZombieAnimator(c, {}); near(actor.update(0.2), -moveSpeed(c) * 0.2);
@@ -89,6 +120,7 @@ const bites = [], biter = new ZombieAnimator(ZOMBIES[1], {}, { onEvent: e => bit
 let interrupted; interrupted = new ZombieAnimator(ZOMBIES[0], {}, { onEvent: e => { if (e.type === 'smash') interrupted.applyDamage(2000); } });
 interrupted.play('smash'); interrupted.update(2); assert(interrupted.dead);
 Object.assign(report, { pieceAspectAndFixedBoneLengths: 'verified', plantedFootWorldPosition: 'verified', continuousLocomotionFrames: 'verified',
+  torsoArmAndWristHierarchy: 'verified', groundedCorpseWithAndWithoutHelmet: 'verified',
   helmetOnlyLoss: 'verified', preservedShoulderPads: 'verified', combatTimingAndInterruption: 'verified', slowFreezeDeathRespawn: 'verified' });
 const url = 'http://127.0.0.1:8765/zombis-vivos/especiales-v4/index.html', errors = [], requests = [];
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
@@ -96,6 +128,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 1100 } });
   page.on('pageerror', e => errors.push(e.message)); page.on('response', r => { if (r.status() >= 400) requests.push(`${r.status()} ${r.url()}`); });
   await page.goto(url, { waitUntil: 'networkidle' });
+  assert.equal((await page.request.get(new URL('./preview/comparacion-primeros.gif', url).href)).status(), 200);
   const snapshot = () => page.evaluate(async () => (await import('./viewer.mjs')).zombieSnapshot());
   const imageHash = () => page.locator('canvas').evaluate(canvas => canvas.toDataURL());
   for (const c of ZOMBIES) {
@@ -126,6 +159,8 @@ try {
   }
   const reducedContext = await browser.newContext({ reducedMotion: 'reduce' }), reduced = await reducedContext.newPage();
   await reduced.goto(url, { waitUntil: 'networkidle' }); assert.equal(await reduced.locator('#pause').textContent(), 'Reanudar'); await reducedContext.close();
+  const legacy = await browser.newPage(); await legacy.goto(url.replace('/especiales-v4/', '/especiales-v2/'), { waitUntil: 'networkidle' });
+  await legacy.waitForURL('**/especiales-v4/index.html'); await legacy.close();
   assert.deepEqual(errors, []); assert.deepEqual(requests, []);
   Object.assign(report, { browserClips: 'all 13 animate', frameStepRigOverlayAndFlip: 'verified', reducedMotion: 'starts paused', javascriptErrors: errors, failedRequests: requests });
 } finally { await browser.close(); }

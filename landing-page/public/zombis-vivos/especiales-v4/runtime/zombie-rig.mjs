@@ -3,7 +3,7 @@
 export const CLIPS = Object.freeze({
   idle: { label: 'Reposo', duration: 2.4, frames: 72, fps: 30, loop: true },
   walk: { label: 'Caminar', duration: 2.4, frames: 72, fps: 30, loop: true },
-  run: { label: 'Correr', duration: 1, frames: 30, fps: 30, loop: true },
+  run: { label: 'Correr', duration: 0.8, frames: 24, fps: 30, loop: true },
   smash: { label: 'Puñetazo pesado', duration: 1.4, frames: 42, fps: 30, loop: false },
   bite: { label: 'Morder', duration: 1, frames: 30, fps: 30, loop: true },
   hit: { label: 'Recibir golpe', duration: 0.4, frames: 12, fps: 30, loop: false },
@@ -20,7 +20,7 @@ export const SHEETS = {
 export const ZOMBIES = [
   { id: 'bruton', name: 'Brutón', role: 'Gigante sin armadura', anatomy: 'brute', color: '#7b8255',
     description: 'Un gigante de brazos enormes, manos desnudas y pasos pesados. Prepara el puño y descarga un golpe contra las plantas.',
-    motion: 'Cadera, torso, cabeza y extremidades articulados. El puñetazo tiene preparación, contacto y recuperación.',
+    motion: 'Apoya cada pie, hunde el peso y deja que cabeza y puños lleguen después. Carga el puñetazo y empuja con todo el cuerpo.',
     health: 800, armor: 0, locomotion: 'walk', recommendedScale: 1.4, speed: 11.1111111111,
     clips: ['idle', 'walk', 'smash', 'hit', 'spawn', 'fall'],
     layout: { hips: [180, 228], torso: [168, 119], torsoAnchor: [0.5, 0.94], pelvis: [97, 55],
@@ -29,19 +29,19 @@ export const ZOMBIES = [
   },
   { id: 'rafago', name: 'Ráfago', role: 'Corredor con casco', anatomy: 'runner', color: '#337c81',
     description: 'Un corredor de fútbol americano con casco y hombreras. Cuando agota su protección, pierde sólo el casco y sigue corriendo.',
-    motion: 'Piernas alternadas, brazos en contrapeso y breves fases de vuelo. Las hombreras permanecen unidas al torso.',
+    motion: 'Carrera inclinada hacia delante: talón atrás, rodilla arriba y brazos alternados. La cabeza sigue el rebote; sólo pierde el casco.',
     health: 140, armor: 300, locomotion: 'run', recommendedScale: 1, speed: 77.7777777778,
     clips: ['idle', 'run', 'bite', 'hit', 'spawn', 'fall', 'armor-break'],
     layout: { hips: [186, 216], torso: [106, 91], torsoAnchor: [0.5, 0.93], pelvis: [60, 40],
       shoulders: [[158, 156], [211, 154]], head: [153, 150], headSize: [68, 91], headAnchor: [0.74, 0.94],
-      hipOffsets: [11, -11], legLengths: [37, 36], armLengths: [30, 31], handSize: [21, 26], shoeSize: [45, 23], stance: 0.4, stride: 15.55555555556 },
+      hipOffsets: [11, -11], legLengths: [37, 36], armLengths: [30, 31], handSize: [21, 26], shoeSize: [45, 23], stance: 0.4, stride: 12.444444444448 },
   },
 ];
 export const clipsFor = c => Object.fromEntries(c.clips.map(id => [id, CLIPS[id]]));
 export const moveSpeed = c => c.speed;
 export const afterClip = (clip, c) => CLIPS[clip].loop ? clip : clip === 'fall' ? 'dead' : c.locomotion;
 export function animationEvents(c, clip) {
-  if (clip === 'smash') return [{ type: 'smash', time: 0.7, requiresContact: true, plantTarget: true, damage: 80, position: [111, 202] }];
+  if (clip === 'smash') return [{ type: 'smash', time: 0.7, requiresContact: true, plantTarget: true, damage: 80, position: [67, 198] }];
   if (clip === 'bite') return [{ type: 'bite', time: 0.5, requiresContact: true, plantTarget: true, damage: 16, position: [90, 134] }];
   if (clip === 'armor-break') return [{ type: 'animation-cue', cue: 'helmet-drop', pieces: ['helmet'], gameplay: false, time: 0.16 }];
   if (clip === 'fall') return [{ type: 'animation-cue', cue: 'ground-impact', gameplay: false, time: 0.86 }];
@@ -52,6 +52,7 @@ const clamp = n => Math.max(0, Math.min(1, n));
 const ease = n => { n = clamp(n); return n * n * (3 - 2 * n); };
 const mix = (a, b, p) => a + (b - a) * p;
 const normalize = n => (n % 1 + 1) % 1;
+const pulse = (t, start, peak, end) => t < peak ? ease((t - start) / (peak - start)) : 1 - ease((t - peak) / (end - peak));
 export function blendPose(source, target, weight) {
   const w = ease(weight), p = { ...target };
   for (const field of Object.keys(p)) if (typeof p[field] === 'number' && field !== 'progress') p[field] = mix(source[field], p[field], w);
@@ -77,9 +78,18 @@ function bodyPoint(c, p, [x, y]) {
 export function footTarget(c, phase, side) {
   const l = c.layout, t = normalize(phase + (side === 'back' ? 0.5 : 0)), hip = l.hips[0] + l.hipOffsets[side === 'back' ? 0 : 1];
   if (t < l.stance) return { sole: [hip - l.stride + 2 * l.stride * t / l.stance, 288], roll: 0, support: true };
-  const swing = (t - l.stance) / (1 - l.stance), lift = c.anatomy === 'brute' ? 9 : 31;
-  return { sole: [mix(hip + l.stride, hip - l.stride, ease(swing)), 288 - Math.sin(Math.PI * swing) * lift],
-    roll: Math.sin(Math.PI * swing) * (c.anatomy === 'brute' ? 10 : 28), support: false };
+  const swing = (t - l.stance) / (1 - l.stance);
+  if (c.anatomy === 'brute') return {
+    sole: [mix(hip + l.stride, hip - l.stride, ease(swing)), 288 - Math.sin(Math.PI * swing) * 15],
+    roll: Math.sin(Math.PI * swing) * 12, support: false,
+  };
+  // The recovery foot kicks behind before the knee leads forward. A simple
+  // symmetric sine arc kept both boots under the pelvis and read as pedalling.
+  return {
+    sole: [hip + key(swing, [[0, l.stride], [0.22, l.stride + 25], [0.48, 4], [0.76, -l.stride - 23], [1, -l.stride]]),
+      key(swing, [[0, 288], [0.22, 253], [0.48, 229], [0.76, 249], [1, 288]])],
+    roll: key(swing, [[0, 0], [0.22, -18], [0.48, 30], [0.76, 14], [1, 0]]), support: false,
+  };
 }
 export function solveLeg(hip, ankle, lengths, bend = 1) {
   const [a, b] = lengths, dx = ankle[0] - hip[0], dy = ankle[1] - hip[1], raw = Math.max(0.0001, Math.hypot(dx, dy));
@@ -91,59 +101,87 @@ export function solveLeg(hip, ankle, lengths, bend = 1) {
 export function evaluatePose(c, clip, seconds) {
   const info = CLIPS[clip], t = info.loop ? normalize(seconds / info.duration) : clamp(seconds / info.duration), wave = Math.sin(t * TAU);
   const brute = c.anatomy === 'brute', l = c.layout;
-  const p = { progress: t, x: l.hips[0], y: l.hips[1], torso: brute ? 0 : -9, head: 0, headX: 0, headY: 0,
-    upperBack: brute ? -6 : -18, elbowBack: brute ? 8 : 92, upperFront: brute ? 7 : 33, elbowFront: brute ? 8 : 78,
-    handBack: 0, handFront: 0, opacity: 1, dust: 0, blink: clip === 'idle' && t > 0.76 && t < 0.82, biting: false, helmetDrop: 0,
+  const p = { progress: t, x: l.hips[0], y: l.hips[1], torso: brute ? 0 : -12, pelvis: 0, head: 0, headX: 0, headY: 0,
+    upperBack: brute ? 11 : -18, elbowBack: brute ? 13 : 86, upperFront: brute ? 16 : 33, elbowFront: brute ? 16 : 72,
+    handBack: 0, handFront: 0, shoulderFrontX: 0, opacity: 1, dust: 0, blink: clip === 'idle' && t > 0.76 && t < 0.82, biting: false, helmetDrop: 0,
     footBack: { sole: [l.hips[0] + l.hipOffsets[0], 288], roll: 0, support: true },
-    footFront: { sole: [l.hips[0] + l.hipOffsets[1], 288], roll: 0, support: true }, fall: 0 };
-  if (clip === 'idle') { p.y += Math.sin(t * TAU) * 0.9; p.head = Math.sin(t * TAU - 0.4) * 0.7; p.upperFront += wave * 0.8; }
+    footFront: { sole: [l.hips[0] + l.hipOffsets[1], 288], roll: 0, support: true }, fall: 0,
+    fallRotation: 0, fallX: 0, fallY: 0 };
+  if (clip === 'idle') {
+    const lag = Math.sin(t * TAU - 0.45) + Math.sin(0.45);
+    p.y += wave * 1.1; p.torso += wave * 1.4; p.head = lag * 2;
+    p.headY = Math.sin(t * TAU * 2) * 0.8;
+    p.upperBack += lag * 2.4; p.upperFront -= lag * 3.2;
+  }
   if (clip === c.locomotion) {
     p.footBack = footTarget(c, t, 'back'); p.footFront = footTarget(c, t, 'front');
-    p.y += brute ? (1 - Math.cos(t * TAU * 2)) * 0.6 : -Math.cos(t * TAU * 2) * 3.6 - 1.2;
-    p.torso += Math.sin(t * TAU - 0.4) * (brute ? 1.1 : 2.2);
-    p.head = Math.sin(t * TAU - 0.75) * (brute ? 1.3 : 2); p.headY = Math.sin(t * TAU * 2 - 0.3) * 0.7;
-    p.upperBack += wave * (brute ? 5 : 40); p.upperFront -= wave * (brute ? 5 : 40);
-    if (!brute) {
+    const step = normalize(t * 2), lag = Math.sin(t * TAU - 0.45);
+    if (brute) {
+      p.x += Math.cos(t * TAU) * 2.2;
+      p.y += key(step, [[0, 1], [0.13, 3], [0.47, -2], [0.8, -0.5], [1, 1]]);
+      p.torso = wave * 2.8; p.pelvis = -wave * 1.3;
+      p.head = Math.sin(t * TAU - 0.65) * 3; p.headY = Math.sin(t * TAU * 2 - 0.55) * 1.2;
+      p.upperBack += lag * 14; p.upperFront -= lag * 17;
+      p.elbowBack += Math.sin(t * TAU - 0.8) * 4; p.elbowFront -= Math.sin(t * TAU - 0.8) * 5;
+      p.handBack = -lag * 2; p.handFront = lag * 2.5;
+      p.blink = t > 0.72 && t < 0.78;
+    } else {
       const counter = Math.cos(t * TAU);
-      p.upperBack = 20 + counter * 40; p.upperFront = 20 - counter * 40;
-      p.elbowBack = 75 - counter * 35; p.elbowFront = 75 + counter * 35;
+      p.y += key(step, [[0, -3], [0.14, 1.5], [0.48, -8], [0.8, -7], [1, -3]]);
+      p.torso += Math.sin(t * TAU - 0.3) * 3.5; p.pelvis = -wave * 2;
+      p.head = Math.sin(t * TAU - 0.7) * 3.2; p.headY = Math.sin(t * TAU * 2 - 0.6) * 1.5;
+      p.upperBack = 20 + counter * 52; p.upperFront = 20 - counter * 52;
+      p.elbowBack = 72 - counter * 16; p.elbowFront = 72 + counter * 16;
+      p.handBack = Math.sin(t * TAU - 0.4) * 4; p.handFront = -p.handBack;
     }
   }
   if (clip === 'smash') {
-    p.upperFront = key(t, [[0, 7], [0.29, -75], [0.42, -78], [0.50, 73], [0.57, 68], [0.76, 35], [1, 7]]);
-    p.elbowFront = key(t, [[0, 8], [0.29, 133], [0.42, 138], [0.5, -27], [0.57, -16], [0.76, 48], [1, 8]]);
-    p.upperBack = key(t, [[0, -6], [0.38, -16], [0.53, 15], [1, -6]]);
-    p.torso = key(t, [[0, 0], [0.38, 7], [0.5, -6], [0.59, -3], [1, 0]]);
-    p.y += key(t, [[0, 0], [0.38, -3], [0.51, 5], [0.61, 3], [1, 0]]);
-    p.head = key(t, [[0, 0], [0.43, -5], [0.56, 5], [1, 0]]); p.biting = t > 0.2 && t < 0.7;
-    p.dust = t >= 0.5 && t < 0.75 ? Math.sin((t - 0.5) / 0.25 * Math.PI) : 0;
+    p.upperFront = key(t, [[0, 16], [0.31, -43], [0.43, -43], [0.50, 75], [0.56, 79], [0.73, 30], [1, 16]]);
+    p.elbowFront = key(t, [[0, 16], [0.31, 165], [0.43, 165], [0.50, -18], [0.56, -13], [0.73, 69], [1, 16]]);
+    p.shoulderFrontX = key(t, [[0, 0], [0.37, 3], [0.43, 3], [0.5, -17], [0.59, -17], [0.84, 0], [1, 0]]);
+    p.upperBack = key(t, [[0, 11], [0.36, -10], [0.52, -20], [0.74, -8], [1, 11]]);
+    p.elbowBack = key(t, [[0, 13], [0.38, 26], [0.52, 10], [1, 13]]);
+    p.x += key(t, [[0, 0], [0.35, 5], [0.43, 5], [0.5, -25], [0.58, -27], [0.84, 2], [1, 0]]);
+    p.torso = key(t, [[0, 0], [0.35, 5], [0.43, 5], [0.50, -9], [0.58, -7], [0.84, 1], [1, 0]]);
+    p.y += key(t, [[0, 0], [0.38, 3], [0.5, 6], [0.6, 5], [0.84, -1], [1, 0]]);
+    p.head = key(t, [[0, 0], [0.4, -5], [0.50, -3], [0.58, 5], [0.86, -1], [1, 0]]);
+    p.biting = t > 0.24 && t < 0.65; p.dust = pulse(t, 0.5, 0.55, 0.73);
   }
   if (clip === 'bite') {
-    const attack = key(t, [[0, 0], [0.32, -1], [0.5, 1], [0.66, 0.5], [1, 0]]);
-    p.headX = -attack * 11; p.headY = attack * 1.5; p.head = attack * -6;
-    p.torso -= attack * 4; p.upperFront += attack * 15; p.elbowFront -= attack * 14; p.biting = t >= 0.36 && t < 0.67;
+    const anticipation = pulse(t, 0.04, 0.34, 0.54), chomp = pulse(t, 0.4, 0.5, 0.8);
+    p.x += anticipation * 3 - chomp * 8; p.y += chomp * 1.5;
+    p.torso += anticipation * 3 - chomp * 5; p.head = -anticipation * 4 + chomp * 3;
+    p.headX = -chomp * 6; p.headY = -anticipation * 1.5;
+    p.upperBack += chomp * 12; p.upperFront += chomp * 22; p.elbowFront -= chomp * 12;
+    p.biting = t >= 0.34 && t < 0.63;
   }
   if (clip === 'hit' || clip === 'armor-break') {
-    const hit = key(t, [[0, 0], [0.25, 1], [1, 0]]); p.torso += hit * 5; p.head += hit * 7;
-    p.x += hit * 3; p.upperFront -= hit * 6; p.elbowFront += hit * 9;
+    const hit = pulse(t, 0, 0.16, 0.85); p.torso += hit * 6; p.head -= hit * 7;
+    p.x += hit * 4; p.upperFront -= hit * 10; p.upperBack += hit * 7; p.elbowFront += hit * 9;
+    p.blink = t < 0.44;
     if (clip === 'armor-break') p.helmetDrop = clamp((seconds - 0.16) / 0.44);
   }
   if (clip === 'spawn') { p.opacity = ease(t / 0.3); p.x += (1 - ease(t)) * 14; p.torso += Math.sin(t * Math.PI) * 3; }
   if (clip === 'fall') {
-    p.fall = t; p.biting = t > 0.1 && t < 0.45;
-    p.x += key(t, [[0, 0], [0.22, 3], [0.48, 25], [0.72, 42], [1, 45]]);
-    p.y = key(t, [[0, l.hips[1]], [0.22, l.hips[1] + 10], [0.48, 223], [0.72, brute ? 207 : 221], [1, brute ? 208 : 222]]);
-    p.torso += key(t, [[0, 0], [0.22, -16], [0.48, -61], [0.72, -82], [1, -78]]);
-    p.head = key(t, [[0, 0], [0.38, -9], [0.72, brute ? -22 : 62], [1, brute ? -20 : 60]]);
-    p.headX = -7 * ease(t);
-    p.upperFront = key(t, [[0, p.upperFront], [0.30, 78], [0.63, -14], [1, -38]]);
-    p.elbowFront = key(t, [[0, p.elbowFront], [0.3, 30], [0.63, 86], [1, 78]]);
-    p.upperBack = key(t, [[0, p.upperBack], [0.3, 64], [0.7, -74], [1, -75]]);
-    p.elbowBack = key(t, [[0, p.elbowBack], [0.35, 15], [1, 77]]);
-    const shift = key(t, [[0, 0], [0.25, 2], [0.65, 36], [1, 36]]);
-    p.footFront.sole[0] += shift; p.footBack.sole[0] += shift + 7 * ease(t);
-    p.footFront.sole[1] -= (brute ? 18 : 12) * ease(t); p.footBack.sole[1] -= (brute ? 25 : 20) * ease(t);
-    p.footFront.roll = -15 * ease(t); p.footBack.roll = -14 * ease(t);
+    // The whole skeleton falls, including pelvis and legs. Rotating the chest
+    // above standing feet produced a crouch instead of a readable dead pose.
+    p.fall = t; p.blink = true; p.torso *= 1 - ease(t / 0.6);
+    p.fallRotation = key(t, [[0, 0], [0.12, 6], [0.27, -16], [0.55, -68], [0.72, -90], [0.84, -85], [1, -88]]);
+    p.fallX = key(t, [[0, 0], [0.25, 2], [0.72, brute ? 24 : 22], [1, brute ? 24 : 22]]);
+    p.fallY = brute
+      ? key(t, [[0, 0], [0.2, 0], [0.42, -6], [0.72, -31], [0.83, -35], [1, -31]])
+      : key(t, [[0, 0], [0.2, -2], [0.45, 8], [0.58, 17], [0.72, -10], [0.83, -14], [1, -10]]);
+    p.head = key(t, [[0, 0], [0.25, -8], [0.65, 4], [0.82, -2], [1, 0]]);
+    p.upperFront = key(t, [[0, p.upperFront], [0.26, 38], [0.65, 2], [1, 2]]);
+    p.elbowFront = key(t, [[0, p.elbowFront], [0.3, 5], [0.68, brute ? 22 : 10], [1, brute ? 22 : 10]]);
+    p.upperBack = key(t, [[0, p.upperBack], [0.27, brute ? -12 : 32], [0.65, -5], [1, -5]]);
+    p.elbowBack = key(t, [[0, p.elbowBack], [0.32, brute ? 40 : 0], [0.7, 17], [1, 17]]);
+    const fold = ease((t - 0.28) / 0.42);
+    p.footFront.sole[0] -= (brute ? 17 : 18) * fold;
+    p.footBack.sole[0] -= (brute ? 10 : 9) * fold;
+    p.footFront.sole[1] -= (brute ? 8 : 18) * fold; p.footBack.sole[1] -= 5 * fold;
+    p.footFront.roll = 13 * fold; p.footBack.roll = 5 * fold;
+    p.dust = brute ? pulse(t, 0.71, 0.78, 1) : 0;
   }
   return p;
 }
@@ -157,16 +195,13 @@ function segment(ctx, parts, rig, name, start, end) {
 }
 function drawArm(ctx, c, parts, rig, p, side, section = 'both') {
   const back = side === 'back', index = back ? 0 : 1, upper = back ? p.upperBack : p.upperFront, elbow = back ? p.elbowBack : p.elbowFront;
-  const shoulder = bodyPoint(c, p, c.layout.shoulders[index]);
-  const bend = upper - p.torso;
+  const attachment = c.layout.shoulders[index];
+  const shoulder = bodyPoint(c, p, [attachment[0] + (back ? 0 : p.shoulderFrontX), attachment[1]]);
+  // Child angles are local to the torso. The wrist continues the forearm's
+  // rotation; negating it made the hand turn backwards during every action.
+  const bend = upper + p.torso;
   let a = point(shoulder, bend, c.layout.armLengths[0]), b = point(a, bend + elbow, c.layout.armLengths[1]);
-  let handRotation = -bend - elbow + (back ? p.handBack : p.handFront);
-  if (p.fall > 0.1) {
-    const w = ease((p.fall - 0.1) / 0.52), brute = c.anatomy === 'brute';
-    const target = brute ? back ? [p.x - 129, 262] : [p.x - 103, 205] : back ? [p.x - 84, 267] : [p.x - 96, 242];
-    const wrist = [mix(b[0], target[0], w), mix(b[1], target[1], w)], solved = solveLeg(shoulder, wrist, c.layout.armLengths, back ? -1 : 1);
-    a = solved.knee; b = solved.ankle; handRotation = mix(handRotation, 90, w);
-  }
+  const handRotation = bend + elbow + (back ? p.handBack : p.handFront);
   if (section !== 'upper') {
     stamp(ctx, parts, rig, `hand-${side}`, b, handRotation);
     segment(ctx, parts, rig, `forearm-${side}`, a, b);
@@ -177,8 +212,10 @@ function drawArm(ctx, c, parts, rig, p, side, section = 'both') {
 export function poseGeometry(c, p) {
   const legs = {};
   for (const [index, side] of ['back', 'front'].entries()) {
-    const foot = side === 'back' ? p.footBack : p.footFront, hip = [p.x + c.layout.hipOffsets[index], p.y + 4];
-    const ankle = [foot.sole[0] + 5, foot.sole[1] - c.layout.shoeSize[1] * 0.8];
+    const foot = side === 'back' ? p.footBack : p.footFront, r = radians(p.pelvis);
+    const offset = c.layout.hipOffsets[index], hip = [p.x + offset * Math.cos(r) - 4 * Math.sin(r), p.y + offset * Math.sin(r) + 4 * Math.cos(r)];
+    const soleOffset = point([0, 0], foot.roll, c.layout.shoeSize[1] * 0.8);
+    const ankle = [foot.sole[0] + 5 * Math.cos(radians(foot.roll)) - soleOffset[0], foot.sole[1] + 5 * Math.sin(radians(foot.roll)) - soleOffset[1]];
     legs[side] = { hip, foot, ...solveLeg(hip, ankle, c.layout.legLengths) };
   }
   return { legs };
@@ -188,17 +225,27 @@ function drawLeg(ctx, c, parts, rig, p, side, leg) {
   segment(ctx, parts, rig, `calf-${side}`, leg.knee, leg.ankle);
   segment(ctx, parts, rig, `thigh-${side}`, leg.hip, leg.knee);
 }
-export function renderZombie(ctx, c, parts, clip = c.locomotion, seconds = 0, { armorRatio = 1, transitionPose = null, transitionWeight = 1, showRig = false } = {}) {
+export function renderZombie(ctx, c, parts, clip = c.locomotion, seconds = 0,
+  { armorRatio = 1, transitionPose = null, transitionWeight = 1, showRig = false, unconstrainedFall = false, effects = true } = {}) {
   let p = evaluatePose(c, clip, seconds); const rig = parts.rig;
   if (!rig) throw Error('Load both the painted parts and rig.json before rendering.');
   if (transitionPose) p = blendPose(transitionPose, p, transitionWeight);
+  // Exported from the painted silhouettes, rather than rectangular image bounds.
+  // Only translate the entire rigid skeleton to meet the ground; keep its size.
+  if (clip === 'fall' && !unconstrainedFall && rig.fallGround) {
+    const curve = c.armor && armorRatio > 0 ? rig.fallGround.withHelmet : rig.fallGround.helmetless;
+    const frame = clamp(seconds / CLIPS.fall.duration) * (curve.length - 1), index = Math.floor(frame);
+    p.fallY += mix(curve[index], curve[Math.min(index + 1, curve.length - 1)], frame - index);
+  }
   const geometry = poseGeometry(c, p);
   ctx.save(); ctx.globalAlpha *= p.opacity;
+  ctx.translate(c.layout.hips[0] + p.fallX, c.layout.hips[1] + p.fallY);
+  ctx.rotate(radians(p.fallRotation)); ctx.translate(-c.layout.hips[0], -c.layout.hips[1]);
   drawLeg(ctx, c, parts, rig, p, 'back', geometry.legs.back);
   const backArm = drawArm(ctx, c, parts, rig, p, 'back');
   drawLeg(ctx, c, parts, rig, p, 'front', geometry.legs.front);
   drawArm(ctx, c, parts, rig, p, 'front', 'upper');
-  stamp(ctx, parts, rig, 'pelvis', [p.x, p.y], p.fall ? -p.torso * 0.22 : 0);
+  stamp(ctx, parts, rig, 'pelvis', [p.x, p.y], p.pelvis);
   stamp(ctx, parts, rig, 'torso', [p.x, p.y], p.torso);
   const head = bodyPoint(c, p, [c.layout.head[0] + p.headX, c.layout.head[1] + p.headY]);
   stamp(ctx, parts, rig, p.blink ? 'head-blink' : p.biting ? 'head-bite' : 'head', head, p.torso + p.head);
@@ -219,7 +266,7 @@ export function renderZombie(ctx, c, parts, clip = c.locomotion, seconds = 0, { 
     }
   }
   ctx.restore();
-  if (p.dust && parts.effect) { ctx.save(); ctx.globalAlpha *= p.dust * 0.8; stamp(ctx, parts, rig, 'effect', [78, 237]); ctx.restore(); }
+  if (effects && p.dust && parts.effect) { ctx.save(); ctx.globalAlpha *= p.dust * 0.8; stamp(ctx, parts, rig, 'effect', p.fall ? [145, 286] : [67, 202]); ctx.restore(); }
   return p;
 }
 export async function loadZombie(id, baseURL = new URL('../', import.meta.url)) {

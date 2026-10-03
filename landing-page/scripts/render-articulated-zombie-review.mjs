@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { ZOMBIES, CLIPS, renderZombie } from '../public/zombis-vivos/especiales-v4/runtime/zombie-rig.mjs';
+import { ZOMBIES, CLIPS, renderZombie, ZombieAnimator } from '../public/zombis-vivos/especiales-v4/runtime/zombie-rig.mjs';
 const require = createRequire(import.meta.url), sharp = require('sharp'), flag = process.argv.indexOf('--canvas-module');
 const { createCanvas, loadImage } = require(flag < 0 ? '@napi-rs/canvas' : process.argv[flag + 1]);
 const root = fileURLToPath(new URL('../public/zombis-vivos/especiales-v4/', import.meta.url)), out = path.join(root, 'preview');
@@ -14,19 +14,23 @@ for (const c of ZOMBIES) {
   parts.rig = rig; cast.push({ c, parts });
 }
 const WIDTH = 960, HEIGHT = 450, FPS = 30;
-function scene(action, seconds, helmetless = false) {
+function scene(action, seconds, helmetless = false, actors = null, positions = null) {
   const canvas = createCanvas(WIDTH, HEIGHT), ctx = canvas.getContext('2d');
   ctx.fillStyle = '#f3ecdf'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
   ctx.fillStyle = '#304442'; ctx.font = 'bold 19px Trebuchet MS';
-  ctx.fillText(action === 'armor-break' ? 'Pierde sólo el casco' : action, 23, 30);
+  ctx.fillText(action === 'armor-break' ? 'Pierde sólo el casco' : action === 'Avanzar' ? 'Marcha pesada y carrera' : action === 'Atacar' ? 'Puñetazo y mordida' : CLIPS[action]?.label ?? action, 23, 30);
   ctx.strokeStyle = '#ccd3bd'; ctx.beginPath(); ctx.moveTo(25, 361); ctx.lineTo(935, 361); ctx.stroke();
+  for (let x = 40; x < WIDTH; x += 60) { ctx.beginPath(); ctx.moveTo(x, 356); ctx.lineTo(x, 367); ctx.stroke(); }
   for (const [index, { c, parts }] of cast.entries()) {
     const clip = action === 'Avanzar' ? c.locomotion : action === 'Atacar' ? c.id === 'bruton' ? 'smash' : 'bite' : c.clips.includes(action) ? action : 'idle';
     const time = CLIPS[clip].loop ? seconds % CLIPS[clip].duration : Math.min(seconds, CLIPS[clip].duration - 1 / FPS);
-    ctx.save(); ctx.translate(index * 480 + 240, 360); ctx.scale(c.recommendedScale, c.recommendedScale); ctx.translate(-160, -288);
-    renderZombie(ctx, c, parts, clip, time, { armorRatio: helmetless && c.armor ? 0 : 1 }); ctx.restore();
+    const position = positions?.[index] ?? index * 480 + 240;
+    ctx.save(); ctx.translate(position, 360); ctx.scale(c.recommendedScale, c.recommendedScale); ctx.translate(-160, -288);
+    if (actors) actors[index].draw(ctx);
+    else renderZombie(ctx, c, parts, clip, time, { armorRatio: helmetless && c.armor ? 0 : 1 });
+    ctx.restore();
     ctx.fillStyle = '#304442'; ctx.font = 'bold 22px Trebuchet MS'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, index * 480 + 240, 405); ctx.font = '14px Trebuchet MS'; ctx.fillText(c.role, index * 480 + 240, 431); ctx.textAlign = 'left';
+    ctx.fillText(c.name, position, 405); ctx.font = '14px Trebuchet MS'; ctx.fillText(c.role, position, 431); ctx.textAlign = 'left';
   }
   return canvas;
 }
@@ -46,9 +50,18 @@ for (const { c, parts } of cast) {
   await writeFile(path.join(out, `${c.id}-revision.png`), sheet.toBuffer('image/png'));
 }
 if (!process.argv.includes('--stills-only')) {
-  const frames = [], timeline = [['idle', 0.8], ['Avanzar', 2.4], ['Atacar', 1.4], ['armor-break', 0.6], ['Avanzar', 1.6, true], ['fall', 1.2, true], ['spawn', 0.6]];
-  for (const [action, duration, bare] of timeline) for (let i = 0; i < Math.round(duration * FPS); i++) {
-    const canvas = scene(action, i / FPS, bare); frames.push(Buffer.from(canvas.getContext('2d').getImageData(0, 0, WIDTH, HEIGHT).data));
+  const actors = cast.map(({ c, parts }) => {
+    const actor = new ZombieAnimator(c, parts); actor.play('idle'); actor.transitionPose = null; return actor;
+  });
+  const positions = [240, 780];
+  const frames = [], timeline = [['idle', 0.8], ['Avanzar', 2.4], ['Atacar', 1.4], ['armor-break', 0.6], ['Avanzar', 1.6], ['hit', 0.4], ['fall', 1.6], ['spawn', 0.6]];
+  for (const [action, duration] of timeline) {
+    if (action === 'spawn') { positions[0] = 240; positions[1] = 780; }
+    for (const [i, { c }] of cast.entries()) actors[i].play(action === 'Avanzar' ? c.locomotion : action === 'Atacar' ? c.id === 'bruton' ? 'smash' : 'bite' : c.clips.includes(action) ? action : 'idle');
+    for (let i = 0; i < Math.round(duration * FPS); i++) {
+      const canvas = scene(action, i / FPS, false, actors, positions); frames.push(Buffer.from(canvas.getContext('2d').getImageData(0, 0, WIDTH, HEIGHT).data));
+      for (const [index, actor] of actors.entries()) positions[index] += actor.update(1 / FPS) * actor.character.recommendedScale;
+    }
   }
   const input = () => sharp(Buffer.concat(frames), { raw: { width: WIDTH, height: HEIGHT * frames.length, channels: 4, pageHeight: HEIGHT } });
   await input().webp({ quality: 92, effort: 3, loop: 0, delay: frames.map((_, i) => Math.round((i + 1) * 1000 / FPS) - Math.round(i * 1000 / FPS)) }).toFile(path.join(out, 'movimientos.webp'));
